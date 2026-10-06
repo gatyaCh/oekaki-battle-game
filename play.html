@@ -8,9 +8,39 @@
     body { font-family: sans-serif; text-align: center; padding: 20px; background:#222; color:#fff; }
     a { color:#7dd3fc; }
     .qr { width: 250px; height: 250px; max-width: 80vw; background:#fff; padding:8px; }
+    .update-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.72); z-index:9999;
+      display:flex; align-items:center; justify-content:center; padding:20px;
+    }
+    .update-modal {
+      width:min(520px, 92vw); max-height:80vh; overflow:auto;
+      background:#2b2b2b; border:2px solid #ffd54a; border-radius:14px;
+      box-shadow:0 10px 40px rgba(0,0,0,.65); padding:22px; text-align:left;
+    }
+    .update-modal h2 { margin:0 0 8px; color:#ffd54a; text-align:center; }
+    .update-date { text-align:center; color:#ccc; margin-bottom:16px; }
+    .update-modal ol { margin:0 0 18px; padding-left:26px; }
+    .update-modal li { margin:9px 0; line-height:1.5; }
+    .update-close {
+      display:block; margin:0 auto; border:0; border-radius:8px;
+      padding:9px 28px; font-size:16px; font-weight:bold;
+      background:#555; color:#fff; cursor:pointer;
+    }
+    .update-close:hover { background:#666; }
   </style>
 </head>
 <body>
+  <div id="updateNotice" class="update-overlay" role="dialog" aria-modal="true" aria-labelledby="updateTitle">
+    <div class="update-modal">
+      <h2 id="updateTitle">📢 アップデートのお知らせ</h2>
+      <div class="update-date">2026年10月6日</div>
+      <ol>
+        <li>🔮 アイテムを拾ったあと、攻撃キーを押すと弾幕が発動するようになりました。</li>
+        <li>👑 管理者パネルから、Special Codeを条件なしで使用できるようになりました。</li>
+      </ol>
+      <button id="updateClose" class="update-close" type="button">確認してゲームへ</button>
+    </div>
+  </div>
   <h1>🎨 正式版お絵かきバトルVer1.00</h1>
   <p>🎮 ここからゲームをプレイできます。</p>
   <p><a href="./index.html">🎮 ゲームをプレイ</a></p>
@@ -22,5 +52,10 @@
     src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https%3A%2F%2Fgatyach.github.io%2Foekaki-battle-game%2Fplay.html"
     alt="正式版お絵かきバトルVer1.00 プレイ用QRコード">
   <p>QRコードを読み取る → このページを開く → ゲームをプレイ！</p>
+<script>
+  document.getElementById("updateClose").addEventListener("click", () => {
+    document.getElementById("updateNotice").style.display = "none";
+  });
+</script>
 </body>
 </html>

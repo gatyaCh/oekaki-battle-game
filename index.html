@@ -3612,6 +3612,15 @@ body.mobile-mode #btnBow{display:none !important;}
     <button type="button" data-s="8">🌌 Stage 8</button><hr style="margin: 4px 0;">
     <button id="admRates">🎁 アイテム確率変更</button>
     <button id="admBoxCount">📦 ボックス数変更</button>
+    <hr style="margin: 4px 0;">
+    <div style="padding:6px 4px; border:1px solid #666; border-radius:6px; margin:4px 0; background:#181818;">
+      <b style="display:block; color:#ffd700; margin-bottom:5px;">🔑 すべてのコード</b>
+      <div style="font-size:11px; color:#ccc; margin-bottom:5px;">現在ゲームに登録されているコードを管理者から使用できます。</div>
+      <button type="button" class="admin-code-use" data-code="hp20">❤️ HP20</button>
+      <button type="button" class="admin-code-use" data-code="lucky boost">🍀 Lucky Boost</button>
+      <button type="button" class="admin-code-use" data-code="ryokutya">🍵 ryokutya</button>
+      <button type="button" class="admin-code-use" data-code="special code">🔐 Special Code（隠し）</button>
+    </div>
     <button id="admReset">🔄 管理者効果OFF</button>
   </div>
 </div>
@@ -5645,6 +5654,19 @@ loop();
       }
     }
   };
+
+  // 管理者パネルから現在ゲームに登録されている全スペシャルコードを直接使用可能にする。
+  panel.querySelectorAll(".admin-code-use").forEach(btn => {
+    btn.onclick = () => {
+      const code = btn.dataset.code;
+      if (typeof window.useSpecialCode === "function" && window.useSpecialCode(code)) {
+        msg.textContent = "👑 管理者： " + code + " を発動しました！";
+      } else {
+        msg.textContent = "⚠️ " + code + " は現在使用できません。";
+      }
+    };
+  });
+
   document.getElementById("admReset").onclick = () => {
     god(false);
     enemySpeedMul = 1;

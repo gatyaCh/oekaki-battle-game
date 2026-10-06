@@ -4447,7 +4447,9 @@ function fireWandMagic() {
       vx: Math.cos(finalAngle) * 2.5,
       vy: Math.sin(finalAngle) * 2.5,
       life: 7.0,
-      dmg: 18 * atkBuff * (kizuku2Active ? 2.0 : 1), // ダメージ18に強化
+      // 魔法の杖専用：Stage 1を基準(1.0)に、ステージが1つ上がるごとに敵防御力を1.3%ずつ上昇。
+      // 例：Stage 8は防御力1.091倍。杖の弾1発の最終ダメージにだけ適用。
+      dmg: (15 * atkBuff * (kizuku2Active ? 2.0 : 1)) / (1 + (stage - 1) * 0.013),
       r: 8
     });
   }

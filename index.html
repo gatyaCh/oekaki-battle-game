@@ -5659,6 +5659,11 @@ loop();
   panel.querySelectorAll(".admin-code-use").forEach(btn => {
     btn.onclick = () => {
       const code = btn.dataset.code;
+      // 管理者パネルでは「すべてのコード」を条件なしで使用可能にする。
+      // 通常プレイ時だけ、Special Codeは宝箱からの発見条件が残る。
+      if (code === "special code" && window.specialCodes) {
+        window.specialCodes.specialFound = true;
+      }
       if (typeof window.useSpecialCode === "function" && window.useSpecialCode(code)) {
         msg.textContent = "👑 管理者： " + code + " を発動しました！";
       } else {

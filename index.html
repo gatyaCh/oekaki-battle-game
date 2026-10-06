@@ -4313,6 +4313,15 @@ document.addEventListener("keydown", e => {
   if (e.repeat) return;
   if (k === window.controlKeys.attack || window.attackExtraKeys?.includes(k)) {
     e.preventDefault();
+    // 🔮 弾幕アイテムを拾っているときは、攻撃キーを押した瞬間に発動。
+    // 通常攻撃の「長押し→離す」処理を待たない。
+    if (bulletHellReady) {
+      if (!gameOver && !stageClear && !isPausedForSpecial && attackCooldown <= 0) {
+        fireBulletHell();
+        attackCooldown = (window.adminNoCooldown ? 0 : 0.3);
+      }
+      return;
+    }
     beginAttackCharge();
   }
 });

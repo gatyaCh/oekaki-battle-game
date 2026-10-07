@@ -4435,11 +4435,11 @@ function damageMinion(m, amount) {
   }
 }
 function fireWandMagic() {
-  const angles = [-0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6];
+  const angles = [-0.4, -0.2, 0, 0.2, 0.4];
   let dx = mouse.x - p.x;
   let dy = mouse.y - p.y;
   let baseAngle = Math.atan2(dy, dx);
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 5; i++) {
     let finalAngle = baseAngle + angles[i];
     magicOrbs.push({
       x: p.x,
@@ -4453,7 +4453,7 @@ function fireWandMagic() {
       r: 8
     });
   }
-  msg.textContent = "🪄 魔法の追尾玉を7発同時発射！(18ダメ/発)";
+  msg.textContent = "🪄 魔法の追尾玉を5発同時発射！";
 }
 function attack() {
   if (gameOver || stageClear) return;

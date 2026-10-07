@@ -4959,7 +4959,9 @@ function updateBossSpecial(dt) {
     p.x=Math.max(25,Math.min(CANVAS_WIDTH-25,p.x-wind*0.45));
     if(Math.floor(t*8)!==Math.floor((t-dt)*8)){
       const y=40+Math.random()*400;
-      enemyBullets.push({x:fromRight?900:-20,y,vx:wind*(4.2+Math.random()*1.8),vy:(Math.random()-0.5)*1.8,dmg:15,enemy:true,special:"leaf",angle:Math.random()*Math.PI*2,size:28+Math.random()*14});
+      if (enemyBullets.filter(b => b.special === "leaf").length < 28) {
+        enemyBullets.push({x:fromRight?900:-20,y,vx:wind*(4.2+Math.random()*1.8),vy:(Math.random()-0.5)*1.8,dmg:15,enemy:true,special:"leaf",angle:Math.random()*Math.PI*2,size:28+Math.random()*14});
+      }
     }
   } else if(s.stage===3){
     if(Math.floor(t*2)!==Math.floor((t-dt)*2)){
@@ -5369,22 +5371,21 @@ function draw() {
   });
   ctx.font = "32px serif";
   boxes.forEach(box => ctx.fillText("🎁", box.x, box.y));
-  /* 🌪️ リーフ・テンペスト専用の強風エフェクト */
+  /* 🌪️ リーフ・テンペスト：軽量な強風エフェクト（ゲーム停止防止） */
   if (bossSpecialState && bossSpecialState.stage === 1 && bossSpecialState.phase === "active") {
     const wt = bossSpecialState.elapsed;
+    const fromRight = wt < 5;
     ctx.save();
     ctx.lineCap = "round";
-    for (let i = 0; i < 12; i++) {
-      const y = 55 + ((i * 37 + wt * 95) % 420);
-      const fromRight = wt < 5;
-      const x = fromRight
-        ? CANVAS_WIDTH - ((wt * 150 + i * 73) % (CANVAS_WIDTH + 180))
-        : ((wt * 150 + i * 73) % (CANVAS_WIDTH + 180)) - 180;
-      ctx.strokeStyle = "rgba(210,245,255,0.48)";
-      ctx.lineWidth = 4 + (i % 3);
+    ctx.strokeStyle = "rgba(210,245,255,0.55)";
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 7; i++) {
+      const y = 70 + i * 60;
+      const travel = (wt * 180 + i * 110) % (CANVAS_WIDTH + 240);
+      const x = fromRight ? CANVAS_WIDTH + 80 - travel : travel - 240;
       ctx.beginPath();
       ctx.moveTo(x, y);
-      ctx.quadraticCurveTo(x + (fromRight ? -55 : 55), y - 10, x + (fromRight ? -125 : 125), y);
+      ctx.lineTo(x + (fromRight ? -105 : 105), y);
       ctx.stroke();
     }
     ctx.font = "bold 22px sans-serif";

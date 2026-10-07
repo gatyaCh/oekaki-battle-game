@@ -4182,7 +4182,12 @@ let isGatlingActive = false, gatlingTimer = 0;
 let isBlackholeActive = false, blackholeTimer = 0;
 let bigSlashAnimTimer = 0;
 let isPausedForSpecial = false;
-let bossSpecialTimer = 0; // ボス大技タイマー（4.6秒周期）
+let bossSpecialTimer = 0; // 旧タイマー（新しいHPトリガー式必殺技では未使用）
+let bossSpecialState = null;
+let bossSpecialUses = {};
+let bossSpecialCooldown = 0;
+let bossSpecialObjects = [];
+let bossSpecialMinion = null;
 let dmgText = [];
 let boxes = [];
 let enemyBullets = [];
@@ -4237,30 +4242,30 @@ function createMinionsForStage(stg) {
   stage8TotalSummoned = 0;
   bossSpecialTimer = 0;
   if (stg === 1) {
-    minions.push({ x: 650, y: 150, hp: 22, maxHp: 22, atk: 5, r: 18, type: "normal", shootTimer: 100 });
-    minions.push({ x: 650, y: 350, hp: 22, maxHp: 22, atk: 5, r: 18, type: "normal", shootTimer: 120 });
+    minions.push({ x: 650, y: 150, hp: 42, maxHp: 42, atk: 5, r: 18, type: "normal", shootTimer: 100 });
+    minions.push({ x: 650, y: 350, hp: 42, maxHp: 42, atk: 5, r: 18, type: "normal", shootTimer: 120 });
   } else if (stg === 2) {
-    minions.push({ x: 650, y: 150, hp: 28, maxHp: 28, atk: 8, r: 18, type: "normal", shootTimer: 90 });
-    minions.push({ x: 650, y: 350, hp: 28, maxHp: 28, atk: 8, r: 18, type: "normal", shootTimer: 110 });
+    minions.push({ x: 650, y: 150, hp: 48, maxHp: 48, atk: 8, r: 18, type: "normal", shootTimer: 90 });
+    minions.push({ x: 650, y: 350, hp: 48, maxHp: 48, atk: 8, r: 18, type: "normal", shootTimer: 110 });
   } else if (stg === 3) {
-    minions.push({ x: 650, y: 120, hp: 33, maxHp: 33, atk: 10, r: 18, type: "normal", shootTimer: 80 });
-    minions.push({ x: 650, y: 250, hp: 33, maxHp: 33, atk: 10, r: 18, type: "normal", shootTimer: 100 });
-    minions.push({ x: 650, y: 380, hp: 33, maxHp: 33, atk: 10, r: 18, type: "normal", shootTimer: 120 });
+    minions.push({ x: 650, y: 120, hp: 53, maxHp: 53, atk: 10, r: 18, type: "normal", shootTimer: 80 });
+    minions.push({ x: 650, y: 250, hp: 53, maxHp: 53, atk: 10, r: 18, type: "normal", shootTimer: 100 });
+    minions.push({ x: 650, y: 380, hp: 53, maxHp: 53, atk: 10, r: 18, type: "normal", shootTimer: 120 });
   } else if (stg === 4) {
     enemy.spawnTimer = 600;
   } else if (stg === 5) {
-    minions.push({ x: 650, y: 180, hp: 33, maxHp: 33, atk: 10, r: 18, type: "jellyfish", shootTimer: 90 });
-    minions.push({ x: 650, y: 320, hp: 33, maxHp: 33, atk: 10, r: 18, type: "jellyfish", shootTimer: 110 });
+    minions.push({ x: 650, y: 180, hp: 53, maxHp: 53, atk: 10, r: 18, type: "jellyfish", shootTimer: 90 });
+    minions.push({ x: 650, y: 320, hp: 53, maxHp: 53, atk: 10, r: 18, type: "jellyfish", shootTimer: 110 });
   } else if (stg === 6) {
-    minions.push({ x: 650, y: 180, hp: 44, maxHp: 44, atk: 15, r: 18, type: "magma", rushTimer: 100 });
-    minions.push({ x: 650, y: 320, hp: 44, maxHp: 44, atk: 15, r: 18, type: "magma", rushTimer: 140 });
+    minions.push({ x: 650, y: 180, hp: 64, maxHp: 64, atk: 15, r: 18, type: "magma", rushTimer: 100 });
+    minions.push({ x: 650, y: 320, hp: 64, maxHp: 64, atk: 15, r: 18, type: "magma", rushTimer: 140 });
   } else if (stg === 7) {
-    minions.push({ x: 750, y: 120, hp: 55, maxHp: 55, atk: 15, r: 18, type: "wind", shootTimer: 70 });
-    minions.push({ x: 750, y: 380, hp: 55, maxHp: 55, atk: 15, r: 18, type: "wind", shootTimer: 90 });
+    minions.push({ x: 750, y: 120, hp: 75, maxHp: 75, atk: 15, r: 18, type: "wind", shootTimer: 70 });
+    minions.push({ x: 750, y: 380, hp: 75, maxHp: 75, atk: 15, r: 18, type: "wind", shootTimer: 90 });
   } else if (stg === 8) {
     // Stage 8前半：動かず無敵バリア展開。シールド子分を最大2体同時に召喚（累計10体まで）
-    minions.push({ x: 650, y: 150, hp: 77, maxHp: 77, atk: 20, r: 20, type: "shield_minion", shootTimer: 60 });
-    minions.push({ x: 650, y: 350, hp: 77, maxHp: 77, atk: 20, r: 20, type: "shield_minion", shootTimer: 80 });
+    minions.push({ x: 650, y: 150, hp: 97, maxHp: 97, atk: 20, r: 20, type: "shield_minion", shootTimer: 60 });
+    minions.push({ x: 650, y: 350, hp: 97, maxHp: 97, atk: 20, r: 20, type: "shield_minion", shootTimer: 80 });
     stage8TotalSummoned = 2;
     enemy.spawnTimer = 180;
   }
@@ -4389,6 +4394,7 @@ function getDamage() {
   return (10 + charge / 8) * atkBuff * 1.03 * kizuku2AtkMul;
 }
 function damageEnemy(amount) {
+  if (bossSpecialState) return;
   // Stage 8 ボス無敵判定：累計10体の子分が全滅するまでは完全無敵バリア
   if (stage === 8 && stage8TotalSummoned < 10) {
     msg.textContent = "🛡️ ボスは無敵バリア展開中！(子分累計10体全滅で破壊)";
@@ -4524,6 +4530,12 @@ function resetGame() {
   minions = [];
   stage8TotalSummoned = 0;
   bossSpecialTimer = 0;
+  bossSpecialState = null;
+  bossSpecialUses = {};
+  bossSpecialCooldown = 0;
+  bossSpecialObjects = [];
+  bossSpecialMinion = null;
+  isPausedForSpecial = false;
   atkBuff = 1; shieldEquipped = false; shieldRemainingTime = 0; shieldActive = false; revive = false; ghost = false; ghostTimer = 0;
   bulletHellReady = false; bulletHellBullets = []; magicOrbs = []; wandCooldown = 0; enemyBullets = []; dmgText = []; magmaZones = [];
   lightningTimer = 0; slowDebuffTimer = 0; enemyShootTimer = 0; rushTimer = 0; rushDownTimer = 0;
@@ -4607,6 +4619,7 @@ function proceedToNextStageNumber() {
   enemyBullets = []; magmaZones = [];
   enemyShootTimer = 0; rushTimer = 0; rushDownTimer = 0; dashTimer = 0;
   carHitThisDash = false; attackCooldown = 0; stun = 0; bossSpecialTimer = 0;
+  bossSpecialState = null; bossSpecialObjects = []; bossSpecialMinion = null; isPausedForSpecial = false;
   treasureChest = { x: 450, y: 250, opened: false, progress: 0, maxProgress: 100, r: 20 };
   setStageObstacles(stage);
   createMinionsForStage(stage);
@@ -4849,43 +4862,164 @@ function openTreasureChestReward() {
   msg.textContent = `📦 宝箱開封！ [${rarityName}] ${rewardCoin} G 獲得！`;
 }
 // 全8ステージ ボス固有必殺技（約4.6秒ごと）
-function triggerBossSpecialAttack() {
-  const bossNames = ["リーフストーム", "ドリルキャノン", "グランドスマッシュ", "王国の召喚陣", "アクアヴォルテックス", "メテオフォール", "ギガサンダー", "ファイナル・ビッグバン"];
-  const name = bossNames[stage - 1];
-  msg.textContent = `⚠️ ボス大技発動：【${name}】！`;
-  if (stage === 1) { // リーフストーム
-    for (let i = 0; i < 8; i++) {
-      let a = (Math.PI * 2 / 8) * i;
-      enemyBullets.push({ x: enemy.x, y: enemy.y, vx: Math.cos(a) * 4, vy: Math.sin(a) * 4, dmg: 15, enemy: true });
+function getBossSpecialName(stg) {
+  return ["リーフ・テンペスト","ドリル・レイン","グランド・ラッシュ","キングダム・バレット","トライデント・トリニティ","マグマ・エラプション","メテオ・インパクト","コズミック・カタストロフィ"][stg - 1];
+}
+function bossSpecialUsesMax(stg) { return stg <= 4 ? 2 : 1; }
+function bossSpecialThresholds(stg) {
+  return stg <= 4 ? [0.50, 0.35] : [0.75];
+}
+function bossSpecialStartWarning() {
+  if (bossSpecialState || gameOver || stageClear) return;
+  const thresholds = bossSpecialThresholds(stage);
+  const uses = bossSpecialUses[stage] || 0;
+  if (uses >= bossSpecialUsesMax(stage)) return;
+  const hpRate = enemy.maxHp > 0 ? enemy.hp / enemy.maxHp : 1;
+  const threshold = thresholds[uses];
+  if (hpRate > threshold) return;
+
+  bossSpecialUses[stage] = uses + 1;
+  enemy.x = 700; enemy.y = 250;
+  enemyBullets = [];
+  magmaZones = [];
+  bossSpecialObjects = [];
+  bossSpecialMinion = null;
+  bossSpecialState = {
+    phase: "warning",
+    timer: 5,
+    name: getBossSpecialName(stage),
+    stage,
+    attackTimer: 0,
+    elapsed: 0,
+    meteorIndex: 0,
+    meteorTimer: 0,
+    tridentTargets: []
+  };
+  isPausedForSpecial = true;
+  msg.textContent = "⚠️ 必殺技が来た！【" + bossSpecialState.name + "】 5秒後に発動！";
+}
+function bossSpecialDamage(dmg) {
+  damagePlayer(dmg);
+}
+function beginBossSpecialAttack() {
+  const s = bossSpecialState;
+  if (!s) return;
+  s.phase = "active";
+  s.timer = [10,5,7,4,5,6,8,7][s.stage - 1];
+  s.elapsed = 0;
+  s.attackTimer = 0;
+  s.meteorIndex = 0;
+  s.meteorTimer = 0;
+  enemy.x = 700; enemy.y = 250;
+  enemyBullets = [];
+  magmaZones = [];
+  bossSpecialObjects = [];
+  bossSpecialMinion = null;
+  msg.textContent = "⚠️ 必殺技発動：【" + s.name + "】！";
+  if (s.stage === 2) {
+    for (let i=0;i<8;i++) {
+      const side=i%4, x=side===0?20:side===1?880:100+Math.random()*700;
+      const y=side===2?20:side===3?480:80+Math.random()*340;
+      const dx=p.x-x, dy=p.y-y, d=Math.hypot(dx,dy)||1;
+      enemyBullets.push({x,y,vx:dx/d*4.5,vy:dy/d*4.5,dmg:40,enemy:true,special:"drill"});
     }
-  } else if (stage === 2) { // ドリルキャノン
-    let dx = p.x - enemy.x, dy = p.y - enemy.y, d = Math.hypot(dx, dy) || 1;
-    enemyBullets.push({ x: enemy.x, y: enemy.y, vx: (dx / d) * 12, vy: (dy / d) * 12, dmg: 35, enemy: true });
-  } else if (stage === 3) { // グランドスマッシュ
-    if (Math.hypot(p.x - enemy.x, p.y - enemy.y) < 180) damagePlayer(40);
-  } else if (stage === 4) { // 王国の召喚陣
-    if (minions.length < 5) {
-      minions.push({ x: enemy.x + 30, y: enemy.y, hp: 33, maxHp: 33, atk: 10, r: 18, type: "normal", shootTimer: 80 });
-    }
-  } else if (stage === 5) { // アクアヴォルテックス
-    slowDebuffTimer = 2.5;
-    for (let i = 0; i < 6; i++) {
-      let a = Math.random() * Math.PI * 2;
-      enemyBullets.push({ x: enemy.x, y: enemy.y, vx: Math.cos(a) * 5, vy: Math.sin(a) * 5, dmg: 20, enemy: true });
-    }
-  } else if (stage === 6) { // メテオフォール
-    for (let i = 0; i < 3; i++) {
-      magmaZones.push({ x: 100 + Math.random() * 700, y: 80 + Math.random() * 340, r: 40, life: 200 });
-    }
-  } else if (stage === 7) { // ギガサンダー
-    damagePlayer(25);
-  } else if (stage === 8) { // ファイナル・ビッグバン
-    for (let i = 0; i < 16; i++) {
-      let a = (Math.PI * 2 / 16) * i;
-      enemyBullets.push({ x: enemy.x, y: enemy.y, vx: Math.cos(a) * 6, vy: Math.sin(a) * 6, dmg: 30, enemy: true });
-    }
-    damagePlayer(20);
+  } else if (s.stage === 4) {
+    bossSpecialMinion={x:enemy.x+60,y:enemy.y,hp:1000,maxHp:1000,active:true};
+  } else if (s.stage === 5) {
+    s.tridentTargets=[];
+    for(let i=0;i<3;i++) s.tridentTargets.push({x:p.x,y:p.y,delay:i*1.0});
   }
+}
+function finishBossSpecialAttack() {
+  bossSpecialState = null;
+  bossSpecialObjects = [];
+  bossSpecialMinion = null;
+  enemyBullets = enemyBullets.filter(b=>!b.special);
+  magmaZones = [];
+  isPausedForSpecial = false;
+  enemy.x = 700; enemy.y = 250;
+  msg.textContent = "✅ 必殺技終了！通常戦闘に戻ります。";
+}
+function updateBossSpecial(dt) {
+  const s=bossSpecialState;
+  if(!s) return false;
+  if(s.phase==="warning"){
+    s.timer-=dt;
+    enemy.x=700; enemy.y=250;
+    if(s.timer<=0) beginBossSpecialAttack();
+    return true;
+  }
+  s.elapsed+=dt;
+  s.timer-=dt;
+  s.attackTimer+=dt;
+  const t=s.elapsed;
+  if(s.stage===1){
+    const fromRight=t<5;
+    const wind=fromRight?1:-1;
+    p.x=Math.max(25,Math.min(CANVAS_WIDTH-25,p.x-wind*0.45));
+    if(Math.floor(t*8)!==Math.floor((t-dt)*8)){
+      const y=40+Math.random()*400;
+      enemyBullets.push({x:fromRight?900:-20,y,vx:wind*(2.8+Math.random()*1.4),vy:(Math.random()-0.5)*1.2,dmg:15,enemy:true,special:"leaf"});
+    }
+  } else if(s.stage===3){
+    if(Math.floor(t*2)!==Math.floor((t-dt)*2)){
+      const side=Math.floor(Math.random()*4);
+      const x=side===0?20:side===1?880:100+Math.random()*700;
+      const y=side===2?20:side===3?480:80+Math.random()*340;
+      const dx=p.x-x,dy=p.y-y,d=Math.hypot(dx,dy)||1;
+      enemyBullets.push({x,y,vx:dx/d*4.2,vy:dy/d*4.2,dmg:45,enemy:true,special:"rush"});
+    }
+  } else if(s.stage===4){
+    if(Math.floor(t*8)!==Math.floor((t-dt)*8)){
+      const a=Math.random()*Math.PI*2;
+      enemyBullets.push({x:bossSpecialMinion.x,y:bossSpecialMinion.y,vx:Math.cos(a)*5.5,vy:Math.sin(a)*5.5,dmg:30,enemy:true,special:"kingbullet"});
+    }
+  } else if(s.stage===5){
+    s.tridentTargets.forEach((tr,i)=>{
+      if(tr.done) return;
+      if(t>=tr.delay){
+        if(!tr.locked){tr.x=p.x;tr.y=p.y;tr.locked=true;}
+        if(Math.abs(t-tr.delay)<dt*1.5){
+          const dx=tr.x-enemy.x,dy=tr.y-enemy.y,d=Math.hypot(dx,dy)||1;
+          enemyBullets.push({x:enemy.x,y:enemy.y,vx:dx/d*7,vy:dy/d*7,dmg:60,enemy:true,special:"trident"});
+        }
+        tr.done=true;
+      }
+    });
+  } else if(s.stage===6){
+    if(s.attackTimer>=0.8 && magmaZones.length<3){
+      s.attackTimer=0;
+      const x=120+Math.random()*640,y=90+Math.random()*320;
+      magmaZones.push({x,y,r:30,life:360,special:true});
+    }
+    magmaZones.forEach(mz=>{mz.r=Math.min(110,mz.r+dt*13);});
+    magmaZones.forEach(mz=>{if(Math.hypot(p.x-mz.x,p.y-mz.y)<mz.r) bossSpecialDamage(10*dt*2);});
+  } else if(s.stage===7){
+    if(s.meteorIndex<4){
+      if(s.meteorTimer<=0){
+        const x=120+Math.random()*660,y=70+Math.random()*360;
+        bossSpecialObjects.push({type:"meteor",x,y,mark:2,active:false});
+        s.meteorTimer=2.7;
+      } else if(s.meteorTimer<=0.7){
+        const m=bossSpecialObjects.find(o=>o.type==="meteor"&&!o.active);
+        if(m){m.active=true;bossSpecialDamage(45);s.meteorIndex++;s.meteorTimer=0.8;}
+      } else s.meteorTimer-=dt;
+    }
+  } else if(s.stage===8){
+    if(Math.floor(t*6)!==Math.floor((t-dt)*6)){
+      const pattern=Math.floor(t/2)%3;
+      const a=pattern===0?0.0:pattern===1?0.55:Math.sin(t*3)*0.8;
+      const base=Math.atan2(p.y-enemy.y,p.x-enemy.x)+a;
+      enemyBullets.push({x:enemy.x,y:enemy.y,vx:Math.cos(base)*5.2,vy:Math.sin(base)*5.2,dmg:40,enemy:true,special:"cosmic"});
+    }
+  }
+  if(s.stage===6 && t>=6) finishBossSpecialAttack();
+  else if(s.stage===7 && s.meteorIndex>=4 && s.meteorTimer<=0) finishBossSpecialAttack();
+  else if(s.timer<=0 && ![6,7].includes(s.stage)) finishBossSpecialAttack();
+  return true;
+}
+function triggerBossSpecialAttack() {
+  bossSpecialStartWarning();
 }
 function update() {
   if (gameOver || stageClear) return;
@@ -4920,7 +5054,7 @@ function update() {
   if (stage === 8 && stage8TotalSummoned < 10 && minions.length < 2 && !admin.enemyStopped) {
     enemy.spawnTimer--;
     if (enemy.spawnTimer <= 0) {
-      minions.push({ x: enemy.x + (Math.random()*40-20), y: enemy.y + (Math.random()*40-20), hp: 77, maxHp: 77, atk: 20, r: 20, type: "shield_minion", shootTimer: 60 });
+      minions.push({ x: enemy.x + (Math.random()*40-20), y: enemy.y + (Math.random()*40-20), hp: 97, maxHp: 97, atk: 20, r: 20, type: "shield_minion", shootTimer: 60 });
       stage8TotalSummoned++;
       enemy.spawnTimer = 180;
     }
@@ -4928,18 +5062,15 @@ function update() {
     enemy.spawnTimer--;
     if (enemy.spawnTimer <= 0) {
       if (minions.length < 5) {
-        minions.push({ x: enemy.x, y: enemy.y, hp: 33, maxHp: 33, atk: 10, r: 18, type: "normal", shootTimer: 80 });
+        minions.push({ x: enemy.x, y: enemy.y, hp: 53, maxHp: 53, atk: 10, r: 18, type: "normal", shootTimer: 80 });
       }
       enemy.spawnTimer = 500;
     }
   }
-  // ボス固有大技タイマー（4.6秒 = 276フレーム）
-  if (!admin.enemyStopped && stun <= 0) {
-    bossSpecialTimer++;
-    if (bossSpecialTimer >= 276) {
-      bossSpecialTimer = 0;
-      triggerBossSpecialAttack();
-    }
+  // ボス必殺技：HPしきい値で発動。警告5秒→必殺技。
+  const bossSpecialRunning = updateBossSpecial(dt);
+  if (!bossSpecialRunning && !admin.enemyStopped && !isPausedForSpecial) {
+    bossSpecialStartWarning();
   }
   // Stage 6 Magma Zone Spawn
   if (stage === 6 && Math.random() < 0.02 && magmaZones.length < 4) {
@@ -5004,7 +5135,7 @@ function update() {
   if (stun > 0) stun--;
   // Stage 8 ボス移動制限（前半無敵時は動かない、子分10体全滅後の後半タイマン覚醒で移動開始）
   const canBossMove = (stage !== 8) || (stage === 8 && stage8TotalSummoned >= 10 && minions.length === 0);
-  if (!admin.enemyStopped && stun <= 0 && rushDownTimer <= 0 && lightningTimer <= 0 && !isBlackholeActive && canBossMove) {
+  if (!bossSpecialState && !admin.enemyStopped && stun <= 0 && rushDownTimer <= 0 && lightningTimer <= 0 && !isBlackholeActive && canBossMove) {
     moveSmartAI(enemy, currentEnemyBaseSpeed, 0.5);
     if (Math.hypot(p.x - enemy.x, p.y - enemy.y) < 45) damagePlayer(normalEnemyDps() * dt * 60);
   }
@@ -5053,13 +5184,13 @@ function update() {
       }
     }
     if (!hit && Math.hypot(orb.x - enemy.x, orb.y - enemy.y) < 30) {
-      damageEnemy(orb.dmg);
+      if (Math.random() <= 0.75) damageEnemy(orb.dmg);
       hit = true;
     }
     if (hit) magicOrbs.splice(i, 1);
   }
   // Boss Attack Patterns
-  if (!ghost && [2, 4, 5, 6, 8].includes(stage) && !admin.enemyStopped && lightningTimer <= 0 && enemyRushing <= 0) {
+  if (!bossSpecialState && !ghost && [2, 4, 5, 6, 8].includes(stage) && !admin.enemyStopped && lightningTimer <= 0 && enemyRushing <= 0) {
     enemyShootTimer++;
     if (enemyShootTimer >= 60) {
       enemyShootTimer = 0;
@@ -5068,7 +5199,7 @@ function update() {
       enemyBullets.push({ x: enemy.x, y: enemy.y, vx: edx / ed * 5, vy: edy / ed * 5, dmg: bulletDmg, enemy: true });
     }
   }
-  if (!ghost && [3, 4, 7, 8].includes(stage) && !admin.enemyStopped && rushDownTimer <= 0 && lightningTimer <= 0 && canBossMove) {
+  if (!bossSpecialState && !ghost && [3, 4, 7, 8].includes(stage) && !admin.enemyStopped && rushDownTimer <= 0 && lightningTimer <= 0 && canBossMove) {
     if (enemyRushing > 0) {
       enemyRushing--;
       let edx = p.x - enemy.x, edy = p.y - enemy.y, ed = Math.hypot(edx, edy) || 1;
@@ -5239,7 +5370,43 @@ function draw() {
   ctx.font = "32px serif";
   boxes.forEach(box => ctx.fillText("🎁", box.x, box.y));
   ctx.font = "20px sans-serif";
-  enemyBullets.forEach(b => ctx.fillText(b.enemy ? "🔴" : "➤", b.x, b.y));
+  enemyBullets.forEach(b => {
+    if (b.special === "leaf") ctx.fillText("🍃", b.x, b.y);
+    else if (b.special === "drill") ctx.fillText("🔩", b.x, b.y);
+    else if (b.special === "rush") ctx.fillText("💨", b.x, b.y);
+    else if (b.special === "kingbullet") ctx.fillText("🔵", b.x, b.y);
+    else if (b.special === "trident") ctx.fillText("🔱", b.x, b.y);
+    else if (b.special === "cosmic") ctx.fillText("☄️", b.x, b.y);
+    else ctx.fillText(b.enemy ? "🔴" : "➤", b.x, b.y);
+  });
+  if (bossSpecialState) {
+    ctx.fillStyle = "rgba(180,0,0,0.18)";
+    ctx.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 26px sans-serif";
+    ctx.fillText(bossSpecialState.phase==="warning" ? "⚠️ 必殺技が来た！" : "⚡ 必殺技発動！", CANVAS_WIDTH/2, 38);
+    ctx.font = "18px sans-serif";
+    ctx.fillText("【"+bossSpecialState.name+"】", CANVAS_WIDTH/2, 66);
+    if (bossSpecialState.phase==="warning") {
+      ctx.font = "bold 34px sans-serif";
+      ctx.fillText(Math.ceil(bossSpecialState.timer)+"", CANVAS_WIDTH/2, 105);
+    }
+  }
+  bossSpecialObjects.forEach(o=>{
+    if(o.type==="meteor"){
+      if(!o.active){
+        ctx.fillStyle="rgba(0,0,0,0.45)";
+        ctx.beginPath();ctx.arc(o.x,o.y,110,0,Math.PI*2);ctx.fill();
+        ctx.font="26px sans-serif";ctx.fillText("☄️",o.x,o.y);
+      }else{
+        ctx.font="80px sans-serif";ctx.fillText("☄️",o.x,o.y);
+      }
+    }
+  });
+  if(bossSpecialMinion && bossSpecialMinion.active){
+    ctx.font="42px sans-serif";ctx.fillText("👑",bossSpecialMinion.x,bossSpecialMinion.y);
+    ctx.font="14px sans-serif";ctx.fillText("HP 1000",bossSpecialMinion.x,bossSpecialMinion.y-30);
+  }
   dmgText.forEach(t => {
     ctx.save(); ctx.font = "bold 20px sans-serif"; ctx.lineWidth = 5;
     ctx.strokeStyle = "#000"; ctx.strokeText(t.t, t.x, t.y); ctx.fillStyle = "#ffeb00"; ctx.fillText(t.t, t.x, t.y); ctx.restore();

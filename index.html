@@ -4943,9 +4943,9 @@ function beginBossSpecialAttack() {
       });
     });
   } else if (s.stage === 5) {
-    /* トライデントは2本だけ */
+    /* 大型トライデントを2本。発射後もプレイヤーを追尾 */
     s.tridentTargets=[];
-    for(let i=0;i<2;i++) s.tridentTargets.push({x:p.x,y:p.y,delay:i*1.2});
+    for(let i=0;i<2;i++) s.tridentTargets.push({x:p.x,y:p.y,delay:i*1.2,locked:false});
   }
 }
 
@@ -4978,9 +4978,9 @@ function updateBossSpecial(dt) {
 
   if(s.stage===1){
     /* 風だけで終わらないよう、葉っぱをしっかり飛ばす */
-    const fromRight=t<2.5;
-    const wind=fromRight?1:-1;
-    if(Math.floor(t*3)!==Math.floor((t-dt)*3) && s.specialCount<12){
+    const fromRight=Math.floor(t*2)%2===0;
+    const wind=fromRight?-1:1;
+    if(Math.floor(t*3)!==Math.floor((t-dt)*3) && s.specialCount<14){
       const y=55+Math.random()*390;
       enemyBullets.push({
         x:fromRight?900:-20,y,
@@ -5015,47 +5015,47 @@ function updateBossSpecial(dt) {
     s.tridentTargets.forEach(tr=>{
       if(tr.done) return;
       if(t>=tr.delay){
-        if(!tr.locked){tr.x=p.x;tr.y=p.y;tr.locked=true;}
-        const dx=tr.x-enemy.x,dy=tr.y-enemy.y,d=Math.hypot(dx,dy)||1;
-        enemyBullets.push({x:enemy.x,y:enemy.y,vx:dx/d*6,vy:dy/d*6,dmg:60,enemy:true,special:"trident"});
+        const dx=p.x-enemy.x,dy=p.y-enemy.y,d=Math.hypot(dx,dy)||1;
+        enemyBullets.push({x:enemy.x,y:enemy.y,vx:dx/d*6,vy:dy/d*6,dmg:60,enemy:true,special:"trident",size:72,homing:true,homingLife:180});
         tr.done=true;
       }
     });
   } else if(s.stage===6){
-    /* マグマは2か所だけ */
-    if(s.attackTimer>=1.2 && magmaZones.length<2){
+    /* 溶岩はプレイヤー周辺のバラけた場所に大型で出現 */
+    if(s.attackTimer>=0.8 && magmaZones.length<4){
       s.attackTimer=0;
-      const x=150+Math.random()*600,y=100+Math.random()*300;
-      magmaZones.push({x,y,r:35,life:240,special:true});
+      const a=Math.random()*Math.PI*2;
+      const dist=70+Math.random()*150;
+      const x=Math.max(70,Math.min(830,p.x+Math.cos(a)*dist));
+      const y=Math.max(70,Math.min(430,p.y+Math.sin(a)*dist));
+      magmaZones.push({x,y,r:60,life:240,special:true});
     }
     magmaZones.forEach(mz=>{
-      mz.r=Math.min(95,mz.r+dt*10);
+      mz.r=Math.min(120,mz.r+dt*18);
       if(Math.hypot(p.x-mz.x,p.y-mz.y)<mz.r) bossSpecialDamage(8*dt*2);
     });
   } else if(s.stage===7){
-    /* メテオは3回だけ */
+    /* メテオ3個。タイマーが止まらないよう1本ずつ確実に落とす */
     if(s.meteorIndex<3){
+      s.meteorTimer-=dt;
       if(s.meteorTimer<=0){
         const x=150+Math.random()*600,y=80+Math.random()*340;
-        bossSpecialObjects.push({type:"meteor",x,y,mark:1.2,active:false});
-        s.meteorTimer=1.8;
-      } else if(s.meteorTimer<=0.35){
+        bossSpecialObjects.push({type:"meteor",x,y,mark:0.45,active:false});
+        s.meteorTimer=1.0;
+      } else if(s.meteorTimer<=0.45){
         const m=bossSpecialObjects.find(o=>o.type==="meteor"&&!o.active);
         if(m){
           m.active=true;
           bossSpecialDamage(45);
           s.meteorIndex++;
-          s.meteorTimer=0.45;
         }
-      } else {
-        s.meteorTimer-=dt;
       }
     }
   } else if(s.stage===8){
-    /* コズミック弾は最大10発 */
-    if(Math.floor(t*2)!==Math.floor((t-dt)*2) && s.specialCount<10){
-      const a=Math.atan2(p.y-enemy.y,p.x-enemy.x)+(Math.random()-0.5)*0.8;
-      enemyBullets.push({x:enemy.x,y:enemy.y,vx:Math.cos(a)*4.5,vy:Math.sin(a)*4.5,dmg:40,enemy:true,special:"cosmic"});
+    /* コズミック隕石を大幅増量 */
+    if(Math.floor(t*3)!==Math.floor((t-dt)*3) && s.specialCount<18){
+      const a=Math.atan2(p.y-enemy.y,p.x-enemy.x)+(Math.random()-0.5)*1.2;
+      enemyBullets.push({x:enemy.x,y:enemy.y,vx:Math.cos(a)*4.5,vy:Math.sin(a)*4.5,dmg:40,enemy:true,special:"cosmic",size:54});
       s.specialCount++;
     }
   }
@@ -5478,8 +5478,8 @@ function draw() {
       ctx.font = "30px sans-serif";
       ctx.fillText("🔵", b.x, b.y);
     }
-    else if (b.special === "trident") ctx.fillText("🔱", b.x, b.y);
-    else if (b.special === "cosmic") ctx.fillText("☄️", b.x, b.y);
+    else if (b.special === "trident") { ctx.font="72px sans-serif"; ctx.fillText("🔱", b.x, b.y); }
+    else if (b.special === "cosmic") { ctx.font="54px sans-serif"; ctx.fillText("☄️", b.x, b.y); }
     else ctx.fillText(b.enemy ? "🔴" : "➤", b.x, b.y);
   });
   if (bossSpecialState) {

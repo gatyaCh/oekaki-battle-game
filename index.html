@@ -4923,13 +4923,25 @@ function beginBossSpecialAttack() {
   msg.textContent = "⚠️ 必殺技発動：【" + s.name + "】！";
 
   if (s.stage === 2) {
-    /* ドリルは4発だけ */
+    /* ドリルは4発だけ。見やすいように大型化 */
     for (let i=0;i<4;i++) {
       const side=i%4, x=side===0?25:side===1?875:100+Math.random()*700;
       const y=side===2?25:side===3?475:80+Math.random()*340;
       const dx=p.x-x, dy=p.y-y, d=Math.hypot(dx,dy)||1;
-      enemyBullets.push({x,y,vx:dx/d*4,vy:dy/d*4,dmg:40,enemy:true,special:"drill"});
+      enemyBullets.push({x,y,vx:dx/d*4,vy:dy/d*4,dmg:40,enemy:true,special:"drill",size:48});
     }
+  } else if (s.stage === 4) {
+    /* 子分をマップ各所に散らし、そこから弾を撃つ */
+    minions = [];
+    const spots = [
+      {x:140,y:90},{x:820,y:90},{x:170,y:410},{x:820,y:410},{x:480,y:80}
+    ];
+    spots.forEach((pos,i)=>{
+      minions.push({
+        x:pos.x,y:pos.y,hp:53,maxHp:53,atk:10,r:18,type:"normal",
+        shootTimer:35+i*12,specialMinion:true
+      });
+    });
   } else if (s.stage === 5) {
     /* トライデントは2本だけ */
     s.tridentTargets=[];
@@ -4965,35 +4977,39 @@ function updateBossSpecial(dt) {
   const t=s.elapsed;
 
   if(s.stage===1){
-    /* 葉っぱ最大10枚・低頻度 */
+    /* 風だけで終わらないよう、葉っぱをしっかり飛ばす */
     const fromRight=t<2.5;
     const wind=fromRight?1:-1;
-    if(Math.floor(t*2)!==Math.floor((t-dt)*2) && s.specialCount<10){
-      const y=60+Math.random()*360;
+    if(Math.floor(t*3)!==Math.floor((t-dt)*3) && s.specialCount<12){
+      const y=55+Math.random()*390;
       enemyBullets.push({
         x:fromRight?900:-20,y,
-        vx:wind*4,vy:(Math.random()-0.5)*1.2,
+        vx:wind*4.2,vy:(Math.random()-0.5)*1.6,
         dmg:15,enemy:true,special:"leaf",
-        angle:Math.random()*Math.PI*2,size:26+Math.random()*10
+        angle:Math.random()*Math.PI*2,size:34+Math.random()*10
       });
       s.specialCount++;
     }
   } else if(s.stage===3){
-    /* 突進弾は最大5発 */
+    /* 車を大きくして飛ばす */
     if(Math.floor(t*1.2)!==Math.floor((t-dt)*1.2) && s.specialCount<5){
       const side=Math.floor(Math.random()*4);
       const x=side===0?25:side===1?875:100+Math.random()*700;
       const y=side===2?25:side===3?475:80+Math.random()*340;
       const dx=p.x-x,dy=p.y-y,d=Math.hypot(dx,dy)||1;
-      enemyBullets.push({x,y,vx:dx/d*4.2,vy:dy/d*4.2,dmg:45,enemy:true,special:"rush"});
+      enemyBullets.push({x,y,vx:dx/d*4.2,vy:dy/d*4.2,dmg:45,enemy:true,special:"rush",size:58});
       s.specialCount++;
     }
   } else if(s.stage===4){
-    /* キングダム・バレットは最大8発 */
-    if(Math.floor(t*2)!==Math.floor((t-dt)*2) && s.specialCount<8){
-      const a=Math.random()*Math.PI*2;
-      enemyBullets.push({x:enemy.x,y:enemy.y,vx:Math.cos(a)*4.5,vy:Math.sin(a)*4.5,dmg:30,enemy:true,special:"kingbullet"});
-      s.specialCount++;
+    /* 散らばった子分それぞれから弾を発射 */
+    if(Math.floor(t*1.5)!==Math.floor((t-dt)*1.5) && s.specialCount<8){
+      const shooters=minions.filter(m=>m.specialMinion && m.hp>0);
+      if(shooters.length){
+        const m=shooters[s.specialCount%shooters.length];
+        const dx=p.x-m.x,dy=p.y-m.y,d=Math.hypot(dx,dy)||1;
+        enemyBullets.push({x:m.x,y:m.y,vx:dx/d*4.5,vy:dy/d*4.5,dmg:30,enemy:true,special:"kingbullet",size:30});
+        s.specialCount++;
+      }
     }
   } else if(s.stage===5){
     s.tridentTargets.forEach(tr=>{
@@ -5450,10 +5466,18 @@ function draw() {
       ctx.stroke();
       ctx.restore();
     }
-    else if (b.special === "drill") ctx.fillText("🔩", b.x, b.y);
-    else if (b.special === "rush") ctx.fillText("💨", b.x, b.y);
-    else if (b.special === "rush") ctx.fillText("💨", b.x, b.y);
-    else if (b.special === "kingbullet") ctx.fillText("🔵", b.x, b.y);
+    else if (b.special === "drill") {
+      ctx.font = "48px sans-serif";
+      ctx.fillText("🔩", b.x, b.y);
+    }
+    else if (b.special === "rush") {
+      ctx.font = "58px sans-serif";
+      ctx.fillText("🚙", b.x, b.y);
+    }
+    else if (b.special === "kingbullet") {
+      ctx.font = "30px sans-serif";
+      ctx.fillText("🔵", b.x, b.y);
+    }
     else if (b.special === "trident") ctx.fillText("🔱", b.x, b.y);
     else if (b.special === "cosmic") ctx.fillText("☄️", b.x, b.y);
     else ctx.fillText(b.enemy ? "🔴" : "➤", b.x, b.y);

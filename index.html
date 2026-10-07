@@ -4959,7 +4959,7 @@ function updateBossSpecial(dt) {
     p.x=Math.max(25,Math.min(CANVAS_WIDTH-25,p.x-wind*0.45));
     if(Math.floor(t*8)!==Math.floor((t-dt)*8)){
       const y=40+Math.random()*400;
-      enemyBullets.push({x:fromRight?900:-20,y,vx:wind*(2.8+Math.random()*1.4),vy:(Math.random()-0.5)*1.2,dmg:15,enemy:true,special:"leaf"});
+      enemyBullets.push({x:fromRight?900:-20,y,vx:wind*(4.2+Math.random()*1.8),vy:(Math.random()-0.5)*1.8,dmg:15,enemy:true,special:"leaf",angle:Math.random()*Math.PI*2,size:28+Math.random()*14});
     }
   } else if(s.stage===3){
     if(Math.floor(t*2)!==Math.floor((t-dt)*2)){
@@ -5369,10 +5369,57 @@ function draw() {
   });
   ctx.font = "32px serif";
   boxes.forEach(box => ctx.fillText("🎁", box.x, box.y));
+  /* 🌪️ リーフ・テンペスト専用の強風エフェクト */
+  if (bossSpecialState && bossSpecialState.stage === 1 && bossSpecialState.phase === "active") {
+    const wt = bossSpecialState.elapsed;
+    ctx.save();
+    ctx.lineCap = "round";
+    for (let i = 0; i < 12; i++) {
+      const y = 55 + ((i * 37 + wt * 95) % 420);
+      const fromRight = wt < 5;
+      const x = fromRight
+        ? CANVAS_WIDTH - ((wt * 150 + i * 73) % (CANVAS_WIDTH + 180))
+        : ((wt * 150 + i * 73) % (CANVAS_WIDTH + 180)) - 180;
+      ctx.strokeStyle = "rgba(210,245,255,0.48)";
+      ctx.lineWidth = 4 + (i % 3);
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.quadraticCurveTo(x + (fromRight ? -55 : 55), y - 10, x + (fromRight ? -125 : 125), y);
+      ctx.stroke();
+    }
+    ctx.font = "bold 22px sans-serif";
+    ctx.fillStyle = "rgba(220,250,255,0.95)";
+    ctx.fillText(fromRight ? "🌪️ 強風 →→→" : "←←← 強風 🌪️", CANVAS_WIDTH / 2 - 95, 92);
+    ctx.restore();
+  }
+
   ctx.font = "20px sans-serif";
   enemyBullets.forEach(b => {
-    if (b.special === "leaf") ctx.fillText("🍃", b.x, b.y);
+    if (b.special === "leaf") {
+      /* 絵文字だけに頼らず、実際の葉っぱ形も描いて確実に見えるようにする */
+      ctx.save();
+      ctx.translate(b.x, b.y);
+      ctx.rotate(b.angle || 0);
+      const sz = b.size || 32;
+      ctx.fillStyle = "rgba(70,190,70,0.98)";
+      ctx.strokeStyle = "rgba(10,80,20,1)";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(sz * 0.55, 0);
+      ctx.quadraticCurveTo(0, -sz * 0.65, -sz * 0.55, 0);
+      ctx.quadraticCurveTo(0, sz * 0.65, sz * 0.55, 0);
+      ctx.fill();
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(235,255,235,0.9)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-sz * 0.45, 0);
+      ctx.lineTo(sz * 0.42, 0);
+      ctx.stroke();
+      ctx.restore();
+    }
     else if (b.special === "drill") ctx.fillText("🔩", b.x, b.y);
+    else if (b.special === "rush") ctx.fillText("💨", b.x, b.y);
     else if (b.special === "rush") ctx.fillText("💨", b.x, b.y);
     else if (b.special === "kingbullet") ctx.fillText("🔵", b.x, b.y);
     else if (b.special === "trident") ctx.fillText("🔱", b.x, b.y);

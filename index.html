@@ -4909,7 +4909,7 @@ function beginBossSpecialAttack() {
   if (!s) return;
   s.phase = "active";
   /* 全ステージを短時間・少数オブジェクトにして軽量化 */
-  s.timer = [5,4,5,4,4,4,4,5][s.stage - 1];
+  s.timer = [5,4,5,4,4,4,4,10][s.stage - 1];
   s.elapsed = 0;
   s.attackTimer = 0;
   s.specialCount = 0;
@@ -5053,7 +5053,7 @@ function updateBossSpecial(dt) {
     }
   } else if(s.stage===8){
     /* コズミック隕石を大幅増量 */
-    if(Math.floor(t*3)!==Math.floor((t-dt)*3) && s.specialCount<18){
+    if(Math.floor(t*6)!==Math.floor((t-dt)*6) && s.specialCount<30){
       const a=Math.atan2(p.y-enemy.y,p.x-enemy.x)+(Math.random()-0.5)*1.2;
       enemyBullets.push({x:enemy.x,y:enemy.y,vx:Math.cos(a)*4.5,vy:Math.sin(a)*4.5,dmg:40,enemy:true,special:"cosmic",size:54});
       s.specialCount++;

@@ -4271,7 +4271,7 @@ function createMinionsForStage(stg) {
   }
 }
 function beginAttackCharge() {
-  if (gameOver || stageClear || attackCooldown > 0 || isPausedForSpecial) return;
+  if (gameOver || stageClear || attackCooldown > 0 || isPausedForSpecial || bossSpecialState) return;
   if (weapon === "🪄") {
     if (wandCooldown <= 0) {
       fireWandMagic();
@@ -4895,7 +4895,7 @@ function bossSpecialStartWarning() {
     meteorTimer: 0,
     tridentTargets: []
   };
-  isPausedForSpecial = true;
+  isPausedForSpecial = false;
   msg.textContent = "⚠️ 必殺技が来た！【" + bossSpecialState.name + "】 5秒後に発動！";
 }
 function bossSpecialDamage(dmg) {
@@ -5142,7 +5142,7 @@ function update() {
   // Minion AI & Actions
   for (let i = minions.length - 1; i >= 0; i--) {
     let m = minions[i];
-    if (!admin.enemyStopped && stun <= 0 && lightningTimer <= 0 && !isBlackholeActive) {
+    if (!bossSpecialState && !admin.enemyStopped && stun <= 0 && lightningTimer <= 0 && !isBlackholeActive) {
       let mSpeed = m.type === "magma" ? 3.0 : 1.8;
       if (stage >= 5) mSpeed *= 0.9;
       moveSmartAI(m, mSpeed, 0.4);

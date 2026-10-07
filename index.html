@@ -4909,7 +4909,7 @@ function beginBossSpecialAttack() {
   if (!s) return;
   s.phase = "active";
   /* 全ステージを短時間・少数オブジェクトにして軽量化 */
-  s.timer = [5,4,5,4,4,4,5,5][s.stage - 1];
+  s.timer = [5,4,5,4,4,4,4,5][s.stage - 1];
   s.elapsed = 0;
   s.attackTimer = 0;
   s.specialCount = 0;
@@ -4980,7 +4980,7 @@ function updateBossSpecial(dt) {
     /* 風だけで終わらないよう、葉っぱをしっかり飛ばす */
     const fromRight=Math.floor(t*2)%2===0;
     const wind=fromRight?-1:1;
-    if(Math.floor(t*3)!==Math.floor((t-dt)*3) && s.specialCount<14){
+    if(Math.floor(t*6)!==Math.floor((t-dt)*6) && s.specialCount<28){
       const y=55+Math.random()*390;
       enemyBullets.push({
         x:fromRight?900:-20,y,
@@ -5061,8 +5061,8 @@ function updateBossSpecial(dt) {
   }
 
   if(s.stage===6 && t>=4) finishBossSpecialAttack();
-  else if(s.stage===7 && s.meteorIndex>=3 && s.meteorTimer<=0) finishBossSpecialAttack();
-  else if(s.timer<=0 && ![6,7].includes(s.stage)) finishBossSpecialAttack();
+  else if(s.stage===7 && s.timer<=0) finishBossSpecialAttack();
+  else if(s.timer<=0 && s.stage!==6) finishBossSpecialAttack();
   return true;
 }
 

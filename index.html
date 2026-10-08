@@ -4680,6 +4680,12 @@ function showResult(cleared) {
     '　復活未使用：'+(!reviveUsed?"✅":"❌")+
     '　必殺技未使用：'+(!specialUsed?"✅":"❌")+
     '　総ダメージ200以下：'+(totalDamageTaken<=200?"✅":"❌");
+  // ゲームオーバー時は制度表側のボタンをリトライにする。
+  // クリア時は今までどおり「結果画面へ戻る」。
+  const resultBackBtn = document.getElementById("resultBackBtn");
+  if (resultBackBtn) {
+    resultBackBtn.textContent = cleared ? "結果画面へ戻る" : "🔄 リトライ";
+  }
   resultSlide=0;
   document.getElementById("resultTrack").style.transform="translateX(0)";
   setScreen("result");
@@ -4697,9 +4703,23 @@ function initResultSwipe() {
     if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(dy)*1.2) setResultSlide(dx>0?1:0);
   });
   document.getElementById("resultToTitle").onclick=()=>resetGame();
-  document.getElementById("resultBackBtn").onclick=()=>setResultSlide(0);
+  document.getElementById("resultBackBtn").onclick=()=>{
+    if (resultData && !fullClear) {
+      retryFromGameOver();
+    } else {
+      setResultSlide(0);
+    }
+  };
 }
 initResultSwipe();
+
+function retryFromGameOver() {
+  // ゲームオーバーからタイトルを経由せず、ステージ1のカウントダウンへ戻る。
+  resetGame();
+  setTimeout(() => {
+    startCountdown();
+  }, 0);
+}
 
 function resetGame() {
   currentScreen = "title";

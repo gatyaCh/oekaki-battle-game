@@ -4694,7 +4694,7 @@ function initResultSwipe() {
   vp.addEventListener("pointerdown",e=>{sx=e.clientX;sy=e.clientY;});
   vp.addEventListener("pointerup",e=>{
     const dx=e.clientX-sx, dy=e.clientY-sy;
-    if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(dy)*1.2) setResultSlide(dx<0?1:0);
+    if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(dy)*1.2) setResultSlide(dx>0?1:0);
   });
   document.getElementById("resultToTitle").onclick=()=>resetGame();
   document.getElementById("resultBackBtn").onclick=()=>setResultSlide(0);

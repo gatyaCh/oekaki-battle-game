@@ -3412,6 +3412,38 @@ body.mobile-mode #btnCar{
 
 /* スマホ版だけ弓を非表示 */
 body.mobile-mode #btnBow{display:none !important;}
+ 
+/* RESULT SCREEN / POINT SYSTEM */
+#resultScreen{
+  position:fixed; inset:0; z-index:900000; display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg,#101827,#18233b); color:#fff; padding:16px; box-sizing:border-box;
+}
+#resultScreen.hidden{display:none!important;}
+#resultViewport{width:min(900px,96vw); height:min(680px,92vh); overflow:hidden; border-radius:18px;}
+#resultTrack{display:flex; width:200%; height:100%; transition:transform .32s ease;}
+.resultPage{width:50%; height:100%; box-sizing:border-box; overflow:auto; padding:22px; background:rgba(10,15,28,.96); text-align:center;}
+.resultPage h1{margin:4px 0 10px;font-size:clamp(25px,4vw,38px);}
+.resultStatus{font-size:20px;font-weight:bold;margin:5px 0 8px;}
+.resultScore{font-size:68px;font-weight:900;line-height:1;}
+.resultScore small{font-size:24px;margin-left:5px;}
+.resultRank{font-size:46px;font-weight:900;margin:10px auto;padding:8px 24px;width:max-content;border:3px solid currentColor;border-radius:14px;}
+.resultBreakdown{max-width:720px;margin:10px auto;text-align:left;background:#172036;border-radius:12px;padding:12px;line-height:1.65;}
+.resultBreakdown div{display:flex;justify-content:space-between;border-bottom:1px solid #34405a;padding:2px 0;}
+.resultAdmin{max-width:720px;margin:10px auto;padding:10px;border-radius:10px;background:#211b10;text-align:left;font-size:14px;}
+.resultRules{max-width:760px;margin:10px auto;text-align:left;background:#172036;border-radius:12px;padding:12px;line-height:1.45;font-size:14px;}
+.resultRules h3{margin:7px 0 4px;color:#ffd166;}
+.resultRules p{margin:4px 0;}
+.resultNote{font-size:12px;opacity:.8;}
+.resultMainBtn{margin:12px 5px;padding:10px 20px;border:0;border-radius:10px;background:#22c55e;color:#07120a;font-weight:bold;font-size:16px;cursor:pointer;}
+.resultSwipeHint{font-size:12px;opacity:.7;margin-top:8px;}
+@media(max-width:600px){
+  #resultScreen{padding:8px;}
+  #resultViewport{width:98vw;height:94vh;}
+  .resultPage{padding:14px 10px;}
+  .resultScore{font-size:54px;}
+  .resultBreakdown,.resultRules{font-size:13px;}
+}
+
 </style>
 
 
@@ -3460,6 +3492,43 @@ body.mobile-mode #btnBow{display:none !important;}
   <div id="msg"></div>
   <canvas id="game" width="900" height="500"></canvas>
   <p id="guideText">設定キーで移動 / 攻撃キー長押し→離して攻撃 (右クリックでチャージキャンセル) / <b>[Q] キーで必殺技</b></p>
+</div>
+<div id="resultScreen" class="hidden" aria-label="ゲーム結果">
+  <div id="resultViewport">
+    <div id="resultTrack">
+      <section class="resultPage">
+        <h1>🎮 ゲーム結果</h1>
+        <div class="resultStatus" id="resultStatus">CLEAR!</div>
+        <div class="resultScore"><span id="resultTotal">0</span><small>pt</small></div>
+        <div class="resultRank" id="resultRank">C</div>
+        <div class="resultBreakdown" id="resultBreakdown"></div>
+        <div class="resultAdmin" id="resultAdmin"></div>
+        <button id="resultToTitle" class="resultMainBtn">タイトルへ戻る</button>
+        <div class="resultSwipeHint">← 結果　　右へスライド →　制度表</div>
+      </section>
+      <section class="resultPage">
+        <h1>📊 ポイント制度表</h1>
+        <div class="resultRules">
+          <h3>基本ポイント</h3>
+          <p>👾 敵撃破：+2pt</p>
+          <p>👑 ボス撃破：+40pt</p>
+          <p>🪙 コイン：普通 +2 / レア +5 / 超レア +14 / 激レア +20</p>
+          <p>🎁 宝箱：+7pt</p>
+          <p>❤️ 残りHP：100%以上 +50 / 80～99% +30 / 60～79% +25 / 40～59% +18 / 20～39% +7 / 1～19% +5 / 0 +0</p>
+          <p>💥 総ダメージ：0 +70 / 1～20 +40 / 21～40 +35 / 41～60 +25 / 61～80 +20 / 81～100 +15 / 101～150 +10 / 151～200 +6 / 201以上 +0</p>
+          <p>🏆 全8ステージクリア：+60pt</p>
+          <p>🔒 必殺技を一度も使用せずクリア：+50pt</p>
+          <h3>🏆 ランク</h3>
+          <p>C：0～79　 B：80～159　 A：160～239　 AA：240～299</p>
+          <p>S：300～399　 Z：400～499　 UR：500～729</p>
+          <p>💎 GATYA：730～824　 👑 Admin Rank：特殊条件</p>
+          <p class="resultNote">※ Stage 4は最初の6体まで敵撃破ポイント対象。</p>
+        </div>
+        <button id="resultBackBtn" class="resultMainBtn">結果画面へ戻る</button>
+        <div class="resultSwipeHint">← 左へスライド　　制度表 →</div>
+      </section>
+    </div>
+  </div>
 </div>
 <div id="mobileControls" aria-label="スマホ操作パネル">
   <div id="mobileHint">左：移動　右：照準　攻撃：タップ</div>
@@ -3662,7 +3731,8 @@ function syncScreenVisibility() {
     title: document.getElementById("title"),
     draw: document.getElementById("draw"),
     countdown: document.getElementById("count"),
-    game: document.getElementById("gameArea")
+    game: document.getElementById("gameArea"),
+    result: document.getElementById("resultScreen")
   };
   Object.entries(screens).forEach(([name, el]) => {
     if (!el) return;
@@ -4173,6 +4243,21 @@ let kizukuItems = { heal: 6, atk: 5, shield: 4, ghost: 3, bullet: 3, lightning: 
 let rikuActive = false;
 let rikuSpecials = { bomb: 3, gatling: 2, meteor: 3, blackhole: 2, slash: 3 };
 let specialStock = 0; // 必殺技ストック数
+// Result / point tracking
+let resultData = null;
+let resultSlide = 0;
+let totalDamageTaken = 0;
+let reviveUsed = false;
+let specialUsed = false;
+let minionsDefeated = 0;
+let totalMinionsSpawned = 0;
+let bossesDefeated = 0;
+let stage4PointEligibleKills = 0;
+let treasureChestsOpened = 0;
+let coinPointTotal = 0;
+let bossDefeatAwardedForStage = false;
+let fullClear = false;
+let adminRankCodeUsed = false;
 // ボスへの累計ダメージでたまる必殺技ゲージ。
 // 1ステージのボス最大HPの75%分を削るとストック+1、ゲージは0に戻る。
 // ストックはステージをまたいで引き継ぎ、ゲージだけ次ステージで0に戻る。
@@ -4242,30 +4327,30 @@ function createMinionsForStage(stg) {
   stage8TotalSummoned = 0;
   bossSpecialTimer = 0;
   if (stg === 1) {
-    minions.push({ x: 650, y: 150, hp: 42, maxHp: 42, atk: 5, r: 18, type: "normal", shootTimer: 100 });
-    minions.push({ x: 650, y: 350, hp: 42, maxHp: 42, atk: 5, r: 18, type: "normal", shootTimer: 120 });
+    minions.push({ x: 650, y: 150, hp: 42, maxHp: 42, atk: 5, r: 18, type: "normal", shootTimer: 100 }); totalMinionsSpawned++; totalMinionsSpawned++;
+    minions.push({ x: 650, y: 350, hp: 42, maxHp: 42, atk: 5, r: 18, type: "normal", shootTimer: 120 }); totalMinionsSpawned++; totalMinionsSpawned++;
   } else if (stg === 2) {
-    minions.push({ x: 650, y: 150, hp: 48, maxHp: 48, atk: 8, r: 18, type: "normal", shootTimer: 90 });
-    minions.push({ x: 650, y: 350, hp: 48, maxHp: 48, atk: 8, r: 18, type: "normal", shootTimer: 110 });
+    minions.push({ x: 650, y: 150, hp: 48, maxHp: 48, atk: 8, r: 18, type: "normal", shootTimer: 90 }); totalMinionsSpawned++;
+    minions.push({ x: 650, y: 350, hp: 48, maxHp: 48, atk: 8, r: 18, type: "normal", shootTimer: 110 }); totalMinionsSpawned++;
   } else if (stg === 3) {
-    minions.push({ x: 650, y: 120, hp: 53, maxHp: 53, atk: 10, r: 18, type: "normal", shootTimer: 80 });
-    minions.push({ x: 650, y: 250, hp: 53, maxHp: 53, atk: 10, r: 18, type: "normal", shootTimer: 100 });
-    minions.push({ x: 650, y: 380, hp: 53, maxHp: 53, atk: 10, r: 18, type: "normal", shootTimer: 120 });
+    minions.push({ x: 650, y: 120, hp: 53, maxHp: 53, atk: 10, r: 18, type: "normal", shootTimer: 80 }); totalMinionsSpawned++;
+    minions.push({ x: 650, y: 250, hp: 53, maxHp: 53, atk: 10, r: 18, type: "normal", shootTimer: 100 }); totalMinionsSpawned++;
+    minions.push({ x: 650, y: 380, hp: 53, maxHp: 53, atk: 10, r: 18, type: "normal", shootTimer: 120 }); totalMinionsSpawned++;
   } else if (stg === 4) {
     enemy.spawnTimer = 600;
   } else if (stg === 5) {
-    minions.push({ x: 650, y: 180, hp: 53, maxHp: 53, atk: 10, r: 18, type: "jellyfish", shootTimer: 90 });
-    minions.push({ x: 650, y: 320, hp: 53, maxHp: 53, atk: 10, r: 18, type: "jellyfish", shootTimer: 110 });
+    minions.push({ x: 650, y: 180, hp: 53, maxHp: 53, atk: 10, r: 18, type: "jellyfish", shootTimer: 90 }); totalMinionsSpawned++;
+    minions.push({ x: 650, y: 320, hp: 53, maxHp: 53, atk: 10, r: 18, type: "jellyfish", shootTimer: 110 }); totalMinionsSpawned++;
   } else if (stg === 6) {
-    minions.push({ x: 650, y: 180, hp: 64, maxHp: 64, atk: 15, r: 18, type: "magma", rushTimer: 100 });
-    minions.push({ x: 650, y: 320, hp: 64, maxHp: 64, atk: 15, r: 18, type: "magma", rushTimer: 140 });
+    minions.push({ x: 650, y: 180, hp: 64, maxHp: 64, atk: 15, r: 18, type: "magma", rushTimer: 100 }); totalMinionsSpawned++;
+    minions.push({ x: 650, y: 320, hp: 64, maxHp: 64, atk: 15, r: 18, type: "magma", rushTimer: 140 }); totalMinionsSpawned++;
   } else if (stg === 7) {
-    minions.push({ x: 750, y: 120, hp: 75, maxHp: 75, atk: 15, r: 18, type: "wind", shootTimer: 70 });
-    minions.push({ x: 750, y: 380, hp: 75, maxHp: 75, atk: 15, r: 18, type: "wind", shootTimer: 90 });
+    minions.push({ x: 750, y: 120, hp: 75, maxHp: 75, atk: 15, r: 18, type: "wind", shootTimer: 70 }); totalMinionsSpawned++;
+    minions.push({ x: 750, y: 380, hp: 75, maxHp: 75, atk: 15, r: 18, type: "wind", shootTimer: 90 }); totalMinionsSpawned++;
   } else if (stg === 8) {
     // Stage 8前半：動かず無敵バリア展開。シールド子分を最大2体同時に召喚（累計10体まで）
-    minions.push({ x: 650, y: 150, hp: 97, maxHp: 97, atk: 20, r: 20, type: "shield_minion", shootTimer: 60 });
-    minions.push({ x: 650, y: 350, hp: 97, maxHp: 97, atk: 20, r: 20, type: "shield_minion", shootTimer: 80 });
+    minions.push({ x: 650, y: 150, hp: 97, maxHp: 97, atk: 20, r: 20, type: "shield_minion", shootTimer: 60 }); totalMinionsSpawned++;
+    minions.push({ x: 650, y: 350, hp: 97, maxHp: 97, atk: 20, r: 20, type: "shield_minion", shootTimer: 80 }); totalMinionsSpawned++;
     stage8TotalSummoned = 2;
     enemy.spawnTimer = 180;
   }
@@ -4423,7 +4508,9 @@ function damageEnemy(amount) {
     }
     updateSpecialGauge();
   }
-  if (enemy.hp <= 0) {
+  if (enemy.hp <= 0 && actual > 0 && !bossDefeatAwardedForStage) {
+    bossDefeatAwardedForStage = true;
+    bossesDefeated++;
     coins += 25;
     showBattlePickupNotice("💰 コインGET！ +25 G");
   }
@@ -4432,6 +4519,8 @@ function damageMinion(m, amount) {
   m.hp -= amount;
   dmgText.push({ x: m.x, y: m.y, t: "-" + Math.floor(amount), life: 45 });
   if (m.hp <= 0) {
+    minionsDefeated++;
+    if (stage !== 4 || stage4PointEligibleKills < 6) stage4PointEligibleKills++;
     coins += 5;
     showBattlePickupNotice("💰 コインGET！ +5 G");
     if (m.type === "jellyfish") {
@@ -4516,11 +4605,114 @@ function fireBulletHell() {
   }
   msg.textContent = "🔮 弾幕発射！";
 }
+function getHpPoints() {
+  const rate = p.max > 0 ? (Math.max(0, p.hp) / p.max) * 100 : 0;
+  if (rate >= 100) return 50;
+  if (rate >= 80) return 30;
+  if (rate >= 60) return 25;
+  if (rate >= 40) return 18;
+  if (rate >= 20) return 7;
+  if (rate >= 1) return 5;
+  return 0;
+}
+function getDamagePoints() {
+  const d = totalDamageTaken;
+  if (d <= 0) return 70;
+  if (d <= 20) return 40;
+  if (d <= 40) return 35;
+  if (d <= 60) return 25;
+  if (d <= 80) return 20;
+  if (d <= 100) return 15;
+  if (d <= 150) return 10;
+  if (d <= 200) return 6;
+  return 0;
+}
+function getRankFromPoints(points) {
+  if (points >= 730) return "💎 GATYA";
+  if (points >= 500) return "UR";
+  if (points >= 400) return "Z";
+  if (points >= 300) return "S";
+  if (points >= 240) return "AA";
+  if (points >= 160) return "A";
+  if (points >= 80) return "B";
+  return "C";
+}
+function showResult(cleared) {
+  const shop = document.getElementById("shopModal");
+  if (shop) shop.classList.add("hidden");
+  fullClear = !!cleared;
+  gameOver = !cleared;
+  stageClear = false;
+  const hpPts = getHpPoints();
+  const dmgPts = getDamagePoints();
+  const minionPts = Math.max(0, minionsDefeated - Math.max(0, stage4PointEligibleKills - 6)) * 2;
+  const actualStage4Eligible = Math.min(stage4PointEligibleKills, 6);
+  const allMinionsDefeated = totalMinionsSpawned === minionsDefeated && minions.length === 0;
+  const allEnemiesDefeated = bossesDefeated >= 8 && allMinionsDefeated;
+  const adminEligible = cleared && allEnemiesDefeated && !reviveUsed && !specialUsed && totalDamageTaken <= 200 && !adminRankCodeUsed;
+  const clearPts = cleared ? 60 : 0;
+  const noSpecialPts = cleared && !specialUsed ? 50 : 0;
+  const total = minionPts + bossesDefeated * 40 + coinPointTotal + treasureChestsOpened * 7 + hpPts + dmgPts + clearPts + noSpecialPts;
+  const rank = adminEligible ? "👑 Admin Rank" : getRankFromPoints(total);
+  resultData = {total,rank,hpPts,dmgPts,minionPts,bossPts:bossesDefeated*40,coinPts:coinPointTotal,chestPts:treasureChestsOpened*7,clearPts,noSpecialPts,adminEligible,allEnemiesDefeated};
+  document.getElementById("resultStatus").textContent = cleared ? "🎉 GAME CLEAR!" : "💥 GAME OVER";
+  document.getElementById("resultTotal").textContent = total;
+  document.getElementById("resultRank").textContent = rank;
+  document.getElementById("resultBreakdown").innerHTML =
+    '<div><span>👾 敵撃破</span><b>+'+minionPts+'pt</b></div>'+
+    '<div><span>👑 ボス撃破</span><b>+'+(bossesDefeated*40)+'pt</b></div>'+
+    '<div><span>🪙 コイン</span><b>+'+coinPointTotal+'pt</b></div>'+
+    '<div><span>🎁 宝箱</span><b>+'+(treasureChestsOpened*7)+'pt</b></div>'+
+    '<div><span>❤️ 残りHP</span><b>+'+hpPts+'pt</b></div>'+
+    '<div><span>💥 総ダメージ</span><b>+'+dmgPts+'pt</b></div>'+
+    '<div><span>🏆 全8ステージクリア</span><b>+'+clearPts+'pt</b></div>'+
+    '<div><span>🔒 必殺技封印</span><b>+'+noSpecialPts+'pt</b></div>';
+  document.getElementById("resultAdmin").innerHTML =
+    (adminEligible ? "👑 Admin Rank 条件達成！" : "👑 Admin Rank 条件未達成")+
+    '<br>全敵撃破：'+(allEnemiesDefeated?"✅":"❌")+
+    '　復活未使用：'+(!reviveUsed?"✅":"❌")+
+    '　必殺技未使用：'+(!specialUsed?"✅":"❌")+
+    '　総ダメージ200以下：'+(totalDamageTaken<=200?"✅":"❌");
+  resultSlide=0;
+  document.getElementById("resultTrack").style.transform="translateX(0)";
+  setScreen("result");
+}
+function setResultSlide(n) {
+  resultSlide = Math.max(0, Math.min(1,n));
+  document.getElementById("resultTrack").style.transform = "translateX("+(-50*resultSlide)+"%)";
+}
+function initResultSwipe() {
+  const vp=document.getElementById("resultViewport");
+  let sx=0, sy=0;
+  vp.addEventListener("pointerdown",e=>{sx=e.clientX;sy=e.clientY;});
+  vp.addEventListener("pointerup",e=>{
+    const dx=e.clientX-sx, dy=e.clientY-sy;
+    if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(dy)*1.2) setResultSlide(dx<0?1:0);
+  });
+  document.getElementById("resultToTitle").onclick=()=>resetGame();
+  document.getElementById("resultBackBtn").onclick=()=>setResultSlide(0);
+}
+initResultSwipe();
+
 function resetGame() {
   currentScreen = "title";
   stage = 1;
   setStageObstacles(1);
   coins = 0;
+  resultData = null;
+  resultSlide = 0;
+  totalDamageTaken = 0;
+  reviveUsed = false;
+  specialUsed = false;
+  minionsDefeated = 0;
+  totalMinionsSpawned = 0;
+  bossesDefeated = 0;
+  stage4PointEligibleKills = 0;
+  treasureChestsOpened = 0;
+  coinPointTotal = 0;
+  bossDefeatAwardedForStage = false;
+  fullClear = false;
+  adminRankCodeUsed = false;
   specialStock = 0;
   specialGaugeDamage = 0;
   specialGaugeMaxed = false;
@@ -4599,8 +4791,7 @@ function nextStage() {
 function proceedToNextStageNumber() {
   stage++;
   if (stage > 8) {
-    alert("🎉 全8ステージ全消滅＆ゲームクリア！！おめでとう！");
-    resetGame();
+    showResult(true);
     return;
   }
   // ステージが変わったら必殺技ゲージを0%から再スタート。
@@ -4619,6 +4810,8 @@ function proceedToNextStageNumber() {
   enemyBullets = []; magmaZones = [];
   enemyShootTimer = 0; rushTimer = 0; rushDownTimer = 0; dashTimer = 0;
   carHitThisDash = false; attackCooldown = 0; stun = 0; bossSpecialTimer = 0;
+  bossDefeatAwardedForStage = false;
+  stage4PointEligibleKills = 0;
   bossSpecialState = null; bossSpecialObjects = []; bossSpecialMinion = null; isPausedForSpecial = false;
   treasureChest = { x: 450, y: 250, opened: false, progress: 0, maxProgress: 100, r: 20 };
   setStageObstacles(stage);
@@ -4841,7 +5034,9 @@ function normalEnemyDps() {
 }
 function damagePlayer(dmg) {
   if (p.invincibility > 0 || shieldActive || ghost || admin.invincible || admin.god) return;
-  p.hp -= dmg;
+  const actual = Math.max(0, Math.min(p.hp, Number(dmg) || 0));
+  p.hp -= actual;
+  totalDamageTaken += actual;
   p.invincibility = 0.5;
 }
 // 宝箱の確率ドロップ開封処理
@@ -4859,7 +5054,10 @@ function openTreasureChestReward() {
     rewardCoin = 60; rarityName = "📦 通常";
   }
   coins += rewardCoin;
-  msg.textContent = `📦 宝箱開封！ [${rarityName}] ${rewardCoin} G 獲得！`;
+  treasureChestsOpened++;
+  const rarityPoints = rewardCoin >= 500 ? 20 : rewardCoin >= 300 ? 14 : rewardCoin >= 150 ? 5 : 2;
+  coinPointTotal += rarityPoints;
+  msg.textContent = `📦 宝箱開封！ [${rarityName}] ${rewardCoin} G獲得！ コインpt +${rarityPoints}`;
 }
 // 全8ステージ ボス固有必殺技（約4.6秒ごと）
 function getBossSpecialName(stg) {
@@ -5104,6 +5302,7 @@ function update() {
     enemy.spawnTimer--;
     if (enemy.spawnTimer <= 0) {
       minions.push({ x: enemy.x + (Math.random()*40-20), y: enemy.y + (Math.random()*40-20), hp: 97, maxHp: 97, atk: 20, r: 20, type: "shield_minion", shootTimer: 60 });
+      totalMinionsSpawned++;
       stage8TotalSummoned++;
       enemy.spawnTimer = 180;
     }
@@ -5111,7 +5310,7 @@ function update() {
     enemy.spawnTimer--;
     if (enemy.spawnTimer <= 0) {
       if (minions.length < 5) {
-        minions.push({ x: enemy.x, y: enemy.y, hp: 53, maxHp: 53, atk: 10, r: 18, type: "normal", shootTimer: 80 });
+        minions.push({ x: enemy.x, y: enemy.y, hp: 53, maxHp: 53, atk: 10, r: 18, type: "normal", shootTimer: 80 }); totalMinionsSpawned++;
       }
       enemy.spawnTimer = 500;
     }
@@ -5329,11 +5528,9 @@ function update() {
   if (enemy.hp <= 0) { enemy.hp = 0; nextStage(); return; }
   if (p.hp <= 0) {
     p.hp = 0;
-    if (revive) { revive = false; p.hp = 50; msg.textContent = "🗿 復活の石発動！"; }
+    if (revive) { revive = false; reviveUsed = true; p.hp = 50; msg.textContent = "🗿 復活の石発動！"; }
     else {
-      gameOver = true;
-      alert("GAME OVER");
-      resetGame();
+      showResult(false);
       return;
     }
   }
@@ -5568,6 +5765,7 @@ spCanvas.addEventListener("pointermove", (e) => {
 });
 window.addEventListener("pointerup", () => { spDrawing = false; });
 function executeSpecialAttack() {
+  specialUsed = true;
   document.getElementById("specialModal").classList.add("hidden");
   isPausedForSpecial = false;
   if (specialStock > 0) specialStock--;

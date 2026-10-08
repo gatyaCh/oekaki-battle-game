@@ -5597,21 +5597,20 @@ function update() {
   for (let i = boxes.length - 1; i >= 0; i--) {
     const box = boxes[i];
     if (Math.hypot(p.x - box.x, p.y - box.y) < 45) {
-      if (box.item === "❤") { p.hp = Math.min(p.max, p.hp + p.max * 0.2); msg.textContent = "❤ HP回復！"; showBattlePickupNotice("❤ アイテムGET！ HP回復"); }
-      else if (box.item === "💪") { atkBuff += 0.1; msg.textContent = "💪 攻撃力UP！"; showBattlePickupNotice("💪 アイテムGET！ 攻撃力UP"); }
-      else if (box.item === "🛡️") { shieldEquipped = true; shieldRemainingTime = 7.0; msg.textContent = "🛡️ シールド獲得！"; showBattlePickupNotice("🛡️ アイテムGET！ シールド"); }
-      else if (box.item === "🗿") { if (!revive) { revive = true; msg.textContent = "🗿 復活を獲得！"; showBattlePickupNotice("🗿 アイテムGET！ 復活"); } }
+      if (box.item === "❤") { p.hp = Math.min(p.max, p.hp + p.max * 0.2); showBattlePickupNotice("❤ アイテムGET！ HP回復"); }
+      else if (box.item === "💪") { atkBuff += 0.1; showBattlePickupNotice("💪 アイテムGET！ 攻撃力UP"); }
+      else if (box.item === "🛡️") { shieldEquipped = true; shieldRemainingTime = 7.0; showBattlePickupNotice("🛡️ アイテムGET！ シールド"); }
+      else if (box.item === "🗿") { if (!revive) { revive = true; showBattlePickupNotice("🗿 アイテムGET！ 復活"); } }
       else if (box.item === "👻") {
         ghost = true;
         ghostTimer = 5;
         enemyBullets = enemyBullets.filter(b => !b.enemy);
         enemyRushing = 0;
         rushDownTimer = 0;
-        msg.textContent = "👻 5秒間ゴースト！ 敵に見つからず攻撃力0.7倍";
         showBattlePickupNotice("👻 アイテムGET！ 5秒間ゴースト（攻撃力0.7倍）");
       }
-      else if (box.item === "🔮") { bulletHellReady = true; msg.textContent = "🔮 攻撃キーで弾幕発射！"; showBattlePickupNotice("🔮 アイテムGET！ 弾幕準備完了"); }
-      else if (box.item === "⚡️") { lightningTimer = 2.3; damageEnemy(enemy.maxHp * 0.05); msg.textContent = "⚡️ 敵ダウン＋HP5%カット！"; showBattlePickupNotice("⚡️ アイテムGET！ 敵ダウン"); }
+      else if (box.item === "🔮") { bulletHellReady = true; showBattlePickupNotice("🔮 アイテムGET！ 弾幕準備完了"); }
+      else if (box.item === "⚡️") { lightningTimer = 2.3; damageEnemy(enemy.maxHp * 0.05); showBattlePickupNotice("⚡️ アイテムGET！ 敵ダウン"); }
       boxes.splice(i, 1);
     }
   }

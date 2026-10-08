@@ -4714,8 +4714,44 @@ function initResultSwipe() {
 initResultSwipe();
 
 function retryFromGameOver() {
-  // ゲームオーバーからタイトルを経由せず、ステージ1のカウントダウンへ戻る。
+  // ゲームオーバーからタイトルを経由せず、完全に初期化してステージ1へ戻る。
   resetGame();
+
+  // 念のため、前回ステージの戦闘状態をここでも完全クリア。
+  stage = 1;
+  stageClear = false;
+  gameOver = false;
+  enemy.maxHp = stageBosses[0].hp;
+  enemy.hp = enemy.maxHp;
+  enemy.x = 700;
+  enemy.y = 250;
+  enemy.spawnTimer = 0;
+  minions = [];
+  stage8TotalSummoned = 0;
+  bossSpecialState = null;
+  bossSpecialTimer = 0;
+  bossSpecialUses = {};
+  bossSpecialCooldown = 0;
+  bossSpecialObjects = [];
+  bossSpecialMinion = null;
+  isPausedForSpecial = false;
+  enemyBullets = [];
+  magmaZones = [];
+  specialStock = 0;
+  specialGaugeDamage = 0;
+  specialGaugeMaxed = false;
+  updateSpecialGauge();
+  p.x = 100;
+  p.y = 250;
+  p.hp = p.max = 150;
+  p.invincibility = 0;
+  charging = false;
+  charge = 0;
+  createMinionsForStage(1);
+  spawnBox();
+  document.getElementById("stageLabel").textContent = stageBosses[0].name;
+  msg.textContent = "";
+
   setTimeout(() => {
     startCountdown();
   }, 0);
@@ -5313,6 +5349,10 @@ function triggerBossSpecialAttack() {
 }
 
 function update() {
+  // タイトル・描画・カウントダウン中は戦闘処理を完全に停止。
+  // ゲームオーバーからリトライした際に、前のステージの必殺技や敵処理が
+  // ステージ1へ持ち越されないようにする。
+  if (currentScreen !== "game") return;
   if (gameOver || stageClear) return;
   const dt = 1 / 60;
 

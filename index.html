@@ -4259,6 +4259,11 @@ let coinPointTotal = 0;
 let bossDefeatAwardedForStage = false;
 let fullClear = false;
 let adminRankCodeUsed = false;
+let adminRankAbility = "";
+let adminGuardBlocksLeft = 0;
+let adminAttackTimer = 0;
+let adminAttackBullets = [];
+
 // ボスへの累計ダメージでたまる必殺技ゲージ。
 // 1ステージのボス最大HPの75%分を削るとストック+1、ゲージは0に戻る。
 // ストックはステージをまたいで引き継ぎ、ゲージだけ次ステージで0に戻る。
@@ -4477,7 +4482,8 @@ function spawnBox() {
 }
 function getDamage() {
   const kizuku2AtkMul = kizuku2Active ? 2.0 : 1;
-  return (10 + charge / 8) * atkBuff * 1.03 * kizuku2AtkMul;
+  const adminRankMul = adminRankAbility === "damage4" ? 4.0 : 1;
+  return (10 + charge / 8) * atkBuff * 1.03 * kizuku2AtkMul * adminRankMul;
 }
 function damageEnemy(amount) {
   if (bossSpecialState) return;
@@ -4498,7 +4504,7 @@ function damageEnemy(amount) {
     // ボスに与えた実ダメージだけを必殺技ゲージへ加算。
     // 子分へのダメージやショップ購入ではこのゲージは増えない。
     if (!specialGaugeMaxed) {
-      specialGaugeDamage += actual;
+      specialGaugeDamage += actual * (adminRankAbility === "gauge" ? 2 : 1);
       const gaugeMaxDamage = getSpecialGaugeMaxDamage();
       if (specialGaugeDamage >= gaugeMaxDamage) {
         specialGaugeDamage = gaugeMaxDamage;
@@ -4546,7 +4552,7 @@ function fireWandMagic() {
       life: 7.0,
       // 魔法の杖専用：Stage 1を基準(1.0)に、ステージが1つ上がるごとに敵防御力を1.3%ずつ上昇。
       // 例：Stage 8は防御力1.091倍。杖の弾1発の最終ダメージにだけ適用。
-      dmg: (15 * atkBuff * (kizuku2Active ? 2.0 : 1)) / (1 + (stage - 1) * 0.013),
+      dmg: (15 * atkBuff * (kizuku2Active ? 2.0 : 1) * (adminRankAbility === "damage4" ? 4.0 : 1)) / (1 + (stage - 1) * 0.013),
       r: 8
     });
   }
@@ -4715,6 +4721,10 @@ function resetGame() {
   bossDefeatAwardedForStage = false;
   fullClear = false;
   adminRankCodeUsed = false;
+  adminRankAbility = "";
+  adminGuardBlocksLeft = 0;
+  adminAttackTimer = 0;
+  adminAttackBullets = [];
   specialStock = 0;
   specialGaugeDamage = 0;
   specialGaugeMaxed = false;
@@ -4768,6 +4778,7 @@ function resetGame() {
     document.getElementById("adminPanel").classList.add("hidden");
   createMinionsForStage(1);
   spawnBox();
+  if (adminRankAbility === "guard") adminGuardBlocksLeft = 5;
   document.getElementById("stageLabel").textContent = stageBosses[0].name;
   gameArea.classList.add("hidden");
   setScreen("title");
@@ -4814,6 +4825,7 @@ function proceedToNextStageNumber() {
   carHitThisDash = false; attackCooldown = 0; stun = 0; bossSpecialTimer = 0;
   bossDefeatAwardedForStage = false;
   stage4PointEligibleKills = 0;
+  if (adminRankAbility === "guard") adminGuardBlocksLeft = 5;
   bossSpecialState = null; bossSpecialObjects = []; bossSpecialMinion = null; isPausedForSpecial = false;
   treasureChest = { x: 450, y: 250, opened: false, progress: 0, maxProgress: 100, r: 20 };
   setStageObstacles(stage);
@@ -5036,6 +5048,12 @@ function normalEnemyDps() {
 }
 function damagePlayer(dmg) {
   if (p.invincibility > 0 || shieldActive || ghost || admin.invincible || admin.god) return;
+  if (adminRankAbility === "guard" && adminGuardBlocksLeft > 0) {
+    adminGuardBlocksLeft--;
+    p.invincibility = 0.18;
+    msg.textContent = "🛡️ ADMINガード！ 攻撃を無効化（残り " + adminGuardBlocksLeft + "回）";
+    return;
+  }
   const actual = Math.max(0, Math.min(p.hp, Number(dmg) || 0));
   p.hp -= actual;
   totalDamageTaken += actual;
@@ -5056,6 +5074,10 @@ function openTreasureChestReward() {
     rewardCoin = 60; rarityName = "📦 通常";
   }
   coins += rewardCoin;
+  if (adminRankAbility === "bonus") {
+    coins += 60;
+    msg.textContent = `📦 ADMINボーナス！ 追加で60 G！ 合計 ${rewardCoin + 60} G獲得！`;
+  }
   treasureChestsOpened++;
   const rarityPoints = rewardCoin >= 500 ? 20 : rewardCoin >= 300 ? 14 : rewardCoin >= 150 ? 5 : 2;
   coinPointTotal += rarityPoints;
@@ -5273,6 +5295,8 @@ function triggerBossSpecialAttack() {
 function update() {
   if (gameOver || stageClear) return;
   const dt = 1 / 60;
+
+  updateAdminRankAttack(dt);
   attackCooldown = Math.max(0, attackCooldown - dt);
   if (wandCooldown > 0) wandCooldown = Math.max(0, wandCooldown - dt);
   if (p.invincibility > 0) p.invincibility -= dt;
@@ -5740,6 +5764,7 @@ function draw() {
     ctx.fillStyle = "rgba(0,0,0,.55)"; ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     ctx.fillStyle = "white"; ctx.font = "48px sans-serif"; ctx.textAlign = "center"; ctx.fillText("🏆 STAGE CLEAR!", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
   }
+  drawAdminRankBullets();
 }
 // 必殺技お絵描き処理
 const spCanvas = document.getElementById("specialCanvas");
@@ -5980,6 +6005,16 @@ loop();
   document.getElementById("specialCodeBack").onclick = () => codeBox.classList.add("hidden");
   document.getElementById("specialCodeCheck").onclick = () => {
     const code = codeInput.value.trim().toLowerCase();
+
+    // 非公開コード：公開コード一覧には表示しない。
+    if (code === "admin rank") {
+      if (typeof window.openAdminRankSelection === "function") {
+        window.openAdminRankSelection();
+        codeInput.value = "";
+        codeMsg.textContent = "";
+      }
+      return;
+    }
 
     // すべての一般向けスペシャルコードは、この入力欄に統一。
     // HP20 / Lucky Boost / ryokutya / Special Code は
@@ -6713,6 +6748,114 @@ loop();
 
   setNormal();
 })();
+
+/* Hidden Admin Rank special code: only users who know the code can open this. */
+(function initHiddenAdminRank(){
+  const choices = [
+    ["attack","👑 ADMIN攻撃","たまに大きな追尾弾を発射・30ダメージ"],
+    ["guard","🛡️ ADMINガード","このステージで5回まで敵の攻撃を無効化"],
+    ["bonus","🪙 ADMINボーナス","宝箱ごとに追加60コイン"],
+    ["gauge","⚡ 必殺技ゲージMAX","最初から必殺技1個＋ゲージ増加量2倍"],
+    ["damage4","💪 ダメージ倍率4倍アップ","与えるダメージが4倍"]
+  ];
+
+  function showChoice(){
+    let modal=document.getElementById("adminRankChoiceModal");
+    if(!modal){
+      modal=document.createElement("div");
+      modal.id="adminRankChoiceModal";
+      modal.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:100000;display:flex;align-items:center;justify-content:center;padding:16px;";
+      modal.innerHTML='<div style="width:min(560px,94vw);max-height:90vh;overflow:auto;background:#171717;border:3px solid #ffd700;border-radius:14px;padding:20px;color:#fff;text-align:center"><h2 style="color:#ffd700;margin:0 0 8px">👑 ADMIN RANK</h2><p>能力を1つだけ選択してください</p><div id="adminRankChoiceList" style="display:grid;gap:9px;margin-top:14px"></div></div>';
+      document.body.appendChild(modal);
+      const list=modal.querySelector("#adminRankChoiceList");
+      choices.forEach(([id,label,desc])=>{
+        const b=document.createElement("button");
+        b.type="button";
+        b.style.cssText="padding:12px;text-align:left;background:#333;border:2px solid #666;color:#fff;border-radius:9px;font-size:15px;";
+        b.innerHTML="<b>"+label+"</b><br><span style='font-size:12px;color:#ccc'>"+desc+"</span>";
+        b.onclick=()=>selectChoice(id);
+        list.appendChild(b);
+      });
+    }
+    modal.style.display="flex";
+  }
+
+  function selectChoice(id){
+    adminRankCodeUsed=true;
+    adminRankAbility=id;
+    if(id==="guard") adminGuardBlocksLeft=5;
+    if(id==="gauge"){
+      specialStock=Math.max(1,specialStock);
+    }
+    if(id==="attack"){
+      adminAttackTimer=5+Math.random()*5;
+    }
+    const modal=document.getElementById("adminRankChoiceModal");
+    if(modal) modal.style.display="none";
+    const box=document.getElementById("specialCodeBox");
+    if(box) box.classList.remove("hidden");
+    const input=document.getElementById("specialCodeInput");
+    if(input) input.focus();
+    msg.textContent="👑 ADMIN RANKの能力を選択しました！";
+  }
+
+  window.openAdminRankSelection=showChoice;
+})();
+
+function updateAdminRankAttack(dt){
+  if(typeof adminRankAbility==="undefined" || adminRankAbility!=="attack") return;
+  if(gameOver || stageClear || bossSpecialState) return;
+
+  adminAttackTimer-=dt;
+  if(adminAttackTimer<=0){
+    adminAttackTimer=7+Math.random()*5;
+    const dx=enemy.x-p.x, dy=enemy.y-p.y, d=Math.hypot(dx,dy)||1;
+    adminAttackBullets.push({
+      x:p.x,y:p.y,vx:dx/d*3.2,vy:dy/d*3.2,
+      r:22,life:240,hit:false
+    });
+    msg.textContent="👑 ADMIN攻撃！ 大型追尾弾を発射！";
+  }
+
+  for(let i=adminAttackBullets.length-1;i>=0;i--){
+    const b=adminAttackBullets[i];
+    const dx=enemy.x-b.x,dy=enemy.y-b.y,d=Math.hypot(dx,dy)||1;
+    b.vx+=(dx/d*4-b.vx)*0.06;
+    b.vy+=(dy/d*4-b.vy)*0.06;
+    b.x+=b.vx;
+    b.y+=b.vy;
+    b.life--;
+    if(!b.hit && d<45){
+      // ADMIN攻撃そのものは30固定ダメージ。4倍能力との重複はさせない。
+      damageEnemy(30);
+      b.hit=true;
+      b.life=0;
+    }
+    if(b.life<=0 || b.x<0 || b.x>CANVAS_WIDTH || b.y<0 || b.y>CANVAS_HEIGHT){
+      adminAttackBullets.splice(i,1);
+    }
+  }
+}
+
+function drawAdminRankBullets(){
+  if(typeof adminAttackBullets==="undefined") return;
+  adminAttackBullets.forEach(b=>{
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+    ctx.fillStyle="rgba(255,215,0,.9)";
+    ctx.fill();
+    ctx.lineWidth=4;
+    ctx.strokeStyle="#fff";
+    ctx.stroke();
+    ctx.font="22px serif";
+    ctx.textAlign="center";
+    ctx.textBaseline="middle";
+    ctx.fillText("👑",b.x,b.y);
+    ctx.restore();
+  });
+}
+
 </script>
 </body>
 </html>

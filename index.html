@@ -3419,9 +3419,9 @@ body.mobile-mode #btnBow{display:none !important;}
   background:linear-gradient(135deg,#101827,#18233b); color:#fff; padding:16px; box-sizing:border-box;
 }
 #resultScreen.hidden{display:none!important;}
-#resultViewport{width:min(900px,96vw); height:min(680px,92vh); overflow:hidden; border-radius:18px;}
-#resultTrack{display:flex; width:200%; height:100%; transition:transform .32s ease;}
-.resultPage{width:50%; height:100%; box-sizing:border-box; overflow:auto; padding:22px; background:rgba(10,15,28,.96); text-align:center;}
+#resultViewport{width:min(1200px,96vw); height:min(680px,92vh); overflow:hidden; border-radius:18px;}
+#resultTrack{display:flex; width:100%; height:100%; gap:16px; transform:none!important;}
+.resultPage{width:calc(50% - 8px); flex:0 0 calc(50% - 8px); height:100%; box-sizing:border-box; overflow:auto; padding:22px; background:rgba(10,15,28,.96); text-align:center; border-radius:18px;}
 .resultPage h1{margin:4px 0 10px;font-size:clamp(25px,4vw,38px);}
 .resultStatus{font-size:20px;font-weight:bold;margin:5px 0 8px;}
 .resultScore{font-size:68px;font-weight:900;line-height:1;}
@@ -3436,14 +3436,14 @@ body.mobile-mode #btnBow{display:none !important;}
 .resultNote{font-size:12px;opacity:.8;}
 .resultMainBtn{margin:12px 5px;padding:10px 20px;border:0;border-radius:10px;background:#22c55e;color:#07120a;font-weight:bold;font-size:16px;cursor:pointer;}
 .resultSwipeHint{font-size:12px;opacity:.7;margin-top:8px;}
-@media(max-width:600px){
-  #resultScreen{padding:8px;}
-  #resultViewport{width:98vw;height:94vh;}
-  .resultPage{padding:14px 10px;}
+@media(max-width:800px){
+  #resultViewport{width:98vw;height:94vh;overflow:hidden;}
+  #resultTrack{width:200%;gap:0;transform:none;}
+  .resultPage{width:50%;flex:0 0 50%;border-radius:0;}
+  .resultPage:nth-child(2){display:none;}
   .resultScore{font-size:54px;}
   .resultBreakdown,.resultRules{font-size:13px;}
 }
-
 </style>
 
 

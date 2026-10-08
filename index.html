@@ -4116,10 +4116,15 @@ function startCountdown() {
 
   // 画面切り替えはCSSのgridやhidden指定に左右されないよう、
   // ここでは各画面を明示的にON/OFFする。
+  const titleScreen = document.getElementById("title");
   const drawScreen = document.getElementById("draw");
   const countScreen = document.getElementById("count");
   const gameScreen = document.getElementById("gameArea");
   const mobileControls = document.getElementById("mobileControls");
+
+  // リトライ時も「PC版 / スマホ版を選択」のタイトル画面を完全に隠す。
+  // カウントダウンからはステージ1のゲームだけを表示する。
+  if (titleScreen) titleScreen.classList.add("hidden");
 
   currentScreen = "countdown";
   const hushDuringCount = document.getElementById("hushBtn");

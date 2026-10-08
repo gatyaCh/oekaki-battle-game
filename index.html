@@ -4253,6 +4253,7 @@ let minionsDefeated = 0;
 let totalMinionsSpawned = 0;
 let bossesDefeated = 0;
 let stage4PointEligibleKills = 0;
+let minionPointTotal = 0;
 let treasureChestsOpened = 0;
 let coinPointTotal = 0;
 let bossDefeatAwardedForStage = false;
@@ -4520,7 +4521,8 @@ function damageMinion(m, amount) {
   dmgText.push({ x: m.x, y: m.y, t: "-" + Math.floor(amount), life: 45 });
   if (m.hp <= 0) {
     minionsDefeated++;
-    if (stage !== 4 || stage4PointEligibleKills < 6) stage4PointEligibleKills++;
+    if (stage !== 4) minionPointTotal += 2;
+    else if (stage4PointEligibleKills < 6) { stage4PointEligibleKills++; minionPointTotal += 2; }
     coins += 5;
     showBattlePickupNotice("💰 コインGET！ +5 G");
     if (m.type === "jellyfish") {
@@ -4645,8 +4647,7 @@ function showResult(cleared) {
   stageClear = false;
   const hpPts = getHpPoints();
   const dmgPts = getDamagePoints();
-  const minionPts = Math.max(0, minionsDefeated - Math.max(0, stage4PointEligibleKills - 6)) * 2;
-  const actualStage4Eligible = Math.min(stage4PointEligibleKills, 6);
+  const minionPts = minionPointTotal;
   const allMinionsDefeated = totalMinionsSpawned === minionsDefeated && minions.length === 0;
   const allEnemiesDefeated = bossesDefeated >= 8 && allMinionsDefeated;
   const adminEligible = cleared && allEnemiesDefeated && !reviveUsed && !specialUsed && totalDamageTaken <= 200 && !adminRankCodeUsed;
@@ -4708,6 +4709,7 @@ function resetGame() {
   totalMinionsSpawned = 0;
   bossesDefeated = 0;
   stage4PointEligibleKills = 0;
+  minionPointTotal = 0;
   treasureChestsOpened = 0;
   coinPointTotal = 0;
   bossDefeatAwardedForStage = false;

@@ -3444,11 +3444,51 @@ body.mobile-mode #btnBow{display:none !important;}
   .resultScore{font-size:54px;}
   .resultBreakdown,.resultRules{font-size:13px;}
 }
+
+/* チュートリアル */
+#tutorialChoice{position:fixed;inset:0;z-index:950000;background:rgba(12,17,30,.97);display:flex;align-items:center;justify-content:center;padding:18px}
+#tutorialChoice.hidden,#tutorialPanel.hidden{display:none!important}
+.tutorial-choice-card,.tutorial-panel-card{width:min(620px,94vw);background:#172238;border:2px solid #6b8bc5;border-radius:18px;padding:26px;color:#fff;box-shadow:0 12px 40px #0008}
+.tutorial-choice-card h1{margin:0 0 18px}.tutorial-choice-card p{font-size:18px;margin-bottom:22px;line-height:1.6}
+.tutorial-primary{background:#16a34a!important;color:#fff!important;font-weight:bold;padding:12px 22px!important;border-radius:9px!important}
+.tutorial-secondary{background:#465267!important;padding:12px 22px!important;border-radius:9px!important}
+#tutorialPanel{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:940000;width:min(680px,94vw);pointer-events:none}
+.tutorial-panel-card{width:100%;padding:16px 20px;text-align:left;border-color:#ffd54a;pointer-events:auto}
+#tutorialProgress{color:#ffd54a;font-size:13px;font-weight:bold;margin-bottom:4px}
+#tutorialTitle{font-size:21px;margin:0 0 8px}
+#tutorialText{font-size:16px;line-height:1.55;white-space:pre-line}
+#tutorialPracticeHint{margin-top:8px;color:#a7f3d0;font-size:14px;line-height:1.45}
+.tutorial-panel-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:12px}
+#tutorialReplayBtn{background:#2563eb!important}
+@media(max-width:800px){.tutorial-choice-card{padding:20px}.tutorial-panel-card{padding:12px 14px}#tutorialTitle{font-size:18px}#tutorialText{font-size:14px}.tutorial-panel-actions button{padding:9px 12px!important}}
+
 </style>
 
 
 </head>
 <body>
+
+<div id="tutorialChoice" class="hidden" aria-label="チュートリアル選択">
+  <div class="tutorial-choice-card">
+    <h1>📘 チュートリアル</h1>
+    <p>はじめて遊ぶ前に、操作方法を練習しますか？</p>
+    <button onclick="startTutorialDelay()" class="tutorial-primary">チュートリアルをする</button>
+    <button onclick="skipTutorial()" class="tutorial-secondary">しない（いつも通り遊ぶ）</button>
+  </div>
+</div>
+<div id="tutorialPanel" class="hidden" aria-live="polite">
+  <div class="tutorial-panel-card">
+    <div id="tutorialProgress"></div>
+    <h2 id="tutorialTitle">📘 チュートリアル</h2>
+    <p id="tutorialText"></p>
+    <div id="tutorialPracticeHint"></div>
+    <div class="tutorial-panel-actions">
+      <button id="tutorialSpecialBtn" class="hidden" onclick="tutorialOpenSpecial()">必殺技の画面を開く</button>
+      <button id="tutorialNextBtn" class="tutorial-primary" onclick="tutorialNext()">次へ ▶</button>
+    </div>
+  </div>
+</div>
+
 <div id="title">
   <h1 style="margin: 40px 0 20px;">🎨 正式版お絵かきバトルVer1.00</h1>
   <h2 style="margin-bottom:16px;">遊ぶ端末を選択してください</h2>
@@ -3473,6 +3513,7 @@ body.mobile-mode #btnBow{display:none !important;}
   <button id="clearBtn">描き直す</button>
   <p id="result" style="margin: 10px 0; font-size: 20px; font-weight:bold;"></p>
   <button id="gearBtn" title="キー設定">⚙️</button>
+  <button id="tutorialReplayBtn" type="button" onclick="startTutorialFromDraw()">📘 チュートリアル</button>
   <button id="battleBtn" class="hidden" style="font-size: 18px; background: #28a745;">戦闘開始</button>
 </div>
 <button id="hushBtn" title="スペシャルコード">🤫</button>
@@ -3732,7 +3773,8 @@ function syncScreenVisibility() {
     draw: document.getElementById("draw"),
     countdown: document.getElementById("count"),
     game: document.getElementById("gameArea"),
-    result: document.getElementById("resultScreen")
+    result: document.getElementById("resultScreen"),
+    tutorialChoice: document.getElementById("tutorialChoice")
   };
   Object.entries(screens).forEach(([name, el]) => {
     if (!el) return;
@@ -3775,6 +3817,110 @@ function setScreen(screen) {
   syncScreenVisibility();
 }
 
+
+const tutorialBattleSteps = [
+  {title:"① 移動方法",text:"プレイヤーを動かしてみよう！",hint:()=>deviceMode==="mobile"?"左側のスティックを動かして、キャラクターを移動させよう。":"設定キーの移動操作（初期設定は W・A・S・D）で、キャラクターを動かしてみよう。",practice:true},
+  {title:"② 攻撃方法",text:"攻撃してみよう！",hint:()=>deviceMode==="mobile"?"攻撃ボタンを押してみよう。":"攻撃キー（初期設定は E）を長押ししてから離すと攻撃できるよ。",practice:true},
+  {title:"③ 🎁 の紹介",text:"🎁 はポイントにつながるアイテムだよ。見つけたら近づいて、ゲーム内の表示に従ってゲットしよう。",hint:()=>"この説明中はゲームが一時停止するよ。読み終えたら「次へ」を押そう。",practice:false},
+  {title:"④ 📦 の紹介",text:"📦 は宝箱！近づいて宝箱キーを長押しすると開けられるよ。中からコインなどの報酬が出るよ。",hint:()=>deviceMode==="mobile"?"宝箱の近くで画面の「宝箱」ボタンを長押ししよう。":"宝箱の近くで宝箱キー（初期設定は F）を長押ししよう。",practice:false},
+  {title:"⑤ 必殺技の使い方",text:"必殺技ゲージがたまるとストックが増えるよ。必殺技を使うときは、専用キャンバスに形を描いて発動するんだ。",hint:()=>deviceMode==="mobile"?"「必殺技の画面を開く」を押して試してみよう。":"Qキー、または「必殺技の画面を開く」から試してみよう。",practice:false},
+  {title:"⑥ ランクの紹介",text:"ゲーム終了時にポイントに応じたランクが表示されるよ。敵撃破・宝箱・残りHP・受けたダメージなどがポイントに影響するんだ。",hint:()=>"これでバトルの説明はおしまい！「次へ」でキャンバスの説明に進むよ。",practice:false}
+];
+const tutorialCanvasSteps = [
+  {title:"⑦ 絵の描き方",text:"キャンバスで狙う武器を選び、見本をなぞって描こう。描いたら「武器決定」で判定して、戦闘を始めるよ。",hint:()=>"スマホではキャンバス下の「大きくする」で描きやすくできるよ。",practice:false},
+  {title:"⑧ キー設定",text:"PC版では⚙️から移動・攻撃・宝箱などのキーを変更できるよ。スマホ版は画面の操作ボタンを使うのでキー設定は不要だよ。",hint:()=>deviceMode==="mobile"?"スマホ版では画面上のスティックとボタンを使おう。":"設定を開いて、変更したい項目を選んでから新しいキーを押そう。",practice:false},
+  {title:"⑨ スペシャルコード",text:"🤫 からスペシャルコード画面を開いてコードを入力できるよ。公開されているコードや、ゲーム内で見つけたコードを使おう。",hint:()=>"チュートリアルはいつでもキャンバス画面の「📘 チュートリアル」からやり直せるよ。",practice:false}
+];
+function renderTutorialStep(){
+  const panel=document.getElementById("tutorialPanel");
+  const steps=tutorialPhase==="battle"?tutorialBattleSteps:tutorialCanvasSteps;
+  const item=steps[tutorialStep];
+  if(!item){panel.classList.add("hidden");return;}
+  panel.classList.remove("hidden");
+  document.getElementById("tutorialProgress").textContent=(tutorialPhase==="battle"?"バトルの練習":"キャンバスの説明")+" ・ "+(tutorialStep+1)+" / "+steps.length;
+  document.getElementById("tutorialTitle").textContent=item.title;
+  document.getElementById("tutorialText").textContent=item.text;
+  document.getElementById("tutorialPracticeHint").textContent=typeof item.hint==="function"?item.hint():item.hint;
+  document.getElementById("tutorialNextBtn").textContent=(tutorialPhase==="battle"&&tutorialStep===tutorialBattleSteps.length-1)?"キャンバスへ ▶":(tutorialPhase==="canvas"&&tutorialStep===tutorialCanvasSteps.length-1)?"チュートリアル終了 ✓":"次へ ▶";
+  document.getElementById("tutorialSpecialBtn").classList.toggle("hidden",!(tutorialPhase==="battle"&&tutorialStep===4));
+}
+function startTutorialDelay(){
+  const choice=document.getElementById("tutorialChoice");
+  const title=document.querySelector("#tutorialChoice h1");
+  const p=document.querySelector("#tutorialChoice p");
+  const buttons=choice.querySelectorAll("button");
+  buttons.forEach(b=>b.disabled=true);
+  if(title) title.textContent="📘 チュートリアル準備中";
+  if(p) p.textContent="3秒後にチュートリアルが始まるよ！";
+  let n=3;
+  if(tutorialDelayTimer) clearInterval(tutorialDelayTimer);
+  tutorialDelayTimer=setInterval(()=>{
+    n--;
+    if(p) p.textContent=n>0?n+"秒後にチュートリアルが始まるよ！":"まもなく開始！";
+    if(n<=0){clearInterval(tutorialDelayTimer);tutorialDelayTimer=null;beginTutorialBattle();}
+  },1000);
+}
+function skipTutorial(){
+  tutorialActive=false;
+  document.getElementById("tutorialPanel").classList.add("hidden");
+  setScreen("draw");
+  redrawCanvas();
+}
+function startTutorialFromDraw(){ beginTutorialBattle(); }
+function beginTutorialBattle(){
+  document.getElementById("tutorialChoice").classList.add("hidden");
+  tutorialActive=true; tutorialPhase="battle"; tutorialStep=0; tutorialSpecialUsed=false;
+  stage=1; gameOver=false; stageClear=false; fullClear=false; isPausedForSpecial=false;
+  setStageObstacles(1);
+  p.x=100;p.y=250;p.hp=150;p.max=150;p.invincibility=999999;
+  enemy.x=700;enemy.y=250;enemy.maxHp=10000;enemy.hp=10000;enemy.spawnTimer=999999;
+  minions=[];enemyBullets=[];magmaZones=[];bossSpecialState=null;bossSpecialTimer=0;bossSpecialUses={};bossSpecialCooldown=999999;
+  treasureChest.opened=false;treasureChest.progress=0;
+  specialStock=1;specialGaugeDamage=0;specialGaugeMaxed=false;updateSpecialGauge();
+  weapon="⚔️"; charging=false;charge=0;attackCooldown=0;wandCooldown=0;
+  createMinionsForStage(1);
+  document.getElementById("stageLabel").textContent="🌳 Stage 1（チュートリアル）";
+  document.getElementById("msg").textContent="";
+  renderTutorialStep();
+  startCountdown();
+}
+function tutorialOpenSpecial(){
+  if(!tutorialActive||tutorialPhase!=="battle"||tutorialStep!==4)return;
+  document.getElementById("tutorialPanel").classList.add("hidden");
+  specialStock=Math.max(1,specialStock);
+  openSpecialCanvas();
+}
+function tutorialNext(){
+  if(!tutorialActive)return;
+  const steps=tutorialPhase==="battle"?tutorialBattleSteps:tutorialCanvasSteps;
+  if(tutorialPhase==="battle"&&tutorialStep===tutorialBattleSteps.length-1){
+    tutorialPhase="canvas";tutorialStep=0;
+    isPausedForSpecial=false;
+    setScreen("draw");
+    // チュートリアル専用バトルの状態を通常の初期状態へ戻す。
+    p.hp=150;p.max=150;p.x=100;p.y=250;p.invincibility=0;
+    enemy.maxHp=stageBosses[0].hp;enemy.hp=enemy.maxHp;enemy.x=700;enemy.y=250;enemy.spawnTimer=0;
+    minions=[];enemyBullets=[];magmaZones=[];bossSpecialState=null;bossSpecialCooldown=0;
+    stage=1;gameOver=false;stageClear=false;fullClear=false;
+    locked=false;pts=[];selectedTarget="FREE";weapon="🏹";
+    document.querySelectorAll("#draw .weapon-select-box button").forEach(b=>b.disabled=false);
+    document.getElementById("battleBtn").classList.add("hidden");
+    document.getElementById("result").textContent="";
+    redrawCanvas();
+    renderTutorialStep();
+    return;
+  }
+  if(tutorialPhase==="canvas"&&tutorialStep===tutorialCanvasSteps.length-1){
+    tutorialActive=false;
+    document.getElementById("tutorialPanel").classList.add("hidden");
+    document.getElementById("tutorialReplayBtn").classList.remove("hidden");
+    setScreen("draw");redrawCanvas();
+    return;
+  }
+  tutorialStep++;
+  renderTutorialStep();
+}
+
 function chooseDevice(mode) {
   deviceMode = mode;
   document.body.classList.toggle('mobile-mode', mode === 'mobile');
@@ -3788,8 +3934,8 @@ function chooseDevice(mode) {
     }
   }
 
-  setScreen('draw');
-  redrawCanvas();
+  // 機種選択後は、先にチュートリアルをするか確認する。
+  setScreen('tutorialChoice');
 
   // スマホ版は横画面を推奨・可能ならロックする。
   if (mode === 'mobile' && screen.orientation && screen.orientation.lock) {
@@ -4204,6 +4350,11 @@ function startCountdown() {
 // Game Logic Variables
 const c = document.getElementById("game");
 const ctx = c.getContext("2d");
+let tutorialActive = false;
+let tutorialPhase = "battle";
+let tutorialStep = 0;
+let tutorialDelayTimer = null;
+let tutorialSpecialUsed = false;
 let stage = 1;
 let coins = 0;
 let p = { x: 100, y: 250, hp: 150, max: 150, r: 20, invincibility: 0 };
@@ -4763,6 +4914,10 @@ function retryFromGameOver() {
 }
 
 function resetGame() {
+  tutorialActive = false;
+  tutorialPhase = "battle";
+  tutorialStep = 0;
+  document.getElementById("tutorialPanel").classList.add("hidden");
   currentScreen = "title";
   stage = 1;
   setStageObstacles(1);
@@ -5108,6 +5263,7 @@ function normalEnemyDps() {
   return 5.0;
 }
 function damagePlayer(dmg) {
+  if (tutorialActive) return; // 練習中はプレイヤーが倒されない
   if (p.invincibility > 0 || shieldActive || ghost || admin.invincible || admin.god) return;
   if (adminRankAbility === "guard" && adminGuardBlocksLeft > 0) {
     adminGuardBlocksLeft--;
@@ -5359,6 +5515,10 @@ function update() {
   // ステージ1へ持ち越されないようにする。
   if (currentScreen !== "game") return;
   if (gameOver || stageClear) return;
+  if (tutorialActive) {
+    const practiceStep = tutorialPhase === "battle" && (tutorialStep === 0 || tutorialStep === 1);
+    if (!practiceStep) return;
+  }
   const dt = 1 / 60;
 
   updateAdminRankAttack(dt);
@@ -5858,6 +6018,7 @@ window.addEventListener("pointerup", () => { spDrawing = false; });
 function executeSpecialAttack() {
   specialUsed = true;
   document.getElementById("specialModal").classList.add("hidden");
+  if (tutorialActive && tutorialPhase === "battle" && tutorialStep === 4) { tutorialSpecialUsed = true; document.getElementById("tutorialPanel").classList.remove("hidden"); }
   isPausedForSpecial = false;
   if (specialStock > 0) specialStock--;
   updateSpecialGauge();

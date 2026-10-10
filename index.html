@@ -3472,6 +3472,154 @@ body.mobile-mode #btnBow{display:none !important;}
 </style>
 
 
+
+<style id="ui-readability-refresh">
+/* UI readability refresh: visual-only overrides; preserve layout and game logic. */
+:root {
+  color-scheme: dark;
+  --ui-bg: #171a22;
+  --ui-panel: #242a35;
+  --ui-panel-soft: #202631;
+  --ui-border: #596579;
+  --ui-text: #f4f7fb;
+  --ui-muted: #c7d0dd;
+  --ui-accent: #78b7ff;
+  --ui-focus: #ffe082;
+}
+body {
+  color: var(--ui-text);
+  background:
+    radial-gradient(ellipse at 50% -18%, rgba(83, 112, 157, .25), transparent 58%),
+    #1b1e26;
+  line-height: 1.45;
+}
+h1, h2, h3 {
+  line-height: 1.25;
+  text-wrap: balance;
+}
+button {
+  border: 1px solid #667386;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #4b5668, #353d4b);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2px 0 rgba(0,0,0,.28);
+  transition: background-color .12s ease, border-color .12s ease, filter .12s ease;
+}
+button:hover:not(:disabled) {
+  background: linear-gradient(180deg, #62738a, #424e60);
+  border-color: #9aabc1;
+  filter: brightness(1.05);
+}
+button:active:not(:disabled) {
+  filter: brightness(.94);
+  box-shadow: 0 1px 0 rgba(0,0,0,.25);
+}
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--ui-focus);
+  outline-offset: 2px;
+}
+button:disabled {
+  border-color: #3c4350;
+  box-shadow: none;
+}
+input, select, textarea {
+  color: #f8fafc;
+  background-color: #171d27;
+  border: 1px solid #69778b;
+  border-radius: 7px;
+}
+input::placeholder, textarea::placeholder {
+  color: #aeb9c8;
+  opacity: 1;
+}
+canvas {
+  border-color: #68768b;
+}
+#drawCanvas, #specialCanvas {
+  border: 2px solid #8997ab;
+  border-radius: 8px;
+  box-shadow: 0 4px 18px rgba(0,0,0,.22);
+}
+#title {
+  color: var(--ui-text);
+}
+#title h1 {
+  color: #f5f8ff;
+  text-shadow: 0 2px 14px rgba(120,183,255,.18);
+}
+#title h2, #draw h2, #gameArea h2 {
+  text-shadow: 0 1px 5px rgba(0,0,0,.35);
+}
+.weapon-select-box,
+.special-code-input-panel,
+.public-special-code-panel,
+.keyRow,
+.shop-card,
+#adminVideoOverlay .video-card {
+  background-color: var(--ui-panel);
+  border-color: var(--ui-border);
+  border-radius: 10px;
+}
+.weapon-select-box {
+  box-shadow: 0 3px 14px rgba(0,0,0,.18);
+}
+.weapon-select-box button.active {
+  border-color: #b7d9ff;
+  box-shadow: 0 0 0 2px rgba(120,183,255,.25);
+}
+#msg {
+  font-weight: 700;
+  text-shadow: 0 1px 3px #000;
+}
+#chargeContainer, #specialGaugeContainer {
+  color: #f5f7fb;
+}
+progress {
+  accent-color: #78b7ff;
+}
+#shopModal, #specialModal, #adminPanel, #kizukuPanel, #rikuPanel,
+#adminRateEditor, #specialCodeFoundModal {
+  border-color: var(--ui-border);
+}
+.shop-container {
+  border-color: #63738b;
+  box-shadow: 0 14px 44px rgba(0,0,0,.42);
+}
+.shop-card {
+  border: 1px solid var(--ui-border);
+}
+.resultPage {
+  border: 1px solid #3f4e67;
+  box-shadow: 0 8px 28px rgba(0,0,0,.22);
+}
+.resultBreakdown, .resultRules {
+  border: 1px solid #34435c;
+}
+#keySetting, #keyConfirm, #specialCodeBox {
+  background: rgba(9,13,20,.96);
+}
+#adminVideoOverlay {
+  background: rgba(9,13,20,.97);
+}
+#mobileControls .mobile-btn,
+#mobileControls .mobile-stick {
+  box-shadow: 0 4px 14px rgba(0,0,0,.28);
+}
+#mobileHint {
+  text-shadow: 0 1px 3px #000;
+}
+.tutorial-choice-card, .tutorial-panel-card {
+  box-shadow: 0 12px 40px rgba(0,0,0,.48);
+}
+@media (prefers-reduced-motion: reduce) {
+  button { transition: none; }
+}
+</style>
+
 </head>
 <body>
 

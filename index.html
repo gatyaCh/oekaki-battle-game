@@ -4458,6 +4458,7 @@ function startCountdown() {
   if (titleScreen) titleScreen.classList.add("hidden");
 
   currentScreen = "countdown";
+  syncScreenVisibility();
   const hushDuringCount = document.getElementById("hushBtn");
   if (hushDuringCount) {
     hushDuringCount.style.display = "none";
@@ -4471,6 +4472,7 @@ function startCountdown() {
   if (tutorialActive) {
     countScreen.classList.add("hidden");
     currentScreen = "game";
+    syncScreenVisibility();
     gameScreen.classList.remove("hidden");
     drawScreen.classList.add("hidden");
     if (mobileControls) {
@@ -4528,6 +4530,7 @@ function startCountdown() {
 
     // カウントダウン終了 → 必ず戦闘画面へ
     currentScreen = "game";
+    syncScreenVisibility();
     const hushDuringGame = document.getElementById("hushBtn");
     if (hushDuringGame) {
       hushDuringGame.style.display = "none";
@@ -5118,6 +5121,7 @@ function resetGame() {
   tutorialStep = 0;
   document.getElementById("tutorialPanel").classList.add("hidden");
   currentScreen = "title";
+  syncScreenVisibility();
   stage = 1;
   setStageObstacles(1);
   coins = 0;

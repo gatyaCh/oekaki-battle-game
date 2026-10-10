@@ -4257,6 +4257,7 @@ function judge() {
   document.getElementById("battleBtn").classList.remove("hidden");
 }
 function startCountdown() {
+  if (tutorialActive) document.getElementById("tutorialPanel").classList.add("hidden");
   const specialCodeBox = document.getElementById("specialCodeBox");
   if (specialCodeBox) specialCodeBox.classList.add("hidden");
 
@@ -4345,6 +4346,7 @@ function startCountdown() {
       mobileControls.style.display = deviceMode === "mobile" ? "block" : "none";
       mobileControls.style.pointerEvents = "none";
     }
+    if (tutorialActive) renderTutorialStep();
   }, 1000);
 }
 // Game Logic Variables

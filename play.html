@@ -7,7 +7,13 @@
   <style>
     body { font-family: sans-serif; text-align: center; padding: 20px; background:#222; color:#fff; }
     a { color:#7dd3fc; }
-    .qr { width: 250px; height: 250px; max-width: 80vw; background:#fff; padding:8px; }
+    .qr { width: 250px; height: 250px; max-width: 80vw; background:#fff; padding:8px; box-sizing:border-box; }
+    .qr-row { display:flex; align-items:flex-start; justify-content:center; gap:28px; flex-wrap:wrap; margin:18px auto; max-width:700px; }
+    .qr-card { width:270px; max-width:90vw; text-align:center; }
+    .qr-card h3 { margin:8px 0; }
+    .qr-card p { line-height:1.55; }
+    .qr-card a { color:#7dd3fc; overflow-wrap:anywhere; }
+    @media(max-width:600px){ .qr-row{gap:18px}.qr-card{width:100%} }
     .update-overlay {
       position:fixed; inset:0; background:rgba(0,0,0,.72); z-index:9999;
       display:flex; align-items:center; justify-content:center; padding:20px;
@@ -33,14 +39,9 @@
   <div id="updateNotice" class="update-overlay" role="dialog" aria-modal="true" aria-labelledby="updateTitle">
     <div class="update-modal">
       <h2 id="updateTitle">📢 アップデートのお知らせ</h2>
-      <div class="update-date">2026年10月8日</div>
-      <ol>
-        <li>１　ゲーム終了時にポイント・ランク結果画面を追加</li>
-        <li>２　右にスライドするとポイント制度表を確認できるように変更</li>
-        <li>３　新たなスペシャルコードを追加</li>
-        <li>４　チュートリアルを追加（操作方法・アイテム・必殺技・ランクなどを説明）</li>
-        <li>なお、次のアップデートは未定です。</li>
-      </ol>
+      <div class="update-date">2026年10月10日</div>
+      <p style="text-align:center;line-height:1.8">チュートリアルを追加しました</p>
+      <p style="text-align:center;margin:18px 0 0">次のアップデートは未定です</p>
       <button id="updateClose" class="update-close" type="button">確認してゲームへ</button>
     </div>
   </div>
@@ -48,13 +49,27 @@
   <p>🎮 ここからゲームをプレイできます。</p>
   <p><a href="./index.html">🎮 ゲームをプレイ</a></p>
   <hr>
-  <h2>📱 ゲームを開くQRコード</h2>
-  <p>スマホなどでこのQRコードを読み取ると、ゲームを開けます。</p>
-  <img
-    class="qr"
-    src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https%3A%2F%2Fgatyach.github.io%2Foekaki-battle-game%2Fplay.html"
-    alt="正式版お絵かきバトルVer1.00 プレイ用QRコード">
-  <p>QRコードを読み取る → このページを開く → ゲームをプレイ！</p>
+  <div class="qr-row">
+    <section class="qr-card">
+      <h2>📱 ゲームを開くQRコード</h2>
+      <p>スマホなどで読み取ると、ゲームを開けます。</p>
+      <img
+        class="qr"
+        src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https%3A%2F%2Fgatyach.github.io%2Foekaki-battle-game%2Fplay.html"
+        alt="正式版お絵かきバトルVer1.00 プレイ用QRコード">
+      <p>QRコードを読み取る → このページを開く → ゲームをプレイ！</p>
+    </section>
+    <section class="qr-card">
+      <h2>📺 YouTubeチャンネル</h2>
+      <p>ゆっくり緑茶さんのチャンネルを開くQRコードです。</p>
+      <img
+        class="qr"
+        src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https%3A%2F%2Fwww.youtube.com%2F%40%25E3%2582%2586%25E3%2581%25A3%25E3%2581%258F%25E3%2582%258A%25E7%25B7%2591%25E8%258C%25B6%30"
+        alt="ゆっくり緑茶さんのYouTubeチャンネルQRコード">
+      <p>今一番遊んでくれているゆっくり緑茶さんのYouTubeチャンネルリンクです！</p>
+      <p><a href="https://www.youtube.com/@%E3%82%86%E3%81%A3%E3%81%8F%E3%82%8A%E7%B7%91%E8%8C%B60" target="_blank" rel="noopener noreferrer">YouTubeチャンネルを開く</a></p>
+    </section>
+  </div>
 <script>
   document.getElementById("updateClose").addEventListener("click", () => {
     document.getElementById("updateNotice").style.display = "none";

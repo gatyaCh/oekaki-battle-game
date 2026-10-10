@@ -17,6 +17,12 @@ button:disabled { opacity: 0.5; cursor: not-allowed; background: #222; }
 #draw { position: relative; padding: 20px; }
 #gearBtn { position: absolute; right: 8px; top: 8px; font-size: 24px; padding: 6px; }
 #hushBtn { position: fixed; right: 54px; top: 8px; font-size: 24px; padding: 6px; z-index: 310; }
+#adminVideoBtn { position: fixed; right: 100px; top: 8px; font-size: 24px; padding: 6px; z-index: 310; }
+#adminVideoOverlay { position:fixed; inset:0; z-index:10050; background:rgba(0,0,0,.94); color:#fff; padding:20px; overflow:auto; }
+#adminVideoOverlay .video-card { max-width:680px; margin:24px auto; padding:18px; border:2px solid #777; border-radius:12px; background:#292929; }
+#adminVideoOverlay video { width:100%; max-height:78vh; background:#000; display:block; margin:12px auto; }
+#adminVideoOverlay .video-title { font-size:20px; margin:12px 0; }
+@media(max-width:600px){ #adminVideoBtn { right:100px; top:8px; } #adminVideoOverlay { padding:12px; } }
 #keySetting, #keyConfirm, #specialCodeBox { position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 100; color: #fff; padding: 24px; text-align: center; overflow-y: auto; }
 .special-code-layout { display:flex; align-items:center; justify-content:center; gap:28px; max-width:760px; margin:30px auto 0; }
 .special-code-input-panel, .public-special-code-panel { background:rgba(255,255,255,.06); border:2px solid #555; border-radius:10px; padding:18px; min-width:280px; }
@@ -3518,6 +3524,26 @@ body.mobile-mode #btnBow{display:none !important;}
   <button id="battleBtn" class="hidden" style="font-size: 18px; background: #28a745;">戦闘開始</button>
 </div>
 <button id="hushBtn" title="スペシャルコード">🤫</button>
+<button id="adminVideoBtn" type="button" title="管理者プレイ映像">🔰</button>
+<div id="adminVideoOverlay" class="hidden" role="dialog" aria-modal="true" aria-label="管理者プレイ映像">
+  <section id="adminVideoListView">
+    <h2>🔰 管理者プレイ映像</h2>
+    <p style="margin:12px 0;color:#ddd;">公開されているプレイ映像をいつでも見られます。</p>
+    <div class="video-card">
+      <div class="video-title">🎮 ステージ1クリアまでの映像</div>
+      <button id="adminVideoPlayBtn" type="button" style="font-size:18px;">▶ 再生する</button>
+    </div>
+    <button id="adminVideoListClose" type="button">ゲームに戻る</button>
+  </section>
+  <section id="adminVideoPlayerView" class="hidden">
+    <h2>🎬 管理者プレイ映像</h2>
+    <video id="adminGameplayVideo" controls playsinline preload="metadata">
+      <source src="./oekaki_stage1_clear%20(1).mp4" type="video/mp4">
+      お使いのブラウザは動画再生に対応していません。
+    </video>
+    <button id="adminVideoBackBtn" type="button">← 動画一覧に戻る</button>
+  </section>
+</div>
 <div id="count" class="hidden" style="margin-top: 100px;"><h1 id="countText" style="font-size: 72px;">3</h1></div>
 <div id="gameArea" class="hidden">
   <h2 id="stageLabel">🌳 Stage 1</h2>
@@ -7100,6 +7126,36 @@ function drawAdminRankBullets(){
   });
 }
 
+</script>
+
+<script>
+(function initAdminGameplayVideo(){
+  const overlay=document.getElementById("adminVideoOverlay");
+  const list=document.getElementById("adminVideoListView");
+  const playerView=document.getElementById("adminVideoPlayerView");
+  const video=document.getElementById("adminGameplayVideo");
+  const showList=()=>{
+    video.pause();
+    playerView.classList.add("hidden");
+    list.classList.remove("hidden");
+  };
+  document.getElementById("adminVideoBtn").addEventListener("click",()=>{
+    showList();
+    overlay.classList.remove("hidden");
+  });
+  document.getElementById("adminVideoPlayBtn").addEventListener("click",()=>{
+    list.classList.add("hidden");
+    playerView.classList.remove("hidden");
+    video.currentTime=0;
+    const playAttempt=video.play();
+    if(playAttempt && typeof playAttempt.catch==="function") playAttempt.catch(()=>{});
+  });
+  document.getElementById("adminVideoBackBtn").addEventListener("click",showList);
+  document.getElementById("adminVideoListClose").addEventListener("click",()=>{
+    video.pause();
+    overlay.classList.add("hidden");
+  });
+})();
 </script>
 </body>
 </html>

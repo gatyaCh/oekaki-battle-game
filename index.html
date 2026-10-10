@@ -3966,6 +3966,7 @@ function syncScreenVisibility() {
   // 設定・スペシャルコードは描画画面でだけ表示。
   const gearBtn = document.getElementById("gearBtn");
   const hushBtn = document.getElementById("hushBtn");
+  const adminVideoBtn = document.getElementById("adminVideoBtn");
   const specialCodeBox = document.getElementById("specialCodeBox");
 
   if (gearBtn) {
@@ -3980,6 +3981,14 @@ function syncScreenVisibility() {
     hushBtn.style.visibility = showCodeButton ? "visible" : "hidden";
     hushBtn.style.pointerEvents = showCodeButton ? "auto" : "none";
     hushBtn.disabled = !showCodeButton;
+  }
+
+  if (adminVideoBtn) {
+    const showVideoButton = currentScreen === "draw";
+    adminVideoBtn.style.display = showVideoButton ? "block" : "none";
+    adminVideoBtn.style.visibility = showVideoButton ? "visible" : "hidden";
+    adminVideoBtn.style.pointerEvents = showVideoButton ? "auto" : "none";
+    adminVideoBtn.disabled = !showVideoButton;
   }
 
   if (specialCodeBox && currentScreen !== "draw") {

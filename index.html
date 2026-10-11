@@ -5883,7 +5883,6 @@ function triggerBossSpecialAttack() {
 }
 
 function update() {
-  if (window.adminPanelInteracting) return;
   // タイトル・描画・カウントダウン中は戦闘処理を完全に停止。
   // ゲームオーバーからリトライした際に、前のステージの必殺技や敵処理が
   // ステージ1へ持ち越されないようにする。
@@ -5986,10 +5985,12 @@ function update() {
   if (halloweenFx.candy > 0) sp *= 3;
   if (halloweenFx.horse > 0) sp *= 3;
   if (halloweenFx.zombie > 0) sp *= 3;
-  if (keys[ku] || keys["arrowup"]) dy -= sp;
-  if (keys[kd] || keys["arrowdown"]) dy += sp;
-  if (keys[kl] || keys["arrowleft"]) dx -= sp;
-  if (keys[kr] || keys["arrowright"]) dx += sp;
+  if (!window.adminPanelInteracting) {
+    if (keys[ku] || keys["arrowup"]) dy -= sp;
+    if (keys[kd] || keys["arrowdown"]) dy += sp;
+    if (keys[kl] || keys["arrowleft"]) dx -= sp;
+    if (keys[kr] || keys["arrowright"]) dx += sp;
+  }
   if (stage === 7) dx -= 0.6;
   if (dx !== 0 || dy !== 0) { if (halloweenFx.horse > 0 || halloweenFx.zombie > 0) { p.x += dx; p.y += dy; } else moveWithObstacles(p, dx, dy, p.r); }
   if (dashTimer > 0) {
@@ -6136,6 +6137,7 @@ function update() {
   for (let i = boxes.length - 1; i >= 0; i--) {
     const box = boxes[i];
     if (Math.hypot(p.x - box.x, p.y - box.y) < 45) {
+      if (box.item === "🎃") { boxes.splice(i, 1); window.startHalloweenRoulette && window.startHalloweenRoulette(); continue; }
       if (box.item === "❤") { p.hp = Math.min(p.max, p.hp + p.max * 0.2); showBattlePickupNotice("❤ アイテムGET！ HP回復"); }
       else if (box.item === "💪") { atkBuff += 0.1; showBattlePickupNotice("💪 アイテムGET！ 攻撃力UP"); }
       else if (box.item === "🛡️") { shieldEquipped = true; shieldRemainingTime = 7.0; showBattlePickupNotice("🛡️ アイテムGET！ シールド"); }
@@ -6258,7 +6260,7 @@ function draw() {
     ctx.fillStyle = `hsl(${hue}, 100%, 50%)`; ctx.fillRect(barX, barY, barW * ratio, barH);
   });
   ctx.font = "32px serif";
-  boxes.forEach(box => ctx.fillText("🎁", box.x, box.y));
+  boxes.forEach(box => ctx.fillText(box.item === "🎃" ? "🎃" : "🎁", box.x, box.y));
   /* 🌪️ リーフ・テンペスト：軽量な強風エフェクト（ゲーム停止防止） */
   if (bossSpecialState && bossSpecialState.stage === 1 && bossSpecialState.phase === "active") {
     const wt = bossSpecialState.elapsed;
@@ -7621,7 +7623,8 @@ const adminPanelEl=document.getElementById("adminPanel");
 window.adminPanelInteracting=false;
 if(adminPanelEl){adminPanelEl.addEventListener("mouseenter",()=>{window.adminPanelInteracting=true});adminPanelEl.addEventListener("mouseleave",()=>{window.adminPanelInteracting=false});adminPanelEl.addEventListener("focusin",()=>{window.adminPanelInteracting=true});adminPanelEl.addEventListener("focusout",e=>{if(!adminPanelEl.contains(e.relatedTarget)&&!adminPanelEl.matches(":hover"))window.adminPanelInteracting=false});}
 function pick(){let r=Math.random()*100;for(const a of pool){r-=a.rate;if(r<0)return a}return pool[pool.length-1]}
-document.getElementById("admHalloweenBox")?.addEventListener("click",()=>{if(currentScreen!=="game"){alert("ゲーム中にADMINパネルから召喚してね。");return}if(spinning)return;spinning=true;paused=true;overlay.classList.remove("hidden");useBtn.classList.add("hidden");result.textContent="抽選中…";status.textContent="🎰 ルーレット回転中！";wheel.classList.remove("stopped");chosen=pick();let n=0;const t=setInterval(()=>{wheel.textContent=pool[n++%pool.length].name.split(" ")[0];if(n>=22){clearInterval(t);spinning=false;wheel.classList.add("stopped");wheel.textContent=chosen.name.split(" ")[0];status.textContent="🎉 当選！";result.innerHTML="<b>"+chosen.name+"（"+chosen.rate+"%）</b><br>"+chosen.desc;useBtn.classList.remove("hidden")}},110)});
+window.startHalloweenRoulette=function(){if(spinning||currentScreen!=="game")return;spinning=true;paused=true;overlay.classList.remove("hidden");useBtn.classList.add("hidden");result.textContent="抽選中…";status.textContent="🎰 ルーレット回転中！";wheel.classList.remove("stopped");chosen=pick();let n=0;const t=setInterval(()=>{wheel.textContent=pool[n++%pool.length].name.split(" ")[0];if(n>=22){clearInterval(t);spinning=false;wheel.classList.add("stopped");wheel.textContent=chosen.name.split(" ")[0];status.textContent="🎉 当選！";result.innerHTML="<b>"+chosen.name+"（"+chosen.rate+"%）</b><br>"+chosen.desc;useBtn.classList.remove("hidden")}},110)};
+document.getElementById("admHalloweenBox")?.addEventListener("click",()=>{if(currentScreen!=="game"){alert("ゲーム中にADMINパネルから召喚してね。");return}if(spinning)return;if(!Array.isArray(boxes))boxes=[];if(boxes.length===0)spawnBox();const slot=boxes.length>0?Math.floor(Math.random()*boxes.length):0;const pos=boxes[slot]||{x:p.x+60,y:p.y};boxes[slot]={x:pos.x,y:pos.y,item:"🎃"};msg.textContent="🎃 ハロウィンボックスを召喚！ 🎁の枠1つを置き換えたよ。";});
 useBtn.addEventListener("click",()=>{if(!chosen)return;const a=chosen;chosen=null;
 if(a.id==="potion"){const r=Math.random()*100;if(r<30){p.hp=Math.min(p.max,p.hp+100);msg.textContent="🧪 HPを100回復！"}else if(r<80){p.hp=Math.min(p.max,p.hp+50);msg.textContent="🧪 HPを50回復！"}else{fx.poison=5;msg.textContent="☠️ 毒状態！5秒間注意！"}}
 if(a.id==="horse"){fx.horse=5;msg.textContent="🐴 ゴーストライダー発動！"}

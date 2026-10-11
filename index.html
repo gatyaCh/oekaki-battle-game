@@ -6623,6 +6623,20 @@ loop();
     const code = codeInput.value.trim().toLowerCase();
 
     // 非公開コード：公開コード一覧には表示しない。
+    // Halloween wave test entry
+    if (code === "123456") {
+      window.halloweenWaveTestRequested = true;
+      codeInput.value = "";
+      codeMsg.textContent = "";
+      codeBox.classList.add("hidden");
+      document.getElementById("result").textContent = "🎃 ハロウィン版キャンバス（テスト準備中）";
+      document.getElementById("result").style.color = "#ffb347";
+      setScreen("draw");
+      redrawCanvas();
+      msg.textContent = "🎃 テストコードを確認しました。ウェーブ式バトルは実装中です。";
+      return;
+    }
+
     if (code === "admin rank") {
       if (typeof window.openAdminRankSelection === "function") {
         window.openAdminRankSelection();

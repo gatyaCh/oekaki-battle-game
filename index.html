@@ -7374,7 +7374,11 @@ function drawAdminRankBullets(){
     bgmGain.gain.setTargetAtTime(settings.bgm/100*.16,ctx.currentTime,.12);
     bgmTimer=setInterval(()=>{if(!ctx||settings.mute||settings.bgm<=0)return;const f=notes[noteIndex++%notes.length];tone(f,.17,"square",.11,0,bgmGain);if(noteIndex%4===0)tone(f/2,.2,"triangle",.08,0,bgmGain);},190);
   }
-  function syncBgm(){if(window.currentScreen==="game"&&!window.gameOver&&!window.stageClear)startBgm();else stopBgm();}
+  function syncBgm(){
+    const game=document.getElementById("gameArea"),count=document.getElementById("count"),result=document.getElementById("resultScreen"),shop=document.getElementById("shopModal");
+    const inBattle=!!game&&!game.classList.contains("hidden")&&(!count||count.classList.contains("hidden"))&&(!result||result.classList.contains("hidden"))&&(!shop||shop.classList.contains("hidden"));
+    if(inBattle)startBgm();else stopBgm();
+  }
   function persist(){try{localStorage.setItem("oekakiBattleAudioSettings",JSON.stringify(settings));}catch(e){} applyVolumes();syncBgm();}
   function setupControls(){
     const s=document.getElementById("sfxVolume"),b=document.getElementById("bgmVolume"),m=document.getElementById("soundMute");

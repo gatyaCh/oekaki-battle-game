@@ -3484,8 +3484,8 @@ body.mobile-mode #btnBow{display:none !important;}
 #tutorialPracticeHint{margin-top:8px;color:#a7f3d0;font-size:14px;line-height:1.45}
 .tutorial-panel-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:12px}
 #tutorialReplayBtn{background:#2563eb!important}
-.tutorial-target-highlight{position:relative!important;z-index:940001!important;outline:4px solid #ffd54a!important;outline-offset:3px!important;box-shadow:0 0 0 8px rgba(255,213,74,.22),0 0 24px 8px rgba(255,213,74,.95)!important;animation:tutorialTargetPulse 1s ease-in-out infinite alternate!important}
-@keyframes tutorialTargetPulse{from{filter:brightness(1)}to{filter:brightness(1.7)}}
+.tutorial-target-arrow{position:fixed;z-index:940010;pointer-events:none;font-size:clamp(42px,7vw,68px);line-height:1;color:#ffdf35;text-shadow:0 3px 0 #b42318,0 0 10px #ff4d4d,0 0 22px rgba(255,220,50,.95);filter:drop-shadow(0 3px 2px rgba(0,0,0,.9));animation:tutorialArrowBounce .55s ease-in-out infinite alternate}
+@keyframes tutorialArrowBounce{from{transform:translateY(0)}to{transform:translateY(9px)}}
 
 @media(max-width:800px){.tutorial-choice-card{padding:20px}.tutorial-panel-card{padding:12px 14px}#tutorialTitle{font-size:18px}#tutorialText{font-size:14px}.tutorial-panel-actions button{padding:9px 12px!important}}
 
@@ -4077,7 +4077,37 @@ const tutorialCanvasSteps = [
   {title:"⑩ 🔰 管理者プレイ映像の紹介",text:"この黄色く光っている🔰ボタンを押すと、管理者プレイ映像を見られるよ。映像一覧には「📊 ランク・ポイント表」もあるよ。",hint:()=>"場所を覚えたら「次へ」を押してチュートリアルを終了しよう。",practice:false,target:"adminVideoBtn"}
 ];
 function clearTutorialTargetHighlight(){
-  document.querySelectorAll(".tutorial-target-highlight").forEach(el=>el.classList.remove("tutorial-target-highlight"));
+  document.querySelectorAll(".tutorial-target-arrow").forEach(el=>el.remove());
+  if(window.tutorialArrowPositionHandler){
+    window.removeEventListener("resize",window.tutorialArrowPositionHandler);
+    window.removeEventListener("scroll",window.tutorialArrowPositionHandler,true);
+    window.tutorialArrowPositionHandler=null;
+  }
+}
+function showTutorialTargetArrow(targetId){
+  const target=document.getElementById(targetId);
+  if(!target)return;
+  const arrow=document.createElement("div");
+  arrow.className="tutorial-target-arrow";
+  arrow.textContent="⬆️";
+  arrow.setAttribute("aria-hidden","true");
+  document.body.appendChild(arrow);
+  const position=()=>{
+    if(!target.isConnected||!arrow.isConnected)return;
+    const r=target.getBoundingClientRect();
+    const x=Math.max(8,Math.min(window.innerWidth-72,r.left+r.width/2-30));
+    let y=r.bottom+3;
+    if(y+70>window.innerHeight)y=Math.max(8,r.top-72);
+    arrow.style.left=x+"px";
+    arrow.style.top=y+"px";
+    if(y<r.top)arrow.style.animationDirection="reverse";
+    else arrow.style.animationDirection="normal";
+    arrow.textContent=y<r.top?"⬇️":"⬆️";
+  };
+  position();
+  window.tutorialArrowPositionHandler=position;
+  window.addEventListener("resize",position);
+  window.addEventListener("scroll",position,true);
 }
 function renderTutorialStep(){
   clearTutorialTargetHighlight();
@@ -4086,10 +4116,7 @@ function renderTutorialStep(){
   const item=steps[tutorialStep];
   if(!item){panel.classList.add("hidden");return;}
   panel.classList.remove("hidden");
-  if(item.target){
-    const target=document.getElementById(item.target);
-    if(target) target.classList.add("tutorial-target-highlight");
-  }
+  if(item.target) showTutorialTargetArrow(item.target);
   document.getElementById("tutorialProgress").textContent=(tutorialPhase==="battle"?"バトルの練習":"キャンバスの説明")+" ・ "+(tutorialStep+1)+" / "+steps.length;
   document.getElementById("tutorialTitle").textContent=item.title;
   document.getElementById("tutorialText").textContent=item.text;

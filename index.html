@@ -3928,7 +3928,7 @@ progress {
     <button id="admMeteor">☄️ メテオ (100ダメ)</button>
     <button id="admBlackhole">🌀 ブラックホール (吸引)</button>
     <button id="admSlash">⚔️ 広範囲スラッシュ (弾消去)</button><hr style="margin: 4px 0;">
-    <button id="admItem">🎁 アイテム選択</button><button id="admHalloweenBox" style="border-color:#fb923c;color:#ffd166;">🎃 ハロウィンボックス召喚</button>
+    <button id="admItem">🎁 アイテム選択</button><button id="admHalloweenBox" style="border-color:#fb923c;color:#ffd166;">🎃 ハロウィンボックス召喚（ADMIN限定）</button>
     <button id="admHalloweenRates" style="border-color:#fb923c;color:#ffd166;">🎰 ハロウィン確率設定</button>
     <button id="admDown">⚡️ 敵ダウン</button>
     <button id="admEnemyHP">💀 敵HP変更</button>
@@ -4939,7 +4939,7 @@ function spawnBox() {
 }
 function getDamage() {
   const halloweenFx = window.halloweenEffects || {};
-  const halloweenCandyMul = halloweenFx.candy > 0 ? Math.max(1, 3 / Math.max(0.01, atkBuff)) : 1;
+  const halloweenCandyMul = halloweenFx.candy > 0 ? 3 : 1;
   const halloweenZombieMul = halloweenFx.zombie > 0 ? 3 : 1;
   const kizuku2AtkMul = kizuku2Active ? 2.0 : 1;
   const adminRankMul = adminRankAbility === "damage4" ? 4.0 : 1;
@@ -5012,14 +5012,14 @@ function fireWandMagic() {
       life: 7.0,
       // 魔法の杖専用：Stage 1を基準(1.0)に、ステージが1つ上がるごとに敵防御力を1.3%ずつ上昇。
       // 例：Stage 8は防御力1.091倍。杖の弾1発の最終ダメージにだけ適用。
-      dmg: (15 * atkBuff * (kizuku2Active ? 2.0 : 1) * (adminRankAbility === "damage4" ? 4.0 : 1)) / (1 + (stage - 1) * 0.013),
+      dmg: (15 * atkBuff * (window.halloweenEffects && window.halloweenEffects.candy > 0 ? 3 : 1) * (kizuku2Active ? 2.0 : 1) * (adminRankAbility === "damage4" ? 4.0 : 1)) / (1 + (stage - 1) * 0.013),
       r: 8
     });
   }
   msg.textContent = "🪄 魔法の追尾玉を5発同時発射！";
 }
 function attack() {
-  if (gameOver || stageClear) return;
+  if (window.adminPanelInteracting || gameOver || stageClear) return;
   const dmg = getDamage();
   if (weapon === "⚔️") {
     slashTimer = 12;
@@ -5638,6 +5638,10 @@ function damagePlayer(dmg) {
   }
   const actual = Math.max(0, Math.min(p.hp, Number(dmg) || 0));
   p.hp -= actual;
+  const halloweenFxForDamage = window.halloweenEffects;
+  if (actual > 0 && halloweenFxForDamage && halloweenFxForDamage.bat > 0) {
+    p.hp = Math.min(p.max, p.hp + actual * 0.3);
+  }
   totalDamageTaken += actual;
   p.invincibility = 0.5;
 }
@@ -5674,7 +5678,7 @@ function bossSpecialThresholds(stg) {
   return stg <= 4 ? [0.50, 0.35] : [0.75];
 }
 function bossSpecialStartWarning() {
-  if (bossSpecialState || gameOver || stageClear) return;
+  if ((window.halloweenEffects && window.halloweenEffects.zombie > 0) || bossSpecialState || gameOver || stageClear) return;
   const thresholds = bossSpecialThresholds(stage);
   const uses = bossSpecialUses[stage] || 0;
   if (uses >= bossSpecialUsesMax(stage)) return;
@@ -5765,6 +5769,10 @@ function finishBossSpecialAttack() {
 }
 
 function updateBossSpecial(dt) {
+  if (window.halloweenEffects && window.halloweenEffects.zombie > 0) {
+    if (bossSpecialState) { bossSpecialState = null; enemyBullets = enemyBullets.filter(b => !b.special); bossSpecialObjects = []; magmaZones = []; }
+    return false;
+  }
   const s=bossSpecialState;
   if(!s) return false;
 
@@ -5875,6 +5883,7 @@ function triggerBossSpecialAttack() {
 }
 
 function update() {
+  if (window.adminPanelInteracting) return;
   // タイトル・描画・カウントダウン中は戦闘処理を完全に停止。
   // ゲームオーバーからリトライした際に、前のステージの必殺技や敵処理が
   // ステージ1へ持ち越されないようにする。
@@ -5975,8 +5984,8 @@ function update() {
   let dx = 0, dy = 0;
   const halloweenFx = window.halloweenEffects || {};
   if (halloweenFx.candy > 0) sp *= 3;
-  if (halloweenFx.horse > 0) sp *= 30;
-  if (halloweenFx.zombie > 0) sp *= 5;
+  if (halloweenFx.horse > 0) sp *= 3;
+  if (halloweenFx.zombie > 0) sp *= 3;
   if (keys[ku] || keys["arrowup"]) dy -= sp;
   if (keys[kd] || keys["arrowdown"]) dy += sp;
   if (keys[kl] || keys["arrowleft"]) dx -= sp;
@@ -7594,7 +7603,7 @@ function drawAdminRankBullets(){
 <script>
 (function(){
 const overlay=document.getElementById("halloweenRouletteOverlay"),wheel=document.getElementById("halloweenWheel"),status=document.getElementById("halloweenRouletteStatus"),result=document.getElementById("halloweenRouletteResult"),useBtn=document.getElementById("halloweenUseItemBtn");
-const pool=[{id:"potion",name:"🧪 魔女の回復薬",rate:40,desc:"40%でHP+100、50%でHP+50、10%で毒（5秒間、0.5秒ごとに1ダメージ）"},{id:"horse",name:"🐴 ゴーストライダー",rate:10,desc:"5秒間速度30倍・障害物すり抜け"},{id:"candy",name:"🍬 キャンディー",rate:19,desc:"攻撃力と速度3倍、7秒間"},{id:"bat",name:"🦇 コウモリシールド",rate:5,desc:"7秒間、被ダメージの30%を回復"},{id:"allies",name:"🎃 トリック・オア・トリート",rate:25,desc:"固定砲台3体が10秒間、攻撃力8の弾を発射"},{id:"zombie",name:"🧟 イモータルゾンビ",rate:1,desc:"死亡時に発動。10秒間、無限HP・速度5倍・攻撃力3倍で敵を追撃"}];
+const pool=[{id:"potion",name:"🧪 魔女の回復薬",rate:40,desc:"40%でHP+100、50%でHP+50、10%で毒（5秒間、0.5秒ごとに1ダメージ）"},{id:"horse",name:"🐴 ゴーストライダー",rate:10,desc:"5秒間速度3倍・障害物すり抜け"},{id:"candy",name:"🍬 キャンディー",rate:19,desc:"攻撃力と速度3倍、7秒間"},{id:"bat",name:"🦇 コウモリシールド",rate:5,desc:"7秒間、被ダメージの30%を回復"},{id:"allies",name:"🎃 トリック・オア・トリート",rate:25,desc:"固定砲台3体が10秒間、攻撃力10の弾を発射"},{id:"zombie",name:"🧟 イモータルゾンビ",rate:1,desc:"死亡時に発動。10秒間、無限HP・速度3倍・攻撃力3倍。敵の必殺技を封じる"}];
 let chosen=null,spinning=false,paused=false;const defaultRates=[40,10,19,5,25,1];
 const rateStorageKey="oekakiHalloweenRouletteRatesV1";
 const rateInputs=document.getElementById("halloweenRateInputs"),rateTotal=document.getElementById("halloweenRateTotal"),rateMessage=document.getElementById("halloweenRateMessage"),rateOverlay=document.getElementById("halloweenRateOverlay");
@@ -7608,6 +7617,9 @@ document.getElementById("halloweenRateSave").addEventListener("click",()=>{const
 document.getElementById("halloweenRateReset").addEventListener("click",()=>{applyRates(defaultRates);try{localStorage.removeItem(rateStorageKey)}catch(e){}renderRateInputs();rateMessage.textContent="初期設定（合計100%）に戻したよ。"});
 document.getElementById("halloweenRateClose").addEventListener("click",()=>rateOverlay.classList.add("hidden"));
 const fx=window.halloweenEffects={horse:0,candy:0,bat:0,poison:0,allies:0,zombie:0,hasZombie:false,zombieUsed:false,allyCooldown:0,allyShots:[],allyPositions:[]};
+const adminPanelEl=document.getElementById("adminPanel");
+window.adminPanelInteracting=false;
+if(adminPanelEl){adminPanelEl.addEventListener("mouseenter",()=>{window.adminPanelInteracting=true});adminPanelEl.addEventListener("mouseleave",()=>{window.adminPanelInteracting=false});adminPanelEl.addEventListener("focusin",()=>{window.adminPanelInteracting=true});adminPanelEl.addEventListener("focusout",e=>{if(!adminPanelEl.contains(e.relatedTarget)&&!adminPanelEl.matches(":hover"))window.adminPanelInteracting=false});}
 function pick(){let r=Math.random()*100;for(const a of pool){r-=a.rate;if(r<0)return a}return pool[pool.length-1]}
 document.getElementById("admHalloweenBox")?.addEventListener("click",()=>{if(currentScreen!=="game"){alert("ゲーム中にADMINパネルから召喚してね。");return}if(spinning)return;spinning=true;paused=true;overlay.classList.remove("hidden");useBtn.classList.add("hidden");result.textContent="抽選中…";status.textContent="🎰 ルーレット回転中！";wheel.classList.remove("stopped");chosen=pick();let n=0;const t=setInterval(()=>{wheel.textContent=pool[n++%pool.length].name.split(" ")[0];if(n>=22){clearInterval(t);spinning=false;wheel.classList.add("stopped");wheel.textContent=chosen.name.split(" ")[0];status.textContent="🎉 当選！";result.innerHTML="<b>"+chosen.name+"（"+chosen.rate+"%）</b><br>"+chosen.desc;useBtn.classList.remove("hidden")}},110)});
 useBtn.addEventListener("click",()=>{if(!chosen)return;const a=chosen;chosen=null;
@@ -7620,7 +7632,7 @@ if(a.id==="zombie"){fx.hasZombie=true;fx.zombieUsed=false;msg.textContent="🧟 
 overlay.classList.add("hidden");paused=false;if(window.gameAudioSfx)window.gameAudioSfx("special")});
 const origDamage=window.damagePlayer;if(origDamage)window.damagePlayer=function(dmg){if(fx.zombie>0)return;const before=p.hp;origDamage.apply(this,arguments);const lost=Math.max(0,before-p.hp);if(lost>0&&fx.bat>0)p.hp=Math.min(p.max,p.hp+lost*.3)};
 const origUpdate=window.update;if(origUpdate)window.update=function(){if(paused)return;const step=1/60;if(currentScreen==="game"&&!gameOver&&!stageClear){["horse","candy","bat","poison","allies","zombie"].forEach(k=>{if(fx[k]>0)fx[k]=Math.max(0,fx[k]-step)});if(fx.poison>0&&Math.floor((5-fx.poison)*2)>Math.floor((5-fx.poison-step)*2)){const hurt=Math.min(1,p.hp);p.hp-=hurt;totalDamageTaken+=hurt}
-if(fx.allies>0){fx.allyCooldown-=step;if(fx.allyCooldown<=0){fx.allyCooldown=.65;const ts=[enemy,...minions].filter(e=>e&&e.hp>0).sort((x,y)=>Math.hypot(x.x-p.x,x.y-p.y)-Math.hypot(y.x-p.x,y.y-p.y));if(ts[0])fx.allyShots.push({x:fx.allyPositions[0].x,y:fx.allyPositions[0].y,tx:ts[0].x,ty:ts[0].y,target:ts[0],life:25})}fx.allyShots=fx.allyShots.filter(b=>{b.life--;b.x+=(b.tx-b.x)*.22;b.y+=(b.ty-b.y)*.22;if(Math.hypot(b.x-b.tx,b.y-b.ty)<16){if(b.target===enemy)damageEnemy(8);else if(minions.includes(b.target))damageMinion(b.target,8);return false}return b.life>0})}else{fx.allyShots=[];fx.allyPositions=[]}
+if(fx.allies>0){fx.allyCooldown-=step;if(fx.allyCooldown<=0){fx.allyCooldown=.65;const ts=[enemy,...minions].filter(e=>e&&e.hp>0).sort((x,y)=>Math.hypot(x.x-p.x,x.y-p.y)-Math.hypot(y.x-p.x,y.y-p.y));if(ts[0])fx.allyShots.push({x:fx.allyPositions[0].x,y:fx.allyPositions[0].y,tx:ts[0].x,ty:ts[0].y,target:ts[0],life:25})}fx.allyShots=fx.allyShots.filter(b=>{b.life--;b.x+=(b.tx-b.x)*.22;b.y+=(b.ty-b.y)*.22;if(Math.hypot(b.x-b.tx,b.y-b.ty)<16){if(b.target===enemy)damageEnemy(10);else if(minions.includes(b.target))damageMinion(b.target,10);return false}return b.life>0})}else{fx.allyShots=[];fx.allyPositions=[]}
 if(fx.zombie>0){p.hp=Math.max(1,p.hp);const ts=(minions.length?[...minions]:[enemy]).filter(e=>e&&e.hp>0).sort((x,y)=>Math.hypot(x.x-p.x,x.y-p.y)-Math.hypot(y.x-p.x,y.y-p.y));if(!ts.length){fx.zombie=0;stageClear=true;nextStage()}else{const t=ts[0],d=Math.hypot(t.x-p.x,t.y-p.y)||1;moveWithObstacles(p,(t.x-p.x)/d*5,(t.y-p.y)/d*5,p.r);if(d<65){if(t===enemy)damageEnemy(24);else damageMinion(t,24)}}}if(fx.zombie===0&&fx.zombieUsed&&!stageClear&&!gameOver){fx.zombieUsed=false;showResult(false)}}
 return origUpdate.apply(this,arguments)};
 })();

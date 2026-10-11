@@ -8,45 +8,15 @@
     body { font-family: sans-serif; text-align: center; padding: 20px; background:#222; color:#fff; }
     a { color:#7dd3fc; }
     .qr { width: 250px; height: 250px; max-width: 80vw; background:#fff; padding:8px; box-sizing:border-box; }
-    .qr-row { display:flex; align-items:flex-start; justify-content:center; gap:28px; flex-wrap:wrap; margin:18px auto; max-width:700px; }
+    .qr-row { display:flex; align-items:flex-start; justify-content:center; gap:28px; flex-wrap:wrap; margin:18px auto; max-width:1000px; }
     .qr-card { width:270px; max-width:90vw; text-align:center; }
     .qr-card h3 { margin:8px 0; }
     .qr-card p { line-height:1.55; }
     .qr-card a { color:#7dd3fc; overflow-wrap:anywhere; }
     @media(max-width:600px){ .qr-row{gap:18px}.qr-card{width:100%} }
-    .update-overlay {
-      position:fixed; inset:0; background:rgba(0,0,0,.72); z-index:9999;
-      display:flex; align-items:center; justify-content:center; padding:20px;
-    }
-    .update-modal {
-      width:min(520px, 92vw); max-height:80vh; overflow:auto;
-      background:#2b2b2b; border:2px solid #ffd54a; border-radius:14px;
-      box-shadow:0 10px 40px rgba(0,0,0,.65); padding:22px; text-align:left;
-    }
-    .update-modal h2 { margin:0 0 8px; color:#ffd54a; text-align:center; }
-    .update-date { text-align:center; color:#ccc; margin-bottom:16px; }
-    .update-modal ol { margin:0 0 18px; padding-left:26px; }
-    .update-modal li { margin:9px 0; line-height:1.5; }
-    .update-close {
-      display:block; margin:0 auto; border:0; border-radius:8px;
-      padding:9px 28px; font-size:16px; font-weight:bold;
-      background:#555; color:#fff; cursor:pointer;
-    }
-    .update-close:hover { background:#666; }
   </style>
 </head>
 <body>
-  <div id="updateNotice" class="update-overlay" role="dialog" aria-modal="true" aria-labelledby="updateTitle">
-    <div class="update-modal">
-      <h2 id="updateTitle">📢 アップデートのお知らせ</h2>
-      <div class="update-date">2026年10月11日</div>
-      <p style="text-align:center;line-height:1.8">チュートリアルを追加しました</p>
-      <p style="text-align:center;line-height:1.8;margin-top:10px">管理者のプレイ映像を追加しました！🔰を押すといつでも見れます！</p>
-      <p style="text-align:center;line-height:1.8;margin-top:10px">効果音・BGMを追加しました！🔊🎵</p>
-      <p style="text-align:center;margin:18px 0 0">次のアップデートは未定です</p>
-      <button id="updateClose" class="update-close" type="button">確認してゲームへ</button>
-    </div>
-  </div>
   <h1>🎨 正式版お絵かきバトルVer1.00</h1>
   <p>🎮 ここからゲームをプレイできます。</p>
   <p><a href="./index.html">🎮 ゲームをプレイ</a></p>
@@ -71,11 +41,17 @@
       <p>今一番遊んでくれているゆっくり緑茶さんのYouTubeチャンネルリンクです！</p>
       <p><a href="https://www.youtube.com/@%E3%82%86%E3%81%A3%E3%81%8F%E3%82%8A%E7%B7%91%E8%8C%B60" target="_blank" rel="noopener noreferrer">YouTubeチャンネルを開く</a></p>
     </section>
+    <section class="qr-card">
+      <h2>🗓️ アップデート情報</h2>
+      <p>今後5日間のアップデート予定</p>
+      <div style="text-align:left;background:#333;border:1px solid #555;border-radius:8px;padding:12px;margin-top:10px;line-height:1.6">
+        <p><strong>10/11</strong>　効果音・UIの変更予定</p>
+        <p><strong>10/12</strong>　自分の強化予定</p>
+        <p><strong>10/13</strong>　スキンチェンジを追加予定</p>
+        <p><strong>10/14</strong>　未定</p>
+        <p><strong>10/15</strong>　未定</p>
+      </div>
+    </section>
   </div>
-<script>
-  document.getElementById("updateClose").addEventListener("click", () => {
-    document.getElementById("updateNotice").style.display = "none";
-  });
-</script>
 </body>
 </html>

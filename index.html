@@ -3433,7 +3433,18 @@ body.mobile-mode #btnBow{display:none !important;}
 .resultStatus{font-size:20px;font-weight:bold;margin:5px 0 8px;}
 .resultScore{font-size:68px;font-weight:900;line-height:1;}
 .resultScore small{font-size:24px;margin-left:5px;}
-.resultRank{font-size:46px;font-weight:900;margin:10px auto;padding:8px 24px;width:max-content;border:3px solid currentColor;border-radius:14px;}
+.resultRank{font-size:46px;font-weight:900;margin:10px auto;padding:8px 24px;width:max-content;border:3px solid currentColor;border-radius:14px;transition:color .25s,text-shadow .25s;}
+.resultRank.rank-c{color:#22c55e;border-color:#22c55e;}
+.resultRank.rank-b{color:#ffe44d;border-color:#ffe44d;}
+.resultRank.rank-a{color:#ff4545;border-color:#ff4545;}
+.resultRank.rank-aa{color:#ff8c24;border-color:#ff8c24;}
+.resultRank.rank-s{color:#050505;border-color:#050505;-webkit-text-stroke:1.5px #fff;text-shadow:2px 2px 0 #fff,-2px 2px 0 #fff,2px -2px 0 #fff,-2px -2px 0 #fff;}
+.resultRank.rank-z{color:#b56bff;border-color:#a855f7;}
+.resultRank.rank-ur{color:#67e8f9;border-color:#22d3ee;}
+.resultRank.rank-gatya{color:transparent;border-color:#f8fafc;background:linear-gradient(90deg,#ff3434,#ff9f1c,#fff12e,#39e65c,#35cfff,#6575ff,#d65bff,#ff3434);background-size:250% 100%;background-clip:text;-webkit-background-clip:text;animation:rankRainbow 3s linear infinite;text-shadow:0 0 12px rgba(255,255,255,.35);}
+.resultRank.rank-admin{color:#ffe7a3;border-color:#ffd700;background:linear-gradient(135deg,rgba(255,215,0,.16),rgba(255,250,205,.06));text-shadow:0 0 5px #ffd700,0 0 12px #ffbf00,0 0 24px rgba(255,215,0,.9);box-shadow:0 0 8px #ffd700,0 0 20px rgba(255,191,0,.75),inset 0 0 10px rgba(255,215,0,.2);}
+@keyframes rankRainbow{0%{background-position:0% 50%;}100%{background-position:250% 50%;}}
+@media(prefers-reduced-motion:reduce){.resultRank.rank-gatya{animation:none;}}
 .resultBreakdown{max-width:720px;margin:10px auto;text-align:left;background:#172036;border-radius:12px;padding:12px;line-height:1.65;}
 .resultBreakdown div{display:flex;justify-content:space-between;border-bottom:1px solid #34405a;padding:2px 0;}
 .resultAdmin{max-width:720px;margin:10px auto;padding:10px;border-radius:10px;background:#211b10;text-align:left;font-size:14px;}
@@ -5031,7 +5042,18 @@ function showResult(cleared) {
   resultData = {total,rank,hpPts,dmgPts,minionPts,bossPts:bossesDefeated*40,coinPts:coinPointTotal,chestPts:treasureChestsOpened*7,clearPts,noSpecialPts,adminEligible,allEnemiesDefeated};
   document.getElementById("resultStatus").textContent = cleared ? "🎉 GAME CLEAR!" : "💥 GAME OVER";
   document.getElementById("resultTotal").textContent = total;
-  document.getElementById("resultRank").textContent = rank;
+  const rankElement = document.getElementById("resultRank");
+  rankElement.textContent = rank;
+  rankElement.className = "resultRank";
+  if (rank.includes("Admin Rank")) rankElement.classList.add("rank-admin");
+  else if (rank.includes("GATYA")) rankElement.classList.add("rank-gatya");
+  else if (rank === "UR") rankElement.classList.add("rank-ur");
+  else if (rank === "Z") rankElement.classList.add("rank-z");
+  else if (rank === "S") rankElement.classList.add("rank-s");
+  else if (rank === "AA") rankElement.classList.add("rank-aa");
+  else if (rank === "A") rankElement.classList.add("rank-a");
+  else if (rank === "B") rankElement.classList.add("rank-b");
+  else rankElement.classList.add("rank-c");
   document.getElementById("resultBreakdown").innerHTML =
     '<div><span>👾 敵撃破</span><b>+'+minionPts+'pt</b></div>'+
     '<div><span>👑 ボス撃破</span><b>+'+(bossesDefeated*40)+'pt</b></div>'+

@@ -3484,6 +3484,9 @@ body.mobile-mode #btnBow{display:none !important;}
 #tutorialPracticeHint{margin-top:8px;color:#a7f3d0;font-size:14px;line-height:1.45}
 .tutorial-panel-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:12px}
 #tutorialReplayBtn{background:#2563eb!important}
+.tutorial-target-highlight{position:relative!important;z-index:940001!important;outline:4px solid #ffd54a!important;outline-offset:3px!important;box-shadow:0 0 0 8px rgba(255,213,74,.22),0 0 24px 8px rgba(255,213,74,.95)!important;animation:tutorialTargetPulse 1s ease-in-out infinite alternate!important}
+@keyframes tutorialTargetPulse{from{filter:brightness(1)}to{filter:brightness(1.7)}}
+
 @media(max-width:800px){.tutorial-choice-card{padding:20px}.tutorial-panel-card{padding:12px 14px}#tutorialTitle{font-size:18px}#tutorialText{font-size:14px}.tutorial-panel-actions button{padding:9px 12px!important}}
 
 </style>
@@ -4069,15 +4072,24 @@ const tutorialBattleSteps = [
 ];
 const tutorialCanvasSteps = [
   {title:"⑦ 絵の描き方",text:"キャンバスで狙う武器を選び、見本をなぞって描こう。描いたら「武器決定」で判定して、戦闘を始めるよ。",hint:()=>"スマホではキャンバス下の「大きくする」で描きやすくできるよ。",practice:false},
-  {title:"⑧ キー設定",text:"PC版では⚙️から移動・攻撃・宝箱などのキーを変更できるよ。スマホ版は画面の操作ボタンを使うのでキー設定は不要だよ。",hint:()=>deviceMode==="mobile"?"スマホ版では画面上のスティックとボタンを使おう。":"設定を開いて、変更したい項目を選んでから新しいキーを押そう。",practice:false},
-  {title:"⑨ スペシャルコード",text:"🤫 からスペシャルコード画面を開いてコードを入力できるよ。公開されているコードや、ゲーム内で見つけたコードを使おう。",hint:()=>"チュートリアルはいつでもキャンバス画面の「📘 チュートリアル」からやり直せるよ。",practice:false}
+  {title:"⑧ キー設定はここ！",text:"この黄色く光っている⚙️ボタンがキー設定だよ。PC版では移動・攻撃・宝箱などのキーを変更できるよ。",hint:()=>deviceMode==="mobile"?"ここが設定ボタンだよ。スマホ版は画面の操作ボタンで遊ぶので、キー変更は基本的に使わないよ。":"実際の⚙️ボタンの場所を確認したら、「次へ」を押そう。設定画面を開かなくても次へ進めるよ。",practice:false,target:"gearBtn"},
+  {title:"⑨ スペシャルコードはここ！",text:"この黄色く光っている🤫ボタンから、スペシャルコード画面を開けるよ。",hint:()=>"実際の🤫ボタンの場所を確認したら、「次へ」を押そう。",practice:false,target:"hushBtn"},
+  {title:"⑩ 🔰 管理者プレイ映像の紹介",text:"この黄色く光っている🔰ボタンを押すと、管理者プレイ映像を見られるよ。映像一覧には「📊 ランク・ポイント表」もあるよ。",hint:()=>"場所を覚えたら「次へ」を押してチュートリアルを終了しよう。",practice:false,target:"adminVideoBtn"}
 ];
+function clearTutorialTargetHighlight(){
+  document.querySelectorAll(".tutorial-target-highlight").forEach(el=>el.classList.remove("tutorial-target-highlight"));
+}
 function renderTutorialStep(){
+  clearTutorialTargetHighlight();
   const panel=document.getElementById("tutorialPanel");
   const steps=tutorialPhase==="battle"?tutorialBattleSteps:tutorialCanvasSteps;
   const item=steps[tutorialStep];
   if(!item){panel.classList.add("hidden");return;}
   panel.classList.remove("hidden");
+  if(item.target){
+    const target=document.getElementById(item.target);
+    if(target) target.classList.add("tutorial-target-highlight");
+  }
   document.getElementById("tutorialProgress").textContent=(tutorialPhase==="battle"?"バトルの練習":"キャンバスの説明")+" ・ "+(tutorialStep+1)+" / "+steps.length;
   document.getElementById("tutorialTitle").textContent=item.title;
   document.getElementById("tutorialText").textContent=item.text;
@@ -4103,6 +4115,7 @@ function startTutorialDelay(){
 }
 function skipTutorial(){
   tutorialActive=false;
+  clearTutorialTargetHighlight();
   document.getElementById("tutorialPanel").classList.add("hidden");
   setScreen("draw");
   redrawCanvas();
@@ -4153,6 +4166,7 @@ function tutorialNext(){
   }
   if(tutorialPhase==="canvas"&&tutorialStep===tutorialCanvasSteps.length-1){
     tutorialActive=false;
+    clearTutorialTargetHighlight();
     document.getElementById("tutorialPanel").classList.add("hidden");
     document.getElementById("tutorialReplayBtn").classList.remove("hidden");
     setScreen("draw");redrawCanvas();

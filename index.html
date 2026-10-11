@@ -3821,7 +3821,16 @@ progress {
   <button onclick="executeSpecialAttack()" style="font-size: 18px; background: #ff3366; margin-top: 15px; padding: 8px 24px; font-weight: bold;">発動！</button>
 </div>
 <div id="keySetting" class="hidden">
-  <h2>⚙️ キー設定</h2>
+  <h2>⚙️ キー・音量設定</h2>
+  <section id="soundSettings" style="max-width:480px;margin:18px auto;padding:14px;border:1px solid #777;border-radius:10px;background:#222;text-align:left">
+    <h3 style="text-align:center;margin-bottom:12px">🔊 音量設定</h3>
+    <label for="sfxVolume" style="display:block;margin:10px 0 5px">効果音：<span id="sfxVolumeLabel">80%</span></label>
+    <input id="sfxVolume" type="range" min="0" max="100" value="80" style="width:100%">
+    <label for="bgmVolume" style="display:block;margin:12px 0 5px">BGM：<span id="bgmVolumeLabel">50%</span></label>
+    <input id="bgmVolume" type="range" min="0" max="100" value="50" style="width:100%">
+    <label style="display:flex;align-items:center;gap:8px;margin-top:12px"><input id="soundMute" type="checkbox"> 効果音・BGMをミュート</label>
+    <p style="font-size:12px;color:#bbb;margin-top:8px">BGMはバトル中だけ流れます。音が出ない場合は画面を一度タップしてください。</p>
+  </section>
   <div id="keyRows"></div>
   <div style="margin: 14px;">
     <b>攻撃キー追加：</b>
@@ -7318,5 +7327,92 @@ function drawAdminRankBullets(){
   });
 })();
 </script>
+
+<script>
+/* Audio settings + lightweight retro game audio */
+(function initGameAudio(){
+  const defaults={sfx:80,bgm:50,mute:false};
+  let settings={...defaults};
+  try{const saved=JSON.parse(localStorage.getItem("oekakiBattleAudioSettings")||"null");if(saved)settings={...defaults,...saved};}catch(e){}
+  let ctx=null, master=null, sfxGain=null, bgmGain=null, bgmTimer=null, noteIndex=0;
+  const notes=[523.25,659.25,783.99,659.25,587.33,698.46,880,698.46,523.25,659.25,783.99,1046.5,880,783.99,659.25,587.33];
+  function audioReady(){
+    try{
+      if(!ctx){ctx=new (window.AudioContext||window.webkitAudioContext)();master=ctx.createGain();sfxGain=ctx.createGain();bgmGain=ctx.createGain();sfxGain.connect(master);bgmGain.connect(master);master.connect(ctx.destination);}
+      if(ctx.state==="suspended")ctx.resume();
+      applyVolumes();return true;
+    }catch(e){return false;}
+  }
+  function applyVolumes(){
+    if(!ctx)return;
+    master.gain.setTargetAtTime(settings.mute?0:1,ctx.currentTime,.03);
+    sfxGain.gain.setTargetAtTime(settings.sfx/100,ctx.currentTime,.03);
+    bgmGain.gain.setTargetAtTime(settings.bgm/100*.16,ctx.currentTime,.03);
+  }
+  function tone(freq,duration=.08,type="square",volume=.22,slide=0,dest=sfxGain){
+    if(!audioReady())return;
+    try{const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(freq,ctx.currentTime);if(slide)o.frequency.linearRampToValueAtTime(Math.max(40,freq+slide),ctx.currentTime+duration);g.gain.setValueAtTime(volume,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+duration);o.connect(g);g.connect(dest);o.start();o.stop(ctx.currentTime+duration+.01);}catch(e){}
+  }
+  const last={};
+  function sfx(kind){
+    const now=Date.now(),cooldown=kind==="attack"?100:kind==="hit"?90:180;
+    if(last[kind]&&now-last[kind]<cooldown)return;last[kind]=now;
+    if(settings.mute||settings.sfx<=0)return;
+    if(kind==="attack")tone(720,.055,"square",.12,260);
+    else if(kind==="hit")tone(210,.07,"square",.15,-90);
+    else if(kind==="damage"){tone(180,.13,"sawtooth",.18,-100);setTimeout(()=>tone(120,.11,"square",.12,-30),55);}
+    else if(kind==="coin"){tone(880,.07,"square",.16,180);setTimeout(()=>tone(1175,.09,"square",.13,120),65);}
+    else if(kind==="special"){tone(330,.12,"square",.16,330);setTimeout(()=>tone(660,.18,"square",.16,500),90);}
+    else if(kind==="clear"){[523,659,784,1047].forEach((n,i)=>setTimeout(()=>tone(n,.18,"square",.14),i*100));}
+    else if(kind==="gameover"){[392,330,262].forEach((n,i)=>setTimeout(()=>tone(n,.22,"triangle",.16,-40),i*170));}
+    else if(kind==="rank"){[660,880,1047].forEach((n,i)=>setTimeout(()=>tone(n,.13,"square",.14),i*85));}
+  }
+  function stopBgm(){if(bgmTimer){clearInterval(bgmTimer);bgmTimer=null;} if(ctx&&bgmGain)bgmGain.gain.setTargetAtTime(0,ctx.currentTime,.08);}
+  function startBgm(){
+    if(settings.mute||settings.bgm<=0||!audioReady())return;
+    if(bgmTimer)return;
+    bgmGain.gain.setTargetAtTime(settings.bgm/100*.16,ctx.currentTime,.12);
+    bgmTimer=setInterval(()=>{if(!ctx||settings.mute||settings.bgm<=0)return;const f=notes[noteIndex++%notes.length];tone(f,.17,"square",.11,0,bgmGain);if(noteIndex%4===0)tone(f/2,.2,"triangle",.08,0,bgmGain);},190);
+  }
+  function syncBgm(){if(window.currentScreen==="game"&&!window.gameOver&&!window.stageClear)startBgm();else stopBgm();}
+  function persist(){try{localStorage.setItem("oekakiBattleAudioSettings",JSON.stringify(settings));}catch(e){} applyVolumes();syncBgm();}
+  function setupControls(){
+    const s=document.getElementById("sfxVolume"),b=document.getElementById("bgmVolume"),m=document.getElementById("soundMute");
+    if(!s||!b||!m)return;
+    s.value=settings.sfx;b.value=settings.bgm;m.checked=settings.mute;
+    document.getElementById("sfxVolumeLabel").textContent=settings.sfx+"%";
+    document.getElementById("bgmVolumeLabel").textContent=settings.bgm+"%";
+    s.oninput=()=>{settings.sfx=+s.value;document.getElementById("sfxVolumeLabel").textContent=settings.sfx+"%";persist();audioReady();sfx("coin");};
+    b.oninput=()=>{settings.bgm=+b.value;document.getElementById("bgmVolumeLabel").textContent=settings.bgm+"%";persist();audioReady();};
+    m.onchange=()=>{settings.mute=m.checked;persist();if(!settings.mute){audioReady();sfx("coin");}};
+  }
+  document.addEventListener("pointerdown",()=>{audioReady();syncBgm();},{once:true});
+  document.addEventListener("keydown",()=>{audioReady();syncBgm();},{once:true});
+  const gear=document.getElementById("gearBtn"),keyBack=document.getElementById("keyBackBtn");
+  if(gear){gear.title="キー・音量設定";const old=gear.onclick;gear.onclick=function(e){if(old)old.call(this,e);setupControls();};}
+  if(keyBack)keyBack.addEventListener("click",()=>{setTimeout(syncBgm,0);});
+  const origSetScreen=window.setScreen;
+  if(typeof origSetScreen==="function")window.setScreen=function(screen){const r=origSetScreen.apply(this,arguments);syncBgm();return r;};
+  const origAttack=window.attack;
+  if(typeof origAttack==="function")window.attack=function(){sfx("attack");return origAttack.apply(this,arguments);};
+  const origDamagePlayer=window.damagePlayer;
+  if(typeof origDamagePlayer==="function")window.damagePlayer=function(){sfx("damage");return origDamagePlayer.apply(this,arguments);};
+  const origDamageEnemy=window.damageEnemy;
+  if(typeof origDamageEnemy==="function")window.damageEnemy=function(){sfx("hit");return origDamageEnemy.apply(this,arguments);};
+  const origChest=window.openTreasureChestReward;
+  if(typeof origChest==="function")window.openTreasureChestReward=function(){sfx("coin");return origChest.apply(this,arguments);};
+  const origSpecial=window.executeSpecialAttack;
+  if(typeof origSpecial==="function")window.executeSpecialAttack=function(){sfx("special");return origSpecial.apply(this,arguments);};
+  const origResult=window.showResult;
+  if(typeof origResult==="function")window.showResult=function(cleared){sfx(cleared?"clear":"gameover");stopBgm();return origResult.apply(this,arguments);};
+  const origCountdown=window.startCountdown;
+  if(typeof origCountdown==="function")window.startCountdown=function(){const r=origCountdown.apply(this,arguments);syncBgm();return r;};
+  const obs=new MutationObserver(syncBgm);obs.observe(document.body,{subtree:true,attributes:true,attributeFilter:["class"]});
+  setInterval(syncBgm,700);
+  window.gameAudioSfx=sfx;
+  window.gameAudioSync=syncBgm;
+})();
+</script>
+
 </body>
 </html>

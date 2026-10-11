@@ -7378,6 +7378,11 @@ function drawAdminRankBullets(){
     const game=document.getElementById("gameArea"),count=document.getElementById("count"),result=document.getElementById("resultScreen"),shop=document.getElementById("shopModal");
     const inBattle=!!game&&!game.classList.contains("hidden")&&(!count||count.classList.contains("hidden"))&&(!result||result.classList.contains("hidden"))&&(!shop||shop.classList.contains("hidden"));
     if(inBattle)startBgm();else stopBgm();
+    const gear=document.getElementById("gearBtn"),draw=document.getElementById("draw");
+    if(gear&&draw&&document.body.classList.contains("mobile-mode")&&!draw.classList.contains("hidden")){
+      gear.style.setProperty("display","block","important");
+      gear.style.setProperty("pointer-events","auto","important");
+    }
   }
   function persist(){try{localStorage.setItem("oekakiBattleAudioSettings",JSON.stringify(settings));}catch(e){} applyVolumes();syncBgm();}
   function setupControls(){

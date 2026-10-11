@@ -22,6 +22,12 @@ button:disabled { opacity: 0.5; cursor: not-allowed; background: #222; }
 #adminVideoOverlay .video-card { max-width:680px; margin:24px auto; padding:18px; border:2px solid #777; border-radius:12px; background:#292929; }
 #adminVideoOverlay video { width:100%; max-height:78vh; background:#000; display:block; margin:12px auto; }
 #adminVideoOverlay .video-title { font-size:20px; margin:12px 0; }
+#adminVideoOverlay .rank-point-card { max-width:680px; margin:16px auto 24px; padding:16px; border:1px solid #475569; border-radius:12px; background:#172033; text-align:left; line-height:1.55; }
+#adminVideoOverlay .rank-point-card h3 { text-align:center; font-size:25px; margin:0 0 12px; }
+#adminVideoOverlay .rank-point-card h4 { color:#ffd166; font-size:16px; margin:10px 0 3px; }
+#adminVideoOverlay .rank-point-card p { margin:3px 0; overflow-wrap:anywhere; }
+#adminVideoOverlay .rank-point-note { color:#cbd5e1; font-size:12px; margin-top:6px !important; }
+@media(max-width:600px){ #adminVideoOverlay .rank-point-card { padding:12px; } #adminVideoOverlay .rank-point-card h3 { font-size:21px; } }
 @media(max-width:600px){ #adminVideoBtn { right:100px; top:8px; } #adminVideoOverlay { padding:12px; } }
 #keySetting, #keyConfirm, #specialCodeBox { position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 100; color: #fff; padding: 24px; text-align: center; overflow-y: auto; }
 .special-code-layout { display:flex; align-items:center; justify-content:center; gap:28px; max-width:760px; margin:30px auto 0; }
@@ -3692,6 +3698,23 @@ progress {
       <div class="video-title">🎮 ステージ1クリアまでの映像</div>
       <button id="adminVideoPlayBtn" type="button" style="font-size:18px;">▶ 再生する</button>
     </div>
+    <section class="rank-point-card" aria-label="ランク・ポイント表">
+      <h3>📊 ランク・ポイント表</h3>
+      <h4>基本ポイント</h4>
+      <p>👾 敵撃破：+2pt</p>
+      <p>👑 ボス撃破：+40pt</p>
+      <p>🪙 コイン：普通 +2 / レア +5 / 超レア +14 / 激レア +20</p>
+      <p>🎁 宝箱：+7pt</p>
+      <p>❤️ 残りHP：100%以上 +50 / 80〜99% +30 / 60〜79% +25 / 40〜59% +18 / 20〜39% +7 / 1〜19% +5 / 0 +0</p>
+      <p>💥 総ダメージ：0 +70 / 1〜20 +40 / 21〜40 +35 / 41〜60 +25 / 61〜80 +20 / 81〜100 +15 / 101〜150 +10 / 151〜200 +6 / 201以上 +0</p>
+      <p>🏆 全8ステージクリア：+60pt</p>
+      <p>🔒 必殺技を一度も使用せずクリア：+50pt</p>
+      <h4>🏆 ランク</h4>
+      <p>C：0〜79　 B：80〜159　 A：160〜239　 AA：240〜299</p>
+      <p>S：300〜399　 Z：400〜499　 UR：500〜729</p>
+      <p>💎 GATYA：730〜824　 👑 Admin Rank：特殊条件</p>
+      <p class="rank-point-note">※ Stage 4は最初の6体まで撃破ポイント対象。</p>
+    </section>
     <button id="adminVideoListClose" type="button">ゲームに戻る</button>
   </section>
   <section id="adminVideoPlayerView" class="hidden">

@@ -5562,7 +5562,7 @@ function beginBossSpecialAttack() {
   magmaZones = [];
   bossSpecialObjects = [];
   bossSpecialMinion = null;
-  msg.textContent = "⚠️ 必殺技発動：【" + s.name + "】！";
+  msg.textContent = ""; // 画面上部の重複通知は消し、キャンバス内の必殺技演出だけ残す
 
   if (s.stage === 2) {
     /* ドリルは4発だけ。見やすいように大型化 */

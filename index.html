@@ -3926,6 +3926,20 @@ progress {
       <button type="button" class="admin-code-use" data-code="ryokutya">🍵 ryokutya</button>
       <button type="button" class="admin-code-use" data-code="special code">🔐 Special Code（隠し）</button>
     </div>
+    <hr style="margin:4px 0;">
+    <div style="padding:6px 4px;border:1px solid #b58cff;border-radius:6px;margin:4px 0;background:#181522;">
+      <b style="display:block;color:#d8b4fe;margin-bottom:5px;">🏆 ランク結果画面プレビュー</b>
+      <div style="font-size:11px;color:#ccc;margin-bottom:5px;">選んだランクの結果画面を確認できます。ゲームの記録やポイントは変更されません。</div>
+      <button type="button" onclick="previewAdminRank('C')">🟢 Cランク</button>
+      <button type="button" onclick="previewAdminRank('B')">🟡 Bランク</button>
+      <button type="button" onclick="previewAdminRank('A')">🔴 Aランク</button>
+      <button type="button" onclick="previewAdminRank('AA')">🟠 AAランク</button>
+      <button type="button" onclick="previewAdminRank('S')">⚫ Sランク</button>
+      <button type="button" onclick="previewAdminRank('Z')">🟣 Zランク</button>
+      <button type="button" onclick="previewAdminRank('UR')">🩵 URランク</button>
+      <button type="button" onclick="previewAdminRank('GATYA')">🌈 GATYAランク</button>
+      <button type="button" onclick="previewAdminRank('ADMIN')">👑 ADMIN RANK</button>
+    </div>
     <button id="admReset">🔄 管理者効果OFF</button>
   </div>
 </div>
@@ -5023,6 +5037,51 @@ function getRankFromPoints(points) {
   if (points >= 80) return "B";
   return "C";
 }
+function previewAdminRank(rankKey) {
+  const rankInfo = {
+    C: {label:"C", points:40, cls:"rank-c"},
+    B: {label:"B", points:120, cls:"rank-b"},
+    A: {label:"A", points:200, cls:"rank-a"},
+    AA: {label:"AA", points:260, cls:"rank-aa"},
+    S: {label:"S", points:340, cls:"rank-s"},
+    Z: {label:"Z", points:440, cls:"rank-z"},
+    UR: {label:"UR", points:600, cls:"rank-ur"},
+    GATYA: {label:"💎 GATYA", points:760, cls:"rank-gatya"},
+    ADMIN: {label:"👑 Admin Rank", points:0, cls:"rank-admin"}
+  };
+  const info = rankInfo[rankKey];
+  if (!info) return;
+  window.adminRankPreview = true;
+  const panel = document.getElementById("adminPanel");
+  if (panel) panel.classList.add("hidden");
+  document.getElementById("resultStatus").textContent = "👑 ADMINプレビュー（記録は変更されません）";
+  document.getElementById("resultTotal").textContent = info.points;
+  const rankElement = document.getElementById("resultRank");
+  rankElement.textContent = info.label;
+  rankElement.className = "resultRank " + info.cls;
+  document.getElementById("resultBreakdown").innerHTML = '<div><span>🧪 プレビュー用表示</span><b>記録には加算されません</b></div>';
+  document.getElementById("resultAdmin").textContent = rankKey === "ADMIN" ? "👑 ADMIN RANK の王冠風ゴールド発光デザイン" : "この画面はデザイン確認用です。実際のランク獲得条件やポイントは変わりません。";
+  document.getElementById("resultToTitle").textContent = "← ADMINパネルへ戻る";
+  document.getElementById("resultBackBtn").textContent = "← ADMINパネルへ戻る";
+  resultSlide = 0;
+  document.getElementById("resultTrack").style.transform = "translateX(0)";
+  setScreen("result");
+}
+function closeAdminRankPreview() {
+  window.adminRankPreview = false;
+  document.getElementById("resultScreen").classList.add("hidden");
+  document.getElementById("draw").classList.remove("hidden");
+  setScreen("draw");
+  const panel = document.getElementById("adminPanel");
+  if (panel) {
+    panel.classList.remove("hidden");
+    document.getElementById("adminBody").style.display = "block";
+    document.getElementById("adminArrow").textContent = "▲";
+  }
+  document.getElementById("resultToTitle").textContent = "タイトルへ戻る";
+  document.getElementById("resultBackBtn").textContent = "結果画面へ戻る";
+}
+
 function showResult(cleared) {
   const shop = document.getElementById("shopModal");
   if (shop) shop.classList.add("hidden");
@@ -5091,8 +5150,12 @@ function initResultSwipe() {
     const dx=e.clientX-sx, dy=e.clientY-sy;
     if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(dy)*1.2) setResultSlide(dx>0?1:0);
   });
-  document.getElementById("resultToTitle").onclick=()=>resetGame();
+  document.getElementById("resultToTitle").onclick=()=>{
+    if (window.adminRankPreview) { closeAdminRankPreview(); return; }
+    resetGame();
+  };
   document.getElementById("resultBackBtn").onclick=()=>{
+    if (window.adminRankPreview) { closeAdminRankPreview(); return; }
     if (resultData && !fullClear) {
       retryFromGameOver();
     } else {

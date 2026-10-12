@@ -7917,26 +7917,5 @@ return origUpdate.apply(this,arguments)};
 })();
 </script>
 
-/* ADMINパネルの入力・ボタン操作が攻撃に伝播しないようにする */
-(function isolateAdminPanelInput(){
-  const panel=document.getElementById("adminPanel");
-  if(!panel)return;
-  const isOpen=()=>!panel.classList.contains("hidden") && getComputedStyle(panel).display!=="none" && getComputedStyle(panel).visibility!=="hidden";
-  panel.addEventListener("pointerdown",e=>{ if(isOpen()) e.stopPropagation(); },true);
-  panel.addEventListener("mousedown",e=>{ if(isOpen()) e.stopPropagation(); },true);
-  panel.addEventListener("click",e=>{ if(isOpen()) e.stopPropagation(); },true);
-  document.addEventListener("keydown",e=>{
-    if(!isOpen())return;
-    const t=e.target;
-    const editing=t && (t.matches("input,textarea,select,[contenteditable='true']") || t.closest("#adminPanel"));
-    if(editing){
-      const key=(e.key||"").toLowerCase();
-      if(["e","q","f"," ","arrowup","arrowdown","arrowleft","arrowright","w","a","s","d"].includes(key)){
-        e.stopPropagation();
-        if(t.matches("input,textarea,[contenteditable='true']")) return;
-      }
-    }
-  },true);
-})();
 </body>
 </html>

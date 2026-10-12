@@ -3879,12 +3879,18 @@ progress {
   </div>
 </div>
 <div id="shopRouletteModal" class="hidden">
-  <div class="shop-container" style="max-width:420px;">
+  <div class="shop-container" style="max-width:420px;text-align:center;">
     <h2 style="color:#fbbf24;">🎰 ロシアンルーレット</h2>
     <p id="shopRouletteText">30 Gで挑戦。20%の確率で、今後の自己強化ショップがずっと20% OFF！</p>
+    <div id="rouletteWheelWrap" style="position:relative;width:220px;height:220px;margin:16px auto 20px;">
+      <div id="roulettePointer" style="position:absolute;z-index:2;top:-8px;left:calc(50% - 12px);width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:28px solid #fff;"></div>
+      <div id="rouletteWheel" style="width:220px;height:220px;border-radius:50%;border:6px solid #fbbf24;box-sizing:border-box;background:conic-gradient(#ef4444 0deg 72deg,#1e293b 72deg 144deg,#ef4444 144deg 216deg,#1e293b 216deg 288deg,#ef4444 288deg 360deg);display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px #f59e0b88;">
+        <div style="width:72px;height:72px;border-radius:50%;background:#fbbf24;color:#111;font-size:30px;display:flex;align-items:center;justify-content:center;border:4px solid #fff;">🎰</div>
+      </div>
+    </div>
     <button id="spinShopRouletteBtn" onclick="spinShopRoulette()" style="background:#f59e0b;color:#111;font-weight:bold;">ルーレットを回す</button>
     <button onclick="closeShopRoulette()" style="margin-left:8px;">ショップへ戻る</button>
-    <p id="shopRouletteMessage" style="margin-top:10px;color:#fde68a;"></p>
+    <p id="shopRouletteMessage" style="margin-top:10px;color:#fde68a;min-height:24px;"></p>
   </div>
 </div>
 <div id="specialModal" class="hidden">
@@ -5001,7 +5007,7 @@ function getDamage() {
   const halloweenZombieMul = halloweenFx.zombie > 0 ? 3 : 1;
   const kizuku2AtkMul = kizuku2Active ? 2.0 : 1;
   const adminRankMul = adminRankAbility === "damage4" ? 4.0 : 1;
-  return (10 + charge / 8) * atkBuff * 1.03 * kizuku2AtkMul * adminRankMul * halloweenCandyMul * halloweenZombieMul * (1 + upgradeLevels.atk * 0.10);
+  return (10 + charge / 8) * atkBuff * 1.03 * kizuku2AtkMul * adminRankMul * halloweenCandyMul * halloweenZombieMul * (1 + upgradeLevels.atk * 0.04);
 }
 function damageEnemy(amount) {
   if (bossSpecialState) return;
@@ -5564,7 +5570,7 @@ function renderUpgradeShop() {
   if(!root)return;
   document.getElementById("upgradeShopCoin").textContent=coins;
   const defs=[
-    ["atk","💪 攻撃力","攻撃力 +10% / Lv",10],
+    ["atk","💪 攻撃力","攻撃力 +4% / Lv（最大1.4倍）",10],
     ["speed","👟 移動速度","移動速度 +5% / Lv",10],
     ["defense","🛡️ 防御力","受けるダメージ -5% / Lv",10],
     ["points","🏆 ポイント倍率","獲得ポイント +10% / Lv",10],
@@ -5596,7 +5602,6 @@ function closeUpgradeShop() {
     upgradeShopNeedsAdvance=false;
     // 新しいステージの子分を確実に生成してから戦闘へ戻す。
     proceedToNextStageNumber();
-    if(stage<=8 && !gameOver) createMinionsForStage(stage);
   }
 }
 function openShopRoulette(from) {
@@ -5611,14 +5616,29 @@ function spinShopRoulette() {
   if(rouletteAttemptedThisVisit||rouletteWon||coins<30)return;
   coins-=30; rouletteAttemptedThisVisit=true;
   const win=Math.random()<0.20;
-  const b=document.getElementById("spinShopRouletteBtn"); b.disabled=true;
-  if(win){
-    rouletteWon=true;upgradeDiscountWon=true;
-    document.getElementById("shopRouletteMessage").textContent="🎉 当たり！今後の自己強化ショップがずっと20% OFF！";
-  }else{
-    document.getElementById("shopRouletteMessage").textContent="はずれ！次のステージクリア後にまた挑戦できるよ。";
-  }
+  const b=document.getElementById("spinShopRouletteBtn");
+  const wheel=document.getElementById("rouletteWheel");
+  const message=document.getElementById("shopRouletteMessage");
+  b.disabled=true;
+  message.textContent="🎰 回転中...";
   document.getElementById("shopRouletteText").textContent="所持コイン: "+coins+" G";
+  if(wheel){
+    wheel.style.transition="none";
+    wheel.style.transform="rotate(0deg)";
+    void wheel.offsetWidth;
+    wheel.style.transition="transform 3s cubic-bezier(0.12,0.72,0.12,1)";
+    wheel.style.transform="rotate("+(1800+Math.floor(Math.random()*360))+"deg)";
+  }
+  window.setTimeout(()=>{
+    if(win){
+      rouletteWon=true;upgradeDiscountWon=true;
+      message.textContent="🎉 当たり！今後の自己強化ショップがずっと20% OFF！";
+    }else{
+      message.textContent="はずれ！次のステージクリア後にまた挑戦できるよ。";
+    }
+    b.disabled=true;
+    if(rouletteReturnTo==="upgrade")renderUpgradeShop();else updateShopUI();
+  },3050);
 }
 function closeShopRoulette() {
   document.getElementById("shopRouletteModal").classList.add("hidden");

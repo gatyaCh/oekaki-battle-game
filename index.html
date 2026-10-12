@@ -3534,21 +3534,20 @@ html body #adminVideoBtn {
 }
 /* ADMIN操作中は攻撃入力を受け付けない */
 
-/* Settings button scrolls with the drawing page instead of being pinned to its corner */
-#gearBtn {
-  position: static !important;
-  inset: auto !important;
-  display: inline-block;
-  vertical-align: middle;
-}
-
-/* Keep the settings button visible and let it scroll with the drawing page */
-#gearBtn {
+/* Settings button: visible on PC and mobile, and scrolls with the drawing content */
+#draw:not(.hidden) #gearBtn,
+body.mobile-mode #draw:not(.hidden) #gearBtn {
   position: static !important;
   inset: auto !important;
   display: inline-block !important;
   visibility: visible !important;
   opacity: 1 !important;
+  grid-column: 1 !important;
+  grid-row: auto !important;
+  justify-self: center !important;
+  align-self: center !important;
+  z-index: 9000 !important;
+  pointer-events: auto !important;
   vertical-align: middle;
 }
 </style>
@@ -4121,7 +4120,7 @@ function syncScreenVisibility() {
   const specialCodeBox = document.getElementById("specialCodeBox");
 
   if (gearBtn) {
-    const showSettings = deviceMode !== "mobile" && currentScreen === "draw";
+    const showSettings = currentScreen === "draw";
     gearBtn.style.display = showSettings ? "block" : "none";
     gearBtn.style.pointerEvents = showSettings ? "auto" : "none";
   }

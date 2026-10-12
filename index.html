@@ -5560,7 +5560,6 @@ function buyUpgrade(key) {
   const caps={atk:10,speed:10,defense:10,points:10,heal:10,special:8,hp:10};
   if(price==null||upgradeLevels[key]>=caps[key]||coins<price)return;
   coins-=price; upgradeLevels[key]++;
-  if(key==="atk") atkBuff+=0.10;
   if(key==="hp"){p.max+=10;p.hp+=10;}
   renderUpgradeShop();
 }

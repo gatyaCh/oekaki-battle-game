@@ -3514,6 +3514,12 @@ body.mobile-mode #btnBow{display:none !important;}
 
 @media(max-width:800px){.tutorial-choice-card{padding:20px}.tutorial-panel-card{padding:12px 14px}#tutorialTitle{font-size:18px}#tutorialText{font-size:14px}.tutorial-panel-actions button{padding:9px 12px!important}}
 
+
+/* チュートリアル修正：🔰・🤫はスクロールに追従せず画面上部に固定 */
+#hushBtn,#adminVideoBtn{position:fixed!important;top:8px!important;z-index:10020!important;}
+#hushBtn{right:54px!important;}
+#adminVideoBtn{right:100px!important;}
+/* ADMIN操作中は攻撃入力を受け付けない */
 </style>
 
 
@@ -4128,12 +4134,16 @@ const tutorialCanvasSteps = [
   {title:"⑦ 絵の描き方",text:"キャンバスで狙う武器を選び、見本をなぞって描こう。描いたら「武器決定」で判定して、戦闘を始めるよ。",hint:()=>"スマホではキャンバス下の「大きくする」で描きやすくできるよ。",practice:false},
   {title:"⑧ キー設定はここ！",text:"この黄色く光っている⚙️ボタンがキー設定だよ。PC版では移動・攻撃・宝箱などのキーを変更できるよ。",hint:()=>deviceMode==="mobile"?"ここが設定ボタンだよ。スマホ版は画面の操作ボタンで遊ぶので、キー変更は基本的に使わないよ。":"実際の⚙️ボタンの場所を確認したら、「次へ」を押そう。設定画面を開かなくても次へ進めるよ。",practice:false,target:"gearBtn"},
   {title:"⑨ スペシャルコードはここ！",text:"この黄色く光っている🤫ボタンから、スペシャルコード画面を開けるよ。",hint:()=>"実際の🤫ボタンの場所を確認したら、「次へ」を押そう。",practice:false,target:"hushBtn"},
-  {title:"⑩ 🔰 管理者プレイ映像の紹介",text:"この黄色く光っている🔰ボタンを押すと、管理者プレイ映像を見られるよ。映像一覧には「📊 ランク・ポイント表」もあるよ。",hint:()=>"場所を覚えたら「次へ」を押そう。",practice:false,target:"adminVideoBtn"},
-  {title:"⑪ 🛒 自己強化ショップ",text:"ステージクリア後に自己強化ショップが開くよ！コインを使って攻撃力・移動速度・防御力・ポイント倍率・回復・必殺技チャージ・最大HPを強化できるよ。",hint:()=>"強化は次のステージにも引き継がれるよ。コインの使い道を考えよう！",practice:false},
-  {title:"⑫ 📈 強化レベルと価格",text:"強化にはレベルと購入価格があるよ。回復は1レベルごとに回復量が＋10、最大HPは1レベルごとに＋10されるよ。",hint:()=>"強化は全クリアまたはゲームオーバーでリセットされ、次のゲームには持ち越されないよ。",practice:false},
-  {title:"⑬ 🎰 ロシアンルーレット",text:"ショップでは30コインでルーレットに挑戦できるよ。当たりは20%、ハズレは80%。当たると自己強化ショップの価格が20% OFFになるよ！",hint:()=>"購入しただけでは抽選されないよ。専用画面で「ルーレットを回す」を押そう。割引は重複しないよ。",practice:false},
-  {title:"⑭ 📦 宝箱のコイン報酬",text:"宝箱からもらえるコインが増えるよ！通常70、レア160、超レア310、ウルトラレア510コイン。レア度によって報酬が変わるよ。",hint:()=>"これでチュートリアルは終了！「チュートリアル終了」を押して遊び始めよう。",practice:false}
+  {title:"⑩ 🔰 管理者プレイ映像の紹介",text:"この🔰ボタンを押すと管理者プレイ映像を見られるよ。映像一覧にはランク・ポイント表もあるよ。",hint:()=>"場所を覚えたら「次へ」を押そう。",practice:false,target:"adminVideoBtn"}
 ];
+const tutorialShopSteps = [
+  {title:"⑪ 🛒 通常ショップのお手本",text:"ステージ4・7などで開く通常ショップでは、回復やアイテム、購入枠の拡張などができるよ。商品ごとの価格を確認して、必要なものを選ぼう。",hint:()=>"お手本：購入したい商品のボタンに表示された価格を確認してから押すよ。実際に購入する必要はないよ。",practice:false},
+  {title:"⑫ ✨ 自己強化ショップのお手本",text:"ステージクリア後の自己強化ショップでは、攻撃力・移動速度・防御力・ポイント倍率・回復・必殺技チャージ・最大HPを強化できるよ。",hint:()=>"お手本：各カードの「Lv」と価格を見て、コインを使う順番を考えよう。強化は次のステージにも引き継がれるよ。",practice:false},
+  {title:"⑬ 📈 強化レベルと価格",text:"強化にはレベルと購入価格があるよ。回復は1レベルごとに回復量が＋10、最大HPは1レベルごとに＋10。強化はゲーム中有効で、次のゲームには持ち越されないよ。",hint:()=>"レベルが上がるほど、次の強化価格も変わるよ。",practice:false},
+  {title:"⑭ 🎰 ロシアンルーレット",text:"ショップでは30コインでルーレットに挑戦できるよ。当たりは20%、ハズレは80%。当たると自己強化ショップの価格が20% OFFになるよ！",hint:()=>"お手本：ルーレット画面で「ルーレットを回す」を押すと抽選されるよ。割引は重複しないよ。",practice:false},
+  {title:"⑮ 📦 宝箱のコイン報酬",text:"宝箱のコイン報酬は通常70、レア160、超レア310、ウルトラレア510コイン。レア度によって報酬が変わるよ。",hint:()=>"ショップ関連の説明はここまで。次はキャンバス画面の紹介だよ。",practice:false}
+];
+
 function clearTutorialTargetHighlight(){
   document.querySelectorAll(".tutorial-target-arrow").forEach(el=>el.remove());
   if(window.tutorialArrowPositionHandler){
@@ -4170,16 +4180,16 @@ function showTutorialTargetArrow(targetId){
 function renderTutorialStep(){
   clearTutorialTargetHighlight();
   const panel=document.getElementById("tutorialPanel");
-  const steps=tutorialPhase==="battle"?tutorialBattleSteps:tutorialCanvasSteps;
+  const steps=tutorialPhase==="battle"?tutorialBattleSteps:(tutorialPhase==="shop"?tutorialShopSteps:tutorialCanvasSteps);
   const item=steps[tutorialStep];
   if(!item){panel.classList.add("hidden");return;}
   panel.classList.remove("hidden");
   if(item.target) showTutorialTargetArrow(item.target);
-  document.getElementById("tutorialProgress").textContent=(tutorialPhase==="battle"?"バトルの練習":"キャンバスの説明")+" ・ "+(tutorialStep+1)+" / "+steps.length;
+  document.getElementById("tutorialProgress").textContent=(tutorialPhase==="battle"?"バトルの練習":(tutorialPhase==="shop"?"ショップ関連の説明":"キャンバスの説明"))+" ・ "+(tutorialStep+1)+" / "+steps.length;
   document.getElementById("tutorialTitle").textContent=item.title;
   document.getElementById("tutorialText").textContent=item.text;
   document.getElementById("tutorialPracticeHint").textContent=typeof item.hint==="function"?item.hint():item.hint;
-  document.getElementById("tutorialNextBtn").textContent=(tutorialPhase==="battle"&&tutorialStep===tutorialBattleSteps.length-1)?"キャンバスへ ▶":(tutorialPhase==="canvas"&&tutorialStep===tutorialCanvasSteps.length-1)?"チュートリアル終了 ✓":"次へ ▶";
+  document.getElementById("tutorialNextBtn").textContent=(tutorialPhase==="battle"&&tutorialStep===tutorialBattleSteps.length-1)?"ショップへ ▶":(tutorialPhase==="shop"&&tutorialStep===tutorialShopSteps.length-1)?"キャンバスへ ▶":(tutorialPhase==="canvas"&&tutorialStep===tutorialCanvasSteps.length-1)?"チュートリアル終了 ✓":"次へ ▶";
   document.getElementById("tutorialSpecialBtn").classList.toggle("hidden",!(tutorialPhase==="battle"&&tutorialStep===4));
 }
 function startTutorialDelay(){
@@ -4233,6 +4243,11 @@ function tutorialNext(){
   if(!tutorialActive)return;
   const steps=tutorialPhase==="battle"?tutorialBattleSteps:tutorialCanvasSteps;
   if(tutorialPhase==="battle"&&tutorialStep===tutorialBattleSteps.length-1){
+    tutorialPhase="shop";tutorialStep=0;
+    renderTutorialStep();
+    return;
+  }
+  if(tutorialPhase==="shop"&&tutorialStep===tutorialShopSteps.length-1){
     tutorialPhase="canvas";tutorialStep=0;
     isPausedForSpecial=false;
     setScreen("draw");
@@ -7901,5 +7916,27 @@ if(fx.zombie>0){p.hp=Math.max(1,p.hp);const ts=(minions.length?[...minions]:[ene
 return origUpdate.apply(this,arguments)};
 })();
 </script>
+
+/* ADMINパネルの入力・ボタン操作が攻撃に伝播しないようにする */
+(function isolateAdminPanelInput(){
+  const panel=document.getElementById("adminPanel");
+  if(!panel)return;
+  const isOpen=()=>!panel.classList.contains("hidden") && getComputedStyle(panel).display!=="none" && getComputedStyle(panel).visibility!=="hidden";
+  panel.addEventListener("pointerdown",e=>{ if(isOpen()) e.stopPropagation(); },true);
+  panel.addEventListener("mousedown",e=>{ if(isOpen()) e.stopPropagation(); },true);
+  panel.addEventListener("click",e=>{ if(isOpen()) e.stopPropagation(); },true);
+  document.addEventListener("keydown",e=>{
+    if(!isOpen())return;
+    const t=e.target;
+    const editing=t && (t.matches("input,textarea,select,[contenteditable='true']") || t.closest("#adminPanel"));
+    if(editing){
+      const key=(e.key||"").toLowerCase();
+      if(["e","q","f"," ","arrowup","arrowdown","arrowleft","arrowright","w","a","s","d"].includes(key)){
+        e.stopPropagation();
+        if(t.matches("input,textarea,[contenteditable='true']")) return;
+      }
+    }
+  },true);
+})();
 </body>
 </html>

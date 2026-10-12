@@ -4181,6 +4181,7 @@ function renderTutorialStep(){
   clearTutorialTargetHighlight();
   const panel=document.getElementById("tutorialPanel");
   const steps=tutorialPhase==="battle"?tutorialBattleSteps:(tutorialPhase==="shop"?tutorialShopSteps:tutorialCanvasSteps);
+  if(tutorialPhase==="shop") openTutorialShopPreview(tutorialStep);
   const item=steps[tutorialStep];
   if(!item){panel.classList.add("hidden");return;}
   panel.classList.remove("hidden");
@@ -4239,13 +4240,47 @@ function tutorialOpenSpecial(){
   specialStock=Math.max(1,specialStock);
   openSpecialCanvas();
 }
+let tutorialShopPreviewOpen = "";
+function openTutorialShopPreview(step){
+  const normal=document.getElementById("shopModal");
+  const upgrade=document.getElementById("upgradeShopModal");
+  const roulette=document.getElementById("shopRouletteModal");
+  if(!normal||!upgrade||!roulette)return;
+  normal.classList.add("hidden");upgrade.classList.add("hidden");roulette.classList.add("hidden");
+  if(step===0){
+    currentShopType=1;isShopDiscount=false;shopMaxSlots=1;shopSlotsUsed=0;shopNeedsAdvance=false;
+    document.getElementById("shopTitle").textContent="🛒 通常ショップ（見学）";
+    updateShopUI();normal.classList.remove("hidden");tutorialShopPreviewOpen="normal";
+  }else if(step===1||step===2){
+    upgradeShopNeedsAdvance=false;renderUpgradeShop();upgrade.classList.remove("hidden");tutorialShopPreviewOpen="upgrade";
+  }else if(step===3){
+    rouletteReturnTo="upgrade";document.getElementById("shopRouletteText").textContent="30 Gで挑戦。20%の確率で、今後の自己強化ショップが20% OFF！";
+    document.getElementById("spinShopRouletteBtn").disabled=true;
+    document.getElementById("shopRouletteMessage").textContent="見学モード：ルーレットは回せません";
+    roulette.classList.remove("hidden");tutorialShopPreviewOpen="roulette";
+  }else{
+    currentShopType=1;isShopDiscount=false;shopMaxSlots=1;shopSlotsUsed=0;
+    document.getElementById("shopTitle").textContent="📦 宝箱コイン報酬（見学）";
+    updateShopUI();normal.classList.remove("hidden");tutorialShopPreviewOpen="normal";
+  }
+  [normal,upgrade,roulette].forEach(modal=>modal.querySelectorAll("button").forEach(btn=>btn.disabled=true));
+  const closeButtons=normal.querySelectorAll('button[onclick="closeShop()"]');
+  closeButtons.forEach(btn=>{btn.disabled=false;btn.textContent="見学を閉じる";btn.onclick=closeTutorialShopPreview;});
+  const upClose=upgrade.querySelectorAll('button[onclick="closeUpgradeShop()"]');
+  upClose.forEach(btn=>{btn.disabled=false;btn.textContent="見学を閉じる";btn.onclick=closeTutorialShopPreview;});
+  const rouletteClose=roulette.querySelectorAll('button[onclick="closeShopRoulette()"]');
+  rouletteClose.forEach(btn=>{btn.disabled=false;btn.textContent="見学を閉じる";btn.onclick=closeTutorialShopPreview;});
+}
+function closeTutorialShopPreview(){
+  ["shopModal","upgradeShopModal","shopRouletteModal"].forEach(id=>document.getElementById(id)?.classList.add("hidden"));
+  tutorialShopPreviewOpen="";
+}
 function tutorialNext(){
   if(!tutorialActive)return;
   if(tutorialPhase==="battle"&&tutorialStep===tutorialBattleSteps.length-1){
     tutorialPhase="canvas";tutorialStep=0;
     isPausedForSpecial=false;
     setScreen("draw");
-    // チュートリアル専用バトルの状態を通常の初期状態へ戻す。
     p.hp=150;p.max=150;p.x=100;p.y=250;p.invincibility=0;
     enemy.maxHp=stageBosses[0].hp;enemy.hp=enemy.maxHp;enemy.x=700;enemy.y=250;enemy.spawnTimer=0;
     minions=[];enemyBullets=[];magmaZones=[];bossSpecialState=null;bossSpecialCooldown=0;
@@ -4263,13 +4298,16 @@ function tutorialNext(){
     renderTutorialStep();
     return;
   }
-  if(tutorialPhase==="shop"&&tutorialStep===tutorialShopSteps.length-1){
-    tutorialActive=false;
-    clearTutorialTargetHighlight();
-    document.getElementById("tutorialPanel").classList.add("hidden");
-    document.getElementById("tutorialReplayBtn").classList.remove("hidden");
-    setScreen("draw");redrawCanvas();
-    return;
+  if(tutorialPhase==="shop"){
+    closeTutorialShopPreview();
+    if(tutorialStep===tutorialShopSteps.length-1){
+      tutorialActive=false;
+      clearTutorialTargetHighlight();
+      document.getElementById("tutorialPanel").classList.add("hidden");
+      document.getElementById("tutorialReplayBtn").classList.remove("hidden");
+      setScreen("draw");redrawCanvas();
+      return;
+    }
   }
   tutorialStep++;
   renderTutorialStep();

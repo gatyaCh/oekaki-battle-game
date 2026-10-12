@@ -5654,16 +5654,16 @@ function damagePlayer(dmg) {
 // 宝箱の確率ドロップ開封処理
 function openTreasureChestReward() {
   const r = Math.random() * 100;
-  let rewardCoin = 60;
+  let rewardCoin = 70;
   let rarityName = "通常";
   if (r < 0.1) {
-    rewardCoin = 500; rarityName = "⚡ ウルトラレア";
+    rewardCoin = 510; rarityName = "⚡ ウルトラレア";
   } else if (r < 0.1 + 4.9) {
-    rewardCoin = 300; rarityName = "🌟 超レア";
+    rewardCoin = 310; rarityName = "🌟 超レア";
   } else if (r < 0.1 + 4.9 + 25.0) {
-    rewardCoin = 150; rarityName = "✨ レア";
+    rewardCoin = 160; rarityName = "✨ レア";
   } else {
-    rewardCoin = 60; rarityName = "📦 通常";
+    rewardCoin = 70; rarityName = "📦 通常";
   }
   coins += rewardCoin;
   if (adminRankAbility === "bonus") {

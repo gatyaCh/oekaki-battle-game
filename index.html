@@ -60,6 +60,31 @@ input[type="text"] { font-size: 18px; padding: 6px; border-radius: 4px; border: 
   border-color: #fff;
   font-weight: bold;
 }
+#upgradeShopModal, #shopRouletteModal {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  box-sizing: border-box !important;
+  background: rgba(10, 15, 30, 0.96) !important;
+  z-index: 12000 !important;
+  display: flex;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px !important;
+  overflow-y: auto !important;
+}
+#upgradeShopModal.hidden, #shopRouletteModal.hidden { display: none !important; }
+#upgradeShopModal .shop-container, #shopRouletteModal .shop-container {
+  position: relative !important;
+  margin: auto !important;
+  width: min(94vw, 900px) !important;
+  max-width: 900px !important;
+  max-height: 92vh !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+}
+#upgradeShopItems { grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); }
 #shopModal {
   position: fixed; inset: 0; background: rgba(10, 15, 30, 0.95); z-index: 250;
   display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
@@ -5567,7 +5592,12 @@ function closeUpgradeShop() {
   document.getElementById("upgradeShopModal").classList.add("hidden");
   const mc=document.getElementById("mobileControls");
   if(mc){const show=deviceMode==="mobile"&&currentScreen==="game";mc.style.display=show?"block":"none";mc.style.pointerEvents="none";}
-  if(upgradeShopNeedsAdvance){upgradeShopNeedsAdvance=false;proceedToNextStageNumber();}
+  if(upgradeShopNeedsAdvance){
+    upgradeShopNeedsAdvance=false;
+    // 新しいステージの子分を確実に生成してから戦闘へ戻す。
+    proceedToNextStageNumber();
+    if(stage<=8 && !gameOver) createMinionsForStage(stage);
+  }
 }
 function openShopRoulette(from) {
   if(rouletteWon||coins<30)return;

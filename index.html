@@ -5599,7 +5599,7 @@ function closeShopRoulette() {
 
 function buyRegularRouletteEntry() {
   if(rouletteWon||coins<30||shopSlotsUsed>=shopMaxSlots)return;
-  coins-=30;shopSlotsUsed++;updateShopUI();openShopRoulette("shop");
+  shopSlotsUsed++;updateShopUI();openShopRoulette("shop");
 }
 function closeShop() {
   document.getElementById("shopModal").classList.add("hidden");
@@ -5612,10 +5612,11 @@ function closeShop() {
     mobileControls.style.pointerEvents = "none";
   }
 
-  // ステージクリアから開いたショップだけ次ステージへ進む。
+  // ステージ4・7では通常ショップのあとに自己強化ショップも開く。
   if (shopNeedsAdvance) {
     shopNeedsAdvance = false;
-    proceedToNextStageNumber();
+    if (stage === 4 || stage === 7) openUpgradeShop(true);
+    else proceedToNextStageNumber();
   }
 }
 createMinionsForStage(1);

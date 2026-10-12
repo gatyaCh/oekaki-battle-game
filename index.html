@@ -4189,7 +4189,7 @@ function renderTutorialStep(){
   document.getElementById("tutorialTitle").textContent=item.title;
   document.getElementById("tutorialText").textContent=item.text;
   document.getElementById("tutorialPracticeHint").textContent=typeof item.hint==="function"?item.hint():item.hint;
-  document.getElementById("tutorialNextBtn").textContent=(tutorialPhase==="battle"&&tutorialStep===tutorialBattleSteps.length-1)?"ショップへ ▶":(tutorialPhase==="shop"&&tutorialStep===tutorialShopSteps.length-1)?"キャンバスへ ▶":(tutorialPhase==="canvas"&&tutorialStep===tutorialCanvasSteps.length-1)?"チュートリアル終了 ✓":"次へ ▶";
+  document.getElementById("tutorialNextBtn").textContent=(tutorialPhase==="battle"&&tutorialStep===tutorialBattleSteps.length-1)?"キャンバスへ ▶":(tutorialPhase==="canvas"&&tutorialStep===tutorialCanvasSteps.length-1)?"ショップへ ▶":(tutorialPhase==="shop"&&tutorialStep===tutorialShopSteps.length-1)?"チュートリアル終了 ✓":"次へ ▶";
   document.getElementById("tutorialSpecialBtn").classList.toggle("hidden",!(tutorialPhase==="battle"&&tutorialStep===4));
 }
 function startTutorialDelay(){
@@ -4241,13 +4241,7 @@ function tutorialOpenSpecial(){
 }
 function tutorialNext(){
   if(!tutorialActive)return;
-  const steps=tutorialPhase==="battle"?tutorialBattleSteps:tutorialCanvasSteps;
   if(tutorialPhase==="battle"&&tutorialStep===tutorialBattleSteps.length-1){
-    tutorialPhase="shop";tutorialStep=0;
-    renderTutorialStep();
-    return;
-  }
-  if(tutorialPhase==="shop"&&tutorialStep===tutorialShopSteps.length-1){
     tutorialPhase="canvas";tutorialStep=0;
     isPausedForSpecial=false;
     setScreen("draw");
@@ -4265,6 +4259,11 @@ function tutorialNext(){
     return;
   }
   if(tutorialPhase==="canvas"&&tutorialStep===tutorialCanvasSteps.length-1){
+    tutorialPhase="shop";tutorialStep=0;
+    renderTutorialStep();
+    return;
+  }
+  if(tutorialPhase==="shop"&&tutorialStep===tutorialShopSteps.length-1){
     tutorialActive=false;
     clearTutorialTargetHighlight();
     document.getElementById("tutorialPanel").classList.add("hidden");

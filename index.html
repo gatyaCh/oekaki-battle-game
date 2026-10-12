@@ -3515,10 +3515,23 @@ body.mobile-mode #btnBow{display:none !important;}
 @media(max-width:800px){.tutorial-choice-card{padding:20px}.tutorial-panel-card{padding:12px 14px}#tutorialTitle{font-size:18px}#tutorialText{font-size:14px}.tutorial-panel-actions button{padding:9px 12px!important}}
 
 
-/* チュートリアル修正：🔰・🤫はスクロールに追従せず画面上部に固定 */
-#hushBtn,#adminVideoBtn{position:fixed!important;top:8px!important;z-index:10020!important;}
-#hushBtn{right:54px!important;}
-#adminVideoBtn{right:100px!important;}
+/* 🔰・🤫ボタンを画面右上に固定（スクロール・端末切替後も位置を維持） */
+html body #hushBtn {
+  position: fixed !important;
+  top: max(8px, env(safe-area-inset-top)) !important;
+  right: max(54px, calc(env(safe-area-inset-right) + 54px)) !important;
+  left: auto !important;
+  bottom: auto !important;
+  z-index: 10020 !important;
+}
+html body #adminVideoBtn {
+  position: fixed !important;
+  top: max(8px, env(safe-area-inset-top)) !important;
+  right: max(100px, calc(env(safe-area-inset-right) + 100px)) !important;
+  left: auto !important;
+  bottom: auto !important;
+  z-index: 10020 !important;
+}
 /* ADMIN操作中は攻撃入力を受け付けない */
 </style>
 

@@ -3836,8 +3836,30 @@ progress {
     </div>
     <div style="margin-top: 10px;">
       <button id="expandSlotBtn" onclick="expandShopSlot()" style="background: #eab308; color: #000; font-weight: bold;">🔓 購入枠を拡張 (+1枠 / 40 G)</button>
+      <button id="regularRouletteBtn" onclick="buyRegularRouletteEntry()" style="background:#f59e0b;color:#111;font-weight:bold;">🎰 ルーレット（30 G）</button>
       <button onclick="closeShop()" style="background: #22c55e; font-weight: bold; font-size: 16px; margin-left: 10px; padding: 8px 20px;">次ステージへ出発！</button>
     </div>
+  </div>
+</div>
+<div id="upgradeShopModal" class="hidden">
+  <div class="shop-container">
+    <h2 style="color:#a78bfa;margin-bottom:8px;">✨ 自己強化ショップ</h2>
+    <p style="font-size:14px;color:#cbd5e1;">所持コイン: <b id="upgradeShopCoin" style="color:#ffd700;">0</b> G　|　強化はこのゲーム中ずっと有効</p>
+    <div id="upgradeShopItems" class="shop-grid"></div>
+    <div style="margin-top:12px;">
+      <button id="upgradeRouletteEntry" onclick="openShopRoulette('upgrade')" style="background:#f59e0b;color:#111;font-weight:bold;">🎰 ルーレット（30 G）</button>
+      <button onclick="closeUpgradeShop()" style="background:#22c55e;font-weight:bold;margin-left:8px;">次ステージへ出発！</button>
+    </div>
+    <p id="upgradeShopMessage" style="color:#fde68a;margin-top:8px;"></p>
+  </div>
+</div>
+<div id="shopRouletteModal" class="hidden">
+  <div class="shop-container" style="max-width:420px;">
+    <h2 style="color:#fbbf24;">🎰 ロシアンルーレット</h2>
+    <p id="shopRouletteText">30 Gで挑戦。20%の確率で、今後の自己強化ショップがずっと20% OFF！</p>
+    <button id="spinShopRouletteBtn" onclick="spinShopRoulette()" style="background:#f59e0b;color:#111;font-weight:bold;">ルーレットを回す</button>
+    <button onclick="closeShopRoulette()" style="margin-left:8px;">ショップへ戻る</button>
+    <p id="shopRouletteMessage" style="margin-top:10px;color:#fde68a;"></p>
   </div>
 </div>
 <div id="specialModal" class="hidden">
@@ -4698,6 +4720,12 @@ let shopMaxSlots = 1;
 let shopSlotsUsed = 0;
 let isShopDiscount = false;
 let shopNeedsAdvance = false;
+let upgradeShopNeedsAdvance = false;
+let upgradeDiscountWon = false;
+let rouletteWon = false;
+let rouletteReturnTo = "shop";
+let upgradeLevels = { atk:0, speed:0, defense:0, points:0, heal:0, special:0, hp:0 };
+let rouletteAttemptedThisVisit = false;
 // Kizuku2 & Riku Codes
 let kizuku2Active = false;
 let kizukuItems = { heal: 6, atk: 5, shield: 4, ghost: 3, bullet: 3, lightning: 2 };
@@ -5293,6 +5321,10 @@ function resetGame() {
   stage = 1;
   setStageObstacles(1);
   coins = 0;
+  upgradeLevels = { atk:0, speed:0, defense:0, points:0, heal:0, special:0, hp:0 };
+  upgradeDiscountWon = false;
+  rouletteWon = false;
+  rouletteAttemptedThisVisit = false;
   resultData = null;
   resultSlide = 0;
   totalDamageTaken = 0;
@@ -5373,19 +5405,11 @@ function resetGame() {
 }
 function nextStage() {
   stageClear = true;
-  if (rikuActive) {
-    addRandomSpecialStock();
-  }
+  if (rikuActive) addRandomSpecialStock();
   setTimeout(() => {
-    if (stage === 4) {
-      openShop(1);
-      return;
-    }
-    if (stage === 7) {
-      openShop(2);
-      return;
-    }
-    proceedToNextStageNumber();
+    if (stage === 4) { openShop(1); return; }
+    if (stage === 7) { openShop(2); return; }
+    openUpgradeShop(true);
   }, 700);
 }
 function proceedToNextStageNumber() {
@@ -5442,6 +5466,8 @@ function openShop(type, advanceAfterClose = true) {
 }
 function updateShopUI() {
   document.getElementById("shopCoin").textContent = coins;
+  const rouletteBtn=document.getElementById("regularRouletteBtn");
+  if(rouletteBtn){rouletteBtn.classList.toggle("hidden",rouletteWon);rouletteBtn.disabled=coins<30||shopSlotsUsed>=shopMaxSlots;}
   document.getElementById("shopBuyLimit").textContent = (shopMaxSlots - shopSlotsUsed);
   const prices = {
     heal: isShopDiscount ? 8 : 10,
@@ -5490,6 +5516,90 @@ function buyShopItem(item) {
   else if (item === "revive") { revive = true; }
   else if (item === "special") { addRandomSpecialStock(); }
   updateShopUI();
+}
+
+function getUpgradePrice(key, level) {
+  const general=[5,7,12,17,25,35,48,60,75,88];
+  const point=[8,11,18,26,38,53,72,90,113,132];
+  const special=[10,20,35,50,65,80,100,120];
+  const arr=key==="points"?point:key==="special"?special:general;
+  const base=arr[level];
+  return base==null?null:(upgradeDiscountWon?Math.ceil(base*0.8):base);
+}
+function openUpgradeShop(advanceAfterClose=true) {
+  upgradeShopNeedsAdvance=!!advanceAfterClose;
+  rouletteAttemptedThisVisit=false;
+  renderUpgradeShop();
+  document.getElementById("upgradeShopModal").classList.remove("hidden");
+  const mc=document.getElementById("mobileControls");
+  if(mc){mc.style.display="none";mc.style.pointerEvents="none";}
+}
+function renderUpgradeShop() {
+  const root=document.getElementById("upgradeShopItems");
+  if(!root)return;
+  document.getElementById("upgradeShopCoin").textContent=coins;
+  const defs=[
+    ["atk","💪 攻撃力","攻撃力 +10% / Lv",10],
+    ["speed","👟 移動速度","移動速度 +5% / Lv",10],
+    ["defense","🛡️ 防御力","受けるダメージ -5% / Lv",10],
+    ["points","🏆 ポイント倍率","獲得ポイント +10% / Lv",10],
+    ["heal","💖 回復量","回復効果 +10 / Lv",10],
+    ["special","⚡ 必殺技チャージ","チャージ効率 +10% / Lv",8],
+    ["hp","❤️ 最大HP","最大HP +10 / Lv",10]
+  ];
+  root.innerHTML=defs.map(([k,label,desc,max])=>{
+    const lv=upgradeLevels[k], price=getUpgradePrice(k,lv), capped=lv>=max;
+    return '<div class="shop-card"><h3>'+label+'</h3><p style="font-size:12px;margin:4px 0;">'+desc+'</p><p style="color:#c4b5fd;">Lv '+lv+' / '+max+'</p><p style="color:#ffd700;font-weight:bold;">'+(capped?'MAX':price+' G')+'</p><button '+(capped||coins<price?'disabled':'')+' onclick="buyUpgrade(\''+k+'\')">'+(capped?'MAX':'強化する')+'</button></div>';
+  }).join("");
+  const rb=document.getElementById("upgradeRouletteEntry");
+  if(rb){rb.classList.toggle("hidden",rouletteWon);rb.disabled=coins<30;}
+}
+function buyUpgrade(key) {
+  if(!(key in upgradeLevels))return;
+  const price=getUpgradePrice(key,upgradeLevels[key]);
+  const caps={atk:10,speed:10,defense:10,points:10,heal:10,special:8,hp:10};
+  if(price==null||upgradeLevels[key]>=caps[key]||coins<price)return;
+  coins-=price; upgradeLevels[key]++;
+  if(key==="atk") atkBuff+=0.10;
+  if(key==="hp"){p.max+=10;p.hp+=10;}
+  renderUpgradeShop();
+}
+function closeUpgradeShop() {
+  document.getElementById("upgradeShopModal").classList.add("hidden");
+  const mc=document.getElementById("mobileControls");
+  if(mc){const show=deviceMode==="mobile"&&currentScreen==="game";mc.style.display=show?"block":"none";mc.style.pointerEvents="none";}
+  if(upgradeShopNeedsAdvance){upgradeShopNeedsAdvance=false;proceedToNextStageNumber();}
+}
+function openShopRoulette(from) {
+  if(rouletteWon||coins<30)return;
+  rouletteReturnTo=from;
+  rouletteAttemptedThisVisit=false;
+  document.getElementById("shopRouletteMessage").textContent="";
+  document.getElementById("spinShopRouletteBtn").disabled=false;
+  document.getElementById("shopRouletteModal").classList.remove("hidden");
+}
+function spinShopRoulette() {
+  if(rouletteAttemptedThisVisit||rouletteWon||coins<30)return;
+  coins-=30; rouletteAttemptedThisVisit=true;
+  const win=Math.random()<0.20;
+  const b=document.getElementById("spinShopRouletteBtn"); b.disabled=true;
+  if(win){
+    rouletteWon=true;upgradeDiscountWon=true;
+    document.getElementById("shopRouletteMessage").textContent="🎉 当たり！今後の自己強化ショップがずっと20% OFF！";
+  }else{
+    document.getElementById("shopRouletteMessage").textContent="はずれ！次のステージクリア後にまた挑戦できるよ。";
+  }
+  document.getElementById("shopRouletteText").textContent="所持コイン: "+coins+" G";
+}
+function closeShopRoulette() {
+  document.getElementById("shopRouletteModal").classList.add("hidden");
+  if(rouletteReturnTo==="upgrade")renderUpgradeShop();
+  else updateShopUI();
+}
+
+function buyRegularRouletteEntry() {
+  if(rouletteWon||coins<30||shopSlotsUsed>=shopMaxSlots)return;
+  coins-=30;shopSlotsUsed++;updateShopUI();openShopRoulette("shop");
 }
 function closeShop() {
   document.getElementById("shopModal").classList.add("hidden");

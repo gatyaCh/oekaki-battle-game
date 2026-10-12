@@ -4976,7 +4976,7 @@ function getDamage() {
   const halloweenZombieMul = halloweenFx.zombie > 0 ? 3 : 1;
   const kizuku2AtkMul = kizuku2Active ? 2.0 : 1;
   const adminRankMul = adminRankAbility === "damage4" ? 4.0 : 1;
-  return (10 + charge / 8) * atkBuff * 1.03 * kizuku2AtkMul * adminRankMul * halloweenCandyMul * halloweenZombieMul;
+  return (10 + charge / 8) * atkBuff * 1.03 * kizuku2AtkMul * adminRankMul * halloweenCandyMul * halloweenZombieMul * (1 + upgradeLevels.atk * 0.10);
 }
 function damageEnemy(amount) {
   if (bossSpecialState) return;
@@ -4997,7 +4997,7 @@ function damageEnemy(amount) {
     // ボスに与えた実ダメージだけを必殺技ゲージへ加算。
     // 子分へのダメージやショップ購入ではこのゲージは増えない。
     if (!specialGaugeMaxed) {
-      specialGaugeDamage += actual * (adminRankAbility === "gauge" ? 2 : 1);
+      specialGaugeDamage += actual * (adminRankAbility === "gauge" ? 2 : 1) * (1 + upgradeLevels.special * 0.10);
       const gaugeMaxDamage = getSpecialGaugeMaxDamage();
       if (specialGaugeDamage >= gaugeMaxDamage) {
         specialGaugeDamage = gaugeMaxDamage;
@@ -5424,7 +5424,7 @@ function proceedToNextStageNumber() {
   updateSpecialGauge();
 
   p.x = 100; p.y = 250;
-  p.hp = Math.min(p.max, p.hp + 30);
+  p.hp = Math.min(p.max, p.hp + 30 + upgradeLevels.heal * 10);
   enemy.maxHp = stageBosses[stage - 1].hp;
   enemy.hp = enemy.maxHp;
   specialGaugeMaxed = false;
@@ -5509,7 +5509,7 @@ function buyShopItem(item) {
   if (coins < cost || shopSlotsUsed >= shopMaxSlots) return;
   coins -= cost;
   shopSlotsUsed++;
-  if (item === "heal") p.hp = p.max;
+  if (item === "heal") p.hp = Math.min(p.max, p.hp + Math.max(0, p.max - p.hp) + upgradeLevels.heal * 10);
   else if (item === "maxhp") { p.max += 50; p.hp += 50; }
   else if (item === "atk") { atkBuff += 0.25; }
   else if (item === "shield") { shieldEquipped = true; shieldRemainingTime = 7.0; }
@@ -5753,7 +5753,8 @@ function damagePlayer(dmg) {
     msg.textContent = "🛡️ ADMINガード！ 攻撃を無効化（残り " + adminGuardBlocksLeft + "回）";
     return;
   }
-  const actual = Math.max(0, Math.min(p.hp, Number(dmg) || 0));
+  const rawDamage = Math.max(0, Number(dmg) || 0);
+  const actual = Math.max(0, Math.min(p.hp, rawDamage * (1 - upgradeLevels.defense * 0.05)));
   p.hp -= actual;
   const halloweenFxForDamage = window.halloweenEffects;
   if (actual > 0 && halloweenFxForDamage && halloweenFxForDamage.bat > 0) {
@@ -5782,7 +5783,7 @@ function openTreasureChestReward() {
     msg.textContent = `📦 ADMINボーナス！ 追加で60 G！ 合計 ${rewardCoin + 60} G獲得！`;
   }
   treasureChestsOpened++;
-  const rarityPoints = rewardCoin >= 500 ? 20 : rewardCoin >= 300 ? 14 : rewardCoin >= 150 ? 5 : 2;
+  const rarityPoints = Math.round((rewardCoin >= 500 ? 20 : rewardCoin >= 300 ? 14 : rewardCoin >= 150 ? 5 : 2) * (1 + upgradeLevels.points * 0.10));
   coinPointTotal += rarityPoints;
   msg.textContent = `📦 宝箱開封！ [${rarityName}] ${rewardCoin} G獲得！ コインpt +${rarityPoints}`;
 }
@@ -6174,7 +6175,7 @@ function update() {
   if (bigSlashAnimTimer > 0) bigSlashAnimTimer--;
   let speedMult = slowDebuffTimer > 0 ? 0.5 : 1.0;
   if (stage === 5) speedMult *= 0.85;
-  let sp = (charging ? 2 : 4) * speedMult * (kizuku2Active ? 2.0 : 1);
+  let sp = (charging ? 2 : 4) * speedMult * (kizuku2Active ? 2.0 : 1) * (1 + upgradeLevels.speed * 0.05);
   const ku = window.controlKeys.up, kd = window.controlKeys.down, kl = window.controlKeys.left, kr = window.controlKeys.right;
   let dx = 0, dy = 0;
   const halloweenFx = window.halloweenEffects || {};

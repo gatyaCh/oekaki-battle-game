@@ -3553,23 +3553,6 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 }
 
 #skinControls{display:inline-block;vertical-align:middle;position:relative}#skinPanel{position:absolute;left:50%;top:100%;transform:translateX(-50%);z-index:20000;width:min(92vw,440px);padding:14px;background:#182235;border:2px solid #60a5fa;border-radius:12px;box-shadow:0 8px 28px #000a;color:#fff}#skinPanel h3{margin:0 0 10px}#skinGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.skin-card{min-width:0;background:#263449;border:1px solid #64748b;border-radius:8px;padding:8px 3px;display:flex;flex-direction:column;align-items:center;gap:5px}.skin-avatar{font-size:34px;line-height:1.4}.skin-card.selected{outline:3px solid #facc15}.skin-card.locked{opacity:.8}.skin-card button{margin:0;padding:6px 3px;width:100%;font-size:12px}#skinMessage{font-size:13px;color:#fde68a;min-height:1.3em;margin:8px 0}@media(max-width:600px){#skinPanel{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);max-height:80vh;overflow:auto}}
-
-/* 戦闘中HUDリニューアル：PC版のみ。スマホ版の既存UIは維持 */
-#battleHudRenewal{display:none;position:fixed;left:12px;top:12px;z-index:8000;width:245px;padding:10px 12px;background:rgba(20,25,35,.94);color:#fff;border:1px solid #64748b;border-radius:10px;box-shadow:0 4px 14px #0006;font-size:13px;pointer-events:none}
-body:not(.mobile-mode) #battleHudRenewal{display:block}
-#battleHudRenewal .hud-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
-#battleHudRenewal .hud-label{font-weight:700}
-#battleHudRenewal .hud-track{height:10px;background:#374151;border-radius:8px;overflow:hidden;margin:4px 0 8px}
-#battleHudRenewal .hud-fill{height:100%;width:100%;transition:width .12s linear}
-#battleHudRenewal .hud-player{background:#22c55e}
-#battleHudRenewal .hud-boss{background:#ef4444}
-#battleHudRenewal .hud-special{background:#38bdf8}
-#battleHudRenewal .hud-charge{background:#fbbf24}
-#battleHudRenewal .hud-divider{height:1px;background:#475569;margin:8px 0}
-#battleHudRenewal .hud-rank{background:rgba(8,145,178,.2);border:1px solid #22d3ee;border-radius:7px;padding:7px;margin-top:6px}
-#battleHudRenewal .hud-sub{font-size:11px;color:#cbd5e1}
-#battleHudRenewal .hud-items{font-size:12px;line-height:1.5;color:#e2e8f0}
-body.mobile-mode #battleHudRenewal{display:none!important}
 </style>
 
 
@@ -3648,9 +3631,6 @@ canvas {
 #title {
   color: var(--ui-text);
 }
-/* 端末選択画面のボタンが他の固定レイヤーに覆われないようにする */
-#title:not(.hidden){position:fixed!important;inset:0!important;z-index:2147483647!important;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:auto!important}
-#title:not(.hidden) button{position:relative!important;z-index:2147483647!important;pointer-events:auto!important;touch-action:manipulation;cursor:pointer}
 #title h1 {
   color: #f5f8ff;
   text-shadow: 0 2px 14px rgba(120,183,255,.18);
@@ -3866,23 +3846,6 @@ html body #draw:not(.hidden) #gearBtn {
   <div id="msg"></div>
   <canvas id="game" width="900" height="500"></canvas>
   <p id="guideText">設定キーで移動 / 攻撃キー長押し→離して攻撃 (右クリックでチャージキャンセル) / <b>[Q] キーで必殺技</b></p>
-  <aside id="battleHudRenewal" aria-label="戦闘状況">
-    <div class="hud-row"><span class="hud-label">❤️ 自分の体力</span><span id="hudPlayerHp">-- / --</span></div>
-    <div class="hud-track"><div id="hudPlayerHpBar" class="hud-fill hud-player"></div></div>
-    <div class="hud-row"><span class="hud-label">⚡ 必殺技チャージ</span><span id="hudSpecialPercent">0%</span></div>
-    <div class="hud-track"><div id="hudSpecialBar" class="hud-fill hud-special"></div></div>
-    <div class="hud-row"><span class="hud-label">⚔️ 武器チャージ</span><span id="hudChargePercent">0%</span></div>
-    <div class="hud-track"><div id="hudChargeBar" class="hud-fill hud-charge"></div></div>
-    <div class="hud-divider"></div>
-    <div class="hud-row"><span class="hud-label">👹 ボスの体力</span><span id="hudBossHp">-- / --</span></div>
-    <div class="hud-track"><div id="hudBossHpBar" class="hud-fill hud-boss"></div></div>
-    <div class="hud-rank">
-      <div class="hud-row"><span class="hud-label">🏆 前ステージのランク</span><span id="hudRank">C</span></div>
-      <div class="hud-row"><span id="hudPoints">0 pt</span><span id="hudNextRank">Bまであと80 pt</span></div>
-    </div>
-    <div class="hud-divider"></div>
-    <div class="hud-items" id="hudItems">🎒 アイテム状況：確認中</div>
-  </aside>
 </div>
 <div id="resultScreen" class="hidden" aria-label="ゲーム結果">
   <div id="resultViewport">
@@ -4170,13 +4133,6 @@ let currentScreen = 'title';
 // 画面を1つだけ表示する共通処理。
 // 「回転したら描画画面に戻る」「ゲーム中なのに描画画面が出る」を防ぐ。
 function syncScreenVisibility() {
-  // タイトル画面では、前の画面で開いたモーダルが残ってクリックを妨げないよう必ず閉じる。
-  if (currentScreen === "title") {
-    ["skinPanel","adminVideoOverlay","keySetting","keyConfirm","upgradeShopModal","shopRouletteModal","shopModal","specialModal","halloweenRateOverlay","halloweenRouletteOverlay","specialCodeBox","tutorialPanel"].forEach(id => {
-      const layer = document.getElementById(id);
-      if (layer) layer.classList.add("hidden");
-    });
-  }
   const screens = {
     title: document.getElementById("title"),
     draw: document.getElementById("draw"),
@@ -5624,45 +5580,7 @@ function nextStage() {
     openUpgradeShop(true);
   }, 700);
 }
-function getHudRankThreshold(points) {
-  const thresholds = [{name:"B",points:80},{name:"A",points:160},{name:"AA",points:240},{name:"S",points:300},{name:"Z",points:400},{name:"UR",points:500},{name:"💎 GATYA",points:730}];
-  return thresholds.find(x => points < x.points) || null;
-}
-let battleHudPreviousStagePoints = 0;
-function updateBattleHud() {
-  const el = id => document.getElementById(id);
-  if (!el("battleHudRenewal")) return;
-  const hp = Math.max(0, Number(p && p.hp) || 0), maxHp = Math.max(1, Number(p && p.max) || 1);
-  const bossHp = Math.max(0, Number(enemy && enemy.hp) || 0), bossMax = Math.max(1, Number(enemy && enemy.maxHp) || 1);
-  const setText = (id, value) => { const node = el(id); if (node) node.textContent = value; };
-  const setBar = (id, value) => { const node = el(id); if (node) node.style.width = Math.max(0, Math.min(100, value)) + "%"; };
-  setText("hudPlayerHp", Math.ceil(hp) + " / " + Math.ceil(maxHp));
-  setBar("hudPlayerHpBar", hp / maxHp * 100);
-  setText("hudBossHp", Math.ceil(bossHp) + " / " + Math.ceil(bossMax));
-  setBar("hudBossHpBar", bossHp / bossMax * 100);
-  const sg = el("specialGauge"), sp = sg ? (Number(sg.value) / Math.max(1, Number(sg.max))) * 100 : 0;
-  setText("hudSpecialPercent", Math.round(sp) + "%"); setBar("hudSpecialBar", sp);
-  const chargeEl = el("charge"), chargeMax = chargeEl ? Math.max(1, Number(chargeEl.max) || 150) : 150;
-  const chargeValue = chargeEl ? Math.max(0, Number(chargeEl.value) || 0) : 0;
-  const cp = chargeValue / chargeMax * 100;
-  setText("hudChargePercent", Math.round(cp) + "%"); setBar("hudChargeBar", cp);
-  const points = Math.max(0, battleHudPreviousStagePoints);
-  const rank = getRankFromPoints(points);
-  setText("hudRank", rank); setText("hudPoints", points + " pt");
-  const next = getHudRankThreshold(points);
-  setText("hudNextRank", next ? next.name + "まであと" + (next.points - points) + " pt" : "最高ランク到達");
-  const items = [];
-  if (typeof shieldEquipped !== "undefined" && shieldEquipped) items.push("🛡️ ガード " + (typeof shieldRemainingTime !== "undefined" ? Math.max(0, shieldRemainingTime).toFixed(1) + "秒" : "発動中"));
-  if (typeof revive !== "undefined" && revive) items.push("🗿 復活アイテム");
-  if (typeof specialStock !== "undefined" && specialStock > 0) items.push("⚡ 必殺技ストック " + specialStock);
-  setText("hudItems", items.length ? items.join("　") : "🎒 発動中の効果・ストックなし");
-}
-function snapshotBattleHudStagePoints() {
-  // 前ステージ終了時点の累計ポイント。最終クリア・無必殺ボーナスは結果画面でのみ確定。
-  battleHudPreviousStagePoints = Math.max(0, (Number(minionPointTotal)||0) + (Number(bossesDefeated)||0)*40 + (Number(coinPointTotal)||0) + (Number(treasureChestsOpened)||0)*7 + getHpPoints() + getDamagePoints());
-}
 function proceedToNextStageNumber() {
-  snapshotBattleHudStagePoints();
   stage++;
   if (stage > 8) {
     showResult(true);
@@ -7047,7 +6965,7 @@ function updateRikuUI() {
 })();
 function loop() {
   if (!gameArea.classList.contains("hidden")) update();
-  document.getElementById("atkText").textContent = (atkBuff * (kizuku2Active ? 2.0 : 1)).toFixed(1);\n  updateBattleHud();
+  document.getElementById("atkText").textContent = (atkBuff * (kizuku2Active ? 2.0 : 1)).toFixed(1);
   document.getElementById("shieldText").textContent = shieldEquipped ? shieldRemainingTime.toFixed(1) + "s" : "なし";
   document.getElementById("reviveText").textContent = revive ? "所持" : "なし";
   draw();

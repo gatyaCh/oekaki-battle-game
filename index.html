@@ -8045,5 +8045,75 @@ return origUpdate.apply(this,arguments)};
  render();
 })();
 </script>
+
+<style id="draw-layout-and-skin-shop-refresh">
+/* キャンバス左・操作ボタン右のレイアウト */
+#drawWorkArea{display:flex;align-items:flex-start;justify-content:center;gap:18px;width:min(100%,900px);margin:0 auto 12px;text-align:left}
+#drawCanvasColumn{display:flex;flex-direction:column;align-items:center;min-width:0}
+#drawCanvasColumn #guideInstruction{text-align:center;max-width:100%}
+#drawActionColumn{display:flex;flex-direction:column;align-items:stretch;gap:9px;min-width:190px;max-width:250px;padding-top:28px}
+#drawActionColumn button{margin:0;width:100%;white-space:normal}
+#drawActionColumn #result{min-height:1.4em;font-size:16px!important;text-align:center}
+#drawActionColumn #battleBtn{font-size:18px!important}
+#drawActionColumn #skinControls{display:block;width:100%}
+#drawActionColumn #expandDrawBtn,#drawActionColumn #closeDrawExpandBtn{width:100%}
+#drawActionColumn #skinToggleBtn{width:100%}
+#drawActionColumn #closeDrawExpandBtn{display:none}
+#skinPanel{position:fixed!important;inset:0!important;left:0!important;top:0!important;transform:none!important;width:100vw!important;height:100dvh!important;max-height:none!important;overflow:auto!important;z-index:950000!important;border:0!important;border-radius:0!important;background:radial-gradient(ellipse at top,#263955,#10151f 70%)!important;padding:clamp(18px,4vw,42px)!important;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:none!important}
+#skinPanel.hidden{display:none!important}
+#skinPanel h3{font-size:clamp(25px,4vw,36px);margin-bottom:8px}
+#skinPanel:before{content:"見た目を選ぼう！能力は変わらないよ";color:#cbd5e1;margin-bottom:20px;font-size:15px}
+#skinGrid{width:min(820px,96%);grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+#skinGrid .skin-card{padding:18px 12px;min-height:170px;background:linear-gradient(145deg,#2b3b53,#192334);border:1px solid #64748b;border-radius:14px;justify-content:center}
+#skinGrid .skin-avatar{font-size:clamp(38px,6vw,58px)}
+#skinGrid .skin-card>div:nth-child(2){font-size:17px;font-weight:bold}
+#skinGrid .skin-card button{font-size:14px;padding:9px 6px}
+#skinPanel #skinMessage{font-size:16px;margin:16px 0;min-height:1.5em}
+#skinCloseBtn{width:min(260px,90%);padding:12px!important;font-size:16px}
+#adminVideoTutorialBtn{display:inline-block;margin:12px auto 18px;padding:10px 20px;font-size:17px}
+@media(max-width:700px){
+ #drawWorkArea{gap:8px;justify-content:flex-start}
+ #drawCanvasColumn{width:min(58vw,400px);flex:0 1 58vw}
+ #drawCanvas{width:100%;height:auto}
+ #drawActionColumn{min-width:0;width:calc(42vw - 18px);max-width:190px;padding-top:22px;gap:6px}
+ #drawActionColumn button{font-size:12px;padding:7px 5px}
+ #drawActionColumn #battleBtn{font-size:13px!important}
+ #drawActionColumn #result{font-size:11px!important}
+ #skinGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #skinGrid .skin-card{min-height:135px;padding:10px 5px}
+ #skinGrid .skin-card>div:nth-child(2){font-size:14px}
+ #skinGrid .skin-card button{font-size:12px}
+}
+</style>
+<script id="draw-layout-and-skin-shop-refresh-script">
+(function(){
+ const draw=document.getElementById('draw'),canvas=document.getElementById('drawCanvas');
+ if(!draw||!canvas||document.getElementById('drawWorkArea'))return;
+ const area=document.createElement('div');area.id='drawWorkArea';
+ const left=document.createElement('div');left.id='drawCanvasColumn';
+ const right=document.createElement('div');right.id='drawActionColumn';
+ draw.insertBefore(area,canvas);
+ area.append(left,right);
+ const guide=document.getElementById('guideInstruction');
+ if(guide)left.appendChild(guide);
+ left.appendChild(canvas);
+ ['skinControls','expandDrawBtn','closeDrawExpandBtn','judgeBtn','clearBtn','result','battleBtn'].forEach(id=>{
+   const el=document.getElementById(id);if(el)right.appendChild(el);
+ });
+ const oldTutorial=[...draw.querySelectorAll('button')].find(b=>b.textContent.includes('チュートリアル'));
+ if(oldTutorial)oldTutorial.style.display='none';
+ const list=document.getElementById('adminVideoListView');
+ if(list&&!document.getElementById('adminVideoTutorialBtn')){
+   const btn=document.createElement('button');btn.id='adminVideoTutorialBtn';btn.type='button';btn.textContent='📘 チュートリアルを見る';
+   const intro=list.querySelector('p');if(intro)intro.insertAdjacentElement('afterend',btn);else list.prepend(btn);
+   btn.addEventListener('click',()=>{const overlay=document.getElementById('adminVideoOverlay');if(overlay)overlay.classList.add('hidden');if(typeof window.startTutorialFromDraw==='function')window.startTutorialFromDraw();});
+ }
+ const toggle=document.getElementById('skinToggleBtn'),panel=document.getElementById('skinPanel'),close=document.getElementById('skinCloseBtn');
+ if(toggle&&panel){toggle.textContent='🎨 スキンショップ';toggle.onclick=()=>{panel.classList.remove('hidden');if(typeof window.renderSkinShop==='function')window.renderSkinShop();};}
+ if(close&&panel)close.onclick=()=>panel.classList.add('hidden');
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&panel&&!panel.classList.contains('hidden'))panel.classList.add('hidden');});
+})();
+</script>
+
 </body>
 </html>

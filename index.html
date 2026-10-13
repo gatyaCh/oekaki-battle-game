@@ -3702,19 +3702,20 @@ progress {
 </style>
 
 <style id="gear-scroll-visibility-fix">
-/* Keep the settings control in the drawing page flow and allow the page to scroll to it. */
+/* ⚙️設定ボタンを🤫の右隣に配置。描画画面でのみ表示する。 */
 html body #draw:not(.hidden) #gearBtn {
   display: inline-block !important;
-  position: static !important;
-  inset: auto !important;
+  position: fixed !important;
+  top: max(8px, env(safe-area-inset-top)) !important;
+  right: max(8px, env(safe-area-inset-right)) !important;
+  left: auto !important;
+  bottom: auto !important;
+  inset-inline-start: auto !important;
   visibility: visible !important;
   opacity: 1 !important;
-  order: -1 !important;
-  flex: 0 0 auto !important;
-  align-self: flex-end !important;
-  z-index: 10050 !important;
+  z-index: 10030 !important;
   pointer-events: auto !important;
-  margin: 2px 6px !important;
+  margin: 0 !important;
 }
 @media (max-width: 900px) {
   html body.mobile-mode {

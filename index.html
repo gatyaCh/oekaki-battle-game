@@ -3648,6 +3648,9 @@ canvas {
 #title {
   color: var(--ui-text);
 }
+/* 端末選択画面のボタンが他の固定レイヤーに覆われないようにする */
+#title:not(.hidden){position:relative;z-index:950001;pointer-events:auto}
+#title:not(.hidden) button{position:relative;z-index:950002;pointer-events:auto;cursor:pointer}
 #title h1 {
   color: #f5f8ff;
   text-shadow: 0 2px 14px rgba(120,183,255,.18);

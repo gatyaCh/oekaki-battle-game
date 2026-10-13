@@ -3649,8 +3649,8 @@ canvas {
   color: var(--ui-text);
 }
 /* 端末選択画面のボタンが他の固定レイヤーに覆われないようにする */
-#title:not(.hidden){position:relative;z-index:950001;pointer-events:auto}
-#title:not(.hidden) button{position:relative;z-index:950002;pointer-events:auto;cursor:pointer}
+#title:not(.hidden){position:fixed!important;inset:0!important;z-index:2147483647!important;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:auto!important}
+#title:not(.hidden) button{position:relative!important;z-index:2147483647!important;pointer-events:auto!important;touch-action:manipulation;cursor:pointer}
 #title h1 {
   color: #f5f8ff;
   text-shadow: 0 2px 14px rgba(120,183,255,.18);
@@ -4170,6 +4170,13 @@ let currentScreen = 'title';
 // 画面を1つだけ表示する共通処理。
 // 「回転したら描画画面に戻る」「ゲーム中なのに描画画面が出る」を防ぐ。
 function syncScreenVisibility() {
+  // タイトル画面では、前の画面で開いたモーダルが残ってクリックを妨げないよう必ず閉じる。
+  if (currentScreen === "title") {
+    ["skinPanel","adminVideoOverlay","keySetting","keyConfirm","upgradeShopModal","shopRouletteModal","shopModal","specialModal","halloweenRateOverlay","halloweenRouletteOverlay","specialCodeBox","tutorialPanel"].forEach(id => {
+      const layer = document.getElementById(id);
+      if (layer) layer.classList.add("hidden");
+    });
+  }
   const screens = {
     title: document.getElementById("title"),
     draw: document.getElementById("draw"),

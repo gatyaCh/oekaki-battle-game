@@ -3701,6 +3701,35 @@ progress {
 }
 </style>
 
+<style id="gear-scroll-visibility-fix">
+/* Keep the settings control in the drawing page flow and allow the page to scroll to it. */
+html body #draw:not(.hidden) #gearBtn {
+  display: inline-block !important;
+  position: static !important;
+  inset: auto !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  order: -1 !important;
+  flex: 0 0 auto !important;
+  align-self: flex-end !important;
+  z-index: 10050 !important;
+  pointer-events: auto !important;
+  margin: 2px 6px !important;
+}
+@media (max-width: 900px) {
+  html body.mobile-mode #draw:not(.hidden) {
+    height: auto !important;
+    min-height: 100vh !important;
+    max-height: none !important;
+    overflow: visible !important;
+    overflow-y: visible !important;
+  }
+  html body.mobile-mode #gearBtn {
+    display: inline-block !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -3733,6 +3762,7 @@ progress {
 </div>
 <div id="draw" class="hidden">
   <h2>狙う武器を選択して描こう！</h2>
+  <button id="gearBtn" title="キー設定">⚙️</button>
   <div class="weapon-select-box">
     <p style="margin-bottom:8px; font-size:14px;"><b>【狙う武器を選択（ガイド付き）】</b></p>
     <button id="btnWand" onclick="selectTargetWeapon('🪄')">🪄 魔法の杖</button>
@@ -3748,8 +3778,7 @@ progress {
   <button id="judgeBtn">武器決定（やり直し不可！）</button>
   <button id="clearBtn">描き直す</button>
   <p id="result" style="margin: 10px 0; font-size: 20px; font-weight:bold;"></p>
-  <button id="gearBtn" title="キー設定">⚙️</button>
-  <button id="tutorialReplayBtn" type="button" onclick="startTutorialFromDraw()">📘 チュートリアル</button>
+  <button id="tutorialReplayBtn type="button" onclick="startTutorialFromDraw()">📘 チュートリアル</button>
   <button id="battleBtn" class="hidden" style="font-size: 18px; background: #28a745;">戦闘開始</button>
 </div>
 <button id="hushBtn" title="スペシャルコード">🤫</button>

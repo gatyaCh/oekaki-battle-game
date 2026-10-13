@@ -5075,6 +5075,19 @@ document.addEventListener("keyup", e => {
     releaseAttackCharge();
   }
 });
+
+// キーを押したまま画面切り替え・フォーカス喪失が起きても移動入力が固まらないようにする。
+function clearStuckMovementKeys() {
+  try { Object.keys(keys).forEach(k => { keys[k] = false; }); } catch (e) {}
+  charging = false;
+  charge = 0;
+  window.adminPanelInteracting = false;
+}
+window.addEventListener("blur", clearStuckMovementKeys);
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) clearStuckMovementKeys();
+});
+
 document.addEventListener("mousedown", e => {
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
   if (e.button === 0 && window.attackExtraKeys?.includes("mouseleft")) {

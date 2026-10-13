@@ -5652,6 +5652,7 @@ function snapshotBattleHudStagePoints() {
   battleHudPreviousStagePoints = Math.max(0, (Number(minionPointTotal)||0) + (Number(bossesDefeated)||0)*40 + (Number(coinPointTotal)||0) + (Number(treasureChestsOpened)||0)*7 + getHpPoints() + getDamagePoints());
 }
 function proceedToNextStageNumber() {
+  snapshotBattleHudStagePoints();
   stage++;
   if (stage > 8) {
     showResult(true);

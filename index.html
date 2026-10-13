@@ -4431,7 +4431,7 @@ try {
   const savedExtras = JSON.parse(localStorage.getItem("oekakiBattleAttackExtras") || "[]");
   if (Array.isArray(savedExtras)) window.attackExtraKeys = savedExtras;
 } catch (e) {}
-const keyLabels = { attack: "攻撃", chest: "宝箱長押し", shield: "シールド長押し", up: "上移動", down: "下移動", left: "左移動", right: "右移動" };
+const keyLabels = { attack: "攻撃", chest: "宝箱を開けるキー", shield: "シールドのキー", up: "上移動", down: "下移動", left: "左移動", right: "右移動" };
 function keyText(k) {
   if (!k) return "";
   if (k === " ") return "Space";

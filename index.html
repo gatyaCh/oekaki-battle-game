@@ -3550,6 +3550,8 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
   pointer-events: auto !important;
   vertical-align: middle;
 }
+
+#skinControls{display:inline-block;vertical-align:middle;position:relative}#skinPanel{position:absolute;left:50%;top:100%;transform:translateX(-50%);z-index:20000;width:min(92vw,440px);padding:14px;background:#182235;border:2px solid #60a5fa;border-radius:12px;box-shadow:0 8px 28px #000a;color:#fff}#skinPanel h3{margin:0 0 10px}#skinGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.skin-card{min-width:0;background:#263449;border:1px solid #64748b;border-radius:8px;padding:8px 3px;display:flex;flex-direction:column;align-items:center;gap:5px}.skin-avatar{font-size:34px;line-height:1.4}.skin-card.selected{outline:3px solid #facc15}.skin-card.locked{opacity:.8}.skin-card button{margin:0;padding:6px 3px;width:100%;font-size:12px}#skinMessage{font-size:13px;color:#fde68a;min-height:1.3em;margin:8px 0}@media(max-width:600px){#skinPanel{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);max-height:80vh;overflow:auto}}
 </style>
 
 
@@ -3779,6 +3781,7 @@ html body #draw:not(.hidden) #gearBtn {
   </div>
   <p id="guideInstruction" style="color:#ffcc00; font-size:14px; margin-bottom:8px;">★マークを丁寧になぞろう！ずれると他の武器になっちゃうぞ！</p>
   <canvas id="drawCanvas" width="400" height="400"></canvas>
+  <div id="skinControls"><button id="skinToggleBtn" type="button">🎨 スキン選択</button><div id="skinPanel" class="hidden" role="dialog" aria-label="スキン選択"><h3>🎨 スキン選択</h3><div id="skinGrid"></div><p id="skinMessage" aria-live="polite"></p><button id="skinCloseBtn" type="button">閉じる</button></div></div>
   <button id="expandDrawBtn" type="button">🔍 大きくする</button>
   <button id="closeDrawExpandBtn" type="button">✕ 閉じる</button><br>
   <button id="judgeBtn">武器決定（やり直し不可！）</button>
@@ -6602,7 +6605,7 @@ function draw() {
   }
   ctx.save();
   if (p.invincibility <= 0 || Math.floor(Date.now() / 100) % 2 === 0) {
-    ctx.font = "36px serif"; ctx.fillText(ghost ? "👻" : "😂", p.x, p.y);
+    ctx.font = "36px serif"; ctx.fillText(ghost ? "👻" : (window.getSelectedSkinEmoji ? window.getSelectedSkinEmoji() : "😂"), p.x, p.y);
     const halloweenFx=window.halloweenEffects||{};
     if(halloweenFx.horse>0){ctx.font="44px serif";ctx.fillText("🐴",p.x,p.y+38)}
     if(halloweenFx.zombie>0){ctx.font="30px serif";ctx.fillText("🧟",p.x,p.y-38)}
@@ -8019,5 +8022,24 @@ return origUpdate.apply(this,arguments)};
 })();
 </script>
 
+
+<script>
+(function initSkinFeature(){
+ const KEY='oekakiBattleSkinsV1';
+ const skins=[{id:'white',name:'ホワイト',icon:'⚪️'},{id:'blue',name:'ブルー',icon:'🔵'},{id:'black',name:'ブラック',icon:'⚫️'},{id:'gold',name:'ゴールド',icon:'🥇',condition:'ステージ4をクリアしよう！'},{id:'magic',name:'マジック',icon:'🫥',condition:'Aランクを達成しよう！'},{id:'gamer',name:'ゲーマー',icon:'👾',condition:'全ステージをクリアしよう！'}];
+ let data={selected:'white',unlocked:['white','blue','black'],gamerHint:false};
+ try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v&&typeof v==='object')data={...data,...v};}catch(e){}
+ if(!Array.isArray(data.unlocked))data.unlocked=['white','blue','black'];
+ const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){}};
+ const isUnlocked=id=>data.unlocked.includes(id);
+ window.getSelectedSkinEmoji=()=>skins.find(x=>x.id===data.selected)?.icon||'⚪️';
+ function unlock(id){if(!isUnlocked(id)){data.unlocked.push(id);save();render();const m=document.getElementById('skinMessage');if(m)m.textContent='🎉 '+skins.find(x=>x.id===id).name+'スキンを解放！';}}
+ function render(){const grid=document.getElementById('skinGrid');if(!grid)return;grid.innerHTML='';for(const sk of skins){const ok=isUnlocked(sk.id),card=document.createElement('div');card.className='skin-card'+(data.selected===sk.id?' selected':'')+(!ok?' locked':'');const avatar=document.createElement('div');avatar.className='skin-avatar';avatar.textContent=ok?sk.icon:'？';card.appendChild(avatar);const label=document.createElement('div');label.textContent=sk.name;card.appendChild(label);const b=document.createElement('button');if(ok){b.textContent=data.selected===sk.id?'選択中':'選択する';b.disabled=data.selected===sk.id;b.onclick=()=>{data.selected=sk.id;save();render();};}else{b.textContent='🔒 未解放';const reveal=()=>{const m=document.getElementById('skinMessage');if(sk.id==='gamer'&&!data.gamerHint)m.textContent='？';else m.textContent=sk.condition;};b.addEventListener('pointerenter',reveal);b.addEventListener('click',reveal);}card.appendChild(b);grid.appendChild(card);}}
+ const toggle=document.getElementById('skinToggleBtn'),panel=document.getElementById('skinPanel'),close=document.getElementById('skinCloseBtn');if(toggle&&panel)toggle.onclick=()=>{panel.classList.toggle('hidden');if(!panel.classList.contains('hidden'))render();};if(close&&panel)close.onclick=()=>panel.classList.add('hidden');
+ const originalNext=window.nextStage;if(typeof originalNext==='function')window.nextStage=function(){if(typeof stage!=='undefined'&&stage===1&&typeof totalDamageTaken!=='undefined'&&totalDamageTaken===0){data.gamerHint=true;save();}if(typeof stage!=='undefined'&&stage===4)unlock('gold');return originalNext.apply(this,arguments);};
+ const originalResult=window.showResult;if(typeof originalResult==='function')window.showResult=function(cleared){const out=originalResult.apply(this,arguments);if(cleared)unlock('gamer');try{if(typeof resultData!=='undefined'&&resultData&&String(resultData.rank||'').includes('A'))unlock('magic');}catch(e){}return out;};
+ render();
+})();
+</script>
 </body>
 </html>

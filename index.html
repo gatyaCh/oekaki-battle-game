@@ -3717,6 +3717,11 @@ html body #draw:not(.hidden) #gearBtn {
   margin: 2px 6px !important;
 }
 @media (max-width: 900px) {
+  html body.mobile-mode {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    touch-action: pan-y !important;
+  }
   html body.mobile-mode #draw:not(.hidden) {
     height: auto !important;
     min-height: 100vh !important;

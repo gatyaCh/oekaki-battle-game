@@ -6391,8 +6391,8 @@ function update() {
   const ku = window.controlKeys.up, kd = window.controlKeys.down, kl = window.controlKeys.left, kr = window.controlKeys.right;
   let dx = 0, dy = 0;
   const halloweenFx = window.halloweenEffects || {};
-  if (halloweenFx.candy > 0) sp *= 3;
-  if (halloweenFx.horse > 0) sp *= 3;
+  if (halloweenFx.candy > 0) sp *= 1.8;
+  if (halloweenFx.horse > 0) sp *= 2.3;
   if (halloweenFx.zombie > 0) sp *= 3;
   if (!window.adminPanelInteracting) {
     if (keys[ku] || keys["arrowup"]) dy -= sp;

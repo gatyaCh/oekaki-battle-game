@@ -3782,6 +3782,14 @@ html body #draw:not(.hidden) #gearBtn {
 .map-locked-message{font-weight:bold;color:#fcd34d!important;min-height:1.5em;margin-top:12px}
 .map-select-message{min-height:1.5em;margin-top:16px;color:#fcd34d;font-size:18px;font-weight:bold}
 .map-lock{font-size:.85em}
+#halloweenCodeScreen{position:fixed;inset:0;z-index:960100;display:flex;align-items:center;justify-content:center;padding:16px;background:radial-gradient(ellipse at top,#35164c,#080713 75%);color:#fff}
+#halloweenCodeScreen.hidden{display:none!important}
+.halloween-code-card{width:min(460px,94vw);padding:24px;background:linear-gradient(145deg,#281538,#111827);border:2px solid #a855f7;border-radius:18px;box-shadow:0 0 32px #7e22ce66}
+.halloween-code-card h1{font-size:clamp(22px,4vw,30px);margin:12px 0}
+.halloween-code-card p{line-height:1.6;margin:10px 0;color:#e9d5ff}
+.halloween-code-card label{display:block;text-align:left;margin-top:18px;font-weight:bold}
+#halloweenAccessCode{display:block;width:100%;padding:12px;margin:8px 0;border:2px solid #a855f7;border-radius:9px;background:#fff;color:#111;font-size:18px}
+#halloweenAccessMessage{min-height:1.6em;color:#fcd34d;font-weight:bold}
 #normalTutorialConfirm{position:fixed;inset:0;z-index:960000;display:flex;align-items:center;justify-content:center;padding:16px;background:#080d18eF}
 #normalTutorialConfirm.hidden{display:none!important}
 .map-confirm-card{width:min(440px,94vw);padding:24px;background:#172238;border:2px solid #6b8bc5;border-radius:16px;box-shadow:0 12px 40px #0009}
@@ -3834,16 +3842,29 @@ html body #draw:not(.hidden) #gearBtn {
         <button type="button" class="map-play-btn" onclick="selectNormalMap()">このマップでプレイ</button>
         <button type="button" class="map-tutorial-btn" onclick="askNormalMapTutorial()">📘 チュートリアル</button>
       </article>
-      <article class="map-option halloween-map-option" onmouseenter="showHalloweenLockedMessage()" ontouchstart="showHalloweenLockedMessage()">
+      <article class="map-option halloween-map-option">
         <div class="map-option-art halloween-art" aria-hidden="true">🎃 🦇 🪦</div>
         <h2>🎃 ハロウィンマップ <span class="map-lock">🔒</span></h2>
-        <p>ハロウィン限定のマップ</p>
-        <button type="button" class="map-locked-btn" onclick="showHalloweenLockedMessage()">🔒 ロック中</button>
-        <button type="button" class="map-locked-btn" onclick="showHalloweenLockedMessage()">📘 チュートリアル 🔒</button>
-        <p class="map-locked-message" aria-live="polite">実装は10/15です！</p>
+        <p>先行プレイ用・非公開マップ</p>
+        <button type="button" class="map-locked-btn" onclick="openHalloweenCodeScreen()">🔑 先行プレイコードを入力</button>
+        <p class="map-locked-message" aria-live="polite">コードを知っている人だけプレイできます</p>
       </article>
     </div>
     <p id="mapSelectMessage" class="map-select-message" role="status" aria-live="polite"></p>
+  </section>
+</div>
+<div id="halloweenCodeScreen" class="hidden" role="dialog" aria-labelledby="halloweenCodeTitle">
+  <section class="halloween-code-card">
+    <div class="map-option-art halloween-art" aria-hidden="true">🎃 🦇 🌙</div>
+    <h1 id="halloweenCodeTitle">🎃 ハロウィンマップ先行プレイ</h1>
+    <p>非公開版をプレイするには専用コードを入力してね。</p>
+    <label for="halloweenAccessCode">先行プレイコード</label>
+    <input id="halloweenAccessCode" type="password" autocomplete="off" spellcheck="false" placeholder="コードを入力">
+    <p id="halloweenAccessMessage" role="status" aria-live="polite"></p>
+    <div class="map-confirm-actions">
+      <button type="button" class="tutorial-primary" onclick="checkHalloweenAccessCode()">コードを確認</button>
+      <button type="button" class="tutorial-secondary" onclick="closeHalloweenCodeScreen()">戻る</button>
+    </div>
   </section>
 </div>
 <div id="normalTutorialConfirm" class="hidden" role="dialog" aria-modal="true" aria-labelledby="normalTutorialConfirmTitle">
@@ -4221,6 +4242,7 @@ function syncScreenVisibility() {
   const screens = {
     title: document.getElementById("title"),
     mapSelect: document.getElementById("mapSelect"),
+    halloweenCode: document.getElementById("halloweenCodeScreen"),
     draw: document.getElementById("draw"),
     countdown: document.getElementById("count"),
     game: document.getElementById("gameArea"),
@@ -4491,10 +4513,49 @@ function confirmNormalMapTutorial(yes) {
   setScreen("tutorialChoice");
   startTutorialDelay();
 }
-function showHalloweenLockedMessage() {
-  const message = document.getElementById("mapSelectMessage");
-  if (message) message.textContent = "実装は10/15です！";
+function openHalloweenCodeScreen() {
+  const message = document.getElementById("halloweenAccessMessage");
+  const input = document.getElementById("halloweenAccessCode");
+  if (message) message.textContent = "";
+  if (input) input.value = "";
+  setScreen("halloweenCode");
+  setTimeout(() => { if (input) input.focus(); }, 0);
 }
+function closeHalloweenCodeScreen() {
+  const screen = document.getElementById("halloweenCodeScreen");
+  if (screen) screen.classList.add("hidden");
+  setScreen("mapSelect");
+}
+function checkHalloweenAccessCode() {
+  const input = document.getElementById("halloweenAccessCode");
+  const message = document.getElementById("halloweenAccessMessage");
+  const code = input ? input.value.trim().toLowerCase() : "";
+  if (code !== "kabotya") {
+    if (message) message.textContent = "❌ コードが違います。もう一度入力してね。";
+    if (input) { input.select(); input.focus(); }
+    return;
+  }
+  window.halloweenPrivateMapUnlocked = true;
+  window.halloweenWaveTestRequested = true;
+  const codeScreen = document.getElementById("halloweenCodeScreen");
+  if (codeScreen) codeScreen.classList.add("hidden");
+  const result = document.getElementById("result");
+  if (result) { result.textContent = "🎃 ハロウィンマップ（非公開版）"; result.style.color = "#ffb347"; }
+  const battleBtn = document.getElementById("battleBtn");
+  if (battleBtn) {
+    battleBtn.classList.remove("hidden");
+    battleBtn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); halloweenStart(); };
+  }
+  setScreen("draw");
+  redrawCanvas();
+  if (msg) msg.textContent = "🔓 非公開版を解放！武器を決めて「戦闘開始」を押そう。";
+}
+document.addEventListener("keydown", (e) => {
+  const screen = document.getElementById("halloweenCodeScreen");
+  if (!screen || screen.classList.contains("hidden")) return;
+  if (e.key === "Enter") { e.preventDefault(); checkHalloweenAccessCode(); }
+  if (e.key === "Escape") closeHalloweenCodeScreen();
+});
 function chooseDevice(mode) {
   deviceMode = mode;
   document.body.classList.toggle('mobile-mode', mode === 'mobile');

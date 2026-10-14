@@ -6395,13 +6395,14 @@ function halloweenSpawnWave() {
 }
 function halloweenStart() {
   halloweenWaveActive=true; halloweenWave=1; halloweenSouls=0; halloweenBuff={speed:1,damage:1,reduction:1};
-  gameOver=false; stageClear=false; p.x=100;p.y=250;p.hp=p.max;
+  halloweenCooldown=0; gameOver=false; stageClear=false; p.x=100;p.y=250;p.hp=p.max;
   document.getElementById("draw").classList.add("hidden");document.getElementById("count").classList.add("hidden");
   document.getElementById("gameArea").classList.remove("hidden");currentScreen="game";syncScreenVisibility();halloweenSpawnWave();
 }
 function halloweenUpdate() {
   if(halloweenTransition>0){if(--halloweenTransition===0){halloweenWave++;halloweenSpawnWave();}return;}
   if(gameOver||stageClear)return;
+  if(halloweenCooldown>0)halloweenCooldown--;
   const speed=3*halloweenBuff.speed;
   const oldX=p.x, oldY=p.y;
   if(keys[window.controlKeys.up]||keys.arrowup)p.y-=speed;
@@ -6410,7 +6411,6 @@ function halloweenUpdate() {
   if(keys[window.controlKeys.right]||keys.arrowright)p.x+=speed;
   p.x=Math.max(20,Math.min(880,p.x));p.y=Math.max(20,Math.min(480,p.y));
   if(halloweenMapObstacles.some(o=>Math.hypot(p.x-o.x,p.y-o.y)<42)){p.x=oldX;p.y=oldY;}
-  if(halloweenCooldown>0)halloweenCooldown--;
   halloweenEnemies.forEach(e=>{if(!e.alive)return;e.cooldown--;const d=Math.hypot(p.x-e.x,p.y-e.y)||1;
     if(e.kind===1||e.kind===2||(e.kind===3&&e!==halloweenEnemies[0])){e.x+=(p.x-e.x)/d*(e.kind===2?1.6:1);e.y+=(p.y-e.y)/d*(e.kind===2?1.6:1);}
     if(d<e.r+p.r&&e.cooldown<=0){p.hp-=e.atk*halloweenBuff.reduction;e.cooldown=60;}
@@ -6438,6 +6438,7 @@ function halloweenDraw() {
   if(halloweenPumpkinBox&&!halloweenPumpkinBox.opened){ctx.font="38px serif";ctx.fillText("🎃",halloweenPumpkinBox.x,halloweenPumpkinBox.y);ctx.font="13px sans-serif";ctx.fillStyle="#fff";ctx.fillText("ハロウィンBOX",halloweenPumpkinBox.x,halloweenPumpkinBox.y+28);}
   ctx.fillStyle="#fff";ctx.font="20px sans-serif";ctx.fillText("HP "+Math.ceil(p.hp)+"   🪙 "+halloweenSouls,450,478);
   if(halloweenShopOpen){ctx.fillStyle="rgba(0,0,0,.8)";ctx.fillRect(190,110,520,275);ctx.fillStyle="#fff";["SOUL SHOP","1 🧪 回復 20","2 🐴 移動×2.3 30","3 🍬 攻撃＆移動 25","4 🦇 被ダメ軽減 40","5 🎭 分身 50","6 🧟 ゾンビ 80","G ゲートへ"].forEach((t,i)=>ctx.fillText(t,450,140+i*30));}
+  if(gameOver||stageClear){ctx.fillStyle="rgba(0,0,0,.82)";ctx.fillRect(130,150,640,200);ctx.fillStyle=stageClear?"#fbbf24":"#fca5a5";ctx.font="34px sans-serif";ctx.fillText(stageClear?"🎉 ハロウィンマップ CLEAR！":"🎃 GAME OVER",450,215);ctx.fillStyle="#fff";ctx.font="21px sans-serif";ctx.fillText("獲得ソウル："+halloweenSouls,450,260);ctx.font="17px sans-serif";ctx.fillText("R：もう一度プレイ　／　Esc：マップ選択へ",450,305);}
   if(halloweenTransition>0){ctx.fillStyle="#000";ctx.fillRect(0,0,900,500);ctx.fillStyle="#fff";ctx.fillText("次のウェーブへ…",450,250);}
 }
 function halloweenShopAction(k){
@@ -6458,6 +6459,7 @@ function halloweenShopAction(k){
 document.addEventListener("keydown",e=>{
   if(!halloweenWaveActive)return;
   const k=e.key.toLowerCase();
+  if(gameOver||stageClear){if(k==="r"){e.preventDefault();halloweenStart();}else if(k==="escape"){e.preventDefault();halloweenWaveActive=false;gameOver=false;stageClear=false;setScreen("mapSelect");}return;}
   if(halloweenShopOpen){if(["1","2","3","4","5","6","g"].includes(k)){e.preventDefault();halloweenShopAction(k);}return;}
   const attackKeys=[String(window.controlKeys.attack||"e").toLowerCase()," ","enter"];
   if(attackKeys.includes(k)&&!e.repeat&&!gameOver&&!stageClear){
@@ -6474,6 +6476,7 @@ document.addEventListener("keydown",e=>{
 const halloweenCanvas=document.getElementById("game");
 if(halloweenCanvas)halloweenCanvas.addEventListener("click",e=>{
   if(!halloweenWaveActive)return;
+  if(gameOver||stageClear){const r=halloweenCanvas.getBoundingClientRect(),x=(e.clientX-r.left)*900/r.width,y=(e.clientY-r.top)*500/r.height;if(x>130&&x<770&&y>150&&y<350){halloweenStart();}return;}
   if(!halloweenShopOpen){
     if(gameOver||stageClear)return;
     const r=halloweenCanvas.getBoundingClientRect(),x=(e.clientX-r.left)*900/r.width,y=(e.clientY-r.top)*500/r.height;

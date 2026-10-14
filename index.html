@@ -3760,6 +3760,37 @@ html body #draw:not(.hidden) #gearBtn {
 }
 </style>
 
+
+<style id="map-select-screen-20261014">
+#mapSelect{min-height:100vh;padding:28px 14px;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at top,#25364b,#171b25 72%);color:#fff}
+#mapSelect.hidden{display:none!important}
+.map-select-card{width:min(920px,100%);margin:auto}
+.map-select-card>h1{font-size:clamp(28px,5vw,42px);margin:0 0 8px}
+.map-select-lead{font-size:17px;color:#dbeafe;margin-bottom:22px}
+.map-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.map-option{position:relative;min-width:0;padding:18px 16px 16px;background:#202c3c;border:2px solid #718096;border-radius:16px;box-shadow:0 10px 28px #0005}
+.normal-map-option{border-color:#65a30d}
+.halloween-map-option{border-color:#a855f7;background:linear-gradient(145deg,#281b38,#171b2a)}
+.map-option-art{display:flex;align-items:center;justify-content:center;gap:12px;min-height:92px;border-radius:10px;background:linear-gradient(#537c91,#254735);font-size:36px;margin-bottom:12px}
+.halloween-art{background:linear-gradient(#17102c,#4c1d4d);filter:saturate(.8)}
+.map-option h2{font-size:clamp(19px,3vw,25px);margin:8px 0}
+.map-option p{line-height:1.5;color:#e2e8f0}
+.map-option button{display:block;width:100%;max-width:330px;margin:10px auto 0;padding:11px 12px;font-size:15px;font-weight:bold;border-radius:9px}
+.map-play-btn{background:#15803d!important;border:1px solid #86efac!important}
+.map-tutorial-btn{background:#1d4ed8!important;border:1px solid #93c5fd!important}
+.map-locked-btn{background:#34313d!important;border:1px solid #74677f!important;color:#d1cbd8!important}
+.map-locked-message{font-weight:bold;color:#fcd34d!important;min-height:1.5em;margin-top:12px}
+.map-select-message{min-height:1.5em;margin-top:16px;color:#fcd34d;font-size:18px;font-weight:bold}
+.map-lock{font-size:.85em}
+#normalTutorialConfirm{position:fixed;inset:0;z-index:960000;display:flex;align-items:center;justify-content:center;padding:16px;background:#080d18eF}
+#normalTutorialConfirm.hidden{display:none!important}
+.map-confirm-card{width:min(440px,94vw);padding:24px;background:#172238;border:2px solid #6b8bc5;border-radius:16px;box-shadow:0 12px 40px #0009}
+.map-confirm-card h2{line-height:1.5;margin-bottom:18px}
+.map-confirm-actions{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
+.map-confirm-actions button{min-width:110px}
+@media(max-width:640px){#mapSelect{align-items:flex-start;padding:20px 10px}.map-options{grid-template-columns:1fr;gap:12px}.map-option{padding:14px}.map-option-art{min-height:65px;font-size:29px}.map-option button{max-width:none}}
+</style>
+
 </head>
 <body>
 
@@ -3790,6 +3821,39 @@ html body #draw:not(.hidden) #gearBtn {
   <h2 style="margin-bottom:16px;">遊ぶ端末を選択してください</h2>
   <button onclick="chooseDevice('pc')" style="font-size:20px; padding:14px 28px;">💻 PC版</button>
   <button onclick="chooseDevice('mobile')" style="font-size:20px; padding:14px 28px;">📱 スマホ版</button>
+</div>
+<div id="mapSelect" class="hidden" aria-label="マップ選択">
+  <section class="map-select-card">
+    <h1>🗺️ マップ選択</h1>
+    <p class="map-select-lead">プレイするマップを選んでね！</p>
+    <div class="map-options">
+      <article class="map-option normal-map-option">
+        <div class="map-option-art" aria-hidden="true">🌳 🌿 🏞️</div>
+        <h2>🌿 通常マップ</h2>
+        <p>いつものお絵かきバトル！</p>
+        <button type="button" class="map-play-btn" onclick="selectNormalMap()">このマップでプレイ</button>
+        <button type="button" class="map-tutorial-btn" onclick="askNormalMapTutorial()">📘 チュートリアル</button>
+      </article>
+      <article class="map-option halloween-map-option" onmouseenter="showHalloweenLockedMessage()" ontouchstart="showHalloweenLockedMessage()">
+        <div class="map-option-art halloween-art" aria-hidden="true">🎃 🦇 🪦</div>
+        <h2>🎃 ハロウィンマップ <span class="map-lock">🔒</span></h2>
+        <p>ハロウィン限定のマップ</p>
+        <button type="button" class="map-locked-btn" onclick="showHalloweenLockedMessage()">🔒 ロック中</button>
+        <button type="button" class="map-locked-btn" onclick="showHalloweenLockedMessage()">📘 チュートリアル 🔒</button>
+        <p class="map-locked-message" aria-live="polite">実装は10/15です！</p>
+      </article>
+    </div>
+    <p id="mapSelectMessage" class="map-select-message" role="status" aria-live="polite"></p>
+  </section>
+</div>
+<div id="normalTutorialConfirm" class="hidden" role="dialog" aria-modal="true" aria-labelledby="normalTutorialConfirmTitle">
+  <div class="map-confirm-card">
+    <h2 id="normalTutorialConfirmTitle">📘 チュートリアルを見ますか？</h2>
+    <div class="map-confirm-actions">
+      <button type="button" class="tutorial-primary" onclick="confirmNormalMapTutorial(true)">はい</button>
+      <button type="button" class="tutorial-secondary" onclick="confirmNormalMapTutorial(false)">いいえ</button>
+    </div>
+  </div>
 </div>
 <div id="draw" class="hidden">
   <h2>狙う武器を選択して描こう！</h2>
@@ -4156,6 +4220,7 @@ let currentScreen = 'title';
 function syncScreenVisibility() {
   const screens = {
     title: document.getElementById("title"),
+    mapSelect: document.getElementById("mapSelect"),
     draw: document.getElementById("draw"),
     countdown: document.getElementById("count"),
     game: document.getElementById("gameArea"),
@@ -4406,6 +4471,30 @@ function tutorialNext(){
   renderTutorialStep();
 }
 
+function selectNormalMap() {
+  const confirmBox = document.getElementById("normalTutorialConfirm");
+  if (confirmBox) confirmBox.classList.add("hidden");
+  setScreen("draw");
+  redrawCanvas();
+}
+function askNormalMapTutorial() {
+  const confirmBox = document.getElementById("normalTutorialConfirm");
+  if (confirmBox) confirmBox.classList.remove("hidden");
+}
+function confirmNormalMapTutorial(yes) {
+  const confirmBox = document.getElementById("normalTutorialConfirm");
+  if (confirmBox) confirmBox.classList.add("hidden");
+  if (!yes) {
+    setScreen("mapSelect");
+    return;
+  }
+  setScreen("tutorialChoice");
+  startTutorialDelay();
+}
+function showHalloweenLockedMessage() {
+  const message = document.getElementById("mapSelectMessage");
+  if (message) message.textContent = "実装は10/15です！";
+}
 function chooseDevice(mode) {
   deviceMode = mode;
   document.body.classList.toggle('mobile-mode', mode === 'mobile');
@@ -4419,8 +4508,8 @@ function chooseDevice(mode) {
     }
   }
 
-  // 機種選択後は、先にチュートリアルをするか確認する。
-  setScreen('tutorialChoice');
+  // 機種選択後は、まずマップ選択画面へ進む。
+  setScreen('mapSelect');
 
   // スマホ版は横画面を推奨・可能ならロックする。
   if (mode === 'mobile' && screen.orientation && screen.orientation.lock) {

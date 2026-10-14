@@ -8159,5 +8159,111 @@ return origUpdate.apply(this,arguments)};
 .skin-category-arrow{width:48px;height:42px;padding:4px!important;margin:0!important;font-size:27px!important;font-weight:bold;background:#334155!important;border:1px solid #94a3b8!important;border-radius:10px!important;touch-action:manipulation}
 .skin-category-arrow:hover{background:#475569!important}
 #skinGrid{display:flex!important;flex-direction:column;gap:18px!important;text-align:left}.skin-category{width:min(820px,100%);padding:14px;background:#121b2a;border:1px solid #52647c;border-radius:14px}.skin-category h4{font-size:20px;color:#facc15;margin:0 0 3px}.skin-category-note{font-size:13px;color:#cbd5e1;margin:0 0 10px}.skin-category-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.skin-category-empty{grid-column:1/-1;color:#9ca3af;font-size:14px;padding:12px 4px}@media(max-width:600px){.skin-category-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.skin-category{padding:10px}.skin-category h4{font-size:17px}}</style>
+
+<!-- BATTLE UI REFRESH 2026-10-14 -->
+<style id="battle-ui-refresh-20261014">
+/* 戦闘中HUD整理：ゲームの処理・数値・操作は変更せず、配置と見やすさだけを調整 */
+#gameArea:not(.hidden) #stageLabel {
+  margin: 2px auto 6px !important;
+  line-height: 1.2;
+}
+#gameArea:not(.hidden) #chargeContainer,
+#gameArea:not(.hidden) #specialGaugeContainer {
+  box-sizing: border-box !important;
+  border-radius: 9px !important;
+  backdrop-filter: blur(4px);
+}
+/* PC：ゲージは左上、取得通知は右上 */
+@media (min-width: 901px) {
+  body:not(.mobile-mode) #gameArea:not(.hidden) #chargeContainer {
+    position: fixed !important;
+    top: 44px !important;
+    left: 12px !important;
+    right: auto !important;
+    width: min(300px, 30vw) !important;
+    min-height: 32px !important;
+    margin: 0 !important;
+    padding: 5px 9px !important;
+    justify-content: flex-start !important;
+    z-index: 99990 !important;
+    background: rgba(8, 15, 28, .94) !important;
+  }
+  body:not(.mobile-mode) #gameArea:not(.hidden) #specialGaugeContainer {
+    position: fixed !important;
+    top: 8px !important;
+    left: 12px !important;
+    right: auto !important;
+    width: min(340px, 34vw) !important;
+    min-height: 32px !important;
+    margin: 0 !important;
+    padding: 5px 9px !important;
+    justify-content: flex-start !important;
+    z-index: 99991 !important;
+    background: rgba(8, 15, 28, .94) !important;
+  }
+  body:not(.mobile-mode) #gameArea:not(.hidden) #charge {
+    width: min(180px, 18vw) !important;
+    height: 13px !important;
+  }
+  body:not(.mobile-mode) #gameArea:not(.hidden) #specialGauge {
+    width: min(190px, 19vw) !important;
+    height: 13px !important;
+  }
+  body:not(.mobile-mode) #battlePickupNotice {
+    position: fixed !important;
+    top: 8px !important;
+    left: auto !important;
+    right: 12px !important;
+    transform: none !important;
+    max-width: min(34vw, 380px) !important;
+    z-index: 99999 !important;
+  }
+  body:not(.mobile-mode) #battlePickupNotice.show {
+    transform: none !important;
+  }
+  body:not(.mobile-mode) #gameArea:not(.hidden) #game {
+    margin-top: 2px !important;
+  }
+  body:not(.mobile-mode) #gameArea:not(.hidden) #msg {
+    margin: 5px auto !important;
+    min-height: 28px !important;
+    height: auto !important;
+    line-height: 1.35 !important;
+  }
+}
+/* スマホ：狭い画面でも左右にはみ出しにくいゲージ幅 */
+body.mobile-mode #gameArea:not(.hidden) #specialGaugeContainer {
+  width: min(220px, 48vw) !important;
+}
+body.mobile-mode #gameArea:not(.hidden) #chargeContainer {
+  width: min(220px, 48vw) !important;
+}
+body.mobile-mode #gameArea:not(.hidden) #specialGauge {
+  width: min(130px, 28vw) !important;
+}
+body.mobile-mode #gameArea:not(.hidden) #charge {
+  width: min(130px, 28vw) !important;
+}
+body.mobile-mode #battlePickupNotice {
+  max-width: min(34vw, 300px) !important;
+  overflow-wrap: anywhere;
+}
+/* 小さなスマホ画面では通知をコンパクトに */
+@media (max-width: 480px) {
+  body.mobile-mode #battlePickupNotice {
+    min-width: 0 !important;
+    width: min(42vw, 210px) !important;
+    padding: 5px 7px !important;
+    font-size: 11px !important;
+  }
+}
+/* HUDは表示だけを変更し、ボタン・キャンバスの操作を妨げない */
+#gameArea:not(.hidden) #chargeContainer,
+#gameArea:not(.hidden) #specialGaugeContainer,
+#battlePickupNotice {
+  pointer-events: none;
+}
+</style>
+
 </body>
 </html>

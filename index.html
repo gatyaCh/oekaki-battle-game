@@ -6652,9 +6652,29 @@ function draw() {
     if(halloweenFx.bat>0){ctx.font="26px serif";ctx.fillText("🦇",p.x-35,p.y-30);ctx.fillText("🦇",p.x+35,p.y-30);ctx.fillText("🦇",p.x,p.y-45)}
   }
   ctx.restore();
+  /* プレイヤーHPバー：毎フレーム軽量に描画 */
+  {
+    const bw=54,bh=7,ratio=Math.max(0,Math.min(1,p.hp/Math.max(1,p.max)));
+    const bx=p.x-bw/2,by=p.y-31;
+    ctx.fillStyle="rgba(0,0,0,.8)";ctx.fillRect(bx-1,by-1,bw+2,bh+2);
+    ctx.fillStyle="#4b5563";ctx.fillRect(bx,by,bw,bh);
+    ctx.fillStyle=ratio>.5?"#22c55e":ratio>.25?"#facc15":"#ef4444";
+    ctx.fillRect(bx,by,bw*ratio,bh);
+    ctx.strokeStyle="rgba(255,255,255,.9)";ctx.lineWidth=1;ctx.strokeRect(bx,by,bw,bh);
+  }
   let enemyFace = "😈";
   if (stun > 0 || rushDownTimer > 0 || lightningTimer > 0 || isBlackholeActive) enemyFace = "😵";
   ctx.font = "36px serif"; ctx.fillText(enemyFace, enemy.x, enemy.y);
+  /* メインの敵HPバー：敵の頭上に常時表示 */
+  {
+    const bw=62,bh=7,ratio=Math.max(0,Math.min(1,enemy.hp/Math.max(1,enemy.maxHp)));
+    const bx=enemy.x-bw/2,by=enemy.y-31;
+    ctx.fillStyle="rgba(0,0,0,.85)";ctx.fillRect(bx-1,by-1,bw+2,bh+2);
+    ctx.fillStyle="#4b5563";ctx.fillRect(bx,by,bw,bh);
+    ctx.fillStyle=ratio>.5?"#22c55e":ratio>.25?"#facc15":"#ef4444";
+    ctx.fillRect(bx,by,bw*ratio,bh);
+    ctx.strokeStyle="rgba(255,255,255,.95)";ctx.lineWidth=1;ctx.strokeRect(bx,by,bw,bh);
+  }
   minions.forEach(m => {
     ctx.font = "28px serif";
     let icon = m.type === "jellyfish" ? "🪼" : m.type === "magma" ? "🔥" : m.type === "wind" ? "🌪️" : m.type === "shield_minion" ? "🛡️" : "👿";
@@ -8262,6 +8282,42 @@ body.mobile-mode #battlePickupNotice {
 #gameArea:not(.hidden) #specialGaugeContainer,
 #battlePickupNotice {
   pointer-events: none;
+}
+</style>
+
+
+<!-- BATTLE UI BAR + GAUGE FIX 2026-10-14 -->
+<style id="battle-ui-bar-gauge-fix">
+/* ゲージ名を折り返さず、互いに離して配置 */
+#gameArea:not(.hidden) #specialGaugeContainer,
+#gameArea:not(.hidden) #chargeContainer {
+  white-space: nowrap !important;
+  flex-wrap: nowrap !important;
+  box-sizing: border-box !important;
+}
+#gameArea:not(.hidden) #specialGaugeContainer {
+  width: min(360px, 38vw) !important;
+  min-width: 320px !important;
+  top: 8px !important;
+  min-height: 32px !important;
+  height: 32px !important;
+  padding: 4px 10px !important;
+  gap: 8px !important;
+}
+#gameArea:not(.hidden) #specialGaugeContainer > * { flex-shrink: 0 !important; }
+#gameArea:not(.hidden) #chargeContainer {
+  top: 48px !important;
+  width: min(320px, 34vw) !important;
+  min-width: 280px !important;
+  min-height: 32px !important;
+  height: 32px !important;
+  padding: 4px 10px !important;
+  gap: 8px !important;
+}
+#gameArea:not(.hidden) #chargeContainer > * { flex-shrink: 0 !important; }
+@media (max-width: 900px) {
+  #gameArea:not(.hidden) #specialGaugeContainer { min-width: 0 !important; width: min(280px, 58vw) !important; }
+  #gameArea:not(.hidden) #chargeContainer { top: 42px !important; min-width: 0 !important; width: min(250px, 52vw) !important; }
 }
 </style>
 

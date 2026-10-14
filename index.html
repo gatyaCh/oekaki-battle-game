@@ -3553,6 +3553,27 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 }
 
 #skinControls{display:inline-block;vertical-align:middle;position:relative}#skinPanel{position:absolute;left:50%;top:100%;transform:translateX(-50%);z-index:20000;width:min(92vw,440px);padding:14px;background:#182235;border:2px solid #60a5fa;border-radius:12px;box-shadow:0 8px 28px #000a;color:#fff}#skinPanel h3{margin:0 0 10px}#skinGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.skin-card{min-width:0;background:#263449;border:1px solid #64748b;border-radius:8px;padding:8px 3px;display:flex;flex-direction:column;align-items:center;gap:5px}.skin-avatar{font-size:34px;line-height:1.4}.skin-card.selected{outline:3px solid #facc15}.skin-card.locked{opacity:.8}.skin-card button{margin:0;padding:6px 3px;width:100%;font-size:12px}#skinMessage{font-size:13px;color:#fde68a;min-height:1.3em;margin:8px 0}@media(max-width:600px){#skinPanel{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);max-height:80vh;overflow:auto}}
+
+/* PC battle HUD refresh: visual-only, keep game logic unchanged */
+@media (min-width: 901px) {
+  body:not(.mobile-mode) #gameArea { max-width:1120px; margin:0 auto; padding:12px 22px 22px; background:linear-gradient(180deg,rgba(20,28,45,.96),rgba(25,25,32,.92)); border:1px solid #46536b; border-radius:16px; box-shadow:0 12px 32px rgba(0,0,0,.28); }
+  body:not(.mobile-mode) #gameArea > #stageLabel { display:inline-block; margin:0 auto 10px; padding:7px 22px; min-width:190px; border:1px solid #7c91b7; border-radius:999px; background:linear-gradient(90deg,#172554,#312e81); color:#f8fafc; font-size:24px; letter-spacing:.04em; text-shadow:0 2px 8px #000; }
+  body:not(.mobile-mode) #gameArea > div:first-of-type { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:8px 14px; margin:0 auto 8px !important; padding:10px 14px; max-width:1000px; border:1px solid #475569; border-radius:12px; background:#0f172a; color:#e2e8f0; font-size:14px; line-height:1.8; }
+  body:not(.mobile-mode) #hp, body:not(.mobile-mode) #maxHpText { color:#86efac; font-weight:800; }
+  body:not(.mobile-mode) #ehp { color:#fca5a5; font-weight:800; }
+  body:not(.mobile-mode) #coinText { color:#fde68a; font-weight:800; }
+  body:not(.mobile-mode) #atkText { color:#fdba74; font-weight:800; }
+  body:not(.mobile-mode) #chargeContainer, body:not(.mobile-mode) #specialGaugeContainer { width:min(100%,760px); min-height:34px; margin:6px auto !important; padding:6px 14px; display:flex; align-items:center; justify-content:center; gap:12px; border:1px solid #475569; border-radius:10px; background:rgba(15,23,42,.92); color:#e2e8f0; font-weight:700; }
+  body:not(.mobile-mode) #chargeContainer { color:#67e8f9; }
+  body:not(.mobile-mode) #charge { width:min(360px,45vw) !important; height:16px !important; accent-color:#06b6d4; }
+  body:not(.mobile-mode) #specialGaugeContainer { color:#fda4af; border-color:#9f4561; }
+  body:not(.mobile-mode) #specialGauge { width:min(360px,45vw) !important; height:16px !important; accent-color:#fb456d; }
+  body:not(.mobile-mode) #specialGaugePercent { color:#fecdd3; min-width:42px; text-align:right; }
+  body:not(.mobile-mode) #msg { min-height:34px; height:auto; margin:8px auto !important; padding:6px 12px; max-width:900px; border-radius:8px; background:rgba(2,6,23,.65); color:#fde68a; font-size:16px; font-weight:700; }
+  body:not(.mobile-mode) #game { display:block; width:min(100%,1000px); height:auto; margin:8px auto; border:3px solid #64748b; border-radius:8px; box-shadow:0 0 0 3px rgba(15,23,42,.8),0 8px 24px rgba(0,0,0,.3); background:#111827; }
+  body:not(.mobile-mode) #guideText { max-width:1000px; margin:8px auto 0; padding:8px 12px; border-radius:8px; background:rgba(51,65,85,.65); color:#cbd5e1; font-size:13px; }
+}
+
 </style>
 
 

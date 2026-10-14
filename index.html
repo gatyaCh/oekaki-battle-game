@@ -6366,7 +6366,22 @@ function triggerBossSpecialAttack() {
 let halloweenWaveActive = false;
 let halloweenWave = 1, halloweenSouls = 0, halloweenEnemies = [], halloweenShopOpen = false, halloweenTransition = 0, halloweenCooldown = 0;
 let halloweenBuff = { speed: 1, damage: 1, reduction: 1 };
+let halloweenMapObstacles = [];
+let halloweenPumpkinBox = {x:450,y:250,opened:false};
+const halloweenMapLayouts = [
+  {bg:"#202a26",ground:"#29372c",scenery:[["🌳",90,95],["🪦",240,390],["🪦",420,115],["🌳",780,380]],obstacles:[["🪦",240,390],["🪦",420,115],["🌳",90,95],["🌳",780,380]]},
+  {bg:"#171a27",ground:"#252633",scenery:[["🏚️",120,110],["🏮",320,190],["🏮",620,340],["🪦",780,115]],obstacles:[["🏮",320,190],["🏮",620,340],["🪦",780,115]]},
+  {bg:"#111827",ground:"#27212c",scenery:[["🕸️",210,120],["🕸️",690,370],["🌉",450,250]],obstacles:[["🕸️",210,120],["🕸️",690,370]]},
+  {bg:"#21172d",ground:"#302039",scenery:[["🏰",450,70],["⚗️",300,250],["🕯️",620,370]],obstacles:[["⚗️",300,250],["🕯️",620,370]]},
+  {bg:"#082b3b",ground:"#104052",scenery:[["🏛️",150,95],["🧙",450,80],["🎩",300,330],["🎩",700,390]],obstacles:[["🎩",300,330],["🎩",700,390]]},
+  {bg:"#292629",ground:"#464044",scenery:[["💀",150,330],["💀",360,370],["💀",670,350]],obstacles:[["💀",150,330],["💀",360,370],["💀",670,350]]},
+  {bg:"#34243b",ground:"#5a4054",scenery:[["🧹",220,95],["🧹",650,125],["🌲",100,390],["🌲",790,375]],obstacles:[["🧹",220,95],["🧹",650,125]]},
+  {bg:"#171526",ground:"#2a2435",scenery:[["🌳",100,390],["🪦",240,420],["🕸️",620,420],["🧹",250,95],["🧹",650,115]],obstacles:[["🌳",100,390],["🪦",240,420],["🕸️",620,420]]}
+];
 function halloweenSpawnWave() {
+  const layout = halloweenMapLayouts[halloweenWave - 1] || halloweenMapLayouts[0];
+  halloweenMapObstacles = layout.obstacles.map(([type,x,y]) => ({type,x,y}));
+  halloweenPumpkinBox = {x:450,y:250,opened:false};
   const kind = (halloweenWave - 1) % 4;
   const count = [7,5,6,5,7,5,6,5][halloweenWave - 1];
   halloweenEnemies = [];
@@ -6388,11 +6403,13 @@ function halloweenUpdate() {
   if(halloweenTransition>0){if(--halloweenTransition===0){halloweenWave++;halloweenSpawnWave();}return;}
   if(gameOver||stageClear)return;
   const speed=3*halloweenBuff.speed;
+  const oldX=p.x, oldY=p.y;
   if(keys[window.controlKeys.up]||keys.arrowup)p.y-=speed;
   if(keys[window.controlKeys.down]||keys.arrowdown)p.y+=speed;
   if(keys[window.controlKeys.left]||keys.arrowleft)p.x-=speed;
   if(keys[window.controlKeys.right]||keys.arrowright)p.x+=speed;
   p.x=Math.max(20,Math.min(880,p.x));p.y=Math.max(20,Math.min(480,p.y));
+  if(halloweenMapObstacles.some(o=>Math.hypot(p.x-o.x,p.y-o.y)<42)){p.x=oldX;p.y=oldY;}
   if(halloweenCooldown>0)halloweenCooldown--;
   halloweenEnemies.forEach(e=>{if(!e.alive)return;e.cooldown--;const d=Math.hypot(p.x-e.x,p.y-e.y)||1;
     if(e.kind===1||e.kind===2||(e.kind===3&&e!==halloweenEnemies[0])){e.x+=(p.x-e.x)/d*(e.kind===2?1.6:1);e.y+=(p.y-e.y)/d*(e.kind===2?1.6:1);}
@@ -6407,9 +6424,18 @@ function halloweenUpdate() {
   document.getElementById("hpText").textContent=Math.ceil(p.hp)+"/"+p.max;
 }
 function halloweenDraw() {
-  ctx.fillStyle="#20152f";ctx.fillRect(0,0,900,500);ctx.textAlign="center";ctx.textBaseline="middle";
+  const layout = halloweenMapLayouts[halloweenWave - 1] || halloweenMapLayouts[0];
+  ctx.fillStyle=layout.bg;ctx.fillRect(0,0,900,500);
+  ctx.fillStyle=layout.ground;ctx.globalAlpha=.55;ctx.fillRect(0,65,900,435);ctx.globalAlpha=1;
+  if(halloweenWave===3){ctx.fillStyle="#05070d";ctx.fillRect(0,175,900,190);ctx.fillStyle="#725a47";ctx.fillRect(0,205,900,90);for(let x=0;x<900;x+=34){ctx.fillStyle="#9b7958";ctx.fillRect(x,205,22,90);}}
+  if(halloweenWave===6){ctx.fillStyle="#111";ctx.beginPath();ctx.moveTo(180,300);ctx.lineTo(350,90);ctx.lineTo(510,300);ctx.lineTo(730,170);ctx.lineTo(900,320);ctx.lineTo(900,500);ctx.lineTo(0,500);ctx.lineTo(0,350);ctx.closePath();ctx.fill();ctx.fillStyle="#ef4444";ctx.fillRect(0,390,900,110);ctx.fillStyle="#fb923c";ctx.fillRect(0,390,900,10);}
+  if(halloweenWave===8){ctx.fillStyle="#fef3c7";ctx.beginPath();ctx.arc(450,145,72,0,Math.PI*2);ctx.fill();ctx.fillStyle=layout.bg;ctx.beginPath();ctx.arc(480,125,68,0,Math.PI*2);ctx.fill();}
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font="40px serif";layout.scenery.forEach(([emoji,x,y])=>ctx.fillText(emoji,x,y));
+  if(halloweenWave===2){ctx.save();ctx.translate(450,55);ctx.scale(1,-1);ctx.font="32px serif";ctx.fillText("🦇",0,0);ctx.restore();}
   ctx.font="30px serif";ctx.fillText("🎃 WAVE "+halloweenWave+" / 8",450,28);ctx.font="36px serif";ctx.fillText("🧙",p.x,p.y);
   halloweenEnemies.forEach(e=>{if(!e.alive)return;ctx.font="30px serif";ctx.fillText(e.kind===3&&e===halloweenEnemies[0]?"👻":e.kind===0?"🗼":e.kind===1?"💨":e.kind===2?"🧟":"👻",e.x,e.y);ctx.fillStyle="#511";ctx.fillRect(e.x-20,e.y-e.r-12,40,5);ctx.fillStyle="#f55";ctx.fillRect(e.x-20,e.y-e.r-12,40*Math.max(0,e.hp/e.maxHp),5);});
+  if(halloweenPumpkinBox&&!halloweenPumpkinBox.opened){ctx.font="38px serif";ctx.fillText("🎃",halloweenPumpkinBox.x,halloweenPumpkinBox.y);ctx.font="13px sans-serif";ctx.fillStyle="#fff";ctx.fillText("ハロウィンBOX",halloweenPumpkinBox.x,halloweenPumpkinBox.y+28);}
   ctx.fillStyle="#fff";ctx.font="20px sans-serif";ctx.fillText("HP "+Math.ceil(p.hp)+"   🪙 "+halloweenSouls,450,478);
   if(halloweenShopOpen){ctx.fillStyle="rgba(0,0,0,.8)";ctx.fillRect(190,110,520,275);ctx.fillStyle="#fff";["SOUL SHOP","1 🧪 回復 20","2 🐴 移動×2.3 30","3 🍬 攻撃＆移動 25","4 🦇 被ダメ軽減 40","5 🎭 分身 50","6 🧟 ゾンビ 80","G ゲートへ"].forEach((t,i)=>ctx.fillText(t,450,140+i*30));}
   if(halloweenTransition>0){ctx.fillStyle="#000";ctx.fillRect(0,0,900,500);ctx.fillStyle="#fff";ctx.fillText("次のウェーブへ…",450,250);}
@@ -6429,10 +6455,45 @@ function halloweenShopAction(k){
   if(k==="6")halloweenBuff.zombie=true;
   msg.textContent="購入完了！残りソウル："+halloweenSouls+"。ほかの商品かGで次へ。";
 }
-document.addEventListener("keydown",e=>{if(!halloweenWaveActive)return;const k=e.key.toLowerCase();if(halloweenShopOpen){if(["1","2","3","4","5","6","g"].includes(k)){e.preventDefault();halloweenShopAction(k);}return;}});
+document.addEventListener("keydown",e=>{
+  if(!halloweenWaveActive)return;
+  const k=e.key.toLowerCase();
+  if(halloweenShopOpen){if(["1","2","3","4","5","6","g"].includes(k)){e.preventDefault();halloweenShopAction(k);}return;}
+  const attackKeys=[String(window.controlKeys.attack||"e").toLowerCase()," ","enter"];
+  if(attackKeys.includes(k)&&!e.repeat&&!gameOver&&!stageClear){
+    e.preventDefault();
+    if(halloweenCooldown>0)return;
+    halloweenCooldown=22;
+    let target=null,best=Infinity;
+    halloweenEnemies.forEach(enemy=>{if(!enemy.alive)return;const d=Math.hypot(p.x-enemy.x,p.y-enemy.y);if(d<best){best=d;target=enemy;}});
+    const range=weapon==="🪄"?300:weapon==="🚙"?135:95;
+    if(target&&best<=range){target.hp-=Math.max(10,(weapon==="🪄"?28:18)*halloweenBuff.damage);if(target.hp<=0){target.alive=false;halloweenSouls+=2;msg.textContent="👻 敵を倒した！ソウル +2";}else{msg.textContent="攻撃！ 残りHP "+Math.max(0,Math.ceil(target.hp));}}
+    else msg.textContent="敵に近づいて攻撃しよう！";
+  }
+});
 const halloweenCanvas=document.getElementById("game");
 if(halloweenCanvas)halloweenCanvas.addEventListener("click",e=>{
-  if(!halloweenWaveActive||!halloweenShopOpen)return;
+  if(!halloweenWaveActive)return;
+  if(!halloweenShopOpen){
+    if(gameOver||stageClear)return;
+    const r=halloweenCanvas.getBoundingClientRect(),x=(e.clientX-r.left)*900/r.width,y=(e.clientY-r.top)*500/r.height;
+    if(halloweenPumpkinBox&&!halloweenPumpkinBox.opened&&Math.hypot(x-halloweenPumpkinBox.x,y-halloweenPumpkinBox.y)<55){
+      halloweenPumpkinBox.opened=true;
+      const roll=Math.random();
+      if(roll<.30){p.hp=Math.min(p.max,p.hp+100);msg.textContent="🧙 魔女の回復薬！HP +100";}
+      else if(roll<.80){p.hp=Math.min(p.max,p.hp+50);msg.textContent="🧙 魔女の回復薬！HP +50";}
+      else if(roll<.90){halloweenBuff.speed=2.3;halloweenCooldown=300;msg.textContent="👻 ゴーストライダー！5秒間スピードアップ";}
+      else if(roll<.95){halloweenBuff.reduction=.25;msg.textContent="🦇 コウモリシールド！被ダメージ軽減";}
+      else if(roll<.99){halloweenBuff.speed=1.8;halloweenBuff.damage=1.8;msg.textContent="🍬 キャンディー！攻撃＆移動アップ";}
+      else {halloweenBuff.zombie=true;halloweenBuff.damage=2.3;msg.textContent="🧟 イモータルゾンビ！";}
+      halloweenSouls+=7;
+      return;
+    }
+    if(halloweenCooldown>0)return;
+    const target=halloweenEnemies.filter(en=>en.alive).sort((a,b)=>Math.hypot(x-a.x,y-a.y)-Math.hypot(x-b.x,y-b.y))[0];
+    if(target&&Math.hypot(x-target.x,y-target.y)<70){target.hp-=Math.max(10,(weapon==="🪄"?28:18)*halloweenBuff.damage);halloweenCooldown=18;if(target.hp<=0){target.alive=false;halloweenSouls+=2;msg.textContent="👻 敵を倒した！ソウル +2";}}
+    return;
+  }
   const r=halloweenCanvas.getBoundingClientRect(),x=(e.clientX-r.left)*900/r.width,y=(e.clientY-r.top)*500/r.height;
   if(x<190||x>710||y<110||y>385)return;
   const row=Math.round((y-140)/30);

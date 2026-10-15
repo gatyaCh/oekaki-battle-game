@@ -6455,6 +6455,10 @@ function halloweenUpdate() {
   if(p.hp<=0&&halloweenResolvePlayerDeath())return;
   if(halloweenShopOpen)return;
   const halloweenFx=window.halloweenEffects||{};
+  if(admin.autoHeal||admin.god)p.hp=Math.min(p.max,p.hp+0.35);
+  if(admin.noCooldown||window.adminNoCooldown){halloweenCooldown=0;wandCooldown=0;}
+  const hadmStatus=document.getElementById("halloweenAdminStatus");
+  if(hadmStatus)hadmStatus.textContent="Wave "+halloweenWave+"/8　💫 ソウル "+halloweenSouls;
   let speed=3*halloweenBuff.speed;
   if(halloweenFx.candy>0)speed*=1.8;
   if(halloweenFx.horse>0)speed*=2.3;
@@ -6538,6 +6542,7 @@ function halloweenUpdate() {
   // そのほかのボスは通常どおりプレイヤーを追い、子分・通常敵は右半分に展開。
   for(const e of halloweenEnemies){
     if(!e.alive)continue;
+    if(admin.enemyStopped)continue;
     if(e.isGhostBoss&&(window.halloweenEffects||{}).zombie>0){
       e.ghostInvisible=false;e.ghostInvisibleFrames=0;e.ghostCycleFrames=0;
     }else if(e.isGhostBoss){
@@ -6557,7 +6562,7 @@ function halloweenUpdate() {
       const stage8CanMove=halloweenWave!==8||(halloweenMinionsSummoned>=10&&!halloweenEnemies.some(m=>m.isMinion&&m.alive));
       if(stage8CanMove){
         const dx=p.x-e.x,dy=p.y-e.y,d=Math.hypot(dx,dy)||1;
-        const approach=Math.max(0,d-112),step=Math.min(e.moveSpeed||.72,approach);
+        const approach=Math.max(0,d-112),step=Math.min((e.moveSpeed||.72)*(Number.isFinite(enemySpeedMul)?enemySpeedMul:1),approach);
         e.x+=dx/d*step;e.y+=dy/d*step;
         e.x=Math.max(470,Math.min(865,e.x));e.y=Math.max(88,Math.min(465,e.y));
       }
@@ -6565,16 +6570,18 @@ function halloweenUpdate() {
     if(e.isGhostBoss&&e.ghostInvisible)continue;
     e.cooldown--;
     if(e.cooldown<=0){
-      const a=Math.atan2(p.y-e.y,p.x-e.x),v=e.isBoss?4:3;
+      const a=Math.atan2(p.y-e.y,p.x-e.x),v=(e.isBoss?4:3)*(Number.isFinite(enemySpeedMul)?enemySpeedMul:1);
       halloweenEnemyBullets.push({x:e.x,y:e.y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,atk:e.atk,fromGhostBoss:!!e.isGhostBoss});
       e.cooldown=e.isBoss?60:100+Math.random()*50;
     }
   }
 
   for(let i=halloweenEnemyBullets.length-1;i>=0;i--){
-    const b=halloweenEnemyBullets[i];b.x+=b.vx;b.y+=b.vy;
+    const b=halloweenEnemyBullets[i];
+    if(!admin.enemyStopped){b.x+=b.vx;b.y+=b.vy;}
     if(Math.hypot(b.x-p.x,b.y-p.y)<p.r){
       halloweenEnemyBullets.splice(i,1);
+      if(admin.god||admin.invincible)continue;
       if(ghostTimer>0)continue;
       if((window.halloweenEffects||{}).zombie>0){p.hp=Math.max(1,p.hp);continue;}
       const shieldMul=(halloweenShieldFrames>0||(window.halloweenEffects||{}).bat>0)?0.25:1;

@@ -5333,25 +5333,13 @@ function damageMinion(m, amount) {
   }
 }
 function fireWandMagic() {
-  const angles = [-0.4, -0.2, 0, 0.2, 0.4];
-  let dx = mouse.x - p.x;
-  let dy = mouse.y - p.y;
-  let baseAngle = Math.atan2(dy, dx);
-  for (let i = 0; i < 5; i++) {
-    let finalAngle = baseAngle + angles[i];
-    magicOrbs.push({
-      x: p.x,
-      y: p.y,
-      vx: Math.cos(finalAngle) * 2.5,
-      vy: Math.sin(finalAngle) * 2.5,
-      life: 7.0,
-      // 魔法の杖専用：Stage 1を基準(1.0)に、ステージが1つ上がるごとに敵防御力を1.3%ずつ上昇。
-      // 例：Stage 8は防御力1.091倍。杖の弾1発の最終ダメージにだけ適用。
-      dmg: (15 * atkBuff * (window.halloweenEffects && window.halloweenEffects.candy > 0 ? 3 : 1) * (kizuku2Active ? 2.0 : 1) * (adminRankAbility === "damage4" ? 4.0 : 1)) / (1 + (stage - 1) * 0.013),
-      r: 8
-    });
+  // 全方位へ17発の拡散弾。追尾せず、各弾は11ダメージ。
+  for (let i = 0; i < 17; i++) {
+    const angle = Math.PI * 2 * i / 17;
+    magicOrbs.push({x:p.x,y:p.y,vx:Math.cos(angle)*3.2,vy:Math.sin(angle)*3.2,life:4.5,
+      dmg:(11*atkBuff*(window.halloweenEffects&&window.halloweenEffects.candy>0?3:1)*(kizuku2Active?2:1)*(adminRankAbility==="damage4"?4:1))/(1+(stage-1)*0.013),r:8,homing:false});
   }
-  msg.textContent = "🪄 魔法の追尾玉を5発同時発射！";
+  msg.textContent = "🪄 全方位に拡散弾17発！（1発11ダメージ）";
 }
 function attack() {
   if (halloweenWaveActive) { if(halloweenShopOpen||halloweenIntroFrame>=0||halloweenStartBanner>0||halloweenCooldown>0||gameOver||stageClear)return; halloweenCooldown=12; const t=halloweenEnemies.filter(e=>e.alive).sort((x,y)=>Math.hypot(p.x-x.x,p.y-x.y)-Math.hypot(p.x-y.x,p.y-y.y))[0]; if(t&&Math.hypot(p.x-t.x,p.y-t.y)<260){t.hp-=12*halloweenBuff.damage*(ghostTimer>0?0.7:1);awardHalloweenTarget(t);msg.textContent="攻撃！ ソウル："+halloweenSouls;} return; }
@@ -6415,9 +6403,8 @@ function halloweenAttack() {
   }
   if(weapon==="🪄"){
     if(wandCooldown>0){msg.textContent="⏳ 魔法の杖クールタイム中...";return;}
-    const angles=[-0.4,-0.2,0,0.2,0.4],base=Math.atan2(dy,dx);
-    for(const offset of angles)halloweenMagicOrbs.push({x:p.x,y:p.y,vx:Math.cos(base+offset)*2.5,vy:Math.sin(base+offset)*2.5,life:7,dmg:15*atkBuff*halloweenBuff.damage*(window.halloweenEffects&&window.halloweenEffects.candy>0?3:1)*(kizuku2Active?2:1)*(adminRankAbility==="damage4"?4:1)});
-    wandCooldown=window.adminNoCooldown?0:2.5;msg.textContent="🪄 追尾弾を5発発射！";return;
+    for(let i=0;i<17;i++){const a=Math.PI*2*i/17;halloweenMagicOrbs.push({x:p.x,y:p.y,vx:Math.cos(a)*3.2,vy:Math.sin(a)*3.2,life:4.5,dmg:11*atkBuff*halloweenBuff.damage*(window.halloweenEffects&&window.halloweenEffects.candy>0?3:1)*(kizuku2Active?2:1)*(adminRankAbility==="damage4"?4:1),homing:false});}
+    wandCooldown=window.adminNoCooldown?0:2.5;msg.textContent="🪄 全方位に拡散弾17発！（1発11ダメージ）";return;
   }
   halloweenCooldown=weapon==="🏹"?18:12;
   if(weapon==="⚔️"){
@@ -6724,16 +6711,16 @@ function halloweenDraw() {
     ctx.fillStyle="#fff";ctx.font="bold 27px sans-serif";ctx.fillText("💫 ソウルショップ",450,96);
     ctx.font="15px sans-serif";ctx.fillStyle="#fde68a";ctx.fillText("所持ソウル："+halloweenSouls+"　｜　1・2・3キー／カードをクリック",450,124);
     const cards=[
-      {x:95,n:1,key:"attack",title:"⚔️ 攻撃力",desc:"攻撃倍率 ×"+halloweenBuff.damage.toFixed(1),lvl:halloweenLevels.attack,max:"最大×2.0"},
-      {x:340,n:2,key:"defense",title:"🛡️ 防御力",desc:"被ダメージ軽減 "+Math.round((1-halloweenBuff.reduction)*100)+"%",lvl:halloweenLevels.defense,max:"最大50%軽減"},
-      {x:585,n:3,key:"speed",title:"🏃 移動速度",desc:"移動速度 ×"+halloweenBuff.speed.toFixed(1),lvl:halloweenLevels.speed,max:"最大×2.0"}
+      {x:95,n:1,key:"attack",title:"⚔️ 攻撃力",desc:"攻撃倍率 ×"+halloweenBuff.damage.toFixed(1),lvl:halloweenLevels.attack,max:"最大×2.6"},
+      {x:340,n:2,key:"defense",title:"🛡️ 防御力",desc:"被ダメージ軽減 "+Math.round((1-halloweenBuff.reduction)*100)+"%",lvl:halloweenLevels.defense,max:"最大80%軽減"},
+      {x:585,n:3,key:"speed",title:"🏃 移動速度",desc:"移動速度 ×"+halloweenBuff.speed.toFixed(1),lvl:halloweenLevels.speed,max:"最大×3.0"}
     ];
     cards.forEach(c=>{
-      const selected=halloweenSelectedShop===c.n;const maxed=c.lvl>=10;const price=maxed?null:halloweenSoulCosts[c.lvl];
+      const selected=halloweenSelectedShop===c.n;const maxLevel=c.key==="attack"?16:c.key==="defense"?16:20;const maxed=c.lvl>=maxLevel;const price=maxed?null:halloweenSoulCosts[c.lvl];
       ctx.fillStyle=selected?"rgba(245,158,11,.28)":"rgba(255,255,255,.07)";ctx.fillRect(c.x,145,220,155);
       ctx.strokeStyle=selected?"#fde047":"#64748b";ctx.lineWidth=selected?4:2;ctx.strokeRect(c.x,145,220,155);
       ctx.fillStyle=selected?"#fde047":"#fff";ctx.font="bold 18px sans-serif";ctx.fillText((selected?"✓ ":"")+c.title,c.x+110,172);
-      ctx.fillStyle="#fff";ctx.font="15px sans-serif";ctx.fillText("Lv."+c.lvl+" / 10",c.x+110,202);
+      ctx.fillStyle="#fff";ctx.font="15px sans-serif";ctx.fillText("Lv."+c.lvl+" / "+(c.key==="attack"?16:c.key==="defense"?16:20),c.x+110,202);
       ctx.fillStyle="#cbd5e1";ctx.font="14px sans-serif";ctx.fillText(c.desc,c.x+110,228);
       ctx.fillStyle="#fbbf24";ctx.font="bold 14px sans-serif";ctx.fillText(maxed?c.max:"次の強化："+price+" 💫",c.x+110,260);
       ctx.fillStyle=maxed?"#86efac":"#cbd5e1";ctx.font="12px sans-serif";ctx.fillText(maxed?"MAX LEVEL":("次：Lv."+(c.lvl+1)),c.x+110,282);
@@ -6765,14 +6752,15 @@ function halloweenShopAction(k){
   if(!key)return;
   halloweenSelectedShop=index;
   const level=halloweenLevels[key];
-  if(level>=10){msg.textContent="💫 "+({attack:"攻撃力",defense:"防御力",speed:"移動速度"}[key])+" は最大Lv.10だよ！";return;}
+  const maxLevel=key==="attack"?16:key==="defense"?16:20;
+  if(level>=maxLevel){msg.textContent="💫 "+({attack:"攻撃力",defense:"防御力",speed:"移動速度"}[key])+" は最大レベルだよ！";return;}
   const cost=halloweenSoulCosts[level];
   if(halloweenSouls<cost){msg.textContent="💫 ソウルが足りないよ！（"+cost+"💫必要）";return;}
   halloweenSouls-=cost;
   halloweenLevels[key]++;
-  halloweenBuff.damage=1+halloweenLevels.attack*.1;
-  halloweenBuff.reduction=1-halloweenLevels.defense*.05;
-  halloweenBuff.speed=1+halloweenLevels.speed*.1;
+  halloweenBuff.damage=Math.min(2.6,1+halloweenLevels.attack*.1);
+  halloweenBuff.reduction=Math.max(0.2,1-halloweenLevels.defense*.05);
+  halloweenBuff.speed=Math.min(3.0,1+halloweenLevels.speed*.1);
   msg.textContent="強化成功！ "+({attack:"⚔️ 攻撃力",defense:"🛡️ 防御力",speed:"🏃 移動速度"}[key])+" Lv."+halloweenLevels[key]+"　残り💫："+halloweenSouls;
 }
 document.addEventListener("keydown",e=>{

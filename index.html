@@ -6654,11 +6654,11 @@ if(halloweenCanvas)halloweenCanvas.addEventListener("click",e=>{
 
 function update() {
   if (window.gameSavePaused) return;
+  // タイトル・描画・カウントダウン中は、マップの種類に関係なく戦闘処理を停止。
+  if (currentScreen !== "game") return;
   if (halloweenWaveActive) { halloweenUpdate(); return; }
-  // タイトル・描画・カウントダウン中は戦闘処理を完全に停止。
   // ゲームオーバーからリトライした際に、前のステージの必殺技や敵処理が
   // ステージ1へ持ち越されないようにする。
-  if (currentScreen !== "game") return;
   if (document.getElementById("halloweenRouletteOverlay") && !document.getElementById("halloweenRouletteOverlay").classList.contains("hidden")) return;
   if (gameOver || stageClear) return;
   if (tutorialActive) {

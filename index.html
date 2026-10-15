@@ -6452,6 +6452,7 @@ function halloweenUpdate() {
   }
   if(halloweenStartBanner>0){halloweenStartBanner--;return;}
   if(gameOver||stageClear||!halloweenWaveActive)return;
+  if(p.hp<=0&&(admin.god||admin.invincible))p.hp=Math.max(1,p.max);
   if(p.hp<=0&&halloweenResolvePlayerDeath())return;
   if(halloweenShopOpen)return;
   const halloweenFx=window.halloweenEffects||{};

@@ -6437,7 +6437,6 @@ function awardHalloweenTarget(target){
   target.hp=0;target.alive=false;halloweenSouls+=reward;
   if(target.isBoss&&halloweenWave>=1&&halloweenWave<=8){
     if(!halloweenBossWavesDefeated.includes(halloweenWave))halloweenBossWavesDefeated.push(halloweenWave);
-    if(halloweenWave===1&&halloweenWave1DamageTaken===0&&typeof window.unlockHalloweenLimitedSkin==="function")window.unlockHalloweenLimitedSkin("cat");
     if(halloweenWave===4&&typeof window.unlockHalloweenLimitedSkin==="function")window.unlockHalloweenLimitedSkin("witch");
     if(halloweenWave===8&&typeof window.unlockHalloweenLimitedSkin==="function"){
       window.unlockHalloweenLimitedSkin("vampire");
@@ -6650,6 +6649,7 @@ function halloweenUpdate() {
   }
 
   if(halloweenEnemies.length>0&&!halloweenEnemies.some(e=>e.alive)&&!halloweenShopOpen){
+    if(halloweenWave===1&&halloweenWave1DamageTaken===0&&typeof window.unlockHalloweenLimitedSkin==="function")window.unlockHalloweenLimitedSkin("cat");
     if(halloweenWave===8){stageClear=true;msg.textContent="🎉 ハロウィンマップクリア！獲得💫："+halloweenSouls;halloweenShowResult(true);}
     else{halloweenShopOpen=true;msg.textContent="💫 全敵撃破！ソウルショップで強化しよう。";}
   }

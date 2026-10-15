@@ -8813,7 +8813,7 @@ body.mobile-mode #battlePickupNotice {
       enemySpeedMul, weapon, halloweenWaveActive, halloweenWave, halloweenSouls, halloweenEnemies, halloweenShopOpen,
       halloweenTransition, halloweenCooldown, halloweenIntroFrame, halloweenItemBox, halloweenBuff, halloweenLevels,
       halloweenShieldFrames, halloweenStartBanner, halloweenResultShown, halloweenPlayerBullets, halloweenEnemyBullets,
-      halloweenMagicOrbs, halloweenEffects: window.halloweenEffects || {}
+      halloweenMagicOrbs, adminState: window.admin || {}, adminUnlocked: !!window.adminUnlocked, adminNoCooldown: !!window.adminNoCooldown, adminBoxCount: window.adminBoxCount, halloweenEffects: window.halloweenEffects || {}
     };
     return JSON.parse(JSON.stringify(state));
   }
@@ -8868,6 +8868,10 @@ body.mobile-mode #battlePickupNotice {
     deviceMode=d.deviceMode||"pc";
     halloweenWaveActive=!!d.halloweenWaveActive;window.halloweenWaveActive=halloweenWaveActive;
     window.halloweenEffects=d.halloweenEffects||{};
+    if(d.adminState) window.admin=d.adminState;
+    if("adminUnlocked" in d) window.adminUnlocked=d.adminUnlocked;
+    if("adminNoCooldown" in d) window.adminNoCooldown=d.adminNoCooldown;
+    if("adminBoxCount" in d) window.adminBoxCount=d.adminBoxCount;
     window.gameSavePaused=true;
     keys={};charging=false;
     ["resultScreen","halloweenResultScreen","halloweenRouletteOverlay","halloweenRateOverlay"].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add("hidden");});

@@ -6328,7 +6328,8 @@ let halloweenWave = 1, halloweenSouls = 0, halloweenEnemies = [], halloweenShopO
 let halloweenMinionSpawnTimer = 0, halloweenMinionsSummoned = 0;
 let halloweenPlayFrames = 0, halloweenWave1DamageTaken = 0, halloweenBossWavesDefeated = [];
 let halloweenIntroFrame = -1;
-let halloweenItemBox = {x:450,y:250,opened:false,item:"❤"};
+let halloweenItemBox = {x:450,y:250,opened:false,item:"🎃"};
+let halloweenItemBoxes = [];
 let halloweenBuff = { speed: 1, damage: 1, reduction: 1 };
 let halloweenLevels = { attack: 0, defense: 0, speed: 0 };
 const halloweenSoulCosts = [2,4,6,8,10,13,16,20,25,30];
@@ -6370,7 +6371,8 @@ function halloweenSpawnWave() {
   }
   // Wave 4は通常マップと同じくボスから子分を追加召喚。Wave 8は合計10体まで召喚する。
   // 🎃ボックスは通常アイテムではなくハロウィン専用ルーレット。
-  halloweenItemBox={x:280+Math.random()*450,y:95+Math.random()*320,opened:false,item:"🎃"};
+  halloweenItemBoxes=[280,500,720].map(x=>({x,y:110+Math.random()*280,opened:false,item:"🎃"}));
+  halloweenItemBox=halloweenItemBoxes[0];
   halloweenShopOpen=false;halloweenSelectedShop=0;halloweenTransition=0;
   if(halloweenWave>=3&&typeof window.unlockHalloweenLimitedSkin==="function")window.unlockHalloweenLimitedSkin("spider");
   const hadmStatus=document.getElementById("halloweenAdminStatus");if(hadmStatus)hadmStatus.textContent="Wave "+halloweenWave+"/8　💫 ソウル "+halloweenSouls;
@@ -6536,13 +6538,15 @@ function halloweenUpdate() {
   }
 
   // 🎃ボックスに触れると、ハロウィン専用景品ルーレットを開く。ソウルショップとは別。
-  if(halloweenItemBox&&!halloweenItemBox.opened&&Math.hypot(p.x-halloweenItemBox.x,p.y-halloweenItemBox.y)<p.r+22){
-    halloweenItemBox.opened=true;
+  const touchedHalloweenBox=Array.isArray(halloweenItemBoxes)?halloweenItemBoxes.find(box=>box&&!box.opened&&Math.hypot(p.x-box.x,p.y-box.y)<p.r+22):null;
+  if(touchedHalloweenBox){
+    touchedHalloweenBox.opened=true;
+    halloweenItemBox=halloweenItemBoxes[0]||touchedHalloweenBox;
     if(typeof window.startHalloweenRoulette==="function"){
       msg.textContent="🎃 ハロウィンボックス！ 限定アイテムを抽選中…";
       window.startHalloweenRoulette();
     }else{
-      halloweenItemBox.opened=false;
+      touchedHalloweenBox.opened=false;
       msg.textContent="⚠️ ハロウィンルーレットを読み込めなかったよ。";
     }
     return;
@@ -6712,7 +6716,7 @@ function halloweenDraw() {
     ctx.fillStyle="rgba(76,29,149,.92)";ctx.fillRect(250,64,400,36);ctx.strokeStyle="#c4b5fd";ctx.lineWidth=2;ctx.strokeRect(250,64,400,36);
     ctx.fillStyle="#fff";ctx.font="bold 17px sans-serif";ctx.fillText("👻 透明化中：プレイヤーも攻撃できない！",450,87);
   }
-  if(halloweenItemBox&&!halloweenItemBox.opened){ctx.font="38px serif";ctx.fillText("🎃",halloweenItemBox.x,halloweenItemBox.y);}
+  (Array.isArray(halloweenItemBoxes)?halloweenItemBoxes:[]).forEach(box=>{if(box&&!box.opened){ctx.font="38px serif";ctx.fillText("🎃",box.x,box.y);}});
   ctx.fillStyle="rgba(5,7,18,.82)";ctx.fillRect(650,12,235,58);ctx.fillStyle="#fff";ctx.textAlign="left";ctx.font="bold 18px sans-serif";ctx.fillText("❤️ HP "+Math.ceil(p.hp)+"/"+p.max,664,35);ctx.fillText("💫 "+halloweenSouls,664,57);ctx.textAlign="center";
   if(halloweenShopOpen){
     ctx.fillStyle="rgba(3,7,18,.97)";ctx.fillRect(55,65,790,370);ctx.strokeStyle="#fbbf24";ctx.lineWidth=4;ctx.strokeRect(55,65,790,370);
@@ -7748,8 +7752,10 @@ loop();
   document.getElementById("hadmHeal").onclick = () => { p.hp = p.max; msg.textContent = "❤️ HP全回復！"; };
   document.getElementById("hadmSpawnBox").onclick = () => {
     if (!halloweenWaveActive) { msg.textContent = "🎃 ハロウィンマップを開始してね。"; return; }
-    halloweenItemBox = {x:Math.max(80,Math.min(820,p.x+100)),y:Math.max(100,Math.min(430,p.y)),opened:false,item:"🎃"};
-    msg.textContent = "🎃 ハロウィンボックスを召喚したよ！";
+    if(!Array.isArray(halloweenItemBoxes))halloweenItemBoxes=[];
+    const summonedBox={x:Math.max(80,Math.min(820,p.x+100)),y:Math.max(100,Math.min(430,p.y)),opened:false,item:"🎃"};
+    halloweenItemBoxes.push(summonedBox);halloweenItemBox=halloweenItemBoxes[0]||summonedBox;
+    msg.textContent = "🎃 ハロウィンボックスを召喚したよ！（現在 "+halloweenItemBoxes.filter(box=>box&&!box.opened).length+" 個）";
   };
   document.getElementById("hadmEnemyHP").onclick = () => {
     if (!halloweenWaveActive) { msg.textContent = "🎃 ハロウィンマップを開始してね。"; return; }
@@ -9147,7 +9153,7 @@ body.mobile-mode #battlePickupNotice {
       bossSpecialObjects, bossSpecialMinion, dmgText, boxes, enemyBullets, magmaZones, slashTimer, dashTimer, dashVX,
       dashVY, carHitThisDash, attackCooldown, gameOver, stageClear, enemyShootTimer, rushTimer, rushDownTimer, enemyRushing,
       enemySpeedMul, weapon, halloweenWaveActive, halloweenWave, halloweenSouls, halloweenPlayFrames, halloweenWave1DamageTaken, halloweenBossWavesDefeated, halloweenEnemies, halloweenShopOpen,
-      halloweenTransition, halloweenCooldown, halloweenMinionSpawnTimer, halloweenMinionsSummoned, halloweenIntroFrame, halloweenItemBox, halloweenBuff, halloweenLevels,
+      halloweenTransition, halloweenCooldown, halloweenMinionSpawnTimer, halloweenMinionsSummoned, halloweenIntroFrame, halloweenItemBox, halloweenItemBoxes, halloweenBuff, halloweenLevels,
       halloweenShieldFrames, halloweenStartBanner, halloweenResultShown, halloweenPlayerBullets, halloweenEnemyBullets,
       halloweenMagicOrbs, itemInventory: window.gameItemInventory || null, adminState: window.admin || {}, adminUnlocked: !!window.adminUnlocked, adminNoCooldown: !!window.adminNoCooldown, adminBoxCount: window.adminBoxCount, halloweenEffects: window.halloweenEffects || {}
     };
@@ -9167,7 +9173,7 @@ body.mobile-mode #battlePickupNotice {
       "bossSpecialTimer","bossSpecialState","bossSpecialUses","bossSpecialCooldown","bossSpecialObjects","bossSpecialMinion","dmgText",
       "boxes","enemyBullets","magmaZones","slashTimer","dashTimer","dashVX","dashVY","carHitThisDash","attackCooldown","gameOver",
       "stageClear","enemyShootTimer","rushTimer","rushDownTimer","enemyRushing","enemySpeedMul","weapon","halloweenWave","halloweenSouls",
-      "halloweenPlayFrames","halloweenWave1DamageTaken","halloweenBossWavesDefeated","halloweenEnemies","halloweenShopOpen","halloweenTransition","halloweenCooldown","halloweenMinionSpawnTimer","halloweenMinionsSummoned","halloweenIntroFrame","halloweenItemBox","halloweenBuff",
+      "halloweenPlayFrames","halloweenWave1DamageTaken","halloweenBossWavesDefeated","halloweenEnemies","halloweenShopOpen","halloweenTransition","halloweenCooldown","halloweenMinionSpawnTimer","halloweenMinionsSummoned","halloweenIntroFrame","halloweenItemBox","halloweenItemBoxes","halloweenBuff",
       "halloweenLevels","halloweenShieldFrames","halloweenStartBanner","halloweenResultShown","halloweenPlayerBullets","halloweenEnemyBullets",
       "halloweenMagicOrbs"
     ];
@@ -9196,7 +9202,7 @@ body.mobile-mode #battlePickupNotice {
       weapon:v=>weapon=v,halloweenWave:v=>halloweenWave=v,halloweenSouls:v=>halloweenSouls=v,halloweenPlayFrames:v=>halloweenPlayFrames=v,
       halloweenWave1DamageTaken:v=>halloweenWave1DamageTaken=v,halloweenBossWavesDefeated:v=>halloweenBossWavesDefeated=Array.isArray(v)?v:[],halloweenEnemies:v=>halloweenEnemies=v,
       halloweenShopOpen:v=>halloweenShopOpen=v,halloweenTransition:v=>halloweenTransition=v,halloweenCooldown:v=>halloweenCooldown=v,halloweenMinionSpawnTimer:v=>halloweenMinionSpawnTimer=v,halloweenMinionsSummoned:v=>halloweenMinionsSummoned=v,halloweenIntroFrame:v=>halloweenIntroFrame=v,
-      halloweenItemBox:v=>halloweenItemBox=v,halloweenBuff:v=>halloweenBuff=v,halloweenLevels:v=>halloweenLevels=v,halloweenShieldFrames:v=>halloweenShieldFrames=v,
+      halloweenItemBox:v=>halloweenItemBox=v,halloweenItemBoxes:v=>halloweenItemBoxes=Array.isArray(v)?v:(v?[v]:[]),halloweenBuff:v=>halloweenBuff=v,halloweenLevels:v=>halloweenLevels=v,halloweenShieldFrames:v=>halloweenShieldFrames=v,
       halloweenStartBanner:v=>halloweenStartBanner=v,halloweenResultShown:v=>halloweenResultShown=v,halloweenPlayerBullets:v=>halloweenPlayerBullets=v,
       halloweenEnemyBullets:v=>halloweenEnemyBullets=v,halloweenMagicOrbs:v=>halloweenMagicOrbs=v
     };

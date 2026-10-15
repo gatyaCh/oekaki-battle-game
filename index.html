@@ -3773,6 +3773,7 @@ html body #draw:not(.hidden) #gearBtn {
 .map-confirm-card{width:min(360px,100%);padding:24px;text-align:center;color:#fff;background:#172033;border:1px solid #64748b;border-radius:16px}
 .map-confirm-card button{margin:8px;padding:10px 24px}
 @media(max-width:600px){.map-options{grid-template-columns:1fr}#mapSelect{padding:12px}.map-select-card{padding:16px}}
+#halloweenCodeScreen{position:fixed;inset:0;z-index:10020;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.88);color:#fff}#halloweenCodeScreen.hidden{display:none!important}#halloweenCodeScreen .map-confirm-card{max-height:90vh;overflow:auto}
 </style>
 </head>
 <body>
@@ -3813,11 +3814,12 @@ html body #draw:not(.hidden) #gearBtn {
         <button onclick="selectNormalMap()">通常マップで遊ぶ</button>
         <button class="map-tutorial-button" onclick="askMapTutorial('normal')">📘 チュートリアル</button>
       </div>
-      <div class="map-option map-locked"><h2>🎃 ハロウィンマップ</h2><p>現在準備中です</p><span class="map-lock-label">🔒 ロック中</span><button disabled>まだ遊べません</button></div>
+      <div class="map-option map-locked"><h2>🎃 ハロウィンマップ</h2><p>コードを入力すると先行プレイできます</p><span class="map-lock-label">🔐 先行プレイ</span><button onclick="openHalloweenCodeScreen()">先行プレイコードを入力</button></div>
     </div>
   </div>
 </div>
 <div id="mapTutorialConfirm" class="hidden" role="dialog" aria-modal="true"><div class="map-confirm-card"><h2>📘 チュートリアル</h2><p>チュートリアルを見ますか？</p><button onclick="confirmMapTutorial(true)">はい</button><button onclick="confirmMapTutorial(false)">いいえ</button></div></div>
+<div id="halloweenCodeScreen" class="hidden" role="dialog" aria-modal="true" aria-labelledby="halloweenCodeTitle"><section class="map-confirm-card"><div style="font-size:34px">🎃 🦇 🌙</div><h2 id="halloweenCodeTitle">ハロウィンマップ先行プレイ</h2><p>専用コードを入力してね。</p><label for="halloweenAccessCode">先行プレイコード</label><input id="halloweenAccessCode" type="password" autocomplete="off" spellcheck="false" placeholder="コードを入力" style="display:block;width:100%;padding:10px;margin:10px 0"><p id="halloweenAccessMessage" role="status" aria-live="polite"></p><button onclick="checkHalloweenAccessCode()">解放する</button><button onclick="closeHalloweenCodeScreen()">戻る</button></section></div>
 <div id="draw" class="hidden">
   <h2>狙う武器を選択して描こう！</h2>
   <button id="gearBtn" title="キー設定">⚙️</button>
@@ -4468,7 +4470,10 @@ window.addEventListener('orientationchange', () => {
 });
 
 let pendingMapTutorial = null;
-function selectNormalMap(){setScreen("draw");redrawCanvas();}
+function selectNormalMap(){window.halloweenWaveActive=false;setScreen("draw");redrawCanvas();}
+function openHalloweenCodeScreen(){const input=document.getElementById("halloweenAccessCode");const message=document.getElementById("halloweenAccessMessage");if(input)input.value="";if(message)message.textContent="";document.getElementById("halloweenCodeScreen").classList.remove("hidden");setTimeout(()=>input&&input.focus(),0);}
+function closeHalloweenCodeScreen(){document.getElementById("halloweenCodeScreen").classList.add("hidden");setScreen("mapSelect");}
+function checkHalloweenAccessCode(){const input=document.getElementById("halloweenAccessCode");const message=document.getElementById("halloweenAccessMessage");const code=input?input.value.trim().toLowerCase():"";if(code!=="kabotya"){if(message)message.textContent="❌ コードが違います。";if(input){input.select();input.focus();}return;}window.halloweenWaveActive=true;window.halloweenWaveTestRequested=true;document.getElementById("halloweenCodeScreen").classList.add("hidden");const result=document.getElementById("result");if(result){result.textContent="🎃 ハロウィンマップ先行プレイ";result.style.color="#ffb347";}const battleBtn=document.getElementById("battleBtn");if(battleBtn){battleBtn.classList.remove("hidden");battleBtn.onclick=e=>{e.preventDefault();e.stopPropagation();halloweenStart();};}setScreen("draw");redrawCanvas();if(message)message.textContent="";msg.textContent="🔓 解放！武器を決めて「戦闘開始」を押そう。";}
 function askMapTutorial(map){pendingMapTutorial=map;document.getElementById("mapTutorialConfirm").classList.remove("hidden");}
 function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").classList.add("hidden");if(!yes){setScreen("mapSelect");return;}if(pendingMapTutorial==="normal")setScreen("tutorialChoice");}
 function goDraw() {

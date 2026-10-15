@@ -4258,7 +4258,7 @@ function syncScreenVisibility() {
   if (mobileControls) {
     const showControls = deviceMode === "mobile" && currentScreen === "game";
     mobileControls.style.display = showControls ? "block" : "none";
-    mobileControls.style.pointerEvents = "none";
+    mobileControls.style.pointerEvents = showControls ? "auto" : "none";
   }
 
   // 設定・スペシャルコードは描画画面でだけ表示。
@@ -5972,7 +5972,7 @@ function closeShop() {
   if (mobileControls) {
     const showControls = deviceMode === "mobile" && currentScreen === "game";
     mobileControls.style.display = showControls ? "block" : "none";
-    mobileControls.style.pointerEvents = "none";
+    mobileControls.style.pointerEvents = showControls ? "auto" : "none";
   }
 
   // ステージ4・7では通常ショップのあとに自己強化ショップも開く。
@@ -6384,19 +6384,23 @@ const halloweenMapLayouts = [
 function halloweenSpawnWave() {
   const layout = halloweenMapLayouts[halloweenWave - 1] || halloweenMapLayouts[0];
   halloweenMapObstacles = layout.obstacles.map(([type,x,y]) => ({type,x,y}));
-  // Match the regular game's initial minion counts by stage. Stage 4 and 8 use their
-  // established multi-spawn waves rather than arbitrary fixed enemy totals.
-  const minionCounts = [2,2,3,6,2,2,2,2];
-  const minionCount = minionCounts[halloweenWave-1] || 2;
-  const spawnPoints = [[590,115],[735,115],[845,115],[590,245],[735,245],[845,245],[590,375],[735,375],[845,375],[520,175],[520,325]];
+  // Established wave composition: W1=7 turrets, W2=5 chargers, W3=6 melee;
+  // W4=ghost boss + 4 minions; W5-7 repeat W1-3; W8=Dracula + 3 minions.
+  const waveType = halloweenWave<=3 ? halloweenWave : halloweenWave<=7 ? halloweenWave-4 : 4;
+  const waveCounts = [7,5,6,4,7,5,6,3];
+  const spawnPoints = [[590,105],[735,105],[845,105],[590,220],[735,220],[845,220],[590,335],[735,335]];
   halloweenEnemies = [];
-  const bossPoint = [450,100];
-  const bossHp = [200,240,280,320,360,420,480,600][halloweenWave-1] || 200;
-  halloweenEnemies.push({x:bossPoint[0],y:bossPoint[1],hp:bossHp,maxHp:bossHp,r:25,kind:0,atk:5+halloweenWave*2,cooldown:50,alive:true,isBoss:true});
+  if(halloweenWave===4||halloweenWave===8){
+    const bossHp=halloweenWave===8?600:220;
+    halloweenEnemies.push({x:450,y:100,hp:bossHp,maxHp:bossHp,r:halloweenWave===8?42:28,kind:0,atk:halloweenWave===8?24:12,cooldown:50,alive:true,isBoss:true,name:halloweenWave===8?"Dracula":"Ghost Boss"});
+  }
+  const minionCount=waveCounts[halloweenWave-1]||4;
   for(let i=0;i<minionCount;i++){
     const [x,y]=spawnPoints[i];
-    const hp=[42,48,53,58,53,64,75,97][halloweenWave-1]||42;
-    halloweenEnemies.push({x,y,hp,maxHp:hp,r:18,kind:1,atk:5+halloweenWave,cooldown:65+i*9,alive:true,isBoss:false});
+    const isTurret=waveType===1, isCharger=waveType===2, isMelee=waveType===3;
+    const hpBase=[42,48,53,58,53,64,75,97][halloweenWave-1]||42;
+    const hp=hpBase*(halloweenWave>=5?1.7:1);
+    halloweenEnemies.push({x,y,hp,maxHp:hp,r:18,kind:isTurret?0:isCharger?2:1,atk:(isTurret?5:isCharger?8:6)*(halloweenWave>=5?1.7:1),cooldown:65+i*9,alive:true,isBoss:false,isTurret,isCharger,isMelee});
   }
   // Randomize the pumpkin box, retrying positions that collide with the player,
   // obstacles or any enemy spawn.
@@ -6436,7 +6440,7 @@ function halloweenAttackNearest(){
   }else msg.textContent="敵に近づいて攻撃しよう！";
 }
 function halloweenUpdate() {
-  if(halloweenIntroFrame>=0){halloweenIntroFrame++;if(halloweenIntroFrame>=260)halloweenIntroFrame=-1;return;}
+  if(halloweenIntroFrame>=0){halloweenIntroFrame++;if(halloweenIntroFrame>=90)halloweenIntroFrame=-1;return;}
   if(halloweenTransition>0){if(--halloweenTransition===0){halloweenWave++;halloweenSpawnWave();}return;}
   if(gameOver||stageClear)return;
   if(halloweenCooldown>0)halloweenCooldown--;
@@ -6483,7 +6487,7 @@ function halloweenDraw() {
   ctx.font="30px serif";ctx.fillText("🎃 "+halloweenWave+"/8",450,28);
   ctx.font="36px serif";ctx.fillText(window.getSelectedSkinEmoji ? window.getSelectedSkinEmoji() : "😂",p.x,p.y);
   halloweenEnemies.forEach(e=>{if(!e.alive)return;ctx.font=e.isBoss?"38px serif":"29px serif";ctx.fillText(e.isBoss?"👹":"👾",e.x,e.y);ctx.fillStyle="#511";ctx.fillRect(e.x-23,e.y-e.r-13,46,6);ctx.fillStyle=e.isBoss?"#f59e0b":"#f55";ctx.fillRect(e.x-23,e.y-e.r-13,46*Math.max(0,e.hp/e.maxHp),6);});
-  if(halloweenPumpkinBox&&!halloweenPumpkinBox.opened){ctx.font="38px serif";ctx.fillText("🎃",halloweenPumpkinBox.x,halloweenPumpkinBox.y);ctx.font="13px sans-serif";ctx.fillStyle="#fff";ctx.fillText("🎃ボックス",halloweenPumpkinBox.x,halloweenPumpkinBox.y+29);}
+  if(halloweenPumpkinBox&&!halloweenPumpkinBox.opened){ctx.font="38px serif";ctx.fillText("🎃",halloweenPumpkinBox.x,halloweenPumpkinBox.y);}
   ctx.fillStyle="rgba(5,7,18,.82)";ctx.fillRect(650,12,235,58);
   ctx.fillStyle="#fff";ctx.textAlign="left";ctx.font="bold 18px sans-serif";ctx.fillText("❤️ HP "+Math.ceil(p.hp)+"/"+p.max,664,35);ctx.fillText("🎃 ソウル "+halloweenSouls,664,57);ctx.textAlign="center";
   if(halloweenShopOpen){ctx.fillStyle="rgba(0,0,0,.8)";ctx.fillRect(190,110,520,275);ctx.fillStyle="#fff";["SOUL SHOP","1 🧪 回復 20","2 🐴 移動×2.3 30","3 🍬 攻撃＆移動 25","4 🦇 被ダメ軽減 40","5 🎭 分身 50","6 🧟 ゾンビ 80","G ゲートへ"].forEach((t,i)=>ctx.fillText(t,450,140+i*30));}

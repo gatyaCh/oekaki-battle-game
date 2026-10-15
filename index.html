@@ -6320,6 +6320,8 @@ function halloweenUpdate() {
   if(keys[window.controlKeys.right]||keys.arrowright)p.x+=speed;
   p.x=Math.max(20,Math.min(880,p.x));p.y=Math.max(20,Math.min(480,p.y));
   if(halloweenCooldown>0)halloweenCooldown--;
+  // キーボード・スマホの攻撃ボタンの両方に対応
+  if(keys[window.controlKeys.attack]&&halloweenCooldown<=0)halloweenAttack();
   // Fキーで近くの🎃ボックスを開け、💫を獲得
   const chestKey=(window.controlKeys.chest||"f").toLowerCase();
   if(keys[chestKey]&&halloweenPumpkinBox&&!halloweenPumpkinBox.opened&&Math.hypot(p.x-halloweenPumpkinBox.x,p.y-halloweenPumpkinBox.y)<58){

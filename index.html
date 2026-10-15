@@ -3820,6 +3820,7 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
 </div>
 
 <div id="title">
+  <button id="gameSaveOpenBtn" type="button" aria-label="セーブ記録を開く">💾</button>
   <h1 style="margin: 40px 0 20px;">🎨 正式版お絵かきバトルVer1.00</h1>
   <h2 style="margin-bottom:16px;">遊ぶ端末を選択してください</h2>
   <button onclick="chooseDevice('pc')" style="font-size:20px; padding:14px 28px;">💻 PC版</button>
@@ -6407,6 +6408,7 @@ function halloweenResolvePlayerDeath(){
   p.hp=0;gameOver=true;msg.textContent="💀 ハロウィンマップ GAME OVER";halloweenShowResult(false);return true;
 }
 function halloweenUpdate() {
+  if (window.gameSavePaused) return;
   const rouletteOverlay=document.getElementById("halloweenRouletteOverlay");
   if(rouletteOverlay&&!rouletteOverlay.classList.contains("hidden"))return;
   if(halloweenIntroFrame>0){halloweenIntroFrame--;return;}
@@ -6651,6 +6653,7 @@ if(halloweenCanvas)halloweenCanvas.addEventListener("click",e=>{
 });
 
 function update() {
+  if (window.gameSavePaused) return;
   if (halloweenWaveActive) { halloweenUpdate(); return; }
   // タイトル・描画・カウントダウン中は戦闘処理を完全に停止。
   // ゲームオーバーからリトライした際に、前のステージの必殺技や敵処理が
@@ -8718,6 +8721,232 @@ body.mobile-mode #battlePickupNotice {
   #gameArea:not(.hidden) #chargeContainer { top: 42px !important; min-width: 0 !important; width: min(250px, 52vw) !important; }
 }
 </style>
+
+
+<style id="game-save-style">
+#title{position:relative}
+#gameSaveOpenBtn{position:absolute;top:12px;right:14px;font-size:26px;padding:9px 12px;border:1px solid #64748b;border-radius:12px;background:#1e293b;color:#fff;z-index:20;cursor:pointer}
+#gameSavePauseBtn{position:fixed;right:14px;top:46%;z-index:899900;font-size:25px;min-width:54px;min-height:54px;border:1px solid #cbd5e1;border-radius:14px;background:#172033;color:#fff;box-shadow:0 3px 12px #0008;cursor:pointer;display:none}
+#gameSaveOverlay{position:fixed;inset:0;z-index:1000000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(2,6,23,.88);color:#fff;box-sizing:border-box}
+#gameSaveOverlay.hidden{display:none!important}
+#gameSaveCard{width:min(560px,96vw);max-height:90vh;overflow:auto;background:#111827;border:1px solid #64748b;border-radius:18px;padding:20px;box-sizing:border-box;text-align:center;box-shadow:0 12px 40px #0009}
+#gameSaveCard h2{margin:4px 0 14px}
+.game-save-record{background:#1f2937;border:1px solid #475569;border-radius:12px;padding:12px;margin:10px 0;text-align:left}
+.game-save-record p{margin:5px 0;overflow-wrap:anywhere}
+.game-save-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.game-save-actions button,#gameSaveCard>button{padding:9px 13px;border:1px solid #64748b;border-radius:9px;background:#334155;color:#fff;cursor:pointer}
+.game-save-actions button{flex:1}
+#gameSaveCard button:disabled{opacity:.5;cursor:not-allowed}
+#gameSaveMessage{min-height:1.4em;color:#fde68a;overflow-wrap:anywhere}
+#gameSaveCountdown{font-size:clamp(34px,9vw,64px);font-weight:900;letter-spacing:2px}
+@media(max-width:600px){#gameSaveOpenBtn{top:8px;right:8px;font-size:23px}#gameSavePauseBtn{right:7px;top:43%;min-width:46px;min-height:46px;font-size:22px}#gameSaveCard{padding:15px}}
+</style>
+<button id="gameSavePauseBtn" type="button" aria-label="ポーズ">⏸️</button>
+<div id="gameSaveOverlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="gameSaveTitle">
+  <section id="gameSaveCard">
+    <h2 id="gameSaveTitle">💾 セーブ記録</h2>
+    <div id="gameSaveBody"></div>
+    <p id="gameSaveMessage" role="status" aria-live="polite"></p>
+    <button id="gameSaveCloseBtn" type="button">閉じる</button>
+  </section>
+</div>
+<script id="game-save-system">
+(function(){
+  "use strict";
+  const STORAGE_KEY = "oekakiBattleGameSaves_v1";
+  const overlay = document.getElementById("gameSaveOverlay");
+  const body = document.getElementById("gameSaveBody");
+  const message = document.getElementById("gameSaveMessage");
+  const pauseBtn = document.getElementById("gameSavePauseBtn");
+  let countdownTimer = null;
+  let returnToPause = false;
+
+  function readSaves(){
+    try { const v = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); return Array.isArray(v) ? v : []; }
+    catch(e){ return []; }
+  }
+  function writeSaves(list){
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); return true; }
+    catch(e){ return false; }
+  }
+  function formatDate(iso){
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "日時不明";
+    return d.getFullYear()+"/"+String(d.getMonth()+1).padStart(2,"0")+"/"+String(d.getDate()).padStart(2,"0")+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
+  }
+  function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+  function isBattleActive(){
+    return currentScreen === "game" && !gameOver && !stageClear && !halloweenResultShown;
+  }
+  function showOverlay(title, html, pauseMode){
+    returnToPause = !!pauseMode;
+    document.getElementById("gameSaveTitle").textContent = title;
+    body.innerHTML = html;
+    message.textContent = "";
+    overlay.classList.remove("hidden");
+    document.getElementById("gameSaveCloseBtn").textContent = pauseMode ? "ポーズ画面に戻る" : "閉じる";
+  }
+  function hideOverlay(){
+    overlay.classList.add("hidden");
+    if (returnToPause && window.gameSavePaused) showPauseMenu();
+    else refreshPauseButton();
+  }
+  function refreshPauseButton(){
+    const gameVisible = currentScreen === "game" && !gameOver && !stageClear && !halloweenResultShown;
+    pauseBtn.style.display = gameVisible && overlay.classList.contains("hidden") ? "block" : "none";
+  }
+  function saveSnapshot(){
+    const state = {
+      currentScreen, deviceMode, stage, coins, p, enemy, minions, stage8TotalSummoned,
+      keys, charging, charge, stun, mouse, atkBuff, shieldEquipped, shieldRemainingTime, shieldActive,
+      revive, ghost, ghostTimer, bulletHellReady, bulletHellBullets, magicOrbs, wandCooldown, lightningTimer, slowDebuffTimer,
+      treasureChest, isOpeningChest, currentShopType, shopMaxSlots, shopSlotsUsed, isShopDiscount, shopNeedsAdvance,
+      upgradeShopNeedsAdvance, upgradeDiscountWon, rouletteWon, rouletteReturnTo, upgradeLevels, rouletteAttemptedThisVisit,
+      kizuku2Active, kizukuItems, rikuActive, rikuSpecials, specialStock, resultData, resultSlide, totalDamageTaken,
+      reviveUsed, specialUsed, minionsDefeated, totalMinionsSpawned, bossesDefeated, stage4PointEligibleKills,
+      minionPointTotal, treasureChestsOpened, coinPointTotal, bossDefeatAwardedForStage, fullClear,
+      adminRankCodeUsed, adminRankAbility, adminGuardBlocksLeft, adminAttackTimer, adminAttackBullets,
+      specialGaugeDamage, specialGaugeMaxed, isGatlingActive, gatlingTimer, isBlackholeActive, blackholeTimer,
+      bigSlashAnimTimer, isPausedForSpecial, bossSpecialTimer, bossSpecialState, bossSpecialUses, bossSpecialCooldown,
+      bossSpecialObjects, bossSpecialMinion, dmgText, boxes, enemyBullets, magmaZones, slashTimer, dashTimer, dashVX,
+      dashVY, carHitThisDash, attackCooldown, gameOver, stageClear, enemyShootTimer, rushTimer, rushDownTimer, enemyRushing,
+      enemySpeedMul, weapon, halloweenWaveActive, halloweenWave, halloweenSouls, halloweenEnemies, halloweenShopOpen,
+      halloweenTransition, halloweenCooldown, halloweenIntroFrame, halloweenItemBox, halloweenBuff, halloweenLevels,
+      halloweenShieldFrames, halloweenStartBanner, halloweenResultShown, halloweenPlayerBullets, halloweenEnemyBullets,
+      halloweenMagicOrbs, halloweenEffects: window.halloweenEffects || {}
+    };
+    return JSON.parse(JSON.stringify(state));
+  }
+  function restoreSnapshot(d){
+    const fields = [
+      "stage","coins","p","enemy","minions","stage8TotalSummoned","keys","charging","charge","stun","mouse","atkBuff",
+      "shieldEquipped","shieldRemainingTime","shieldActive","revive","ghost","ghostTimer","bulletHellReady","bulletHellBullets",
+      "magicOrbs","wandCooldown","lightningTimer","slowDebuffTimer","treasureChest","isOpeningChest","currentShopType","shopMaxSlots",
+      "shopSlotsUsed","isShopDiscount","shopNeedsAdvance","upgradeShopNeedsAdvance","upgradeDiscountWon","rouletteWon","rouletteReturnTo",
+      "upgradeLevels","rouletteAttemptedThisVisit","kizuku2Active","kizukuItems","rikuActive","rikuSpecials","specialStock","resultData",
+      "resultSlide","totalDamageTaken","reviveUsed","specialUsed","minionsDefeated","totalMinionsSpawned","bossesDefeated",
+      "stage4PointEligibleKills","minionPointTotal","treasureChestsOpened","coinPointTotal","bossDefeatAwardedForStage","fullClear",
+      "adminRankCodeUsed","adminRankAbility","adminGuardBlocksLeft","adminAttackTimer","adminAttackBullets","specialGaugeDamage",
+      "specialGaugeMaxed","isGatlingActive","gatlingTimer","isBlackholeActive","blackholeTimer","bigSlashAnimTimer","isPausedForSpecial",
+      "bossSpecialTimer","bossSpecialState","bossSpecialUses","bossSpecialCooldown","bossSpecialObjects","bossSpecialMinion","dmgText",
+      "boxes","enemyBullets","magmaZones","slashTimer","dashTimer","dashVX","dashVY","carHitThisDash","attackCooldown","gameOver",
+      "stageClear","enemyShootTimer","rushTimer","rushDownTimer","enemyRushing","enemySpeedMul","weapon","halloweenWave","halloweenSouls",
+      "halloweenEnemies","halloweenShopOpen","halloweenTransition","halloweenCooldown","halloweenIntroFrame","halloweenItemBox","halloweenBuff",
+      "halloweenLevels","halloweenShieldFrames","halloweenStartBanner","halloweenResultShown","halloweenPlayerBullets","halloweenEnemyBullets",
+      "halloweenMagicOrbs"
+    ];
+    const setters = {
+      stage:v=>stage=v,coins:v=>coins=v,p:v=>p=v,enemy:v=>enemy=v,minions:v=>minions=v,stage8TotalSummoned:v=>stage8TotalSummoned=v,
+      keys:v=>keys=v,charging:v=>charging=v,charge:v=>charge=v,stun:v=>stun=v,mouse:v=>mouse=v,atkBuff:v=>atkBuff=v,
+      shieldEquipped:v=>shieldEquipped=v,shieldRemainingTime:v=>shieldRemainingTime=v,shieldActive:v=>shieldActive=v,revive:v=>revive=v,
+      ghost:v=>ghost=v,ghostTimer:v=>ghostTimer=v,bulletHellReady:v=>bulletHellReady=v,bulletHellBullets:v=>bulletHellBullets=v,magicOrbs:v=>magicOrbs=v,
+      wandCooldown:v=>wandCooldown=v,lightningTimer:v=>lightningTimer=v,slowDebuffTimer:v=>slowDebuffTimer=v,treasureChest:v=>treasureChest=v,
+      isOpeningChest:v=>isOpeningChest=v,currentShopType:v=>currentShopType=v,shopMaxSlots:v=>shopMaxSlots=v,shopSlotsUsed:v=>shopSlotsUsed=v,
+      isShopDiscount:v=>isShopDiscount=v,shopNeedsAdvance:v=>shopNeedsAdvance=v,upgradeShopNeedsAdvance:v=>upgradeShopNeedsAdvance=v,
+      upgradeDiscountWon:v=>upgradeDiscountWon=v,rouletteWon:v=>rouletteWon=v,rouletteReturnTo:v=>rouletteReturnTo=v,upgradeLevels:v=>upgradeLevels=v,
+      rouletteAttemptedThisVisit:v=>rouletteAttemptedThisVisit=v,kizuku2Active:v=>kizuku2Active=v,kizukuItems:v=>kizukuItems=v,rikuActive:v=>rikuActive=v,
+      rikuSpecials:v=>rikuSpecials=v,specialStock:v=>specialStock=v,resultData:v=>resultData=v,resultSlide:v=>resultSlide=v,totalDamageTaken:v=>totalDamageTaken=v,
+      reviveUsed:v=>reviveUsed=v,specialUsed:v=>specialUsed=v,minionsDefeated:v=>minionsDefeated=v,totalMinionsSpawned:v=>totalMinionsSpawned=v,
+      bossesDefeated:v=>bossesDefeated=v,stage4PointEligibleKills:v=>stage4PointEligibleKills=v,minionPointTotal:v=>minionPointTotal=v,
+      treasureChestsOpened:v=>treasureChestsOpened=v,coinPointTotal:v=>coinPointTotal=v,bossDefeatAwardedForStage:v=>bossDefeatAwardedForStage=v,
+      fullClear:v=>fullClear=v,adminRankCodeUsed:v=>adminRankCodeUsed=v,adminRankAbility:v=>adminRankAbility=v,adminGuardBlocksLeft:v=>adminGuardBlocksLeft=v,
+      adminAttackTimer:v=>adminAttackTimer=v,adminAttackBullets:v=>adminAttackBullets=v,specialGaugeDamage:v=>specialGaugeDamage=v,specialGaugeMaxed:v=>specialGaugeMaxed=v,
+      isGatlingActive:v=>isGatlingActive=v,gatlingTimer:v=>gatlingTimer=v,isBlackholeActive:v=>isBlackholeActive=v,blackholeTimer:v=>blackholeTimer=v,
+      bigSlashAnimTimer:v=>bigSlashAnimTimer=v,isPausedForSpecial:v=>isPausedForSpecial=v,bossSpecialTimer:v=>bossSpecialTimer=v,bossSpecialState:v=>bossSpecialState=v,
+      bossSpecialUses:v=>bossSpecialUses=v,bossSpecialCooldown:v=>bossSpecialCooldown=v,bossSpecialObjects:v=>bossSpecialObjects=v,bossSpecialMinion:v=>bossSpecialMinion=v,
+      dmgText:v=>dmgText=v,boxes:v=>boxes=v,enemyBullets:v=>enemyBullets=v,magmaZones:v=>magmaZones=v,slashTimer:v=>slashTimer=v,dashTimer:v=>dashTimer=v,
+      dashVX:v=>dashVX=v,dashVY:v=>dashVY=v,carHitThisDash:v=>carHitThisDash=v,attackCooldown:v=>attackCooldown=v,gameOver:v=>gameOver=v,stageClear:v=>stageClear=v,
+      enemyShootTimer:v=>enemyShootTimer=v,rushTimer:v=>rushTimer=v,rushDownTimer:v=>rushDownTimer=v,enemyRushing:v=>enemyRushing=v,enemySpeedMul:v=>enemySpeedMul=v,
+      weapon:v=>weapon=v,halloweenWave:v=>halloweenWave=v,halloweenSouls:v=>halloweenSouls=v,halloweenEnemies:v=>halloweenEnemies=v,
+      halloweenShopOpen:v=>halloweenShopOpen=v,halloweenTransition:v=>halloweenTransition=v,halloweenCooldown:v=>halloweenCooldown=v,halloweenIntroFrame:v=>halloweenIntroFrame=v,
+      halloweenItemBox:v=>halloweenItemBox=v,halloweenBuff:v=>halloweenBuff=v,halloweenLevels:v=>halloweenLevels=v,halloweenShieldFrames:v=>halloweenShieldFrames=v,
+      halloweenStartBanner:v=>halloweenStartBanner=v,halloweenResultShown:v=>halloweenResultShown=v,halloweenPlayerBullets:v=>halloweenPlayerBullets=v,
+      halloweenEnemyBullets:v=>halloweenEnemyBullets=v,halloweenMagicOrbs:v=>halloweenMagicOrbs=v
+    };
+    for(const k of fields) if(Object.prototype.hasOwnProperty.call(d,k)&&setters[k]) setters[k](d[k]);
+    currentScreen="game";
+    deviceMode=d.deviceMode||"pc";
+    halloweenWaveActive=!!d.halloweenWaveActive;window.halloweenWaveActive=halloweenWaveActive;
+    window.halloweenEffects=d.halloweenEffects||{};
+    window.gameSavePaused=true;
+    keys={};charging=false;
+    ["resultScreen","halloweenResultScreen","halloweenRouletteOverlay","halloweenRateOverlay"].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add("hidden");});
+    document.body.classList.toggle("mobile-mode",deviceMode==="mobile");
+    const drawPanel=document.getElementById("draw");if(drawPanel)drawPanel.classList.add("hidden");
+    const countPanel=document.getElementById("count");if(countPanel)countPanel.classList.add("hidden");
+    const gameArea=document.getElementById("gameArea");if(gameArea)gameArea.classList.remove("hidden");
+    syncScreenVisibility();
+    const shop=document.getElementById("halloweenSoulShop");if(shop)shop.classList.add("hidden");
+    const label=document.getElementById("stageLabel");if(label)label.style.display=halloweenWaveActive?"none":"";
+    updateSpecialGauge();
+  }
+  function renderRecords(){
+    const list=readSaves();
+    if(!list.length){body.innerHTML='<p>まだセーブ記録がありません。</p><p style="color:#cbd5e1;font-size:13px">戦闘中に⏸️ →「セーブする」から保存できます。</p>';return;}
+    body.innerHTML=list.slice().sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).map(rec=>{
+      const d=rec.data||{};
+      const mapName=d.halloweenWaveActive?"🎃 ハロウィンマップ":"🌿 通常マップ";
+      const stageText=d.halloweenWaveActive?"Wave "+(d.halloweenWave||1):"Stage "+(d.stage||1);
+      return '<article class="game-save-record"><strong>💾 '+esc(formatDate(rec.createdAt))+'</strong><p>'+esc(mapName)+' / '+esc(stageText)+'</p><div class="game-save-actions"><button data-load="'+esc(rec.id)+'">ロード</button><button data-delete="'+esc(rec.id)+'">削除</button></div></article>';
+    }).join("");
+  }
+  function openRecords(){
+    window.gameSavePaused=false;refreshPauseButton();
+    showOverlay("💾 セーブ記録",'<p>保存した記録を選んでね。</p>',false);renderRecords();
+  }
+  function showPauseMenu(){
+    window.gameSavePaused=true;pauseBtn.style.display="none";
+    showOverlay("⏸️ ポーズ中",'<p>ゲームは一時停止中です。</p><div class="game-save-actions"><button id="gameSaveResumeBtn">ゲームに戻る</button><button id="gameSaveStartSaveBtn">💾 セーブする</button></div>',true);
+  }
+  function confirmSave(){showOverlay("💾 セーブしますか？",'<p>現在の戦闘状態を保存します。</p><div class="game-save-actions"><button id="gameSaveConfirmYes">はい</button><button id="gameSaveConfirmNo">いいえ</button></div>',true);}
+  function commitSave(){
+    try{
+      const data=saveSnapshot(),list=readSaves();
+      list.unshift({id:String(Date.now())+"-"+Math.random().toString(36).slice(2,8),createdAt:new Date().toISOString(),data});
+      if(!writeSaves(list)){message.textContent="保存に失敗しました。空き容量を確認してください。";return;}
+      window.gameSavePaused=false;keys={};charging=false;currentScreen="title";syncScreenVisibility();
+      overlay.classList.add("hidden");pauseBtn.style.display="none";
+      const label=document.getElementById("stageLabel");if(label)label.style.display="";
+      const shop=document.getElementById("halloweenSoulShop");if(shop)shop.classList.add("hidden");
+      const result=document.getElementById("halloweenResultScreen");if(result)result.classList.add("hidden");
+    }catch(e){message.textContent="保存に失敗しました。ゲームはポーズしたままです。";console.error(e);}
+  }
+  function beginLoad(rec){
+    const d=rec.data||{};
+    showOverlay("ロード中",'<div id="gameSaveCountdown">3</div><p>保存した状態を復元しています</p>',false);
+    try{
+      restoreSnapshot(d);
+      let count=3;
+      if(countdownTimer)clearInterval(countdownTimer);
+      countdownTimer=setInterval(()=>{
+        count--;
+        const node=document.getElementById("gameSaveCountdown");
+        if(count>0){if(node)node.textContent=String(count);}
+        else if(count===0){if(node)node.textContent="START!";}
+        else{clearInterval(countdownTimer);countdownTimer=null;overlay.classList.add("hidden");window.gameSavePaused=false;keys={};charging=false;refreshPauseButton();}
+      },700);
+    }catch(e){window.gameSavePaused=true;showOverlay("⚠️ ロード失敗",'<p>読み込めませんでした。セーブ記録は削除されていません。</p>',false);console.error(e);}
+  }
+  document.getElementById("gameSaveOpenBtn").addEventListener("click",openRecords);
+  document.getElementById("gameSaveCloseBtn").addEventListener("click",hideOverlay);
+  pauseBtn.addEventListener("click",()=>{if(!isBattleActive())return;keys={};charging=false;window.gameSavePaused=true;showPauseMenu();});
+  body.addEventListener("click",e=>{
+    const t=e.target.closest("button");if(!t)return;
+    if(t.id==="gameSaveResumeBtn"){overlay.classList.add("hidden");window.gameSavePaused=false;keys={};charging=false;refreshPauseButton();return;}
+    if(t.id==="gameSaveStartSaveBtn"){confirmSave();return;}
+    if(t.id==="gameSaveConfirmNo"){showPauseMenu();return;}
+    if(t.id==="gameSaveConfirmYes"){commitSave();return;}
+    if(t.dataset.load){const rec=readSaves().find(x=>x.id===t.dataset.load);if(!rec)return;const d=rec.data||{};const label=d.halloweenWaveActive?"ハロウィンマップ Wave "+d.halloweenWave:"通常マップ Stage "+d.stage;showOverlay("ロード確認",'<p>このセーブデータをロードしますか？</p><p>'+esc(formatDate(rec.createdAt))+'</p><p>'+esc(label)+'</p><div class="game-save-actions"><button data-load-confirm="'+esc(rec.id)+'">ロードする</button><button id="gameSaveLoadNo">しない</button></div>',false);return;}
+    if(t.id==="gameSaveLoadNo"){renderRecords();return;}
+    if(t.dataset.loadConfirm){const rec=readSaves().find(x=>x.id===t.dataset.loadConfirm);if(rec)beginLoad(rec);return;}
+    if(t.dataset.delete){const rec=readSaves().find(x=>x.id===t.dataset.delete);if(!rec)return;showOverlay("削除確認",'<p>'+esc(formatDate(rec.createdAt))+' の記録を削除しますか？</p><div class="game-save-actions"><button data-delete-confirm="'+esc(rec.id)+'">削除する</button><button id="gameSaveDeleteNo">しない</button></div>',false);return;}
+    if(t.id==="gameSaveDeleteNo"){renderRecords();return;}
+    if(t.dataset.deleteConfirm){const next=readSaves().filter(x=>x.id!==t.dataset.deleteConfirm);if(writeSaves(next)){renderRecords();message.textContent="セーブ記録を削除しました。";}else message.textContent="削除に失敗しました。";}
+  });
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!overlay.classList.contains("hidden"))hideOverlay();});
+  setInterval(refreshPauseButton,500);
+})();
+</script>
 
 </body>
 </html>

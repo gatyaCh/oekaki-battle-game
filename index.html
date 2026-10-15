@@ -110,6 +110,8 @@ input[type="text"] { font-size: 18px; padding: 6px; border-radius: 4px; border: 
 #rikuPanel { top: 10px; border-color: #ff3366; }
 #adminPanel button, #kizukuPanel button, #rikuPanel button { width: 100%; margin: 2px 0; padding: 6px; font-size: 13px; text-align: left; background: #333; color: #fff; border: 1px solid #555; }
 #kizukuPanel button:hover { background: #0088aa; }
+#halloweenAdminPanel button{width:100%;margin:2px 0;padding:7px 6px;font-size:13px;text-align:left;background:#33233c;color:#fff;border:1px solid #6b4b78;border-radius:5px;}
+#halloweenAdminPanel button:hover{background:#5a2c60;border-color:#fb923c;}
 #rikuPanel button:hover { background: #aa0033; }
 #halloweenRateOverlay{position:fixed;inset:0;z-index:2000001;display:flex;align-items:center;justify-content:center;padding:16px;background:#080713dd;color:#fff}#halloweenRateCard{width:min(540px,96vw);max-height:92vh;overflow:auto;padding:20px;border:2px solid #fb923c;border-radius:16px;background:#21152f}#halloweenRateCard label{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0}#halloweenRateCard input{width:90px;padding:7px;border-radius:7px;color:#111;font-size:16px}#halloweenRateCard button{margin:5px;padding:8px 13px;border-radius:8px;font-weight:bold}#halloweenRouletteOverlay{position:fixed;inset:0;z-index:2000000;display:flex;align-items:center;justify-content:center;padding:16px;background:radial-gradient(circle,#45205e,#100d1d 72%);color:#fff}#halloweenRouletteCard{width:min(620px,96vw);max-height:92vh;overflow:auto;padding:22px;border:3px solid #ff9e2c;border-radius:18px;background:linear-gradient(145deg,#25133a,#111827);box-shadow:0 0 30px #f97316;text-align:center}#halloweenWheel{margin:18px auto;width:190px;height:190px;border-radius:50%;border:8px solid #ffd166;display:flex;align-items:center;justify-content:center;font-size:76px;background:conic-gradient(#fb923c 0 16.66%,#7c3aed 16.66% 33.33%,#16a34a 33.33% 50%,#db2777 50% 66.66%,#0891b2 66.66% 83.33%,#ca8a04 83.33% 100%);animation:halloweenSpin .5s linear infinite}#halloweenWheel.stopped{animation:none}@keyframes halloweenSpin{to{transform:rotate(360deg)}}#halloweenRouletteOverlay button{background:#9a3412;border:2px solid #fdba74;border-radius:9px;padding:10px 18px;font-size:17px;font-weight:bold}#adminRateEditor { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 300; background: #111; color: #fff; border: 2px solid #fff; border-radius: 8px; padding: 16px; width: 280px; max-height: 80vh; overflow-y: auto; text-align: left; }
 #specialModal {
@@ -4185,6 +4187,25 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
     <button id="admReset">🔄 管理者効果OFF</button>
   </div>
 </div>
+<div id="halloweenAdminPanel" class="hidden" style="position:fixed;left:10px;top:10px;z-index:2000005;width:min(290px,92vw);max-height:88vh;overflow:auto;padding:0;background:rgba(18,10,28,.97);color:#fff;border:2px solid #fb923c;border-radius:12px;text-align:left;font:13px sans-serif;box-shadow:0 0 20px #fb923c55;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:9px;background:#3b1d42;font-weight:bold;"><span>🎃 ハロウィン専用 ADMIN</span><button id="halloweenAdminClose" type="button" style="width:auto;margin:0;padding:3px 8px;">✕</button></div>
+  <div style="padding:8px;">
+    <div id="halloweenAdminStatus" style="padding:7px;margin-bottom:7px;border:1px solid #6b4b78;border-radius:7px;color:#fde68a;">Wave 1/8　💫 ソウル 0</div>
+    <b style="color:#fdba74;">🌊 ウェーブ操作</b>
+    <button id="hadmPrevWave">⬅️ 前のウェーブ</button><button id="hadmNextWave">➡️ 次のウェーブ</button><button id="hadmSetWave">🔢 ウェーブを指定</button>
+    <hr style="border-color:#5b3b61;">
+    <b style="color:#fdba74;">💫 ソウル</b>
+    <button id="hadmAddSouls">💫 ソウルを追加</button><button id="hadmSetSouls">✏️ ソウル数を指定</button>
+    <hr style="border-color:#5b3b61;">
+    <b style="color:#fdba74;">👑 プレイヤー設定</b>
+    <button id="hadmGod">💀 GOD MODE 切替</button><button id="hadmInvincible">🛡️ 無敵 切替</button><button id="hadmNoCooldown">⚡ CDなし 切替</button><button id="hadmAutoHeal">❤️ 自動回復 切替</button><button id="hadmAttackMax">⚔️ 攻撃力MAX 切替</button><button id="hadmHeal">❤️ 全回復</button>
+    <hr style="border-color:#5b3b61;">
+    <b style="color:#fdba74;">👹 敵・ボックス</b>
+    <button id="hadmSpawnBox">🎃 ハロウィンボックス召喚</button><button id="hadmEnemyHP">💀 敵HP変更</button><button id="hadmStopEnemies">🛑 敵停止 切替</button><button id="hadmEnemySpeed">🐌 敵速度変更</button><button id="hadmReset">🔄 管理者効果リセット</button>
+    <p style="font-size:11px;color:#d6c8dd;margin:7px 0 0;">※ ハロウィンマップ専用。通常マップのショップ・コイン・通常ボックス・必殺技操作は表示しません。</p>
+  </div>
+</div>
+<button id="halloweenAdminOpen" type="button" style="display:none;position:fixed;left:10px;top:10px;z-index:2000004;width:auto;padding:9px 12px;border:2px solid #fb923c;border-radius:10px;background:#3b1d42;color:#fff;font-size:14px;font-weight:bold;">🎃 ADMIN</button>
 <div id="kizukuPanel" class="hidden">
   <div style="padding: 7px; font-weight: bold; background: #005577; color: #00ffff;">⚡ KIZUKU2 ITEMS</div>
   <div style="padding: 6px;">
@@ -6348,6 +6369,7 @@ function halloweenSpawnWave() {
   // 🎃ボックスは通常アイテムではなくハロウィン専用ルーレット。
   halloweenItemBox={x:280+Math.random()*450,y:95+Math.random()*320,opened:false,item:"🎃"};
   halloweenShopOpen=false;halloweenSelectedShop=0;halloweenTransition=0;
+  const hadmStatus=document.getElementById("halloweenAdminStatus");if(hadmStatus)hadmStatus.textContent="Wave "+halloweenWave+"/8　💫 ソウル "+halloweenSouls;
   const label=document.getElementById("stageLabel");if(label)label.style.display="none";
   msg.textContent="子分とボスを倒そう！ 🎃ボックスからはハロウィン限定アイテムが出るよ。";
 }
@@ -6358,6 +6380,8 @@ function halloweenStart() {
   halloweenIntroFrame=240;halloweenStartBanner=0;halloweenResultShown=false;halloweenShieldFrames=0;
   halloweenMoveTarget=null;gameOver=false;stageClear=false;p.x=100;p.y=250;p.hp=p.max;
   attackCooldown=0;wandCooldown=0;slashTimer=0;dashTimer=0;dashVX=0;dashVY=0;carHitThisDash=false;
+  const hadmOpen=document.getElementById("halloweenAdminOpen");if(hadmOpen)hadmOpen.style.display=window.halloweenAdminUnlocked?"block":"none";
+  const hadmPanel=document.getElementById("halloweenAdminPanel");if(hadmPanel)hadmPanel.classList.add("hidden");
   atkBuff=1;shieldEquipped=false;shieldRemainingTime=0;shieldActive=false;revive=false;ghost=false;ghostTimer=0;bulletHellReady=false;
   const drawPanel=document.getElementById("draw"),countPanel=document.getElementById("count"),result=document.getElementById("result");
   if(drawPanel)drawPanel.classList.add("hidden");if(countPanel)countPanel.classList.add("hidden");if(result)result.textContent="";
@@ -7500,6 +7524,16 @@ loop();
       return;
     }
 
+    if (code === "admin1031") {
+      window.halloweenAdminUnlocked = true;
+      codeInput.value = "";
+      codeMsg.textContent = "";
+      codeBox.classList.add("hidden");
+      if (typeof window.openHalloweenAdminPanel === "function") window.openHalloweenAdminPanel();
+      msg.textContent = "🎃 ハロウィン専用管理者パネルを解放しました！";
+      return;
+    }
+
     if (code === "gaku admin") {
       adminUnlocked = true;
       codeBox.classList.add("hidden");
@@ -7512,6 +7546,93 @@ loop();
     }
   };
   const panel = document.getElementById("adminPanel");
+  const halloweenAdminPanel = document.getElementById("halloweenAdminPanel");
+  const halloweenAdminOpen = document.getElementById("halloweenAdminOpen");
+  const halloweenAdminStatus = document.getElementById("halloweenAdminStatus");
+  function updateHalloweenAdminStatus() {
+    if (halloweenAdminStatus) halloweenAdminStatus.textContent = "Wave " + halloweenWave + "/8　💫 ソウル " + halloweenSouls;
+  }
+  window.openHalloweenAdminPanel = function() {
+    if (!window.halloweenAdminUnlocked) return;
+    if (deviceMode === "mobile") { msg.textContent = "🎃 ハロウィン専用管理者パネルはPC版のみです。"; return; }
+    if (halloweenAdminPanel) halloweenAdminPanel.classList.remove("hidden");
+    updateHalloweenAdminStatus();
+  };
+  if (halloweenAdminOpen) halloweenAdminOpen.onclick = () => window.openHalloweenAdminPanel();
+  document.getElementById("halloweenAdminClose").onclick = () => {
+    if (halloweenAdminPanel) halloweenAdminPanel.classList.add("hidden");
+  };
+  if (halloweenAdminOpen && window.halloweenAdminUnlocked && halloweenWaveActive) halloweenAdminOpen.style.display = "block";
+  document.getElementById("hadmPrevWave").onclick = () => {
+    if (!halloweenWaveActive) { msg.textContent = "🎃 ハロウィンマップを開始してね。"; return; }
+    halloweenWave = Math.max(1, halloweenWave - 1); halloweenTransition = 0; halloweenShopOpen = false; halloweenSpawnWave(); halloweenStartBanner = 45; updateHalloweenAdminStatus();
+  };
+  document.getElementById("hadmNextWave").onclick = () => {
+    if (!halloweenWaveActive) { msg.textContent = "🎃 ハロウィンマップを開始してね。"; return; }
+    if (halloweenWave >= 8) { msg.textContent = "🏁 最終ウェーブです。"; return; }
+    halloweenWave++; halloweenTransition = 0; halloweenShopOpen = false; halloweenSpawnWave(); halloweenStartBanner = 45; updateHalloweenAdminStatus();
+  };
+  document.getElementById("hadmSetWave").onclick = () => {
+    if (!halloweenWaveActive) { msg.textContent = "🎃 ハロウィンマップを開始してね。"; return; }
+    const input = prompt("移動するウェーブを1〜8で入力", String(halloweenWave));
+    if (input === null) return;
+    const value = Number(input);
+    if (!Number.isInteger(value) || value < 1 || value > 8) { msg.textContent = "⚠️ 1〜8の整数を入力してね。"; return; }
+    halloweenWave = value; halloweenTransition = 0; halloweenShopOpen = false; halloweenSpawnWave(); halloweenStartBanner = 45; updateHalloweenAdminStatus();
+  };
+  document.getElementById("hadmAddSouls").onclick = () => {
+    if (!halloweenWaveActive) { msg.textContent = "🎃 ハロウィンマップを開始してね。"; return; }
+    const input = prompt("追加するソウル数（0以上）", "100");
+    if (input === null) return;
+    const value = Number(input);
+    if (!Number.isSafeInteger(value) || value < 0) { msg.textContent = "⚠️ 0以上の整数を入力してね。"; return; }
+    halloweenSouls += value; updateHalloweenAdminStatus(); msg.textContent = "💫 ソウル +" + value + "！";
+  };
+  document.getElementById("hadmSetSouls").onclick = () => {
+    if (!halloweenWaveActive) { msg.textContent = "🎃 ハロウィンマップを開始してね。"; return; }
+    const input = prompt("設定するソウル数（0以上）", String(halloweenSouls));
+    if (input === null) return;
+    const value = Number(input);
+    if (!Number.isSafeInteger(value) || value < 0) { msg.textContent = "⚠️ 0以上の整数を入力してね。"; return; }
+    halloweenSouls = value; updateHalloweenAdminStatus(); msg.textContent = "💫 ソウル数を " + value + " に設定したよ。";
+  };
+  document.getElementById("hadmGod").onclick = () => { god(!admin.god); msg.textContent = "💀 GOD MODE " + (admin.god ? "ON" : "OFF"); };
+  document.getElementById("hadmInvincible").onclick = () => { admin.invincible = !admin.invincible; msg.textContent = "🛡️ 無敵 " + (admin.invincible ? "ON" : "OFF"); };
+  document.getElementById("hadmNoCooldown").onclick = () => { admin.noCooldown = !admin.noCooldown; window.adminNoCooldown = admin.noCooldown; msg.textContent = "⚡ CDなし " + (admin.noCooldown ? "ON" : "OFF"); };
+  document.getElementById("hadmAutoHeal").onclick = () => { admin.autoHeal = !admin.autoHeal; msg.textContent = "❤️ 自動回復 " + (admin.autoHeal ? "ON" : "OFF"); };
+  document.getElementById("hadmAttackMax").onclick = () => { admin.attackMax = !admin.attackMax; msg.textContent = "⚔️ 攻撃力MAX " + (admin.attackMax ? "ON" : "OFF"); };
+  document.getElementById("hadmHeal").onclick = () => { p.hp = p.max; msg.textContent = "❤️ HP全回復！"; };
+  document.getElementById("hadmSpawnBox").onclick = () => {
+    if (!halloweenWaveActive) { msg.textContent = "🎃 ハロウィンマップを開始してね。"; return; }
+    halloweenItemBox = {x:Math.max(80,Math.min(820,p.x+100)),y:Math.max(100,Math.min(430,p.y)),opened:false,item:"🎃"};
+    msg.textContent = "🎃 ハロウィンボックスを召喚したよ！";
+  };
+  document.getElementById("hadmEnemyHP").onclick = () => {
+    if (!halloweenWaveActive) { msg.textContent = "🎃 ハロウィンマップを開始してね。"; return; }
+    const targets = halloweenEnemies.filter(e => e.alive);
+    if (!targets.length) { msg.textContent = "生きている敵がいないよ。"; return; }
+    const input = prompt("生きている敵のHPを設定（0で倒す）", String(Math.ceil(targets[0].hp)));
+    if (input === null) return;
+    const value = Number(input);
+    if (!Number.isFinite(value) || value < 0) { msg.textContent = "⚠️ 0以上の数字を入力してね。"; return; }
+    targets.forEach(e => { e.hp = Math.min(e.maxHp, value); if (e.hp <= 0) e.alive = false; });
+    msg.textContent = "💀 生きている敵のHPを変更したよ。";
+  };
+  document.getElementById("hadmStopEnemies").onclick = () => {
+    admin.enemyStopped = !admin.enemyStopped;
+    msg.textContent = "🛑 敵停止 " + (admin.enemyStopped ? "ON" : "OFF");
+  };
+  document.getElementById("hadmEnemySpeed").onclick = () => {
+    const input = prompt("敵速度倍率を0以上で入力", String(enemySpeedMul));
+    if (input === null) return;
+    const value = Number(input);
+    if (!Number.isFinite(value) || value < 0) { msg.textContent = "⚠️ 0以上の数字を入力してね。"; return; }
+    enemySpeedMul = value; msg.textContent = "🐌 敵速度を " + value + " 倍に変更したよ。";
+  };
+  document.getElementById("hadmReset").onclick = () => {
+    god(false); admin.invincible = false; admin.noCooldown = false; admin.autoHeal = false; admin.attackMax = false; admin.enemyStopped = false; enemySpeedMul = 1; window.adminNoCooldown = false;
+    msg.textContent = "🔄 ハロウィン管理者効果をリセットしたよ。";
+  };
   document.getElementById("adminHead").onclick = () => {
     // ヘッダーを押してもゲーム状態は変えず、閉じるボタンだけで閉じる
   };

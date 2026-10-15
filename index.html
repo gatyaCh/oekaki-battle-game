@@ -3760,6 +3760,20 @@ html body #draw:not(.hidden) #gearBtn {
 }
 </style>
 
+<style>
+#mapSelect{min-height:70vh;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;background:linear-gradient(145deg,#10251d,#172554);color:#fff;text-align:center}
+.map-select-card{width:min(760px,100%);padding:24px;border:1px solid #64748b;border-radius:20px;background:rgba(15,23,42,.94);box-shadow:0 16px 48px #0006}
+.map-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:22px}
+.map-option{padding:18px;border-radius:14px;background:#1e293b;border:1px solid #64748b}
+.map-option button{display:block;width:100%;margin:10px auto 0;padding:10px;border-radius:9px;cursor:pointer}
+.map-option .map-tutorial-button{background:#334155;color:#fff}
+.map-locked{opacity:.72;border-style:dashed}.map-lock-label{display:block;font-weight:700;color:#fbbf24;margin:12px}
+.map-locked button:disabled{cursor:not-allowed;opacity:.7}
+#mapTutorialConfirm{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:#0009;padding:16px}
+.map-confirm-card{width:min(360px,100%);padding:24px;text-align:center;color:#fff;background:#172033;border:1px solid #64748b;border-radius:16px}
+.map-confirm-card button{margin:8px;padding:10px 24px}
+@media(max-width:600px){.map-options{grid-template-columns:1fr}#mapSelect{padding:12px}.map-select-card{padding:16px}}
+</style>
 </head>
 <body>
 
@@ -3791,6 +3805,19 @@ html body #draw:not(.hidden) #gearBtn {
   <button onclick="chooseDevice('pc')" style="font-size:20px; padding:14px 28px;">💻 PC版</button>
   <button onclick="chooseDevice('mobile')" style="font-size:20px; padding:14px 28px;">📱 スマホ版</button>
 </div>
+<div id="mapSelect" class="hidden" aria-label="マップ選択">
+  <div class="map-select-card">
+    <h1>🗺️ マップ選択</h1><p>遊びたいマップを選んでね！</p>
+    <div class="map-options">
+      <div class="map-option"><h2>🌿 通常マップ</h2><p>いつものバトルに挑戦！</p>
+        <button onclick="selectNormalMap()">通常マップで遊ぶ</button>
+        <button class="map-tutorial-button" onclick="askMapTutorial('normal')">📘 チュートリアル</button>
+      </div>
+      <div class="map-option map-locked"><h2>🎃 ハロウィンマップ</h2><p>現在準備中です</p><span class="map-lock-label">🔒 ロック中</span><button disabled>まだ遊べません</button></div>
+    </div>
+  </div>
+</div>
+<div id="mapTutorialConfirm" class="hidden" role="dialog" aria-modal="true"><div class="map-confirm-card"><h2>📘 チュートリアル</h2><p>チュートリアルを見ますか？</p><button onclick="confirmMapTutorial(true)">はい</button><button onclick="confirmMapTutorial(false)">いいえ</button></div></div>
 <div id="draw" class="hidden">
   <h2>狙う武器を選択して描こう！</h2>
   <button id="gearBtn" title="キー設定">⚙️</button>
@@ -4160,7 +4187,8 @@ function syncScreenVisibility() {
     countdown: document.getElementById("count"),
     game: document.getElementById("gameArea"),
     result: document.getElementById("resultScreen"),
-    tutorialChoice: document.getElementById("tutorialChoice")
+    tutorialChoice: document.getElementById("tutorialChoice"),
+    mapSelect: document.getElementById("mapSelect")
   };
   Object.entries(screens).forEach(([name, el]) => {
     if (!el) return;
@@ -4419,8 +4447,8 @@ function chooseDevice(mode) {
     }
   }
 
-  // 機種選択後は、先にチュートリアルをするか確認する。
-  setScreen('tutorialChoice');
+  // 端末選択後はマップ選択へ。ハロウィンマップは公開前なのでロック。
+  setScreen('mapSelect');
 
   // スマホ版は横画面を推奨・可能ならロックする。
   if (mode === 'mobile' && screen.orientation && screen.orientation.lock) {
@@ -4439,6 +4467,10 @@ window.addEventListener('orientationchange', () => {
   }, 150);
 });
 
+let pendingMapTutorial = null;
+function selectNormalMap(){setScreen("draw");redrawCanvas();}
+function askMapTutorial(map){pendingMapTutorial=map;document.getElementById("mapTutorialConfirm").classList.remove("hidden");}
+function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").classList.add("hidden");if(!yes){setScreen("mapSelect");return;}if(pendingMapTutorial==="normal")setScreen("tutorialChoice");}
 function goDraw() {
   setScreen('draw');
   redrawCanvas();

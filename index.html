@@ -6512,17 +6512,18 @@ function halloweenUpdate() {
     }
   }
 
-  // 魔法の追尾弾
+  // 魔法の杖の弾：拡散弾は直進し、追尾しない。
   for(let i=halloweenMagicOrbs.length-1;i>=0;i--){
     const orb=halloweenMagicOrbs[i];orb.life-=1/60;
     if(orb.life<=0){halloweenMagicOrbs.splice(i,1);continue;}
-    const targets=halloweenEnemies.filter(e=>e.alive&&!(e.isGhostBoss&&e.ghostInvisible));
-    if(!targets.length){halloweenMagicOrbs.splice(i,1);continue;}
-    const target=targets.reduce((best,e)=>Math.hypot(e.x-orb.x,e.y-orb.y)<Math.hypot(best.x-orb.x,best.y-orb.y)?e:best,targets[0]);
-    const dx=target.x-orb.x,dy=target.y-orb.y,d=Math.hypot(dx,dy)||1,orbSpeed=4.5;
-    orb.vx=orb.vx*.9+dx/d*orbSpeed*.1;orb.vy=orb.vy*.9+dy/d*orbSpeed*.1;
     orb.x+=orb.vx*1.2;orb.y+=orb.vy*1.2;
-    if(Math.hypot(target.x-orb.x,target.y-orb.y)<target.r+8){if(Math.random()<=.75){target.hp-=orb.dmg;awardHalloweenTarget(target);}halloweenMagicOrbs.splice(i,1);}
+    let hit=null;
+    for(const target of halloweenEnemies){
+      if(!target.alive||(target.isGhostBoss&&target.ghostInvisible))continue;
+      if(Math.hypot(target.x-orb.x,target.y-orb.y)<target.r+8){hit=target;break;}
+    }
+    if(hit){hit.hp-=orb.dmg;awardHalloweenTarget(hit);halloweenMagicOrbs.splice(i,1);continue;}
+    if(orb.x<0||orb.x>900||orb.y<0||orb.y>500)halloweenMagicOrbs.splice(i,1);
   }
 
   // 🎃ボックスに触れると、ハロウィン専用景品ルーレットを開く。ソウルショップとは別。

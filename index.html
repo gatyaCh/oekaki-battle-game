@@ -4403,7 +4403,7 @@ function beginTutorialBattle(){
   tutorialActive=true; tutorialPhase="battle"; tutorialStep=0; tutorialSpecialUsed=false;
   stage=1; gameOver=false; stageClear=false; fullClear=false; isPausedForSpecial=false;
   setStageObstacles(1);
-  p.x=100;p.y=250;p.hp=200;p.max=200;p.invincibility=999999;
+  p.x=100;p.y=250;p.hp=150;p.max=150;p.invincibility=999999;
   enemy.x=700;enemy.y=250;enemy.maxHp=10000;enemy.hp=10000;enemy.spawnTimer=999999;
   minions=[];enemyBullets=[];magmaZones=[];bossSpecialState=null;bossSpecialTimer=0;bossSpecialUses={};bossSpecialCooldown=999999;
   treasureChest.opened=false;treasureChest.progress=0;
@@ -4462,7 +4462,7 @@ function tutorialNext(){
     tutorialPhase="canvas";tutorialStep=0;
     isPausedForSpecial=false;
     setScreen("draw");
-    p.hp=200;p.max=200;p.x=100;p.y=250;p.invincibility=0;
+    p.hp=150;p.max=150;p.x=100;p.y=250;p.invincibility=0;
     enemy.maxHp=stageBosses[0].hp;enemy.hp=enemy.maxHp;enemy.x=700;enemy.y=250;enemy.spawnTimer=0;
     minions=[];enemyBullets=[];magmaZones=[];bossSpecialState=null;bossSpecialCooldown=0;
     stage=1;gameOver=false;stageClear=false;fullClear=false;
@@ -4957,7 +4957,7 @@ let tutorialDelayTimer = null;
 let tutorialSpecialUsed = false;
 let stage = 1;
 let coins = 0;
-let p = { x: 100, y: 250, hp: 200, max: 200, r: 20, invincibility: 0 };
+let p = { x: 100, y: 250, hp: 150, max: 150, r: 20, invincibility: 0 };
 // Boss specs for 8 Stages
 const stageBosses = [
   { hp: 200, name: "🌳 Stage 1" },
@@ -5600,7 +5600,7 @@ function retryFromGameOver() {
   updateSpecialGauge();
   p.x = 100;
   p.y = 250;
-  p.hp = p.max = 200;
+  p.hp = p.max = 150;
   p.invincibility = 0;
   charging = false;
   charge = 0;
@@ -5651,7 +5651,7 @@ function resetGame() {
   specialGaugeDamage = 0;
   specialGaugeMaxed = false;
   updateSpecialGauge();
-  p.hp = 200; p.max = 200; p.x = 100; p.y = 250; p.invincibility = 0;
+  p.hp = 150; p.max = 150; p.x = 100; p.y = 250; p.invincibility = 0;
   enemy.maxHp = stageBosses[stage - 1].hp; enemy.hp = enemy.maxHp; enemy.x = 700; enemy.y = 250; enemy.spawnTimer = 0;
   minions = [];
   stage8TotalSummoned = 0;

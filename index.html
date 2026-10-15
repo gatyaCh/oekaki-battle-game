@@ -6263,7 +6263,7 @@ let halloweenWave = 1, halloweenSouls = 0, halloweenEnemies = [], halloweenShopO
 let halloweenIntroFrame = -1;
 let halloweenPumpkinBox = {x:450,y:250,opened:false};
 let halloweenBuff = { speed: 1, damage: 1, reduction: 1 };
-let halloweenPlayerBullets = [], halloweenEnemyBullets = [];
+let halloweenPlayerBullets = [], halloweenEnemyBullets = [], halloweenMagicOrbs = [];
 const halloweenMapLayouts = [
  {bg:"#202a26",ground:"#29372c",scenery:[["🌳",90,95],["🪦",240,390],["🪦",420,115],["🌳",780,380]],obstacles:[["🪦",240,390],["🪦",420,115],["🌳",90,95],["🌳",780,380]]},
  {bg:"#171a27",ground:"#252633",scenery:[["🏚️",120,110],["🏮",320,190],["🏮",620,340],["🪦",780,115]],obstacles:[["🏮",320,190],["🏮",620,340],["🪦",780,115]]},
@@ -6277,7 +6277,7 @@ const halloweenMapLayouts = [
 function halloweenSpawnWave() {
   const kind=(halloweenWave-1)%4;
   const counts=[7,5,6,5,7,5,6,4], count=counts[halloweenWave-1]||4;
-  halloweenEnemies=[];halloweenPlayerBullets=[];halloweenEnemyBullets=[];
+  halloweenEnemies=[];halloweenPlayerBullets=[];halloweenEnemyBullets=[];halloweenMagicOrbs=[];
   for(let i=0;i<count;i++){
     const boss=kind===3&&i===0, minion=kind===3&&i>0;
     const hp=boss?(halloweenWave===8?900:650):minion?65:kind===2?40:kind===1?30:20;
@@ -6290,7 +6290,7 @@ function halloweenSpawnWave() {
 }
 function halloweenStart() {
   halloweenWaveActive=true;halloweenWave=1;halloweenSouls=0;halloweenBuff={speed:1,damage:1,reduction:1};
-  halloweenPlayerBullets=[];halloweenEnemyBullets=[];
+  halloweenPlayerBullets=[];halloweenEnemyBullets=[];halloweenMagicOrbs=[];
   halloweenIntroFrame=90;halloweenMoveTarget=null;gameOver=false;stageClear=false;p.x=100;p.y=250;p.hp=p.max;
   const drawPanel=document.getElementById("draw"),countPanel=document.getElementById("count"),result=document.getElementById("result");
   if(drawPanel)drawPanel.classList.add("hidden");if(countPanel)countPanel.classList.add("hidden");if(result)result.textContent="";
@@ -6299,24 +6299,32 @@ function halloweenStart() {
 }
 function halloweenAttack() {
   if(!halloweenWaveActive||halloweenIntroFrame>=0||halloweenShopOpen||gameOver||stageClear||halloweenCooldown>0)return;
-  halloweenCooldown=weapon==="🏹"?18:12;
   const live=halloweenEnemies.filter(e=>e.alive);
+  const dx=mouse.x-p.x,dy=mouse.y-p.y,d=Math.hypot(dx,dy)||1;
+  const dmg=getDamage()*halloweenBuff.damage;
+  const award=(target)=>{if(target.hp<=0){target.hp=0;target.alive=false;halloweenSouls+=target.isBoss?15:2;msg.textContent=(target.isBoss?"👹 ボス撃破！":"敵を撃破！")+" 💫+"+(target.isBoss?15:2);}};
+  if(weapon==="🪄"){
+    if(wandCooldown>0){msg.textContent="⏳ 魔法の杖クールタイム中...";return;}
+    const angles=[-0.4,-0.2,0,0.2,0.4],base=Math.atan2(dy,dx);
+    for(const offset of angles)halloweenMagicOrbs.push({x:p.x,y:p.y,vx:Math.cos(base+offset)*2.5,vy:Math.sin(base+offset)*2.5,life:7,dmg:15*atkBuff*halloweenBuff.damage*(window.halloweenEffects&&window.halloweenEffects.candy>0?3:1)*(kizuku2Active?2:1)*(adminRankAbility==="damage4"?4:1)});
+    wandCooldown=window.adminNoCooldown?0:2.5;msg.textContent="🪄 追尾弾を5発発射！";return;
+  }
+  halloweenCooldown=weapon==="🏹"?18:12;
   if(weapon==="⚔️"){
     slashTimer=12;const reach=72+charge/2;
     const targets=live.filter(e=>Math.hypot(p.x-e.x,p.y-e.y)<=reach);
     if(!targets.length){msg.textContent="敵に近づいて攻撃してね！";return;}
-    for(const target of targets){target.hp-=Math.max(1,Math.round(getDamage()));if(target.hp<=0){target.hp=0;target.alive=false;halloweenSouls+=target.isBoss?10:2;}}
+    for(const target of targets){target.hp-=dmg;award(target);}
     msg.textContent="⚔️ 攻撃！ 💫 "+halloweenSouls;return;
   }
-  const dx=mouse.x-p.x,dy=mouse.y-p.y,d=Math.hypot(dx,dy)||1;
-  if(weapon==="🏹"){halloweenPlayerBullets.push({x:p.x,y:p.y,vx:dx/d*8,vy:dy/d*8,damage:getDamage()});msg.textContent="🏹 発射！";return;}
+  if(weapon==="🏹"){halloweenPlayerBullets.push({x:p.x,y:p.y,vx:dx/d*8,vy:dy/d*8,damage:dmg});msg.textContent="🏹 発射！";return;}
   if(weapon==="🚙"){
     dashTimer=18;dashVX=dx/d*10;dashVY=dy/d*10;carHitThisDash=false;
-    for(const target of live.filter(e=>Math.hypot(p.x-e.x,p.y-e.y)<118)){target.hp-=getDamage();if(target.hp<=0){target.hp=0;target.alive=false;halloweenSouls+=target.isBoss?10:2;}}
+    for(const target of live.filter(e=>Math.hypot(p.x-e.x,p.y-e.y)<118)){target.hp-=dmg;award(target);}
     msg.textContent="🚙 突進攻撃！ 💫 "+halloweenSouls;return;
   }
-  halloweenPlayerBullets.push({x:p.x,y:p.y,vx:dx/d*8,vy:dy/d*8,damage:getDamage()});
 }
+function awardHalloweenTarget(target){if(target.hp<=0&&target.alive){target.hp=0;target.alive=false;halloweenSouls+=target.isBoss?15:2;msg.textContent=(target.isBoss?"👹 ボス撃破！":"敵を撃破！")+" 💫+"+(target.isBoss?15:2);}}
 function halloweenUpdate() {
   if(halloweenIntroFrame>0){halloweenIntroFrame--;return;}
   if(halloweenIntroFrame===0)halloweenIntroFrame=-1;
@@ -6332,6 +6340,19 @@ function halloweenUpdate() {
   if(halloweenCooldown>0)halloweenCooldown--;
 
   if(halloweenCooldown>0)halloweenCooldown--;
+  if(wandCooldown>0)wandCooldown=Math.max(0,wandCooldown-1/60);
+
+  for(let i=halloweenMagicOrbs.length-1;i>=0;i--){
+    const orb=halloweenMagicOrbs[i];orb.life-=1/60;
+    if(orb.life<=0){halloweenMagicOrbs.splice(i,1);continue;}
+    const targets=halloweenEnemies.filter(e=>e.alive);
+    if(!targets.length){halloweenMagicOrbs.splice(i,1);continue;}
+    const target=targets.reduce((best,e)=>Math.hypot(e.x-orb.x,e.y-orb.y)<Math.hypot(best.x-orb.x,best.y-orb.y)?e:best,targets[0]);
+    const dx=target.x-orb.x,dy=target.y-orb.y,d=Math.hypot(dx,dy)||1,speed=4.5;
+    orb.vx=orb.vx*.9+dx/d*speed*.1;orb.vy=orb.vy*.9+dy/d*speed*.1;
+    orb.x+=orb.vx*1.2;orb.y+=orb.vy*1.2;
+    if(Math.hypot(target.x-orb.x,target.y-orb.y)<target.r+8){if(Math.random()<=.75){target.hp-=orb.dmg;awardHalloweenTarget(target);}halloweenMagicOrbs.splice(i,1);}
+  }
 
   // 🎃ボックスに触れると💫を獲得してショップを開く
   if(halloweenPumpkinBox&&!halloweenPumpkinBox.opened&&Math.hypot(p.x-halloweenPumpkinBox.x,p.y-halloweenPumpkinBox.y)<p.r+20){
@@ -6340,7 +6361,7 @@ function halloweenUpdate() {
 
   for(let i=halloweenPlayerBullets.length-1;i>=0;i--){
     const b=halloweenPlayerBullets[i];b.x+=b.vx;b.y+=b.vy;let hit=false;
-    for(const e of halloweenEnemies){if(!e.alive||Math.hypot(b.x-e.x,b.y-e.y)>=e.r)continue;e.hp-=b.damage;hit=true;if(e.hp<=0){e.hp=0;e.alive=false;halloweenSouls+=e.isBoss?15:2;msg.textContent=(e.isBoss?"👹 ボス撃破！":"敵を撃破！")+" 💫+"+(e.isBoss?15:2);}break;}
+    for(const e of halloweenEnemies){if(!e.alive||Math.hypot(b.x-e.x,b.y-e.y)>=e.r)continue;e.hp-=b.damage;hit=true;awardHalloweenTarget(e);break;}
     if(hit||b.x<0||b.x>900||b.y<0||b.y>500)halloweenPlayerBullets.splice(i,1);
   }
 
@@ -6370,6 +6391,7 @@ function halloweenDraw() {
   ctx.font="25px sans-serif";ctx.fillStyle="#fff";ctx.fillText("🎃 "+halloweenWave+"/8",450,28);
   ctx.font="36px serif";ctx.fillText(window.getSelectedSkinEmoji?window.getSelectedSkinEmoji():"😂",p.x,p.y);
   halloweenPlayerBullets.forEach(b=>{ctx.fillStyle="#fbbf24";ctx.beginPath();ctx.arc(b.x,b.y,5,0,Math.PI*2);ctx.fill();});
+  halloweenMagicOrbs.forEach(o=>{ctx.fillStyle="#a020f0";ctx.beginPath();ctx.arc(o.x,o.y,8,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#e080ff";ctx.lineWidth=2;ctx.stroke();ctx.lineWidth=1;});
   halloweenEnemyBullets.forEach(b=>{ctx.fillStyle="#fb7185";ctx.beginPath();ctx.arc(b.x,b.y,6,0,Math.PI*2);ctx.fill();});
   halloweenEnemies.forEach(e=>{if(!e.alive)return;ctx.font=e.isBoss?"50px serif":"29px serif";ctx.fillText(e.isBoss?(halloweenWave===8?"🧛":"👹"):"👾",e.x,e.y);ctx.fillStyle="#511";ctx.fillRect(e.x-28,e.y-e.r-15,56,7);ctx.fillStyle=e.isBoss?"#f59e0b":"#f55";ctx.fillRect(e.x-28,e.y-e.r-15,56*Math.max(0,e.hp/e.maxHp),7);if(e.isBoss){ctx.fillStyle="#fff";ctx.font="bold 14px sans-serif";ctx.fillText(halloweenWave===8?"FINAL BOSS":"BOSS",e.x,e.y-e.r-28);}});
   if(halloweenPumpkinBox&&!halloweenPumpkinBox.opened){ctx.font="38px serif";ctx.fillText("🎃",halloweenPumpkinBox.x,halloweenPumpkinBox.y);}

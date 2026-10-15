@@ -6338,8 +6338,6 @@ function halloweenUpdate() {
   if(keys[window.controlKeys.right]||keys.arrowright)p.x+=speed;
   p.x=Math.max(20,Math.min(880,p.x));p.y=Math.max(80,Math.min(480,p.y));
   if(halloweenCooldown>0)halloweenCooldown--;
-
-  if(halloweenCooldown>0)halloweenCooldown--;
   if(wandCooldown>0)wandCooldown=Math.max(0,wandCooldown-1/60);
 
   for(let i=halloweenMagicOrbs.length-1;i>=0;i--){
@@ -7108,6 +7106,12 @@ function updateRikuUI() {
 
     charging = false;
     charge = 0;
+
+    // ハロウィンマップでは通常マップの攻撃関数へ流さず、選択中の武器を専用処理へ渡す。
+    if (halloweenWaveActive) {
+      halloweenAttack();
+      return;
+    }
 
     if (weapon === "🪄") {
       if (wandCooldown <= 0) {

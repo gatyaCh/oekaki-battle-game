@@ -4124,6 +4124,7 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
       <p>1　HP20</p>
       <p>2　Lucky Boost</p>
       <p>3　？？？制作者「宝箱を開けまくれ📦️！！」</p>
+      <p>4　<span id="halloween1031Label">ハロウィンマップをプレイ！</span></p>
     </div>
   </div>
 </div>
@@ -5486,6 +5487,7 @@ function closeAdminRankPreview() {
 }
 
 function showResult(cleared) {
+  if(typeof window.clearHalloweenMatchRates==="function")window.clearHalloweenMatchRates();
   const shop = document.getElementById("shopModal");
   if (shop) shop.classList.add("hidden");
   fullClear = !!cleared;
@@ -6740,10 +6742,16 @@ function resetHalloweenBattleCodes(){
 function halloweenShowResult(cleared){
   if(halloweenResultShown)return;
   halloweenResultShown=true;gameOver=!cleared;stageClear=!!cleared;
+  let halloween1031NewlyUnlocked=false;
+  if(halloweenSouls>100){
+    let had1031=false;try{had1031=localStorage.getItem("oekakiHalloween1031Unlocked")==="true";}catch(e){}
+    if(!had1031){halloween1031NewlyUnlocked=true;try{localStorage.setItem("oekakiHalloween1031Unlocked","true");}catch(e){}}
+  }
+  if(typeof window.clearHalloweenMatchRates==="function")window.clearHalloweenMatchRates();
   const overlay=document.getElementById("halloweenResultScreen");
   if(!overlay)return;
   document.getElementById("halloweenResultTitle").textContent=cleared?"🎉 ハロウィンマップ CLEAR！":"💀 GAME OVER";
-  document.getElementById("halloweenResultSummary").textContent=cleared?"全8ウェーブを突破！最後までよく戦ったね。":"Wave "+halloweenWave+" で終了。強化を組み合わせてもう一度挑戦しよう！";
+  document.getElementById("halloweenResultSummary").textContent=(cleared?"全8ウェーブを突破！最後までよく戦ったね。":"Wave "+halloweenWave+" で終了。強化を組み合わせてもう一度挑戦しよう！")+(halloween1031NewlyUnlocked?"\n🎉 スペシャルコード「1031」を獲得！スペシャルコード欄の4番が更新されたよ。":"");
   document.getElementById("halloweenResultWave").textContent=halloweenWave+" / 8";
   document.getElementById("halloweenResultSouls").textContent=halloweenSouls+" 💫";
   document.getElementById("halloweenResultUpgrades").textContent="⚔️ 攻撃 Lv."+halloweenLevels.attack+"（×"+halloweenBuff.damage.toFixed(1)+"）　｜　🛡️ 防御 Lv."+halloweenLevels.defense+"（"+Math.round((1-halloweenBuff.reduction)*100)+"%軽減）　｜　🏃 移動速度 Lv."+halloweenLevels.speed+"（×"+halloweenBuff.speed.toFixed(1)+"）";
@@ -7572,6 +7580,17 @@ loop();
       return;
     }
 
+    if (code === "1031") {
+      let unlocked=false;try{unlocked=localStorage.getItem("oekakiHalloween1031Unlocked")==="true";}catch(e){}
+      if(!unlocked){codeMsg.textContent="🔒 1031はハロウィンマップで101ソウル以上を残して戦闘を終えると獲得できます。";return;}
+      if(typeof window.openHalloweenRateEditorForMatch==="function"){
+        codeInput.value="";codeMsg.textContent="";codeBox.classList.add("hidden");
+        window.openHalloweenRateEditorForMatch();
+        msg.textContent="🎃 1031：このマッチの🎃ボックス当選確率を設定してね。";
+      }else{codeMsg.textContent="⚠️ 確率設定画面を開けませんでした。";}
+      return;
+    }
+
     if (code === "admin1031") {
       window.halloweenAdminUnlocked = true;
       codeInput.value = "";
@@ -8001,6 +8020,9 @@ loop();
   function updateCodeUI(){
     const found=document.getElementById("specialCodeDiscovered");
     if(found) found.style.display=specialCodes.specialFound ? "inline" : "none";
+    const label=document.getElementById("halloween1031Label");
+    let unlocked=false;try{unlocked=localStorage.getItem("oekakiHalloween1031Unlocked")==="true";}catch(e){}
+    if(label)label.textContent=unlocked?"1031":"ハロウィンマップをプレイ！";
   }
 
   function showSpecialFound(){
@@ -8630,6 +8652,7 @@ const overlay=document.getElementById("halloweenRouletteOverlay"),wheel=document
 const pool=[{id:"potion",name:"🧙 魔女の回復薬",rate:41,desc:"30%でHP+100、50%でHP+50、20%で毒（5秒間、0.5秒ごとに1ダメージ）"},{id:"horse",name:"👻 ゴーストライダー",rate:10,desc:"5秒間、速度2.3倍・障害物すり抜け"},{id:"candy",name:"🍬 キャンディー",rate:18,desc:"4秒間、攻撃力と速度1.8倍"},{id:"bat",name:"🦇 コウモリシールド",rate:5,desc:"7秒間、受けるダメージを75%軽減"},{id:"allies",name:"🍭 トリック・オア・トリート",rate:25,desc:"仲間4体が7秒間、攻撃力7の弾を発射"},{id:"zombie",name:"🧟 イモータルゾンビ",rate:1,desc:"死亡時に発動。10秒間、無限HP・速度3倍・攻撃力2.3倍。敵の必殺技を封じる"}];
 let chosen=null,spinning=false,paused=false;const defaultRates=[41,10,18,5,25,1];
 const rateStorageKey="oekakiHalloweenRouletteRatesV1";
+let matchRateEditorMode=false;
 const rateInputs=document.getElementById("halloweenRateInputs"),rateTotal=document.getElementById("halloweenRateTotal"),rateMessage=document.getElementById("halloweenRateMessage"),rateOverlay=document.getElementById("halloweenRateOverlay");
 function readRates(){try{const saved=JSON.parse(localStorage.getItem(rateStorageKey)||"null");if(Array.isArray(saved)&&saved.length===pool.length&&saved.every(v=>Number.isFinite(v)&&v>=0)&&saved.reduce((a,b)=>a+b,0)===100)return saved;}catch(e){}return defaultRates.slice()}
 function updateRateTotal(){const inputs=[...rateInputs.querySelectorAll("input")],sum=inputs.reduce((n,i)=>n+Math.max(0,Number(i.value)||0),0);rateTotal.textContent="合計："+sum+"%";rateTotal.style.color=sum===100?"#86efac":"#fca5a5";return sum}
@@ -8637,14 +8660,24 @@ function renderRateInputs(){rateInputs.innerHTML="";pool.forEach((item,i)=>{cons
 function applyRates(rates){pool.forEach((item,i)=>item.rate=rates[i])}
 applyRates(readRates());renderRateInputs();
 document.getElementById("admHalloweenRates").addEventListener("click",()=>{renderRateInputs();rateMessage.textContent="";rateOverlay.classList.remove("hidden")});
-document.getElementById("halloweenRateSave").addEventListener("click",()=>{const inputs=[...rateInputs.querySelectorAll("input")],rates=inputs.map(i=>Number(i.value));if(rates.some(v=>!Number.isInteger(v)||v<0||v>100)){rateMessage.textContent="各確率は0〜100の整数で入力してね。";return}if(rates.reduce((a,b)=>a+b,0)!==100){rateMessage.textContent="合計が100%ではないので保存できないよ。";return}applyRates(rates);try{localStorage.setItem(rateStorageKey,JSON.stringify(rates));rateMessage.textContent="保存したよ！ 次のルーレットから反映されるよ。"}catch(e){rateMessage.textContent="確率は反映したけど、ブラウザへの保存ができなかったよ。"}renderRateInputs()});
+document.getElementById("halloweenRateSave").addEventListener("click",()=>{const inputs=[...rateInputs.querySelectorAll("input")],rates=inputs.map(i=>Number(i.value));if(rates.some(v=>!Number.isInteger(v)||v<0||v>100)){rateMessage.textContent="各確率は0〜100の整数で入力してね。";return}if(rates.reduce((a,b)=>a+b,0)!==100){rateMessage.textContent="合計が100%ではないので保存できないよ。";return}if(matchRateEditorMode){window.halloweenMatchRates=rates.slice();matchRateEditorMode=false;rateMessage.textContent="🎃 このマッチの🎃ボックスに確率を設定したよ！";rateOverlay.classList.add("hidden");return}applyRates(rates);try{localStorage.setItem(rateStorageKey,JSON.stringify(rates));rateMessage.textContent="保存したよ！ 次のルーレットから反映されるよ。"}catch(e){rateMessage.textContent="確率は反映したけど、ブラウザへの保存ができなかったよ。"}renderRateInputs()});
 document.getElementById("halloweenRateReset").addEventListener("click",()=>{applyRates(defaultRates);try{localStorage.removeItem(rateStorageKey)}catch(e){}renderRateInputs();rateMessage.textContent="初期設定（合計100%）に戻したよ。"});
-document.getElementById("halloweenRateClose").addEventListener("click",()=>rateOverlay.classList.add("hidden"));
+document.getElementById("halloweenRateClose").addEventListener("click",()=>{rateOverlay.classList.add("hidden");matchRateEditorMode=false;});
 const fx=window.halloweenEffects={horse:0,candy:0,bat:0,poison:0,allies:0,zombie:0,hasZombie:false,zombieUsed:false,allyCooldown:0,allyShots:[],allyPositions:[]};
 const adminPanelEl=document.getElementById("adminPanel");
 window.adminPanelInteracting=false;
 if(adminPanelEl){adminPanelEl.addEventListener("mouseenter",()=>{window.adminPanelInteracting=true});adminPanelEl.addEventListener("mouseleave",()=>{window.adminPanelInteracting=false});adminPanelEl.addEventListener("focusin",()=>{window.adminPanelInteracting=true});adminPanelEl.addEventListener("focusout",e=>{if(!adminPanelEl.contains(e.relatedTarget)&&!adminPanelEl.matches(":hover"))window.adminPanelInteracting=false});}
-function pick(){let r=Math.random()*100;for(const a of pool){r-=a.rate;if(r<0)return a}return pool[pool.length-1]}
+function pick(){const rates=Array.isArray(window.halloweenMatchRates)&&window.halloweenMatchRates.length===pool.length?window.halloweenMatchRates:pool.map(a=>a.rate);let r=Math.random()*100;for(let i=0;i<pool.length;i++){r-=rates[i];if(r<0)return {...pool[i],rate:rates[i]}}return {...pool[pool.length-1],rate:rates[rates.length-1]}}
+window.clearHalloweenMatchRates=function(){window.halloweenMatchRates=null;};
+window.openHalloweenRateEditorForMatch=function(){
+  let unlocked=false;try{unlocked=localStorage.getItem("oekakiHalloween1031Unlocked")==="true";}catch(e){}
+  if(!unlocked){msg.textContent="🔒 1031はまだ解放されていません。";return;}
+  const current=Array.isArray(window.halloweenMatchRates)&&window.halloweenMatchRates.length===pool.length?window.halloweenMatchRates:pool.map(a=>a.rate);
+  matchRateEditorMode=true;
+  rateInputs.innerHTML="";
+  pool.forEach((item,i)=>{const label=document.createElement("label");const name=document.createElement("span");name.textContent=item.name;const input=document.createElement("input");input.type="number";input.min="0";input.max="100";input.step="1";input.value=current[i];input.dataset.index=i;input.setAttribute("aria-label",item.name+"の確率");input.addEventListener("input",updateRateTotal);label.append(name,input);rateInputs.appendChild(label)});
+  updateRateTotal();rateMessage.textContent="このマッチだけに適用。各確率は整数、合計100%にして保存してね。";rateOverlay.classList.remove("hidden");
+};
 window.startHalloweenRoulette=function(){if(spinning||currentScreen!=="game")return;spinning=true;paused=true;overlay.classList.remove("hidden");useBtn.classList.add("hidden");result.textContent="抽選中…";status.textContent="🎰 ルーレット回転中！";wheel.classList.remove("stopped");chosen=pick();let n=0;const t=setInterval(()=>{wheel.textContent=pool[n++%pool.length].name.split(" ")[0];if(n>=22){clearInterval(t);spinning=false;wheel.classList.add("stopped");wheel.textContent=chosen.name.split(" ")[0];status.textContent="🎉 当選！";result.innerHTML="<b>"+chosen.name+"（"+chosen.rate+"%）</b><br>"+chosen.desc;useBtn.classList.remove("hidden")}},110)};
 document.getElementById("admHalloweenBox")?.addEventListener("click",()=>{if(currentScreen!=="game"){alert("ゲーム中にADMINパネルから召喚してね。");return}if(spinning)return;if(!Array.isArray(boxes))boxes=[];if(boxes.length===0)spawnBox();const slot=boxes.length>0?Math.floor(Math.random()*boxes.length):0;const pos=boxes[slot]||{x:p.x+60,y:p.y};boxes[slot]={x:pos.x,y:pos.y,item:"🎃"};msg.textContent="🎃 ハロウィンボックスを召喚！ 🎁の枠1つを置き換えたよ。";});
 useBtn.addEventListener("click",()=>{if(!chosen)return;const a=chosen;chosen=null;

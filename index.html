@@ -8759,8 +8759,8 @@ window.startHalloweenRoulette=function(){if(spinning||currentScreen!=="game")ret
 document.getElementById("admHalloweenBox")?.addEventListener("click",()=>{if(currentScreen!=="game"){alert("ゲーム中にADMINパネルから召喚してね。");return}if(spinning)return;if(!Array.isArray(boxes))boxes=[];if(boxes.length===0)spawnBox();const slot=boxes.length>0?Math.floor(Math.random()*boxes.length):0;const pos=boxes[slot]||{x:p.x+60,y:p.y};boxes[slot]={x:pos.x,y:pos.y,item:"🎃"};msg.textContent="🎃 ハロウィンボックスを召喚！ 🎁の枠1つを置き換えたよ。";});
 useBtn.addEventListener("click",()=>{if(!chosen)return;const a=chosen;chosen=null;
   if(typeof window.addInventoryItem==="function"){
-    window.addInventoryItem("🎃:"+a.id);
-    msg.textContent="🎃 "+a.name+" を保管庫に追加！使うタイミングを選べるよ。";
+    const inventoryMessage=window.addInventoryItem("🎃:"+a.id);
+    msg.textContent=inventoryMessage||("🎃 "+a.name+" を保管庫に追加！使うタイミングを選べるよ。");
   } else {
     msg.textContent="⚠️ アイテム保管庫を読み込めませんでした。";
   }
@@ -9344,8 +9344,7 @@ body.mobile-mode #battlePickupNotice {
     {id:"allies",name:"🍭 トリック・オア・トリート",desc:"仲間4体が7秒間援護攻撃"},
     {id:"zombie",name:"🧟 イモータルゾンビ",desc:"死亡時に発動。10秒間の強化"},
     {id:"potionLarge",name:"🧙 大回復薬",desc:"HPを100回復",sub:true},
-    {id:"potionSmall",name:"🧙 小回復薬",desc:"HPを50回復",sub:true},
-    {id:"potionPoison",name:"☠️ 毒薬",desc:"再開後5秒間、0.5秒ごとに1ダメージ",sub:true}
+    {id:"potionSmall",name:"🧙 小回復薬",desc:"HPを50回復",sub:true}
   ];
   let tab="normal",pendingUses=[],noticeReturnTab="normal";
   function inventory(){
@@ -9354,6 +9353,8 @@ body.mobile-mode #battlePickupNotice {
     if(!inv.normal)inv.normal={};if(!inv.halloween)inv.halloween={};
     normalItems.forEach(x=>{if(!Number.isFinite(inv.normal[x.id]))inv.normal[x.id]=0});
     [...halloweenItems,{id:"potion",name:"potion"}].forEach(x=>{if(!Number.isFinite(inv.halloween[x.id]))inv.halloween[x.id]=0});
+    // 旧バージョンで保管庫に残っていた毒薬の項目も表示・保持しない。
+    delete inv.halloween.potionPoison;
     return inv;
   }
   window.addInventoryItem=function(id){
@@ -9362,9 +9363,22 @@ body.mobile-mode #battlePickupNotice {
       const key=String(id).slice(3);
       if(key==="potion"){
         const r=Math.random()*100;
-        const sub=r<30?"potionLarge":r<80?"potionSmall":"potionPoison";
-        inv.halloween[sub]=(inv.halloween[sub]||0)+1;
-        inv.halloween.potion=(inv.halloween.potion||0)+1;
+        if(r<30){
+          inv.halloween.potionLarge=(inv.halloween.potionLarge||0)+1;
+          inv.halloween.potion=(inv.halloween.potion||0)+1;
+          return "🧙 大回復薬を保管庫に追加したよ！（HP+100）";
+        }
+        if(r<80){
+          inv.halloween.potionSmall=(inv.halloween.potionSmall||0)+1;
+          inv.halloween.potion=(inv.halloween.potion||0)+1;
+          return "🧙 小回復薬を保管庫に追加したよ！（HP+50）";
+        }
+        // 毒を引いた場合は保管庫に入れず、即時に5秒間の毒効果を発動。
+        const fx=window.halloweenEffects||(window.halloweenEffects={});
+        fx.poison=5;
+        const notice=document.getElementById("msg");
+        if(notice)notice.textContent="☠️ 毒を引いた！その場で毒が発動！5秒間、0.5秒ごとに1ダメージ！";
+        return "☠️ 毒を引いた！その場で毒が発動！5秒間、0.5秒ごとに1ダメージ！";
       }else if(["horse","candy","bat","allies","zombie"].includes(key)){
         inv.halloween[key]=(inv.halloween[key]||0)+1;
       }
@@ -9374,7 +9388,7 @@ body.mobile-mode #battlePickupNotice {
   };
   function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
   function count(key){return Math.max(0,Number(inventory()[tab][key])||0);}
-  function totalPotion(){const h=inventory().halloween;return (h.potionLarge||0)+(h.potionSmall||0)+(h.potionPoison||0);}
+  function totalPotion(){const h=inventory().halloween;return (h.potionLarge||0)+(h.potionSmall||0);}
   function row(item,sub){
     const n=item.id==="potion"?totalPotion():count(item.id);
     const disabled=n<1||(item.id==="🗿"&&revive);
@@ -9387,7 +9401,7 @@ body.mobile-mode #battlePickupNotice {
     if(tab==="normal"){
       itemsNode.innerHTML=normalItems.map(x=>row(x,false)).join("");
     }else{
-      const main='<div class="game-inventory-row"><div class="game-inventory-name"><strong>🧙 魔女の回復薬</strong><small>大回復薬・小回復薬・毒薬の合計</small><small>所持数：'+totalPotion()+'</small></div><span>↓</span></div>';
+      const main='<div class="game-inventory-row"><div class="game-inventory-name"><strong>🧙 魔女の回復薬</strong><small>大回復薬30%・小回復薬50%・毒20%（毒は引いた瞬間に発動）</small><small>保管庫の回復薬：'+totalPotion()+'個</small></div><span>↓</span></div>';
       itemsNode.innerHTML=main+halloweenItems.map(x=>row(x,!!x.sub)).join("");
     }
     footer.innerHTML='<button id="gameInventoryPrevBtn" '+(tab==="normal"?'disabled':'')+'>←</button><button id="gameInventoryNextBtn" '+(tab==="halloween"?'disabled':'')+'>→</button><button id="gameInventoryCloseBtn">閉じる（戦闘再開）</button>';
@@ -9405,12 +9419,11 @@ body.mobile-mode #battlePickupNotice {
     let key=id,bag=tab==="normal"?inv.normal:inv.halloween;
     if(tab==="halloween"&&id==="potionLarge")key="potionLarge";
     if(tab==="halloween"&&id==="potionSmall")key="potionSmall";
-    if(tab==="halloween"&&id==="potionPoison")key="potionPoison";
     if(!Number.isFinite(bag[key])||bag[key]<1)return;
     if(id==="🗿"&&revive)return;
     bag[key]--;
     pendingUses.push({tab,id});
-    const names={ "❤":"❤ 回復アイテム","💪":"💪 攻撃力アップ","🛡️":"🛡️ シールド","🗿":"🗿 復活","👻":"👻 ゴースト","🔮":"🔮 弾幕","⚡️":"⚡️ 雷撃",horse:"👻 ゴーストライダー",candy:"🍬 キャンディー",bat:"🦇 コウモリシールド",allies:"🍭 トリック・オア・トリート",zombie:"🧟 イモータルゾンビ",potionLarge:"🧙 大回復薬",potionSmall:"🧙 小回復薬",potionPoison:"☠️ 毒薬"};
+    const names={ "❤":"❤ 回復アイテム","💪":"💪 攻撃力アップ","🛡️":"🛡️ シールド","🗿":"🗿 復活","👻":"👻 ゴースト","🔮":"🔮 弾幕","⚡️":"⚡️ 雷撃",horse:"👻 ゴーストライダー",candy:"🍬 キャンディー",bat:"🦇 コウモリシールド",allies:"🍭 トリック・オア・トリート",zombie:"🧟 イモータルゾンビ",potionLarge:"🧙 大回復薬",potionSmall:"🧙 小回復薬"};
     showUsedNotice(names[id]||id);
   }
   function applyUse(use){
@@ -9427,7 +9440,6 @@ body.mobile-mode #battlePickupNotice {
       const fx=window.halloweenEffects||(window.halloweenEffects={});
       if(id==="potionLarge")p.hp=Math.min(p.max,p.hp+100);
       else if(id==="potionSmall")p.hp=Math.min(p.max,p.hp+50);
-      else if(id==="potionPoison")fx.poison=5;
       else if(id==="horse")fx.horse=5;
       else if(id==="candy")fx.candy=4;
       else if(id==="bat")fx.bat=7;

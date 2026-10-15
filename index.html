@@ -6280,17 +6280,27 @@ const halloweenMapLayouts = [
 ];
 function halloweenSpawnWave() {
   const kind=(halloweenWave-1)%4;
-  const counts=[7,5,6,5,7,5,6,4], count=counts[halloweenWave-1]||4;
   halloweenEnemies=[];halloweenPlayerBullets=[];halloweenEnemyBullets=[];halloweenMagicOrbs=[];
-  for(let i=0;i<count;i++){
-    const boss=kind===3&&i===0, minion=kind===3&&i>0;
-    const hp=boss?(halloweenWave===8?900:650):minion?65:kind===2?40:kind===1?30:20;
-    halloweenEnemies.push({x:boss?700:620+(i%3)*75,y:boss?250:150+Math.floor(i/3)*95,hp,maxHp:hp,r:boss?36:17,kind,atk:boss?20:minion?8:5,cooldown:45+i*9,alive:true,isBoss:boss,isMinion:minion});
+  // 通常マップの初期配置に合わせ、ボスは右側中央、子分は右側上下から登場。
+  // ハロウィンでは毎ウェーブ、ボス・子分・通常敵を全員出現させる。
+  const bossHp=halloweenWave===8?900:650;
+  halloweenEnemies.push({x:700,y:250,hp:bossHp,maxHp:bossHp,r:36,kind,atk:20,cooldown:45,isBoss:true,isMinion:false,alive:true});
+  const minionHp=[42,48,53,53,53,64,75,97][halloweenWave-1]||42;
+  const minionType=halloweenWave===6?"magma":halloweenWave===7?"wind":halloweenWave===8?"shield_minion":"normal";
+  const minionCount=halloweenWave===3||halloweenWave===7||halloweenWave===8?3:2;
+  for(let i=0;i<minionCount;i++){
+    const y=minionCount===2?(i===0?150:350):[120,250,380][i];
+    halloweenEnemies.push({x:halloweenWave>=7?750:650,y,hp:minionHp,maxHp:minionHp,r:halloweenWave===8?20:18,kind,atk:halloweenWave>=6?15:8,cooldown:85+i*20,alive:true,isBoss:false,isMinion:true,minionType});
+  }
+  const regularCount=[4,3,3,2,4,3,2,1][halloweenWave-1]||2;
+  for(let i=0;i<regularCount;i++){
+    const hp=kind===2?40:kind===1?30:20;
+    halloweenEnemies.push({x:600+(i%2)*65,y:110+Math.floor(i/2)*105,hp,maxHp:hp,r:17,kind,atk:5,cooldown:60+i*12,alive:true,isBoss:false,isMinion:false});
   }
   halloweenPumpkinBox={x:Math.random()*400+250,y:Math.random()*260+120,opened:false};
   halloweenShopOpen=false;halloweenSelectedShop=0;halloweenTransition=0;
   const label=document.getElementById("stageLabel");if(label)label.style.display="none";
-  msg.textContent="敵を全滅させよう！";
+  msg.textContent="敵と子分、ボスを全滅させよう！";
 }
 function halloweenStart() {
   halloweenWaveActive=true;halloweenWave=1;halloweenSouls=0;halloweenBuff={speed:1,damage:1,reduction:1};
@@ -6304,7 +6314,10 @@ function halloweenStart() {
 function halloweenAttack() {
   if(!halloweenWaveActive||halloweenIntroFrame>=0||halloweenShopOpen||gameOver||stageClear||halloweenCooldown>0)return;
   const live=halloweenEnemies.filter(e=>e.alive);
-  const dx=mouse.x-p.x,dy=mouse.y-p.y,d=Math.hypot(dx,dy)||1;
+  const nearest=live.slice().sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y))[0];
+  let dx=mouse.x-p.x,dy=mouse.y-p.y;
+  if((!Number.isFinite(dx)||!Number.isFinite(dy)||(Math.abs(dx)+Math.abs(dy)<1))&&nearest){dx=nearest.x-p.x;dy=nearest.y-p.y;}
+  const d=Math.hypot(dx,dy)||1;
   const dmg=getDamage()*halloweenBuff.damage;
   const award=(target)=>{if(target.hp<=0){target.hp=0;target.alive=false;halloweenSouls+=target.isBoss?15:2;msg.textContent=(target.isBoss?"👹 ボス撃破！":"敵を撃破！")+" 💫+"+(target.isBoss?15:2);}};
   if(weapon==="🪄"){

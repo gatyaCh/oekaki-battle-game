@@ -8827,14 +8827,15 @@ return origUpdate.apply(this,arguments)};
    {id:'halloween_witch',name:'魔女',icon:'🧙‍♀️',condition:'Wave 4のゴーストボスを倒そう！',category:'期間限定'},
    {id:'halloween_vampire',name:'ヴァンパイア',icon:'🧛',condition:'Wave 8のボスを倒そう！',category:'期間限定'},
    {id:'halloween_oni',name:'鬼',icon:'👹',condition:'ハロウィンマップのWave 1〜8ですべてのボスを倒そう！',category:'期間限定'},
-   {id:'halloween_coffin',name:'棺桶',icon:'⚰️',condition:'通常マップの8ステージで死亡すると解放！',category:'限定スキン2'},
-   {id:'halloween_gravestone',name:'墓石',icon:'🪦',condition:'ハロウィンマップで死亡した回数が合計5回になると解放！',category:'限定スキン2'},
-   {id:'halloween_immortal_zombie',name:'イモータルゾンビ',icon:'🧟',condition:'ハロウィンマップでイモータルゾンビを使うと解放！',category:'限定スキン2'},
+   {id:'halloween_coffin',name:'棺桶',icon:'⚰️',condition:'通常マップの8ステージで死亡すると解放！',category:'期間限定'},
+   {id:'halloween_gravestone',name:'墓石',icon:'🪦',condition:'ハロウィンマップで死亡した回数が合計5回になると解放！',category:'期間限定'},
+   {id:'halloween_immortal_zombie',name:'イモータルゾンビ',icon:'🧟',condition:'ハロウィンマップでイモータルゾンビを使うと解放！',category:'期間限定'},
+   {id:'limited2_moon',name:'ムーン',icon:'🌙',condition:'すべての限定スキンをゲットすると解放！',category:'限定スキン2'},
    {id:'limited2_unknown1',name:'？',icon:'？',condition:'ゲット方法：未定',category:'限定スキン2'},
    {id:'limited2_unknown2',name:'？',icon:'？',condition:'ゲット方法：未定',category:'限定スキン2'},
-   {id:'limited2_moon',name:'ムーン',icon:'🌙',condition:'すべての限定スキンをゲットすると解放！',category:'限定スキン2'},
-   {id:'limited2_unknown2',name:'？',icon:'？',condition:'ゲット方法：未定',category:'限定スキン2'},
-   {id:'limited2_unknown3',name:'？',icon:'？',condition:'ゲット方法：未定',category:'限定スキン2'}
+   {id:'limited2_unknown3',name:'？',icon:'？',condition:'ゲット方法：未定',category:'限定スキン2'},
+   {id:'limited2_unknown4',name:'？',icon:'？',condition:'ゲット方法：未定',category:'限定スキン2'},
+   {id:'limited2_unknown5',name:'？',icon:'？',condition:'ゲット方法：未定',category:'限定スキン2'}
   ];
  let data={selected:'white',unlocked:['white','blue','black'],gamerHint:false};
  try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v&&typeof v==='object')data={...data,...v};}catch(e){}

@@ -6746,6 +6746,7 @@ function halloweenShowResult(cleared){
   if(halloweenSouls>100){
     let had1031=false;try{had1031=localStorage.getItem("oekakiHalloween1031Unlocked")==="true";}catch(e){}
     if(!had1031){halloween1031NewlyUnlocked=true;try{localStorage.setItem("oekakiHalloween1031Unlocked","true");}catch(e){}}
+    const halloween1031Label=document.getElementById("halloween1031Label");if(halloween1031Label)halloween1031Label.textContent="1031";
   }
   if(typeof window.clearHalloweenMatchRates==="function")window.clearHalloweenMatchRates();
   const overlay=document.getElementById("halloweenResultScreen");

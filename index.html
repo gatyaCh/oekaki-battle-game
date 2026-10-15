@@ -6698,6 +6698,45 @@ document.addEventListener("keydown",e=>{
   if((gameOver||stageClear)&&(k==="r"||k==="escape")){e.preventDefault();if(k==="r")halloweenRetry();else halloweenBackToMap();return;}
   if(halloweenShopOpen){if(["1","2","3","g"].includes(k)){e.preventDefault();halloweenShopAction(k);}return;}
 });
+function resetHalloweenBattleCodes(){
+  // ハロウィン戦闘が終わったら、コードで解放・有効化した状態を次の戦闘へ持ち越さない。
+  window.halloweenAdminUnlocked = false;
+  window.adminUnlocked = false;
+  kizuku2Active = false;
+  rikuActive = false;
+  adminRankCodeUsed = false;
+  adminRankAbility = "";
+  adminGuardBlocksLeft = 0;
+  adminAttackTimer = 0;
+  adminAttackBullets = [];
+  if (window.godModeFunction) window.godModeFunction(false);
+  if (window.admin && typeof window.admin === "object") {
+    Object.keys(window.admin).forEach(k => { window.admin[k] = false; });
+  }
+  window.adminNoCooldown = false;
+  enemySpeedMul = 1;
+  isGatlingActive = false;
+  gatlingTimer = 0;
+  isBlackholeActive = false;
+  blackholeTimer = 0;
+  bigSlashAnimTimer = 0;
+  ["adminPanel","kizukuPanel","rikuPanel","halloweenAdminPanel","specialCodeBox"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add("hidden");
+  });
+  const openButton = document.getElementById("halloweenAdminOpen");
+  if (openButton) openButton.style.display = "none";
+  ["specialCodeInput","publicSpecialCodeInput","halloweenAccessCode"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+  ["specialCodeMsg","publicSpecialCodeMsg","halloweenAccessMessage"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = "";
+  });
+  const choice = document.getElementById("adminRankChoiceModal");
+  if (choice) choice.style.display = "none";
+}
 function halloweenShowResult(cleared){
   if(halloweenResultShown)return;
   halloweenResultShown=true;gameOver=!cleared;stageClear=!!cleared;
@@ -6708,6 +6747,7 @@ function halloweenShowResult(cleared){
   document.getElementById("halloweenResultWave").textContent=halloweenWave+" / 8";
   document.getElementById("halloweenResultSouls").textContent=halloweenSouls+" 💫";
   document.getElementById("halloweenResultUpgrades").textContent="⚔️ 攻撃 Lv."+halloweenLevels.attack+"（×"+halloweenBuff.damage.toFixed(1)+"）　｜　🛡️ 防御 Lv."+halloweenLevels.defense+"（"+Math.round((1-halloweenBuff.reduction)*100)+"%軽減）　｜　🏃 移動速度 Lv."+halloweenLevels.speed+"（×"+halloweenBuff.speed.toFixed(1)+"）";
+  resetHalloweenBattleCodes();
   overlay.classList.remove("hidden");
   const mobileControls=document.getElementById("mobileControls");if(mobileControls){mobileControls.style.display="none";mobileControls.style.pointerEvents="none";}
 }

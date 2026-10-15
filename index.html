@@ -5102,6 +5102,13 @@ document.addEventListener("keydown", e => {
   }
   const k = e.key.toLowerCase();
   keys[k] = true;
+  if (halloweenWaveActive) {
+    if (k === window.controlKeys.attack || window.attackExtraKeys?.includes(k)) {
+      e.preventDefault();
+      if (!e.repeat) halloweenAttack();
+    }
+    return;
+  }
   if ((k === "q" || k === "Q") && !isPausedForSpecial && !gameOver && !stageClear) {
     if (specialStock > 0) {
       openSpecialCanvas();
@@ -5128,6 +5135,7 @@ document.addEventListener("keyup", e => {
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
   const k = e.key.toLowerCase();
   keys[k] = false;
+  if (halloweenWaveActive) return;
   if (k === window.controlKeys.attack || window.attackExtraKeys?.includes(k)) {
     e.preventDefault();
     releaseAttackCharge();
@@ -6267,12 +6275,14 @@ const halloweenMapLayouts = [
 ];
 function halloweenSpawnWave() {
   const kind=(halloweenWave-1)%4;
-  const counts=[7,5,6,5,7,5,6,5], count=counts[halloweenWave-1];
+  // 1,5: 7体 / 2,6: 5体 / 3,7: 6体 / 4: ボス+4体 / 8: ボス+3体
+  const counts=[7,5,6,5,7,5,6,4], count=counts[halloweenWave-1];
   halloweenEnemies=[];
   for(let i=0;i<count;i++){
     const boss=kind===3&&i===0;
-    const hp=boss?500:kind===2?40:kind===1?30:20;
-    halloweenEnemies.push({x:510+(i%3)*120,y:85+Math.floor(i/3)*100,hp,maxHp:hp,r:boss?26:17,kind,atk:boss?20:5,cooldown:50+i*9,alive:true,isBoss:boss});
+    const minion=kind===3&&i>0;
+    const hp=boss?(halloweenWave===8?900:650):minion?65:kind===2?40:kind===1?30:20;
+    halloweenEnemies.push({x:510+(i%3)*120,y:85+Math.floor(i/3)*100,hp,maxHp:hp,r:boss?34:17,kind,atk:boss?20:minion?8:5,cooldown:50+i*9,alive:true,isBoss:boss,isMinion:minion});
   }
   halloweenPumpkinBox={x:Math.random()*560+260,y:Math.random()*330+90,opened:false};
   halloweenShopOpen=false;halloweenTransition=0;
@@ -6287,6 +6297,18 @@ function halloweenStart() {
   const label=document.getElementById("stageLabel");if(label)label.style.display="none";
   document.getElementById("gameArea").classList.remove("hidden");currentScreen="game";syncScreenVisibility();halloweenSpawnWave();
 }
+function halloweenAttack() {
+  if(!halloweenWaveActive||halloweenIntroFrame>=0||halloweenShopOpen||gameOver||stageClear||halloweenCooldown>0)return;
+  halloweenCooldown=18;
+  const range=150;
+  const targets=halloweenEnemies.filter(e=>e.alive&&Math.hypot(p.x-e.x,p.y-e.y)<=range).sort((a,b)=>Math.hypot(p.x-a.x,p.y-a.y)-Math.hypot(p.x-b.x,p.y-b.y));
+  if(!targets.length){msg.textContent="敵に近づいて攻撃してね！";return;}
+  const target=targets[0];
+  const damage=Math.max(1,Math.round(25*(typeof atkBuff==="number"?atkBuff:1)*halloweenBuff.damage));
+  target.hp-=damage;
+  msg.textContent=(target.isBoss?"👹 ボスに":"敵に")+" "+damage+" ダメージ！";
+  if(target.hp<=0){target.hp=0;target.alive=false;halloweenSouls+=target.isBoss?10:2;msg.textContent=(target.isBoss?"👹 ボス撃破！":"敵を撃破！")+" 💫+"+(target.isBoss?10:2);}
+}
 function halloweenUpdate() {
   if(halloweenIntroFrame>=0){halloweenIntroFrame++;if(halloweenIntroFrame>=240)halloweenIntroFrame=-1;return;}
   if(halloweenTransition>0){if(--halloweenTransition===0){halloweenWave++;halloweenSpawnWave();}return;}
@@ -6298,6 +6320,11 @@ function halloweenUpdate() {
   if(keys[window.controlKeys.right]||keys.arrowright)p.x+=speed;
   p.x=Math.max(20,Math.min(880,p.x));p.y=Math.max(20,Math.min(480,p.y));
   if(halloweenCooldown>0)halloweenCooldown--;
+  // Fキーで近くの🎃ボックスを開け、💫を獲得
+  const chestKey=(window.controlKeys.chest||"f").toLowerCase();
+  if(keys[chestKey]&&halloweenPumpkinBox&&!halloweenPumpkinBox.opened&&Math.hypot(p.x-halloweenPumpkinBox.x,p.y-halloweenPumpkinBox.y)<58){
+    halloweenPumpkinBox.opened=true;halloweenSouls+=10;msg.textContent="🎃ボックス発見！ 💫+10";
+  }
   halloweenEnemies.forEach(e=>{if(!e.alive)return;e.cooldown--;const d=Math.hypot(p.x-e.x,p.y-e.y)||1;
     if(e.kind===1||e.kind===2||(e.kind===3&&e!==halloweenEnemies[0])){e.x+=(p.x-e.x)/d*(e.kind===2?1.6:1);e.y+=(p.y-e.y)/d*(e.kind===2?1.6:1);}
     if(d<e.r+p.r&&e.cooldown<=0){p.hp-=e.atk*halloweenBuff.reduction;e.cooldown=60;}
@@ -6306,7 +6333,7 @@ function halloweenUpdate() {
   if(p.hp<=0){p.hp=0;gameOver=true;msg.textContent="🎃 ハロウィンモード GAME OVER";}
   if(halloweenEnemies.every(e=>!e.alive)){
     if(halloweenWave===8){stageClear=true;msg.textContent="🎃 8ウェーブクリア！ソウル："+halloweenSouls;}
-    else if(!halloweenShopOpen){halloweenShopOpen=true;msg.textContent="ソウル "+halloweenSouls+"｜1回復20  2移動強化30  3攻撃＆移動25  4被ダメ軽減40  5分身50  6ゾンビ80｜Gで次へ";}
+    else if(!halloweenShopOpen){halloweenShopOpen=true;msg.textContent="💫 "+halloweenSouls+"｜1回復20  2移動強化30  3攻撃＆移動25  4被ダメ軽減40  5分身50  6ゾンビ80｜Gで次へ";}
   }
   document.getElementById("hpText").textContent=Math.ceil(p.hp)+"/"+p.max;
 }
@@ -6324,9 +6351,9 @@ function halloweenDraw() {
   ctx.font="36px serif";ctx.fillText(window.getSelectedSkinEmoji?window.getSelectedSkinEmoji():"😂",p.x,p.y);
   halloweenEnemies.forEach(e=>{if(!e.alive)return;ctx.font=e.isBoss?"38px serif":"29px serif";ctx.fillText(e.isBoss?"👹":"👾",e.x,e.y);ctx.fillStyle="#511";ctx.fillRect(e.x-23,e.y-e.r-13,46,6);ctx.fillStyle=e.isBoss?"#f59e0b":"#f55";ctx.fillRect(e.x-23,e.y-e.r-13,46*Math.max(0,e.hp/e.maxHp),6);});
   if(halloweenPumpkinBox&&!halloweenPumpkinBox.opened){ctx.font="38px serif";ctx.fillText("🎃",halloweenPumpkinBox.x,halloweenPumpkinBox.y);}
-  ctx.fillStyle="rgba(5,7,18,.82)";ctx.fillRect(650,12,235,58);ctx.fillStyle="#fff";ctx.textAlign="left";ctx.font="bold 18px sans-serif";ctx.fillText("❤️ HP "+Math.ceil(p.hp)+"/"+p.max,664,35);ctx.fillText("🎃 ソウル "+halloweenSouls,664,57);ctx.textAlign="center";
-  if(halloweenShopOpen){ctx.fillStyle="rgba(0,0,0,.8)";ctx.fillRect(190,110,520,275);ctx.fillStyle="#fff";["SOUL SHOP","1 🧪 回復 20","2 🐴 移動×2.3 30","3 🍬 攻撃＆移動 25","4 🦇 被ダメ軽減 40","5 🎭 分身 50","6 🧟 ゾンビ 80","G ゲートへ"].forEach((t,i)=>ctx.fillText(t,450,140+i*30));}
-  if(gameOver||stageClear){ctx.fillStyle="rgba(0,0,0,.82)";ctx.fillRect(130,150,640,200);ctx.fillStyle=stageClear?"#fbbf24":"#fca5a5";ctx.font="34px sans-serif";ctx.fillText(stageClear?"🎉 ハロウィンマップ CLEAR！":"🎃 GAME OVER",450,215);ctx.fillStyle="#fff";ctx.font="21px sans-serif";ctx.fillText("獲得ソウル："+halloweenSouls,450,260);ctx.font="17px sans-serif";ctx.fillText("R：もう一度プレイ　／　Esc：マップ選択へ",450,305);}
+  ctx.fillStyle="rgba(5,7,18,.82)";ctx.fillRect(650,12,235,58);ctx.fillStyle="#fff";ctx.textAlign="left";ctx.font="bold 18px sans-serif";ctx.fillText("❤️ HP "+Math.ceil(p.hp)+"/"+p.max,664,35);ctx.fillText("💫 "+halloweenSouls,664,57);ctx.textAlign="center";
+  if(halloweenShopOpen){ctx.fillStyle="rgba(0,0,0,.8)";ctx.fillRect(190,110,520,275);ctx.fillStyle="#fff";["💫 ショップ","1 🧪 回復 20","2 🐴 移動×2.3 30","3 🍬 攻撃＆移動 25","4 🦇 被ダメ軽減 40","5 🎭 分身 50","6 🧟 ゾンビ 80","G 次へ"].forEach((t,i)=>ctx.fillText(t,450,140+i*30));}
+  if(gameOver||stageClear){ctx.fillStyle="rgba(0,0,0,.82)";ctx.fillRect(130,150,640,200);ctx.fillStyle=stageClear?"#fbbf24":"#fca5a5";ctx.font="34px sans-serif";ctx.fillText(stageClear?"🎉 ハロウィンマップ CLEAR！":"🎃 GAME OVER",450,215);ctx.fillStyle="#fff";ctx.font="21px sans-serif";ctx.fillText("獲得💫："+halloweenSouls,450,260);ctx.font="17px sans-serif";ctx.fillText("R：もう一度プレイ　／　Esc：マップ選択へ",450,305);}
   if(halloweenTransition>0){ctx.fillStyle="#000";ctx.fillRect(0,0,900,500);ctx.fillStyle="#fff";ctx.font="28px sans-serif";ctx.fillText("次のウェーブへ…",450,250);}
   if(halloweenIntroFrame>=0){
     ctx.fillStyle="rgba(0,0,0,.78)";ctx.fillRect(0,0,900,500);
@@ -6339,7 +6366,7 @@ function halloweenShopAction(k){
   const costs={"1":20,"2":30,"3":25,"4":40,"5":50,"6":80};
   if(k==="g"){halloweenShopOpen=false;halloweenTransition=120;msg.textContent="ゲートへ！次のウェーブまで2秒…";return;}
   if(!costs[k])return;
-  if(halloweenSouls<costs[k]){msg.textContent="ソウル不足！必要："+costs[k]+"／所持："+halloweenSouls;return;}
+  if(halloweenSouls<costs[k]){msg.textContent="💫不足！必要："+costs[k]+"／所持："+halloweenSouls;return;}
   halloweenSouls-=costs[k];
   if(k==="1")p.hp=Math.min(p.max,p.hp+70);
   if(k==="2")halloweenBuff.speed=2.3;
@@ -6347,7 +6374,7 @@ function halloweenShopAction(k){
   if(k==="4")halloweenBuff.reduction=.25;
   if(k==="5")halloweenBuff.clones=4;
   if(k==="6")halloweenBuff.zombie=true;
-  msg.textContent="購入完了！残りソウル："+halloweenSouls+"。ほかの商品かGで次へ。";
+  msg.textContent="購入完了！残り💫："+halloweenSouls+"。ほかの商品かGで次へ。";
 }
 document.addEventListener("keydown",e=>{if(!halloweenWaveActive)return;const k=e.key.toLowerCase();if(halloweenShopOpen){if(["1","2","3","4","5","6","g"].includes(k)){e.preventDefault();halloweenShopAction(k);}return;}});
 const halloweenCanvas=document.getElementById("game");

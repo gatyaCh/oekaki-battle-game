@@ -6384,18 +6384,29 @@ const halloweenMapLayouts = [
 function halloweenSpawnWave() {
   const layout = halloweenMapLayouts[halloweenWave - 1] || halloweenMapLayouts[0];
   halloweenMapObstacles = layout.obstacles.map(([type,x,y]) => ({type,x,y}));
-  halloweenPumpkinBox = {x:450,y:250,opened:false};
-  const kind = (halloweenWave - 1) % 4;
-  const count = [7,5,6,5,7,5,6,5][halloweenWave - 1];
+  // Match the regular game's initial minion counts by stage. Stage 4 and 8 use their
+  // established multi-spawn waves rather than arbitrary fixed enemy totals.
+  const minionCounts = [2,2,3,6,2,2,2,2];
+  const minionCount = minionCounts[halloweenWave-1] || 2;
+  const spawnPoints = [[590,115],[735,115],[845,115],[590,245],[735,245],[845,245],[590,375],[735,375],[845,375],[520,175],[520,325]];
   halloweenEnemies = [];
-  // Keep spawns on the right side, clear of the player, obstacles and pumpkin box.
-  const spawnPoints = [[590,115],[735,115],[845,115],[590,245],[735,245],[845,245],[590,375],[735,375]];
-  for (let i=0;i<count;i++) {
-    const [x,y] = spawnPoints[i];
-    const isBoss = i===0;
-    const hp = isBoss ? 500 : kind===2 ? 40 : kind===1 ? 30 : 20;
-    halloweenEnemies.push({x,y,hp,maxHp:hp,r:isBoss?26:17,kind:isBoss?3:kind,atk:isBoss?20:5,cooldown:50+i*9,alive:true,isBoss});
+  const bossPoint = [450,100];
+  const bossHp = [200,240,280,320,360,420,480,600][halloweenWave-1] || 200;
+  halloweenEnemies.push({x:bossPoint[0],y:bossPoint[1],hp:bossHp,maxHp:bossHp,r:25,kind:0,atk:5+halloweenWave*2,cooldown:50,alive:true,isBoss:true});
+  for(let i=0;i<minionCount;i++){
+    const [x,y]=spawnPoints[i];
+    const hp=[42,48,53,58,53,64,75,97][halloweenWave-1]||42;
+    halloweenEnemies.push({x,y,hp,maxHp:hp,r:18,kind:1,atk:5+halloweenWave,cooldown:65+i*9,alive:true,isBoss:false});
   }
+  // Randomize the pumpkin box, retrying positions that collide with the player,
+  // obstacles or any enemy spawn.
+  let bx=450,by=250,attempt=0;
+  do{
+    bx=70+Math.random()*760;by=90+Math.random()*340;attempt++;
+  }while(attempt<100&&(Math.hypot(bx-p.x,by-p.y)<115||
+    halloweenMapObstacles.some(o=>Math.hypot(bx-o.x,by-o.y)<85)||
+    halloweenEnemies.some(e=>Math.hypot(bx-e.x,by-e.y)<90)));
+  halloweenPumpkinBox={x:bx,y:by,opened:false};
   halloweenShopOpen=false; halloweenTransition=0;
   const stageLabel=document.getElementById("stageLabel");
   if(stageLabel){stageLabel.textContent="";stageLabel.style.display="none";}
@@ -6411,6 +6422,19 @@ function halloweenStart() {
   if(stageLabel)stageLabel.style.display="none";
   document.getElementById("gameArea").classList.remove("hidden");currentScreen="game";syncScreenVisibility();halloweenSpawnWave();
 }
+function halloweenAttackNearest(){
+  if(!halloweenWaveActive||gameOver||stageClear||halloweenShopOpen||halloweenCooldown>0)return;
+  halloweenCooldown=18;
+  let target=null,best=Infinity;
+  halloweenEnemies.forEach(e=>{if(!e.alive)return;const d=Math.hypot(p.x-e.x,p.y-e.y);if(d<best){best=d;target=e;}});
+  const range=weapon==="🪄"?300:weapon==="🚙"?135:100;
+  if(target&&best<=range){
+    const damage=(weapon==="🪄"?28:weapon==="🚙"?22:18)*halloweenBuff.damage;
+    target.hp-=damage;
+    if(target.hp<=0){target.alive=false;halloweenSouls+=2;msg.textContent=target.isBoss?"ボスを撃破！ソウル +2":"子分を撃破！ソウル +2";}
+    else msg.textContent="攻撃！";
+  }else msg.textContent="敵に近づいて攻撃しよう！";
+}
 function halloweenUpdate() {
   if(halloweenIntroFrame>=0){halloweenIntroFrame++;if(halloweenIntroFrame>=260)halloweenIntroFrame=-1;return;}
   if(halloweenTransition>0){if(--halloweenTransition===0){halloweenWave++;halloweenSpawnWave();}return;}
@@ -6419,10 +6443,10 @@ function halloweenUpdate() {
   if(halloweenBuff.ghostRideTimer>0&&--halloweenBuff.ghostRideTimer===0){halloweenBuff.ghostRide=false;halloweenBuff.speed=1;}
   const speed=3*halloweenBuff.speed;
   const oldX=p.x, oldY=p.y;
-  const up=keys[window.controlKeys.up]||keys.arrowup||keys.w;
-  const down=keys[window.controlKeys.down]||keys.arrowdown||keys.s;
-  const left=keys[window.controlKeys.left]||keys.arrowleft||keys.a;
-  const right=keys[window.controlKeys.right]||keys.arrowright||keys.d;
+  const up=!!(keys[String(window.controlKeys.up||"arrowup").toLowerCase()]||keys.arrowup||keys.w||keys["ArrowUp"]);
+  const down=!!(keys[String(window.controlKeys.down||"arrowdown").toLowerCase()]||keys.arrowdown||keys.s||keys["ArrowDown"]);
+  const left=!!(keys[String(window.controlKeys.left||"arrowleft").toLowerCase()]||keys.arrowleft||keys.a||keys["ArrowLeft"]);
+  const right=!!(keys[String(window.controlKeys.right||"arrowright").toLowerCase()]||keys.arrowright||keys.d||keys["ArrowRight"]);
   if(up)p.y-=speed;if(down)p.y+=speed;if(left)p.x-=speed;if(right)p.x+=speed;
   if(!up&&!down&&!left&&!right&&halloweenMoveTarget){
     const dx=halloweenMoveTarget.x-p.x,dy=halloweenMoveTarget.y-p.y,d=Math.hypot(dx,dy);
@@ -6500,7 +6524,7 @@ function halloweenShopAction(k){
 document.addEventListener("keydown",e=>{
   if(!halloweenWaveActive)return;
   const k=e.key.toLowerCase();
-  if(["arrowup","arrowdown","arrowleft","arrowright","w","a","s","d"].includes(k))e.preventDefault();
+  if(["arrowup","arrowdown","arrowleft","arrowright","w","a","s","d"].includes(k)){keys[k]=true;e.preventDefault();}
   if(gameOver||stageClear){if(k==="r"){e.preventDefault();halloweenStart();}else if(k==="escape"){e.preventDefault();halloweenWaveActive=false;gameOver=false;stageClear=false;setScreen("mapSelect");}return;}
   if(halloweenShopOpen){if(["1","2","3","4","5","6","g"].includes(k)){e.preventDefault();halloweenShopAction(k);}return;}
   const attackKeys=[String(window.controlKeys.attack||"e").toLowerCase()," ","enter"];
@@ -6548,6 +6572,7 @@ if(halloweenCanvas)halloweenCanvas.addEventListener("click",e=>{
 });
 
 document.addEventListener("keyup",e=>{const k=e.key.toLowerCase();if(["arrowup","arrowdown","arrowleft","arrowright","w","a","s","d"].includes(k))keys[k]=false;});
+window.addEventListener("blur",()=>{if(halloweenWaveActive)Object.keys(keys).forEach(k=>keys[k]=false);});
 function update() {
   if (halloweenWaveActive) { halloweenUpdate(); return; }
   // タイトル・描画・カウントダウン中は戦闘処理を完全に停止。

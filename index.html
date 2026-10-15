@@ -6336,11 +6336,11 @@ function halloweenSpawnWave() {
     const pos=regularPositions[i%regularPositions.length];
     halloweenEnemies.push({x:pos.x,y:pos.y,hp,maxHp:hp,r:17,kind,atk:5,cooldown:60+i*12,alive:true,isBoss:false,isMinion:false});
   }
-  const rolledItem=typeof weightedItem==="function"&&window.itemRates?weightedItem():"❤";
-  halloweenItemBox={x:280+Math.random()*450,y:95+Math.random()*320,opened:false,item:rolledItem==="🎃"?"❤":rolledItem};
+  // 🎃ボックスの中身は通常アイテム抽選ではなく、ハロウィン専用ルーレット。
+  halloweenItemBox={x:280+Math.random()*450,y:95+Math.random()*320,opened:false,item:"🎃"};
   halloweenShopOpen=false;halloweenSelectedShop=0;halloweenTransition=0;
   const label=document.getElementById("stageLabel");if(label)label.style.display="none";
-  msg.textContent="敵・子分・ボスを全滅させよう！ 🎁は通常のアイテムボックスだよ。";
+  msg.textContent="敵・子分・ボスを全滅させよう！ 🎃ボックスからはハロウィン限定アイテムが出るよ。";
 }
 function halloweenStart() {
   halloweenWaveActive=true;window.halloweenWaveActive=true;halloweenWave=1;halloweenSouls=0;
@@ -6399,7 +6399,16 @@ function awardHalloweenTarget(target){
   target.hp=0;target.alive=false;halloweenSouls+=reward;
   msg.textContent=(target.isBoss?"👹 ボス撃破！":target.isMinion?"👾 子分撃破！":"敵を撃破！")+" 💫+"+reward+"（合計 "+halloweenSouls+"）";
 }
+function halloweenResolvePlayerDeath(){
+  if(p.hp>0)return false;
+  const fx=window.halloweenEffects||{};
+  if(fx.hasZombie&&!fx.zombieUsed){fx.hasZombie=false;fx.zombieUsed=true;fx.zombie=10;p.hp=1;p.invincibility=0;msg.textContent="🧟 イモータルゾンビ発動！10秒間、無限HP・速度3倍・攻撃力2.3倍！";return true;}
+  if(revive){revive=false;p.hp=Math.max(1,Math.ceil(p.max*.35));halloweenEnemyBullets=[];msg.textContent="🗿 復活！ HPが回復した！";return true;}
+  p.hp=0;gameOver=true;msg.textContent="💀 ハロウィンマップ GAME OVER";halloweenShowResult(false);return true;
+}
 function halloweenUpdate() {
+  const rouletteOverlay=document.getElementById("halloweenRouletteOverlay");
+  if(rouletteOverlay&&!rouletteOverlay.classList.contains("hidden"))return;
   if(halloweenIntroFrame>0){halloweenIntroFrame--;return;}
   if(halloweenIntroFrame===0){halloweenIntroFrame=-1;halloweenStartBanner=45;return;}
   if(halloweenTransition>0){
@@ -6409,8 +6418,13 @@ function halloweenUpdate() {
   }
   if(halloweenStartBanner>0){halloweenStartBanner--;return;}
   if(gameOver||stageClear||!halloweenWaveActive)return;
+  if(p.hp<=0&&halloweenResolvePlayerDeath())return;
   if(halloweenShopOpen)return;
-  const speed=3*halloweenBuff.speed;
+  const halloweenFx=window.halloweenEffects||{};
+  let speed=3*halloweenBuff.speed;
+  if(halloweenFx.candy>0)speed*=1.8;
+  if(halloweenFx.horse>0)speed*=2.3;
+  if(halloweenFx.zombie>0)speed*=3;
   if(keys[window.controlKeys.up]||keys.arrowup)p.y-=speed;
   if(keys[window.controlKeys.down]||keys.arrowdown)p.y+=speed;
   if(keys[window.controlKeys.left]||keys.arrowleft)p.x-=speed;
@@ -6434,21 +6448,17 @@ function halloweenUpdate() {
     if(Math.hypot(target.x-orb.x,target.y-orb.y)<target.r+8){if(Math.random()<=.75){target.hp-=orb.dmg;awardHalloweenTarget(target);}halloweenMagicOrbs.splice(i,1);}
   }
 
-  // 🎁は通常マップと同じく、接触すると中身を取得する。ソウルショップは開かない。
+  // 🎃ボックスに触れると、ハロウィン専用景品ルーレットを開く。ソウルショップとは別。
   if(halloweenItemBox&&!halloweenItemBox.opened&&Math.hypot(p.x-halloweenItemBox.x,p.y-halloweenItemBox.y)<p.r+22){
     halloweenItemBox.opened=true;
-    const item=halloweenItemBox.item||"❤";
-    if(item==="❤"){p.hp=Math.min(p.max,p.hp+p.max*.2);msg.textContent="🎁 アイテムGET！ HP回復";}
-    else if(item==="💪"){atkBuff+=.1;msg.textContent="🎁 アイテムGET！ 攻撃力UP";}
-    else if(item==="🛡️"){halloweenShieldFrames=420;msg.textContent="🎁 アイテムGET！ 7秒間シールド";}
-    else if(item==="🗿"){revive=true;msg.textContent="🎁 アイテムGET！ 復活を1回獲得";}
-    else if(item==="👻"){ghost=true;ghostTimer=5;halloweenEnemyBullets=[];msg.textContent="🎁 アイテムGET！ 5秒間ゴースト";}
-    else if(item==="🔮"){bulletHellReady=true;msg.textContent="🎁 アイテムGET！ 次の攻撃が弾幕になる";}
-    else if(item==="⚡️"||item==="⚡"){
-      const target=halloweenEnemies.filter(e=>e.alive).sort((a,b)=>Math.hypot(p.x-a.x,p.y-a.y)-Math.hypot(p.x-b.x,p.y-b.y))[0];
-      if(target){target.hp-=target.maxHp*.05;awardHalloweenTarget(target);}
-      msg.textContent="🎁 アイテムGET！ 雷攻撃";
-    }else{p.hp=Math.min(p.max,p.hp+p.max*.2);msg.textContent="🎁 アイテムGET！ HP回復";}
+    if(typeof window.startHalloweenRoulette==="function"){
+      msg.textContent="🎃 ハロウィンボックス！ 限定アイテムを抽選中…";
+      window.startHalloweenRoulette();
+    }else{
+      halloweenItemBox.opened=false;
+      msg.textContent="⚠️ ハロウィンルーレットを読み込めなかったよ。";
+    }
+    return;
   }
 
   // プレイヤーの弾
@@ -6462,7 +6472,9 @@ function halloweenUpdate() {
   // そのほかのボスは通常どおりプレイヤーを追い、子分・通常敵は右半分に展開。
   for(const e of halloweenEnemies){
     if(!e.alive)continue;
-    if(e.isGhostBoss){
+    if(e.isGhostBoss&&(window.halloweenEffects||{}).zombie>0){
+      e.ghostInvisible=false;e.ghostInvisibleFrames=0;e.ghostCycleFrames=0;
+    }else if(e.isGhostBoss){
       if(e.ghostInvisible){
         e.ghostInvisibleFrames--;
         if(e.ghostInvisibleFrames<=0){e.ghostInvisible=false;e.ghostInvisibleFrames=0;e.ghostCycleFrames=0;msg.textContent="👻 ゴーストボスが姿を現した！攻撃再開！";}
@@ -6495,12 +6507,10 @@ function halloweenUpdate() {
     if(Math.hypot(b.x-p.x,b.y-p.y)<p.r){
       halloweenEnemyBullets.splice(i,1);
       if(ghostTimer>0)continue;
-      const shieldMul=halloweenShieldFrames > 0 ? 0.25 : 1;
+      if((window.halloweenEffects||{}).zombie>0){p.hp=Math.max(1,p.hp);continue;}
+      const shieldMul=(halloweenShieldFrames>0||(window.halloweenEffects||{}).bat>0)?0.25:1;
       p.hp-=b.atk*halloweenBuff.reduction*shieldMul;
-      if(p.hp<=0){
-        if(revive){revive=false;p.hp=Math.max(1,Math.ceil(p.max*.35));halloweenEnemyBullets=[];msg.textContent="🗿 復活！ HPが回復した！";}
-        else{p.hp=0;gameOver=true;msg.textContent="💀 ハロウィンマップ GAME OVER";halloweenShowResult(false);return;}
-      }
+      if(p.hp<=0){halloweenResolvePlayerDeath();if(gameOver)return;}
     }else if(b.x<0||b.x>900||b.y<0||b.y>500)halloweenEnemyBullets.splice(i,1);
   }
 
@@ -6524,6 +6534,7 @@ function halloweenDraw() {
   ctx.font="36px serif";ctx.fillText(window.getSelectedSkinEmoji?window.getSelectedSkinEmoji():"😂",p.x,p.y);
   halloweenPlayerBullets.forEach(b=>{ctx.fillStyle="#fbbf24";ctx.beginPath();ctx.arc(b.x,b.y,5,0,Math.PI*2);ctx.fill();});
   halloweenMagicOrbs.forEach(o=>{ctx.fillStyle="#a020f0";ctx.beginPath();ctx.arc(o.x,o.y,8,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#e080ff";ctx.lineWidth=2;ctx.stroke();ctx.lineWidth=1;});
+  if((window.halloweenEffects||{}).allies>0){(window.halloweenEffects.allyPositions||[]).forEach(pos=>{ctx.font="25px serif";ctx.fillText("🍭",pos.x,pos.y);});(window.halloweenEffects.allyShots||[]).forEach(b=>{ctx.fillStyle="#f0abfc";ctx.beginPath();ctx.arc(b.x,b.y,5,0,Math.PI*2);ctx.fill();});}
   halloweenEnemyBullets.forEach(b=>{ctx.fillStyle="#fb7185";ctx.beginPath();ctx.arc(b.x,b.y,6,0,Math.PI*2);ctx.fill();});
   halloweenEnemies.forEach(e=>{
     if(!e.alive)return;
@@ -8434,8 +8445,36 @@ if(a.id==="zombie"){fx.hasZombie=true;fx.zombieUsed=false;msg.textContent="🧟 
 overlay.classList.add("hidden");paused=false;if(window.gameAudioSfx)window.gameAudioSfx("special")});
 const origDamage=window.damagePlayer;if(origDamage)window.damagePlayer=function(dmg){if(fx.zombie>0)return;if(fx.bat>0)dmg*=0.25;origDamage.call(this,dmg)};
 const origUpdate=window.update;if(origUpdate)window.update=function(){if(paused)return;const step=1/60;if(currentScreen==="game"&&!gameOver&&!stageClear){["horse","candy","bat","poison","allies","zombie"].forEach(k=>{if(fx[k]>0)fx[k]=Math.max(0,fx[k]-step)});if(fx.poison>0&&Math.floor((5-fx.poison)*2)>Math.floor((5-fx.poison-step)*2)){const hurt=Math.min(1,p.hp);p.hp-=hurt;totalDamageTaken+=hurt}
-if(fx.allies>0){fx.allyCooldown-=step;if(fx.allyCooldown<=0){fx.allyCooldown=.65;const ts=[enemy,...minions].filter(e=>e&&e.hp>0).sort((x,y)=>Math.hypot(x.x-p.x,x.y-p.y)-Math.hypot(y.x-p.x,y.y-p.y));if(ts[0])fx.allyShots.push({x:fx.allyPositions[0].x,y:fx.allyPositions[0].y,tx:ts[0].x,ty:ts[0].y,target:ts[0],life:25})}fx.allyShots=fx.allyShots.filter(b=>{b.life--;b.x+=(b.tx-b.x)*.22;b.y+=(b.ty-b.y)*.22;if(Math.hypot(b.x-b.tx,b.y-b.ty)<16){if(b.target===enemy)damageEnemy(10);else if(minions.includes(b.target))damageMinion(b.target,10);return false}return b.life>0})}else{fx.allyShots=[];fx.allyPositions=[]}
-if(fx.zombie>0){p.hp=Math.max(1,p.hp);const ts=(minions.length?[...minions]:[enemy]).filter(e=>e&&e.hp>0).sort((x,y)=>Math.hypot(x.x-p.x,x.y-p.y)-Math.hypot(y.x-p.x,y.y-p.y));if(!ts.length){fx.zombie=0;stageClear=true;nextStage()}else{const t=ts[0],d=Math.hypot(t.x-p.x,t.y-p.y)||1;moveWithObstacles(p,(t.x-p.x)/d*5,(t.y-p.y)/d*5,p.r);if(d<65){if(t===enemy)damageEnemy(24);else damageMinion(t,24)}}}if(fx.zombie===0&&fx.zombieUsed&&!stageClear&&!gameOver){fx.zombieUsed=false;showResult(false)}}
+if(fx.allies>0){
+  fx.allyCooldown-=step;
+  if(fx.allyCooldown<=0){
+    fx.allyCooldown=.65;
+    if(window.halloweenWaveActive){
+      fx.allyPositions=[{x:Math.max(25,p.x-55),y:Math.max(25,p.y-45)},{x:Math.min(875,p.x+55),y:Math.max(25,p.y-45)},{x:p.x,y:Math.min(475,p.y+55)},{x:Math.min(875,p.x+55),y:Math.min(475,p.y+55)}];
+      const ts=halloweenEnemies.filter(e=>e&&e.alive).sort((x,y)=>Math.hypot(x.x-p.x,x.y-p.y)-Math.hypot(y.x-p.x,y.y-p.y));
+      if(ts[0])fx.allyPositions.forEach(pos=>fx.allyShots.push({x:pos.x,y:pos.y,tx:ts[0].x,ty:ts[0].y,target:ts[0],life:25}));
+    }else{
+      const ts=[enemy,...minions].filter(e=>e&&e.hp>0).sort((x,y)=>Math.hypot(x.x-p.x,x.y-p.y)-Math.hypot(y.x-p.x,y.y-p.y));
+      if(ts[0]&&fx.allyPositions[0])fx.allyShots.push({x:fx.allyPositions[0].x,y:fx.allyPositions[0].y,tx:ts[0].x,ty:ts[0].y,target:ts[0],life:25});
+    }
+  }
+  fx.allyShots=fx.allyShots.filter(b=>{b.life--;b.x+=(b.tx-b.x)*.22;b.y+=(b.ty-b.y)*.22;if(Math.hypot(b.x-b.tx,b.y-b.ty)<16){
+    if(window.halloweenWaveActive){if(b.target&&b.target.alive){b.target.hp-=7;awardHalloweenTarget(b.target)}}
+    else if(b.target===enemy)damageEnemy(10);else if(minions.includes(b.target))damageMinion(b.target,10);
+    return false;
+  }return b.life>0});
+}else{fx.allyShots=[];fx.allyPositions=[]}
+if(fx.zombie>0){
+  p.hp=Math.max(1,p.hp);
+  if(window.halloweenWaveActive){
+    const ts=halloweenEnemies.filter(e=>e&&e.alive&&!(e.isGhostBoss&&e.ghostInvisible)).sort((x,y)=>Math.hypot(x.x-p.x,x.y-p.y)-Math.hypot(y.x-p.x,y.y-p.y));
+    if(ts[0]){const t=ts[0],dx=t.x-p.x,dy=t.y-p.y,d=Math.hypot(dx,dy)||1;if(d>65){p.x=Math.max(20,Math.min(880,p.x+dx/d*5));p.y=Math.max(80,Math.min(480,p.y+dy/d*5))}else{t.hp-=24;awardHalloweenTarget(t)}}
+  }else{
+    const ts=(minions.length?[...minions]:[enemy]).filter(e=>e&&e.hp>0).sort((x,y)=>Math.hypot(x.x-p.x,x.y-p.y)-Math.hypot(y.x-p.x,y.y-p.y));
+    if(!ts.length){fx.zombie=0;stageClear=true;nextStage()}else{const t=ts[0],d=Math.hypot(t.x-p.x,t.y-p.y)||1;moveWithObstacles(p,(t.x-p.x)/d*5,(t.y-p.y)/d*5,p.r);if(d<65){if(t===enemy)damageEnemy(24);else damageMinion(t,24)}}
+  }
+}
+if(fx.zombie===0&&fx.zombieUsed&&!stageClear&&!gameOver){fx.zombieUsed=false;if(window.halloweenWaveActive){gameOver=true;msg.textContent="🧟 イモータルゾンビの効果終了！";halloweenShowResult(false)}else showResult(false)}}
 return origUpdate.apply(this,arguments)};
 })();
 </script>

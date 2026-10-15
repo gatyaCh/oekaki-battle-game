@@ -6324,7 +6324,7 @@ function halloweenSpawnWave() {
   const minionHp=[42,48,53,53,53,64,75,97][halloweenWave-1]||42;
   const minionType=halloweenWave===6?"magma":halloweenWave===7?"wind":halloweenWave===8?"shield_minion":"normal";
   const minionCount=halloweenWave===3||halloweenWave===7||halloweenWave===8?3:2;
-  const minionPositions=[{x:540,y:105},{x:700,y:235},{x:835,y:390},{x:590,y:410}];
+  const minionPositions=[{x:530,y:110},{x:630,y:410},{x:850,y:110},{x:850,y:420}];
   for(let i=0;i<minionCount;i++){
     const pos=minionPositions[i];
     halloweenEnemies.push({x:pos.x,y:pos.y,hp:minionHp,maxHp:minionHp,r:halloweenWave===8?20:18,kind,atk:halloweenWave>=6?15:8,cooldown:85+i*20,alive:true,isBoss:false,isMinion:true,minionType});

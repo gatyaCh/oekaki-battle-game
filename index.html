@@ -6319,8 +6319,8 @@ function halloweenSpawnWave() {
   halloweenEnemies=[];halloweenPlayerBullets=[];halloweenEnemyBullets=[];halloweenMagicOrbs=[];
   // ウェーブごとにプレイヤーを左の初期位置へ戻し、敵は右半分へ広く配置。
   p.x=100;p.y=250;halloweenCooldown=0;
-  const bossHp=halloweenWave===8?900:650;
-  halloweenEnemies.push({x:720,y:250,hp:bossHp,maxHp:bossHp,r:36,kind,atk:20,cooldown:45,moveSpeed:halloweenWave===8?1.0:0.72,isBoss:true,isMinion:false,alive:true});
+  const bossHp=halloweenWave===8?900:halloweenWave===4?500:650;
+  halloweenEnemies.push({x:720,y:250,hp:bossHp,maxHp:bossHp,r:36,kind,atk:20,cooldown:45,moveSpeed:halloweenWave===8?1.0:halloweenWave===4?0.88:0.72,isBoss:true,isGhostBoss:halloweenWave===4,ghostCycleFrames:0,ghostInvisibleFrames:0,ghostInvisible:false,isMinion:false,alive:true});
   const minionHp=[42,48,53,53,53,64,75,97][halloweenWave-1]||42;
   const minionType=halloweenWave===6?"magma":halloweenWave===7?"wind":halloweenWave===8?"shield_minion":"normal";
   const minionCount=halloweenWave===3||halloweenWave===7||halloweenWave===8?3:2;
@@ -6358,6 +6358,8 @@ function halloweenStart() {
 }
 function halloweenAttack() {
   if(!halloweenWaveActive||halloweenIntroFrame>=0||halloweenStartBanner>0||halloweenShopOpen||gameOver||stageClear||halloweenCooldown>0)return;
+  const ghostBossHidden=halloweenWave===4&&halloweenEnemies.some(e=>e.isGhostBoss&&e.alive&&e.ghostInvisible);
+  if(ghostBossHidden){msg.textContent="👻 ゴーストボスが透明化中！今は攻撃できないよ。";return;}
   const live=halloweenEnemies.filter(e=>e.alive);
   const nearest=live.slice().sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y))[0];
   let dx=mouse.x-p.x,dy=mouse.y-p.y;
@@ -6423,7 +6425,7 @@ function halloweenUpdate() {
   for(let i=halloweenMagicOrbs.length-1;i>=0;i--){
     const orb=halloweenMagicOrbs[i];orb.life-=1/60;
     if(orb.life<=0){halloweenMagicOrbs.splice(i,1);continue;}
-    const targets=halloweenEnemies.filter(e=>e.alive);
+    const targets=halloweenEnemies.filter(e=>e.alive&&!(e.isGhostBoss&&e.ghostInvisible));
     if(!targets.length){halloweenMagicOrbs.splice(i,1);continue;}
     const target=targets.reduce((best,e)=>Math.hypot(e.x-orb.x,e.y-orb.y)<Math.hypot(best.x-orb.x,best.y-orb.y)?e:best,targets[0]);
     const dx=target.x-orb.x,dy=target.y-orb.y,d=Math.hypot(dx,dy)||1,orbSpeed=4.5;
@@ -6452,23 +6454,38 @@ function halloweenUpdate() {
   // プレイヤーの弾
   for(let i=halloweenPlayerBullets.length-1;i>=0;i--){
     const b=halloweenPlayerBullets[i];b.x+=b.vx;b.y+=b.vy;let hit=false;
-    for(const e of halloweenEnemies){if(!e.alive||Math.hypot(b.x-e.x,b.y-e.y)>=e.r)continue;e.hp-=b.damage;hit=true;awardHalloweenTarget(e);break;}
+    for(const e of halloweenEnemies){if(!e.alive||(e.isGhostBoss&&e.ghostInvisible)||Math.hypot(b.x-e.x,b.y-e.y)>=e.r)continue;e.hp-=b.damage;hit=true;awardHalloweenTarget(e);break;}
     if(hit||b.x<0||b.x>900||b.y<0||b.y>500)halloweenPlayerBullets.splice(i,1);
   }
 
-  // ボスはプレイヤーを追う。子分・通常敵は右半分に展開した位置から攻撃する。
+  // Wave 4の特殊ボス：15秒ごとに3秒間透明化。透明中は攻撃せず、プレイヤーの攻撃も無効。
+  // そのほかのボスは通常どおりプレイヤーを追い、子分・通常敵は右半分に展開。
   for(const e of halloweenEnemies){
     if(!e.alive)continue;
+    if(e.isGhostBoss){
+      if(e.ghostInvisible){
+        e.ghostInvisibleFrames--;
+        if(e.ghostInvisibleFrames<=0){e.ghostInvisible=false;e.ghostInvisibleFrames=0;e.ghostCycleFrames=0;msg.textContent="👻 ゴーストボスが姿を現した！攻撃再開！";}
+      }else{
+        e.ghostCycleFrames++;
+        if(e.ghostCycleFrames>=900){
+          e.ghostInvisible=true;e.ghostInvisibleFrames=180;e.ghostCycleFrames=0;
+          halloweenEnemyBullets=halloweenEnemyBullets.filter(b=>!b.fromGhostBoss);
+          msg.textContent="👻 ゴーストボスが透明化！3秒間、攻撃できないよ！";
+        }
+      }
+    }
     if(e.isBoss){
       const dx=p.x-e.x,dy=p.y-e.y,d=Math.hypot(dx,dy)||1;
       const approach=Math.max(0,d-112),step=Math.min(e.moveSpeed||.72,approach);
       e.x+=dx/d*step;e.y+=dy/d*step;
       e.x=Math.max(470,Math.min(865,e.x));e.y=Math.max(88,Math.min(465,e.y));
     }
+    if(e.isGhostBoss&&e.ghostInvisible)continue;
     e.cooldown--;
     if(e.cooldown<=0){
       const a=Math.atan2(p.y-e.y,p.x-e.x),v=e.isBoss?4:3;
-      halloweenEnemyBullets.push({x:e.x,y:e.y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,atk:e.atk});
+      halloweenEnemyBullets.push({x:e.x,y:e.y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,atk:e.atk,fromGhostBoss:!!e.isGhostBoss});
       e.cooldown=e.isBoss?60:100+Math.random()*50;
     }
   }
@@ -6508,7 +6525,22 @@ function halloweenDraw() {
   halloweenPlayerBullets.forEach(b=>{ctx.fillStyle="#fbbf24";ctx.beginPath();ctx.arc(b.x,b.y,5,0,Math.PI*2);ctx.fill();});
   halloweenMagicOrbs.forEach(o=>{ctx.fillStyle="#a020f0";ctx.beginPath();ctx.arc(o.x,o.y,8,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#e080ff";ctx.lineWidth=2;ctx.stroke();ctx.lineWidth=1;});
   halloweenEnemyBullets.forEach(b=>{ctx.fillStyle="#fb7185";ctx.beginPath();ctx.arc(b.x,b.y,6,0,Math.PI*2);ctx.fill();});
-  halloweenEnemies.forEach(e=>{if(!e.alive)return;ctx.font=e.isBoss?"50px serif":"29px serif";ctx.fillText(e.isBoss?(halloweenWave===8?"🧛":"👹"):"👾",e.x,e.y);ctx.fillStyle="#511";ctx.fillRect(e.x-28,e.y-e.r-15,56,7);ctx.fillStyle=e.isBoss?"#f59e0b":"#f55";ctx.fillRect(e.x-28,e.y-e.r-15,56*Math.max(0,e.hp/e.maxHp),7);if(e.isBoss){ctx.fillStyle="#fff";ctx.font="bold 14px sans-serif";ctx.fillText(halloweenWave===8?"FINAL BOSS":"BOSS",e.x,e.y-e.r-28);}});
+  halloweenEnemies.forEach(e=>{
+    if(!e.alive)return;
+    const ghostHidden=!!(e.isGhostBoss&&e.ghostInvisible);
+    ctx.save();ctx.globalAlpha=ghostHidden?0.15:1;
+    ctx.font=e.isBoss?"50px serif":"29px serif";
+    const bossIcon=e.isGhostBoss?"👻":halloweenWave===8?"🧛":"👹";
+    ctx.fillText(e.isBoss?bossIcon:"👾",e.x,e.y);
+    ctx.fillStyle="#511";ctx.fillRect(e.x-28,e.y-e.r-15,56,7);
+    ctx.fillStyle=e.isBoss?"#f59e0b":"#f55";ctx.fillRect(e.x-28,e.y-e.r-15,56*Math.max(0,e.hp/e.maxHp),7);
+    if(e.isBoss){ctx.fillStyle=ghostHidden?"#c4b5fd":"#fff";ctx.font="bold 14px sans-serif";ctx.fillText(e.isGhostBoss?(ghostHidden?"GHOST · INVISIBLE":"GHOST BOSS"):halloweenWave===8?"FINAL BOSS":"BOSS",e.x,e.y-e.r-28);}
+    ctx.restore();
+  });
+  if(halloweenWave===4&&halloweenEnemies.some(e=>e.isGhostBoss&&e.alive&&e.ghostInvisible)){
+    ctx.fillStyle="rgba(76,29,149,.92)";ctx.fillRect(250,64,400,36);ctx.strokeStyle="#c4b5fd";ctx.lineWidth=2;ctx.strokeRect(250,64,400,36);
+    ctx.fillStyle="#fff";ctx.font="bold 17px sans-serif";ctx.fillText("👻 透明化中：プレイヤーも攻撃できない！",450,87);
+  }
   if(halloweenItemBox&&!halloweenItemBox.opened){ctx.font="38px serif";ctx.fillText("🎁",halloweenItemBox.x,halloweenItemBox.y);}
   ctx.fillStyle="rgba(5,7,18,.82)";ctx.fillRect(650,12,235,58);ctx.fillStyle="#fff";ctx.textAlign="left";ctx.font="bold 18px sans-serif";ctx.fillText("❤️ HP "+Math.ceil(p.hp)+"/"+p.max,664,35);ctx.fillText("💫 "+halloweenSouls,664,57);ctx.textAlign="center";
   if(halloweenShopOpen){

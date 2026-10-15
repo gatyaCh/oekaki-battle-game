@@ -7008,36 +7008,28 @@ function update() {
     }
     if (m.hp <= 0) minions.splice(i, 1);
   }
-  // Magic Wand Orbs Update
+  // Magic Wand Spread Orbs Update：発射時の方向へ直進。敵を追尾しない。
   for (let i = magicOrbs.length - 1; i >= 0; i--) {
-    let orb = magicOrbs[i];
+    const orb = magicOrbs[i];
     orb.life -= dt;
     if (orb.life <= 0) { magicOrbs.splice(i, 1); continue; }
-    let target = enemy;
-    let minDist = Math.hypot(enemy.x - orb.x, enemy.y - orb.y);
-    minions.forEach(m => {
-      let d = Math.hypot(m.x - orb.x, m.y - orb.y);
-      if (d < minDist) { minDist = d; target = m; }
-    });
-    let speed = currentEnemyBaseSpeed * 1.3;
-    if (speed < 3.5) speed = 3.5;
-    let tdx = target.x - orb.x, tdy = target.y - orb.y, td = Math.hypot(tdx, tdy) || 1;
-    orb.vx = orb.vx * 0.90 + (tdx / td) * speed * 0.10;
-    orb.vy = orb.vy * 0.90 + (tdy / td) * speed * 0.10;
-    orb.x += orb.vx * 1.2;
-    orb.y += orb.vy * 1.2;
+    orb.x += orb.vx;
+    orb.y += orb.vy;
     let hit = false;
-    for (let m of minions) {
+    for (const m of minions) {
       if (Math.hypot(orb.x - m.x, orb.y - m.y) < 25) {
         damageMinion(m, orb.dmg);
-        hit = true; break;
+        hit = true;
+        break;
       }
     }
     if (!hit && Math.hypot(orb.x - enemy.x, orb.y - enemy.y) < 30) {
       if (Math.random() <= 0.75) damageEnemy(orb.dmg);
       hit = true;
     }
-    if (hit) magicOrbs.splice(i, 1);
+    if (hit || orb.x < 0 || orb.x > CANVAS_WIDTH || orb.y < 0 || orb.y > CANVAS_HEIGHT) {
+      magicOrbs.splice(i, 1);
+    }
   }
   // Boss Attack Patterns
   if (!bossSpecialState && !ghost && [2, 4, 5, 6, 8].includes(stage) && !admin.enemyStopped && lightningTimer <= 0 && enemyRushing <= 0) {

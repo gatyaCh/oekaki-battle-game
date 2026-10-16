@@ -4817,12 +4817,41 @@ function judge() {
     let xs = pts.map(p => p.x), ys = pts.map(p => p.y);
     let w = Math.max(...xs) - Math.min(...xs);
     let h = Math.max(...ys) - Math.min(...ys);
-    if (w > h * 1.4) return "🚙";
-    if (h > w * 1.4) return "⚔️";
-    return "⚔️";
+    if (w > h * 1.35) return "🚙";
+    if (h > w * 1.25) return "⚔️";
+    return "🏹";
+  }
+  function classifyFreeDrawing() {
+    const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);
+    const minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+    const w=maxX-minX,h=maxY-minY,ratio=w/Math.max(1,h);
+    const pathLength=pts.reduce((sum,p,i)=>i?sum+Math.hypot(p.x-pts[i-1].x,p.y-pts[i-1].y):0,0);
+    const start=pts[0],end=pts[pts.length-1];
+    const endGap=Math.hypot(start.x-end.x,start.y-end.y);
+    const closure=endGap/Math.max(1,Math.hypot(w,h));
+    // Direction changes help distinguish a star-like wand from a smooth bow arc.
+    let turns=0,sharpTurns=0,prevAngle=null;
+    for(let i=2;i<pts.length;i++){
+      const a=Math.atan2(pts[i-1].y-pts[i-2].y,pts[i-1].x-pts[i-2].x);
+      const b=Math.atan2(pts[i].y-pts[i-1].y,pts[i].x-pts[i-1].x);
+      let delta=Math.abs(b-a);if(delta>Math.PI)delta=2*Math.PI-delta;
+      if(delta>0.48)turns++;
+      if(delta>1.0)sharpTurns++;
+    }
+    const density=pathLength/Math.max(1,Math.hypot(w,h));
+    // 星形は方向転換が多く、車は横長で輪郭が閉じ気味、弓は開いた曲線。
+    if(w>55&&h>35&&ratio>1.15&&ratio<2.8&&closure<0.24&&density>1.45)return "🚙";
+    if(sharpTurns>=5&&turns>=10&&density>2.0)return "🪄";
+    if(closure>0.22&&ratio<0.9)return "⚔️";
+    if(closure>0.22&&ratio>=0.9&&ratio<1.25&&sharpTurns>=3)return "🪄";
+    if(closure>0.2&&ratio>=0.9)return "🚙";
+    if(ratio>1.0&&turns<Math.max(8,pts.length*0.12))return "🏹";
+    return fallbackWeapon();
   }
   if (pts.length < 15) {
     weapon = deviceMode === 'mobile' ? "⚔️" : "🏹";
+  } else if (selectedTarget === 'FREE') {
+    weapon = classifyFreeDrawing();
   } else if (selectedTarget === '🪄') {
     let avg = calcAvgDistToPolyline(starPoints, true);
     weapon = (avg < 25 && pts.length > 40) ? "🪄" : fallbackWeapon();

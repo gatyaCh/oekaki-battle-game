@@ -4275,13 +4275,14 @@ function syncScreenVisibility() {
   }
 
   const showMapTools = currentScreen === "draw" && !window.halloweenWaveActive;
+  const showAchievementButton = currentScreen === "draw";
   if (achievementLockBtn) {
-    achievementLockBtn.style.display = showMapTools ? "block" : "none";
-    achievementLockBtn.style.visibility = showMapTools ? "visible" : "hidden";
-    achievementLockBtn.style.pointerEvents = showMapTools ? "auto" : "none";
-    achievementLockBtn.disabled = !showMapTools;
+    achievementLockBtn.style.display = showAchievementButton ? "block" : "none";
+    achievementLockBtn.style.visibility = showAchievementButton ? "visible" : "hidden";
+    achievementLockBtn.style.pointerEvents = showAchievementButton ? "auto" : "none";
+    achievementLockBtn.disabled = !showAchievementButton;
   }
-  if (achievementLockNotice && !showMapTools) achievementLockNotice.classList.add("hidden");
+  if (achievementLockNotice && !showAchievementButton) achievementLockNotice.classList.add("hidden");
   if (rankPointBtn) {
     rankPointBtn.style.display = showMapTools ? "block" : "none";
     rankPointBtn.style.visibility = showMapTools ? "visible" : "hidden";

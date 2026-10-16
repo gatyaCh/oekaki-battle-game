@@ -17,18 +17,15 @@ button:disabled { opacity: 0.5; cursor: not-allowed; background: #222; }
 #draw { position: relative; padding: 20px; }
 #gearBtn { position: absolute; right: 8px; top: 8px; font-size: 24px; padding: 6px; }
 #hushBtn { position: fixed; right: 54px; top: 8px; font-size: 24px; padding: 6px; z-index: 310; }
-#adminVideoBtn { display: none; position: fixed; right: 100px; top: 8px; font-size: 24px; padding: 6px; z-index: 310; }
-#adminVideoOverlay { position:fixed; inset:0; z-index:10050; background:rgba(0,0,0,.94); color:#fff; padding:20px; overflow:auto; }
-#adminVideoOverlay .video-card { max-width:680px; margin:24px auto; padding:18px; border:2px solid #777; border-radius:12px; background:#292929; }
-#adminVideoOverlay video { width:100%; max-height:78vh; background:#000; display:block; margin:12px auto; }
-#adminVideoOverlay .video-title { font-size:20px; margin:12px 0; }
-#adminVideoOverlay .rank-point-card { max-width:680px; margin:16px auto 24px; padding:16px; border:1px solid #475569; border-radius:12px; background:#172033; text-align:left; line-height:1.55; }
-#adminVideoOverlay .rank-point-card h3 { text-align:center; font-size:25px; margin:0 0 12px; }
-#adminVideoOverlay .rank-point-card h4 { color:#ffd166; font-size:16px; margin:10px 0 3px; }
-#adminVideoOverlay .rank-point-card p { margin:3px 0; overflow-wrap:anywhere; }
-#adminVideoOverlay .rank-point-note { color:#cbd5e1; font-size:12px; margin-top:6px !important; }
-@media(max-width:600px){ #adminVideoOverlay .rank-point-card { padding:12px; } #adminVideoOverlay .rank-point-card h3 { font-size:21px; } }
-@media(max-width:600px){ #adminVideoBtn { right:100px; top:8px; } #adminVideoOverlay { padding:12px; } }
+#rankPointBtn { display: none; position: fixed; right: 100px; top: 8px; font-size: 24px; padding: 6px; z-index: 310; }
+#rankPointOverlay { position:fixed; inset:0; z-index:10050; background:rgba(0,0,0,.94); color:#fff; padding:20px; overflow:auto; }
+#rankPointOverlay .rank-point-card { max-width:680px; margin:16px auto 24px; padding:16px; border:1px solid #475569; border-radius:12px; background:#172033; text-align:left; line-height:1.55; }
+#rankPointOverlay .rank-point-card h3 { text-align:center; font-size:25px; margin:0 0 12px; }
+#rankPointOverlay .rank-point-card h4 { color:#ffd166; font-size:16px; margin:10px 0 3px; }
+#rankPointOverlay .rank-point-card p { margin:3px 0; overflow-wrap:anywhere; }
+#rankPointOverlay .rank-point-note { color:#cbd5e1; font-size:12px; margin-top:6px !important; }
+@media(max-width:600px){ #rankPointOverlay .rank-point-card { padding:12px; } #rankPointOverlay .rank-point-card h3 { font-size:21px; } }
+@media(max-width:600px){ #rankPointOverlay { padding:12px; } }
 #keySetting, #keyConfirm, #specialCodeBox { position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 100; color: #fff; padding: 24px; text-align: center; overflow-y: auto; }
 .special-code-layout { display:flex; align-items:center; justify-content:center; gap:28px; max-width:760px; margin:30px auto 0; }
 .special-code-input-panel, .public-special-code-panel { background:rgba(255,255,255,.06); border:2px solid #555; border-radius:10px; padding:18px; min-width:280px; }
@@ -3544,7 +3541,7 @@ html body #hushBtn {
   bottom: auto !important;
   z-index: 10020 !important;
 }
-html body #adminVideoBtn {
+html body #rankPointBtn {
   position: fixed !important;
   top: max(8px, env(safe-area-inset-top)) !important;
   right: max(100px, calc(env(safe-area-inset-right) + 100px)) !important;
@@ -3683,7 +3680,7 @@ canvas {
 .public-special-code-panel,
 .keyRow,
 .shop-card,
-#adminVideoOverlay .video-card {
+ {
   background-color: var(--ui-panel);
   border-color: var(--ui-border);
   border-radius: 10px;
@@ -3726,7 +3723,7 @@ progress {
 #keySetting, #keyConfirm, #specialCodeBox {
   background: rgba(9,13,20,.96);
 }
-#adminVideoOverlay {
+#rankPointOverlay {
   background: rgba(9,13,20,.97);
 }
 #mobileControls .mobile-btn,
@@ -3867,15 +3864,10 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
   <button id="battleBtn" class="hidden" style="font-size: 18px; background: #28a745;">戦闘開始</button>
 </div>
 <button id="hushBtn" title="スペシャルコード">🤫</button>
-<button id="adminVideoBtn" type="button" title="ゲーム内容説明">🔰</button>
-<div id="adminVideoOverlay" class="hidden" role="dialog" aria-modal="true" aria-label="管理者プレイ映像">
-  <section id="adminVideoListView">
-    <h2>🔰 管理者プレイ映像</h2>
-    <p style="margin:12px 0;color:#ddd;">公開されているプレイ映像をいつでも見られます。</p>
-    <div class="video-card">
-      <div class="video-title">🎮 ステージ1クリアまでの映像</div>
-      <button id="adminVideoPlayBtn" type="button" style="font-size:18px;">▶ 再生する</button>
-    </div>
+
+<div id="rankPointOverlay" class="hidden" role="dialog" aria-modal="true" aria-label="ランク・ポイント表">
+  <section id="rankPointView">
+    <h2>📊 ランク・ポイント表</h2>
     <section class="rank-point-card" aria-label="ランク・ポイント表">
       <h3>📊 ランク・ポイント表</h3>
       <h4>基本ポイント</h4>
@@ -3893,15 +3885,7 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
       <p>💎 GATYA：730〜824　 👑 Admin Rank：特殊条件</p>
       <p class="rank-point-note">※ Stage 4は最初の6体まで撃破ポイント対象。</p>
     </section>
-    <button id="adminVideoListClose" type="button">ゲームに戻る</button>
-  </section>
-  <section id="adminVideoPlayerView" class="hidden">
-    <h2>🎬 管理者プレイ映像</h2>
-    <video id="adminGameplayVideo" controls playsinline preload="metadata">
-      <source src="./oekaki_stage1_clear%20(1).mp4" type="video/mp4">
-      お使いのブラウザは動画再生に対応していません。
-    </video>
-    <button id="adminVideoBackBtn" type="button">← 動画一覧に戻る</button>
+    <button id="rankPointClose" type="button">ゲームに戻る</button>
   </section>
 </div>
 <div id="count" class="hidden" style="margin-top: 100px;"><h1 id="countText" style="font-size: 72px;">3</h1></div>
@@ -4267,7 +4251,7 @@ function syncScreenVisibility() {
   // 設定・スペシャルコードは描画画面でだけ表示。
   const gearBtn = document.getElementById("gearBtn");
   const hushBtn = document.getElementById("hushBtn");
-  const adminVideoBtn = document.getElementById("adminVideoBtn");
+  const rankPointBtn = document.getElementById("rankPointBtn");
   const specialCodeBox = document.getElementById("specialCodeBox");
 
   if (gearBtn) {
@@ -4284,12 +4268,12 @@ function syncScreenVisibility() {
     hushBtn.disabled = !showCodeButton;
   }
 
-  if (adminVideoBtn) {
-    const showVideoButton = currentScreen === "draw";
-    adminVideoBtn.style.display = showVideoButton ? "block" : "none";
-    adminVideoBtn.style.visibility = showVideoButton ? "visible" : "hidden";
-    adminVideoBtn.style.pointerEvents = showVideoButton ? "auto" : "none";
-    adminVideoBtn.disabled = !showVideoButton;
+  if (rankPointBtn) {
+    const showRankButton = currentScreen === "draw" && !window.halloweenWaveActive;
+    rankPointBtn.style.display = showRankButton ? "block" : "none";
+    rankPointBtn.style.visibility = showRankButton ? "visible" : "hidden";
+    rankPointBtn.style.pointerEvents = showRankButton ? "auto" : "none";
+    rankPointBtn.disabled = !showRankButton;
   }
 
   if (specialCodeBox && currentScreen !== "draw") {
@@ -4316,7 +4300,7 @@ const tutorialCanvasSteps = [
   {title:"⑧ キー設定はここ！",text:"この黄色く光っている⚙️ボタンがキー設定だよ。PC版では移動・攻撃・宝箱などのキーを変更できるよ。",hint:()=>deviceMode==="mobile"?"ここが設定ボタンだよ。スマホ版は画面の操作ボタンで遊ぶので、キー変更は基本的に使わないよ。":"実際の⚙️ボタンの場所を確認したら、「次へ」を押そう。設定画面を開かなくても次へ進めるよ。",practice:false,target:"gearBtn"},
   {title:"⑨ スペシャルコードはここ！",text:"この黄色く光っている🤫ボタンから、スペシャルコード画面を開けるよ。",hint:()=>"実際の🤫ボタンの場所を確認したら、「次へ」を押そう。",practice:false,target:"hushBtn"},
   {title:"⑩ 🎨 スキン選択のお手本",text:"キャンバスの横にある「🎨 スキン選択」を押すと、キャラクターの見た目を変更できるよ。下のお手本で、最初から使えるスキンと、条件を達成すると使えるスキンの違いを確認しよう。",hint:()=>"実際のスキン選択を開いて、使いたいスキンの「選択する」を押すと設定できるよ。見た目以外の能力は変わらないよ。",practice:false,target:"skinToggleBtn",skinDemo:true},
-  {title:"⑪ 🔰 管理者プレイ映像の紹介",text:"この🔰ボタンを押すと管理者プレイ映像を見られるよ。映像一覧にはランク・ポイント表もあるよ。",hint:()=>"場所を覚えたら「次へ」を押そう。",practice:false,target:"adminVideoBtn"}
+  {title:"⑪ 📊 ランク・ポイント表",text:"この📊ボタンを押すと、ランクの条件とポイントの計算方法を確認できるよ。",hint:()=>"場所を覚えたら「次へ」を押そう。",practice:false,target:"rankPointBtn"}
 ];
 const tutorialShopSteps = [
   {title:"⑫ 🛒 通常ショップのお手本",text:"ステージ4・7などで開く通常ショップでは、回復やアイテム、購入枠の拡張などができるよ。商品ごとの価格を確認して、必要なものを選ぼう。",hint:()=>"お手本：購入したい商品のボタンに表示された価格を確認してから押すよ。実際に購入する必要はないよ。",practice:false},
@@ -4532,7 +4516,7 @@ window.addEventListener('orientationchange', () => {
 });
 
 let pendingMapTutorial = null;
-const halloweenTutorialTips=[["🎮 目的","ハロウィンマップは全8ウェーブ！敵やボスを倒して、最後のウェーブ突破を目指そう。"],["❤️ 体力","このマップの最大HPは300。敵の攻撃を受けると減るので、HPを確認しながら戦おう。"],["⚔️ 攻撃","キャンバスで武器を選んで「武器決定」を押し、「戦闘開始」でバトル開始。攻撃キーや画面の操作方法は通常マップと同じだよ。"],["👾 敵とボス","ウェーブごとに敵やボスが登場するよ。敵の攻撃を避けながら、攻撃して倒そう。"],["💫 ソウル","ウェーブ中に手に入るソウルを集めよう。ウェーブクリア後のソウルショップで強化に使えるよ。"],["🛒 ソウルショップ","攻撃力・移動速度・防御力を強化できるよ。強化はすぐに反映され、ハロウィンマップのプレイ中に効果が続くよ。"],["🏆 クリア","全8ウェーブ突破を目指そう！終わったら結果画面で成績を確認して、必要ならもう一度プレイできるよ。"]];let halloweenTutorialStep=0;function openHalloweenTutorial(){if(deviceMode==="mobile"){msg.textContent="🎃 ハロウィンマップは現在PC版のみでプレイできます。";return;}halloweenTutorialStep=0;renderHalloweenTutorial();document.getElementById("halloweenTutorial").classList.remove("hidden");}function renderHalloweenTutorial(){const tip=halloweenTutorialTips[halloweenTutorialStep];document.getElementById("halloweenTutorialTitle").textContent=tip[0];document.getElementById("halloweenTutorialProgress").textContent=(halloweenTutorialStep+1)+" / "+halloweenTutorialTips.length;document.getElementById("halloweenTutorialText").textContent=tip[1];document.getElementById("halloweenTutorialNext").textContent=halloweenTutorialStep===halloweenTutorialTips.length-1?"マップ選択へ戻る ▶":"次へ ▶";const demo=document.getElementById("halloweenTutorialDemo");if(demo)demo.style.display=halloweenTutorialStep===0||halloweenTutorialStep===3?"block":"none";}function startHalloweenTutorialDemo(){closeHalloweenTutorial();window.halloweenTutorialDemoActive=true;selectHalloweenMap();halloweenStart();const overlay=document.getElementById("halloweenTutorialDemoOverlay");if(overlay){overlay.classList.remove("hidden");renderHalloweenTutorialDemo();}}function renderHalloweenTutorialDemo(){const title=document.getElementById("halloweenTutorialDemoTitle"),body=document.getElementById("halloweenTutorialDemoText");if(title)title.textContent="🎃 ウェーブ1のお手本";if(body)body.textContent="まず敵の配置を見てみよう！左下寄りの自分（❤️）から、右側のボスと周囲の子分を確認。敵の攻撃を避けながら、攻撃キーで近くの敵を攻撃するよ。HPは300/300からスタート。";}function closeHalloweenTutorialDemo(){const overlay=document.getElementById("halloweenTutorialDemoOverlay");if(overlay)overlay.classList.add("hidden");window.halloweenTutorialDemoActive=false;}function nextHalloweenTutorial(){if(halloweenTutorialStep>=halloweenTutorialTips.length-1){closeHalloweenTutorial();return;}halloweenTutorialStep++;renderHalloweenTutorial();}function closeHalloweenTutorial(){document.getElementById("halloweenTutorial").classList.add("hidden");}function setRankPointTableForMap(isHalloween){const overlay=document.getElementById("adminVideoOverlay");const button=document.getElementById("adminVideoBtn");const list=document.getElementById("adminVideoListView");const rankTable=document.querySelector('#adminVideoListView .rank-point-card[aria-label="ランク・ポイント表"]');const videoCard=list&&list.querySelector(".video-card");const intro=list&&list.querySelector("p");const heading=list&&list.querySelector("h2");if(isHalloween){if(button)button.style.display="none";if(overlay)overlay.classList.add("hidden");}else{if(button)button.style.display="";}if(rankTable)rankTable.style.display=isHalloween?"none":"";if(videoCard)videoCard.style.display="none";if(intro)intro.style.display="none";if(heading)heading.textContent="📊 ランク・ポイント表";} function selectNormalMap(){window.halloweenWaveActive=false;setRankPointTableForMap(false);setScreen("draw");redrawCanvas();} function selectHalloweenMap(){if(deviceMode==="mobile"){msg.textContent="🎃 ハロウィンマップは現在PC版のみでプレイできます。";return;}setRankPointTableForMap(true);window.halloweenWaveActive=true;window.halloweenWaveTestRequested=true;const result=document.getElementById("result");if(result){result.textContent="🎃 ハロウィンマップ";result.style.color="#ffb347";}const battleBtn=document.getElementById("battleBtn");if(battleBtn){battleBtn.classList.remove("hidden");battleBtn.onclick=e=>{e.preventDefault();e.stopPropagation();halloweenStart();};}setScreen("draw");redrawCanvas();msg.textContent="🎃 公開中！武器を選んで「戦闘開始」を押そう。";}
+const halloweenTutorialTips=[["🎮 目的","ハロウィンマップは全8ウェーブ！敵やボスを倒して、最後のウェーブ突破を目指そう。"],["❤️ 体力","このマップの最大HPは300。敵の攻撃を受けると減るので、HPを確認しながら戦おう。"],["⚔️ 攻撃","キャンバスで武器を選んで「武器決定」を押し、「戦闘開始」でバトル開始。攻撃キーや画面の操作方法は通常マップと同じだよ。"],["👾 敵とボス","ウェーブごとに敵やボスが登場するよ。敵の攻撃を避けながら、攻撃して倒そう。"],["💫 ソウル","ウェーブ中に手に入るソウルを集めよう。ウェーブクリア後のソウルショップで強化に使えるよ。"],["🛒 ソウルショップ","攻撃力・移動速度・防御力を強化できるよ。強化はすぐに反映され、ハロウィンマップのプレイ中に効果が続くよ。"],["🏆 クリア","全8ウェーブ突破を目指そう！終わったら結果画面で成績を確認して、必要ならもう一度プレイできるよ。"]];let halloweenTutorialStep=0;function openHalloweenTutorial(){if(deviceMode==="mobile"){msg.textContent="🎃 ハロウィンマップは現在PC版のみでプレイできます。";return;}halloweenTutorialStep=0;renderHalloweenTutorial();document.getElementById("halloweenTutorial").classList.remove("hidden");}function renderHalloweenTutorial(){const tip=halloweenTutorialTips[halloweenTutorialStep];document.getElementById("halloweenTutorialTitle").textContent=tip[0];document.getElementById("halloweenTutorialProgress").textContent=(halloweenTutorialStep+1)+" / "+halloweenTutorialTips.length;document.getElementById("halloweenTutorialText").textContent=tip[1];document.getElementById("halloweenTutorialNext").textContent=halloweenTutorialStep===halloweenTutorialTips.length-1?"マップ選択へ戻る ▶":"次へ ▶";const demo=document.getElementById("halloweenTutorialDemo");if(demo)demo.style.display=halloweenTutorialStep===0||halloweenTutorialStep===3?"block":"none";}function startHalloweenTutorialDemo(){closeHalloweenTutorial();window.halloweenTutorialDemoActive=true;selectHalloweenMap();halloweenStart();const overlay=document.getElementById("halloweenTutorialDemoOverlay");if(overlay){overlay.classList.remove("hidden");renderHalloweenTutorialDemo();}}function renderHalloweenTutorialDemo(){const title=document.getElementById("halloweenTutorialDemoTitle"),body=document.getElementById("halloweenTutorialDemoText");if(title)title.textContent="🎃 ウェーブ1のお手本";if(body)body.textContent="まず敵の配置を見てみよう！左下寄りの自分（❤️）から、右側のボスと周囲の子分を確認。敵の攻撃を避けながら、攻撃キーで近くの敵を攻撃するよ。HPは300/300からスタート。";}function closeHalloweenTutorialDemo(){const overlay=document.getElementById("halloweenTutorialDemoOverlay");if(overlay)overlay.classList.add("hidden");window.halloweenTutorialDemoActive=false;}function nextHalloweenTutorial(){if(halloweenTutorialStep>=halloweenTutorialTips.length-1){closeHalloweenTutorial();return;}halloweenTutorialStep++;renderHalloweenTutorial();}function closeHalloweenTutorial(){document.getElementById("halloweenTutorial").classList.add("hidden");}function setRankPointTableForMap(isHalloween){const overlay=document.getElementById("rankPointOverlay");let button=document.getElementById("rankPointBtn");if(isHalloween){if(button)button.remove();if(overlay)overlay.classList.add("hidden");return;}if(!button){button=document.createElement("button");button.id="rankPointBtn";button.type="button";button.title="ランク・ポイント表";button.textContent="📊";button.addEventListener("click",()=>window.openRankPointTable&&window.openRankPointTable());const overlayEl=document.getElementById("rankPointOverlay");if(overlayEl)document.body.insertBefore(button,overlayEl);else document.body.appendChild(button);}} function selectNormalMap(){window.halloweenWaveActive=false;setRankPointTableForMap(false);setScreen("draw");redrawCanvas();} function selectHalloweenMap(){if(deviceMode==="mobile"){msg.textContent="🎃 ハロウィンマップは現在PC版のみでプレイできます。";return;}setRankPointTableForMap(true);window.halloweenWaveActive=true;window.halloweenWaveTestRequested=true;const result=document.getElementById("result");if(result){result.textContent="🎃 ハロウィンマップ";result.style.color="#ffb347";}const battleBtn=document.getElementById("battleBtn");if(battleBtn){battleBtn.classList.remove("hidden");battleBtn.onclick=e=>{e.preventDefault();e.stopPropagation();halloweenStart();};}setScreen("draw");redrawCanvas();msg.textContent="🎃 公開中！武器を選んで「戦闘開始」を押そう。";}
 function openHalloweenCodeScreen(){if(deviceMode==="mobile"){msg.textContent="🎃 ハロウィンマップは現在PC版のみでプレイできます。";return;}const input=document.getElementById("halloweenAccessCode");const message=document.getElementById("halloweenAccessMessage");if(input)input.value="";if(message)message.textContent="";document.getElementById("halloweenCodeScreen").classList.remove("hidden");setTimeout(()=>input&&input.focus(),0);}
 function closeHalloweenCodeScreen(){document.getElementById("halloweenCodeScreen").classList.add("hidden");setScreen("mapSelect");}
 function checkHalloweenAccessCode(){if(deviceMode==="mobile"){msg.textContent="🎃 ハロウィンマップは現在PC版のみでプレイできます。";return;}const input=document.getElementById("halloweenAccessCode");const message=document.getElementById("halloweenAccessMessage");const code=input?input.value.trim().toLowerCase():"";if(code!=="kabotya"){if(message)message.textContent="❌ コードが違います。";if(input){input.select();input.focus();}return;}setRankPointTableForMap(true);window.halloweenWaveActive=true;window.halloweenWaveTestRequested=true;document.getElementById("halloweenCodeScreen").classList.add("hidden");const result=document.getElementById("result");if(result){result.textContent="🎃 ハロウィンマップ先行プレイ";result.style.color="#ffb347";}const battleBtn=document.getElementById("battleBtn");if(battleBtn){battleBtn.classList.remove("hidden");battleBtn.onclick=e=>{e.preventDefault();e.stopPropagation();halloweenStart();};}setScreen("draw");redrawCanvas();if(message)message.textContent="";msg.textContent="🔓 解放！武器を決めて「戦闘開始」を押そう。";}
@@ -8745,33 +8729,7 @@ function drawAdminRankBullets(){
 </script>
 
 <script>
-(function initAdminGameplayVideo(){
-  const overlay=document.getElementById("adminVideoOverlay");
-  const list=document.getElementById("adminVideoListView");
-  const playerView=document.getElementById("adminVideoPlayerView");
-  const video=document.getElementById("adminGameplayVideo");
-  const showList=()=>{
-    video.pause();
-    playerView.classList.add("hidden");
-    list.classList.remove("hidden");
-  };
-  document.getElementById("adminVideoBtn").addEventListener("click",()=>{
-    showList();
-    overlay.classList.remove("hidden");
-  });
-  document.getElementById("adminVideoPlayBtn").addEventListener("click",()=>{
-    list.classList.add("hidden");
-    playerView.classList.remove("hidden");
-    video.currentTime=0;
-    const playAttempt=video.play();
-    if(playAttempt && typeof playAttempt.catch==="function") playAttempt.catch(()=>{});
-  });
-  document.getElementById("adminVideoBackBtn").addEventListener("click",showList);
-  document.getElementById("adminVideoListClose").addEventListener("click",()=>{
-    video.pause();
-    overlay.classList.add("hidden");
-  });
-})();
+(function initRankPointTable(){const overlay=document.getElementById("rankPointOverlay");const close=document.getElementById("rankPointClose");if(close)close.addEventListener("click",()=>overlay&&overlay.classList.add("hidden"));window.openRankPointTable=()=>{if(overlay)overlay.classList.remove("hidden");};})();
 </script>
 
 <script>
@@ -9027,7 +8985,7 @@ return origUpdate.apply(this,arguments)};
 #skinGrid .skin-card button{font-size:14px;padding:9px 6px}
 #skinPanel #skinMessage{font-size:16px;margin:16px 0;min-height:1.5em}
 #skinCloseBtn{width:min(260px,90%);padding:12px!important;font-size:16px}
-#adminVideoTutorialBtn{display:inline-block;margin:12px auto 18px;padding:10px 20px;font-size:17px}
+
 @media(max-width:700px){
  #drawWorkArea{gap:8px;justify-content:flex-start}
  #drawCanvasColumn{width:min(58vw,400px);flex:0 1 58vw}
@@ -9059,12 +9017,6 @@ return origUpdate.apply(this,arguments)};
  });
  const oldTutorial=[...draw.querySelectorAll('button')].find(b=>b.textContent.includes('チュートリアル'));
  if(oldTutorial)oldTutorial.style.display='none';
- const list=document.getElementById('adminVideoListView');
- if(list&&!document.getElementById('adminVideoTutorialBtn')){
-   const btn=document.createElement('button');btn.id='adminVideoTutorialBtn';btn.type='button';btn.textContent='📘 チュートリアルを見る';
-   const intro=list.querySelector('p');if(intro)intro.insertAdjacentElement('afterend',btn);else list.prepend(btn);
-   btn.addEventListener('click',()=>{const overlay=document.getElementById('adminVideoOverlay');if(overlay)overlay.classList.add('hidden');if(typeof window.startTutorialFromDraw==='function')window.startTutorialFromDraw();});
- }
  const toggle=document.getElementById('skinToggleBtn'),panel=document.getElementById('skinPanel'),close=document.getElementById('skinCloseBtn');
  if(toggle&&panel){toggle.textContent='🎨 スキンショップ';toggle.onclick=()=>{panel.classList.remove('hidden');if(typeof window.renderSkinShop==='function')window.renderSkinShop();};}
  if(close&&panel)close.onclick=()=>panel.classList.add('hidden');

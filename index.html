@@ -5135,7 +5135,7 @@ function beginAttackCharge() {
   if (weapon === "🪄") {
     if (wandCooldown <= 0) {
       fireWandMagic();
-      wandCooldown = window.adminNoCooldown ? 0 : 1; // クールタイム 1秒
+      wandCooldown = window.adminNoCooldown ? 0 : 1.7; // クールタイム 1.7秒
     } else {
       msg.textContent = "⏳ 魔法の杖クールタイム中... (" + wandCooldown.toFixed(1) + "s)";
     }
@@ -6342,7 +6342,7 @@ function halloweenSpawnWave() {
   // プレイヤーとボスの初期位置は通常マップに合わせる。
   p.x=100;p.y=250;halloweenCooldown=0;halloweenMinionsSummoned=0;
   halloweenMinionSpawnTimer=halloweenWave===4?600:halloweenWave===8?180:0;
-  const bossHp=halloweenWave===8?900:halloweenWave===4?500:650;
+  const bossHp=(halloweenWave===8?900:halloweenWave===4?500:650)+({1:100,2:110,3:130,4:200,5:300,6:370,7:430,8:500}[halloweenWave]||0);
   halloweenEnemies.push({x:700,y:250,hp:bossHp,maxHp:bossHp,r:36,kind,atk:20,cooldown:45,moveSpeed:halloweenWave===8?1.0:halloweenWave===4?0.88:0.72,isBoss:true,isGhostBoss:halloweenWave===4,ghostCycleFrames:0,ghostInvisibleFrames:0,ghostInvisible:false,specialCharge:0,specialPhase:"charging",specialTimer:0,specialShotTimer:0,specialShotsFired:0,isMinion:false,alive:true});
 
   // 子分は通常マップの各ステージと同じ初期位置・HP・攻撃力にする。
@@ -6388,6 +6388,7 @@ function halloweenStart() {
   const gameArea=document.getElementById("gameArea");if(gameArea)gameArea.classList.remove("hidden");
   currentScreen="game";syncScreenVisibility();halloweenSpawnWave();
 }
+function halloweenDamageTarget(target,damage){target.hp-=damage*(target.isBoss?0.6:1);}
 function halloweenAttack() {
   if(!halloweenWaveActive||halloweenIntroFrame>=0||halloweenStartBanner>0||halloweenShopOpen||gameOver||stageClear||halloweenCooldown>0)return;
   const ghostBossHidden=halloweenWave===4&&halloweenEnemies.some(e=>e.isGhostBoss&&e.alive&&e.ghostInvisible);
@@ -6407,14 +6408,14 @@ function halloweenAttack() {
   if(weapon==="🪄"){
     if(wandCooldown>0){msg.textContent="⏳ 魔法の杖クールタイム中...";return;}
     for(let i=0;i<20;i++){const a=Math.PI*2*i/20;halloweenMagicOrbs.push({x:p.x,y:p.y,vx:Math.cos(a)*3.2,vy:Math.sin(a)*3.2,life:4.5,dmg:11*atkBuff*halloweenBuff.damage*(window.halloweenEffects&&window.halloweenEffects.candy>0?3:1)*(kizuku2Active?2:1)*(adminRankAbility==="damage4"?4:1),homing:false});}
-    wandCooldown=window.adminNoCooldown?0:1;msg.textContent="🪄 全方位に拡散弾20発！（1発11ダメージ）";return;
+    wandCooldown=window.adminNoCooldown?0:1.7;msg.textContent="🪄 全方位に拡散弾20発！（クールタイム1.7秒）";return;
   }
   halloweenCooldown=weapon==="🏹"?18:12;
   if(weapon==="⚔️"){
     slashTimer=12;const reach=72+charge/2;
     const targets=live.filter(e=>Math.hypot(p.x-e.x,p.y-e.y)<=reach);
     if(!targets.length){msg.textContent="敵に近づいて攻撃してね！";return;}
-    for(const target of targets){target.hp-=dmg;award(target);}
+    for(const target of targets){halloweenDamageTarget(target,dmg);award(target);}
     msg.textContent="⚔️ 攻撃！ 💫 "+halloweenSouls;return;
   }
   if(weapon==="🏹"){halloweenPlayerBullets.push({x:p.x,y:p.y,vx:dx/d*8,vy:dy/d*8,damage:dmg});msg.textContent="🏹 発射！";return;}
@@ -6482,7 +6483,7 @@ function halloweenUpdate() {
     if(!carHitThisDash){
       const hit=halloweenEnemies.find(e=>e.alive&&Math.hypot(p.x-e.x,p.y-e.y)<e.r+p.r);
       if(hit){
-        hit.hp-=getDamage()*halloweenBuff.damage*(ghostTimer>0?0.7:1);
+        halloweenDamageTarget(hit,getDamage()*halloweenBuff.damage*(ghostTimer>0?0.7:1));
         awardHalloweenTarget(hit);carHitThisDash=true;
         msg.textContent="🚙 突進ヒット！";
       }
@@ -6525,7 +6526,7 @@ function halloweenUpdate() {
       if(!target.alive||(target.isGhostBoss&&target.ghostInvisible))continue;
       if(Math.hypot(target.x-orb.x,target.y-orb.y)<target.r+8){hit=target;break;}
     }
-    if(hit){hit.hp-=orb.dmg;awardHalloweenTarget(hit);halloweenMagicOrbs.splice(i,1);continue;}
+    if(hit){halloweenDamageTarget(hit,orb.dmg);awardHalloweenTarget(hit);halloweenMagicOrbs.splice(i,1);continue;}
     if(orb.x<0||orb.x>900||orb.y<0||orb.y>500)halloweenMagicOrbs.splice(i,1);
   }
 
@@ -6547,7 +6548,7 @@ function halloweenUpdate() {
   // プレイヤーの弾
   for(let i=halloweenPlayerBullets.length-1;i>=0;i--){
     const b=halloweenPlayerBullets[i];b.x+=b.vx;b.y+=b.vy;let hit=false;
-    for(const e of halloweenEnemies){if(!e.alive||(e.isGhostBoss&&e.ghostInvisible)||Math.hypot(b.x-e.x,b.y-e.y)>=e.r)continue;e.hp-=b.damage;hit=true;awardHalloweenTarget(e);break;}
+    for(const e of halloweenEnemies){if(!e.alive||(e.isGhostBoss&&e.ghostInvisible)||Math.hypot(b.x-e.x,b.y-e.y)>=e.r)continue;halloweenDamageTarget(e,b.damage);hit=true;awardHalloweenTarget(e);break;}
     if(hit||b.x<0||b.x>900||b.y<0||b.y>500)halloweenPlayerBullets.splice(i,1);
   }
 
@@ -7518,7 +7519,7 @@ function updateRikuUI() {
     if (weapon === "🪄") {
       if (wandCooldown <= 0) {
         fireWandMagic();
-        wandCooldown = window.adminNoCooldown ? 0 : 1;
+        wandCooldown = window.adminNoCooldown ? 0 : 1.7;
       } else {
         msg.textContent = "⏳ 魔法の杖クールタイム中...";
       }

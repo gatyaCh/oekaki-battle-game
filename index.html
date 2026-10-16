@@ -3867,7 +3867,7 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
 </div>
 <button id="hushBtn" title="スペシャルコード">🤫</button>
 
-<button id="achievementLockBtn" type="button" title="実績機能" aria-label="実績機能（ロック中）">🏆️</button>
+<button id="achievementLockBtn" type="button" title="実績機能" aria-label="実績機能（ロック中）" style="display:none;visibility:hidden;pointer-events:none" disabled>🏆️</button>
 <div id="achievementLockNotice" class="hidden" role="status">🔒 ロックされています</div>
 <div id="rankPointOverlay" class="hidden" role="dialog" aria-modal="true" aria-label="ランク・ポイント表">
   <section id="rankPointView">
@@ -4279,7 +4279,9 @@ function syncScreenVisibility() {
   const titleScreen = document.getElementById("title");
   const selectionOverlayOpen = [tutorialChoice, mapSelect, titleScreen].some(el => el && !el.classList.contains("hidden"));
   const showMapTools = currentScreen === "draw" && !selectionOverlayOpen && !window.halloweenWaveActive;
-  const showAchievementButton = currentScreen === "draw" && !selectionOverlayOpen;
+  const drawScreen = document.getElementById("draw");
+  const drawScreenActuallyVisible = !!drawScreen && !drawScreen.classList.contains("hidden") && getComputedStyle(drawScreen).display !== "none";
+  const showAchievementButton = currentScreen === "draw" && drawScreenActuallyVisible && !selectionOverlayOpen;
   if (achievementLockBtn) {
     achievementLockBtn.style.display = showAchievementButton ? "block" : "none";
     achievementLockBtn.style.visibility = showAchievementButton ? "visible" : "hidden";

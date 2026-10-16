@@ -17,7 +17,9 @@ button:disabled { opacity: 0.5; cursor: not-allowed; background: #222; }
 #draw { position: relative; padding: 20px; }
 #gearBtn { position: absolute; right: 8px; top: 8px; font-size: 24px; padding: 6px; }
 #hushBtn { position: fixed; right: 54px; top: 8px; font-size: 24px; padding: 6px; z-index: 310; }
+#achievementLockBtn { position: fixed; right: 146px; top: 8px; font-size: 24px; padding: 6px; z-index: 310; }
 #rankPointBtn { display: none; position: fixed; right: 100px; top: 8px; font-size: 24px; padding: 6px; z-index: 310; }
+#achievementLockNotice { position: fixed; right: 146px; top: 52px; z-index: 320; background: #292929; border: 1px solid #777; border-radius: 8px; padding: 8px 12px; color: #fff; font-size: 14px; box-shadow: 0 3px 12px #0008; }
 #rankPointOverlay { position:fixed; inset:0; z-index:10050; background:rgba(0,0,0,.94); color:#fff; padding:20px; overflow:auto; }
 #rankPointOverlay .rank-point-card { max-width:680px; margin:16px auto 24px; padding:16px; border:1px solid #475569; border-radius:12px; background:#172033; text-align:left; line-height:1.55; }
 #rankPointOverlay .rank-point-card h3 { text-align:center; font-size:25px; margin:0 0 12px; }
@@ -3865,6 +3867,8 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
 </div>
 <button id="hushBtn" title="スペシャルコード">🤫</button>
 
+<button id="achievementLockBtn" type="button" title="実績機能" aria-label="実績機能（ロック中）">🏆️</button>
+<div id="achievementLockNotice" class="hidden" role="status">🔒 ロックされています</div>
 <div id="rankPointOverlay" class="hidden" role="dialog" aria-modal="true" aria-label="ランク・ポイント表">
   <section id="rankPointView">
     <h2>📊 ランク・ポイント表</h2>
@@ -4251,6 +4255,8 @@ function syncScreenVisibility() {
   // 設定・スペシャルコードは描画画面でだけ表示。
   const gearBtn = document.getElementById("gearBtn");
   const hushBtn = document.getElementById("hushBtn");
+  const achievementLockBtn = document.getElementById("achievementLockBtn");
+  const achievementLockNotice = document.getElementById("achievementLockNotice");
   const rankPointBtn = document.getElementById("rankPointBtn");
   const specialCodeBox = document.getElementById("specialCodeBox");
 
@@ -4268,12 +4274,19 @@ function syncScreenVisibility() {
     hushBtn.disabled = !showCodeButton;
   }
 
+  const showMapTools = currentScreen === "draw" && !window.halloweenWaveActive;
+  if (achievementLockBtn) {
+    achievementLockBtn.style.display = showMapTools ? "block" : "none";
+    achievementLockBtn.style.visibility = showMapTools ? "visible" : "hidden";
+    achievementLockBtn.style.pointerEvents = showMapTools ? "auto" : "none";
+    achievementLockBtn.disabled = !showMapTools;
+  }
+  if (achievementLockNotice && !showMapTools) achievementLockNotice.classList.add("hidden");
   if (rankPointBtn) {
-    const showRankButton = currentScreen === "draw" && !window.halloweenWaveActive;
-    rankPointBtn.style.display = showRankButton ? "block" : "none";
-    rankPointBtn.style.visibility = showRankButton ? "visible" : "hidden";
-    rankPointBtn.style.pointerEvents = showRankButton ? "auto" : "none";
-    rankPointBtn.disabled = !showRankButton;
+    rankPointBtn.style.display = showMapTools ? "block" : "none";
+    rankPointBtn.style.visibility = showMapTools ? "visible" : "hidden";
+    rankPointBtn.style.pointerEvents = showMapTools ? "auto" : "none";
+    rankPointBtn.disabled = !showMapTools;
   }
 
   if (specialCodeBox && currentScreen !== "draw") {
@@ -8729,7 +8742,7 @@ function drawAdminRankBullets(){
 </script>
 
 <script>
-(function initRankPointTable(){const overlay=document.getElementById("rankPointOverlay");const close=document.getElementById("rankPointClose");if(close)close.addEventListener("click",()=>overlay&&overlay.classList.add("hidden"));window.openRankPointTable=()=>{if(overlay)overlay.classList.remove("hidden");};})();
+(function initRankPointTable(){const overlay=document.getElementById("rankPointOverlay");const close=document.getElementById("rankPointClose");if(close)close.addEventListener("click",()=>overlay&&overlay.classList.add("hidden"));window.openRankPointTable=()=>{if(overlay)overlay.classList.remove("hidden");};const trophy=document.getElementById("achievementLockBtn");const notice=document.getElementById("achievementLockNotice");if(trophy&&notice){const show=()=>notice.classList.remove("hidden");const hide=()=>notice.classList.add("hidden");trophy.addEventListener("mouseenter",show);trophy.addEventListener("mouseleave",hide);trophy.addEventListener("focus",show);trophy.addEventListener("blur",hide);trophy.addEventListener("click",()=>notice.classList.toggle("hidden"));}})();
 </script>
 
 <script>

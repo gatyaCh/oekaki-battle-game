@@ -6624,9 +6624,9 @@ function halloweenUpdate() {
     // Wave 8のボスも子分の生存数に関係なく、プレイヤーへ向かって移動する。
     if(e.isBoss){
       const dx=p.x-e.x,dy=p.y-e.y,d=Math.hypot(dx,dy)||1;
-      const approach=Math.max(0,d-112),baseBossSpeed=(e.isGhostBoss&&e.specialPhase==="active")?(e.moveSpeed||.88)*2:(halloweenWave===8&&e.specialPhase==="active"?(Number.isFinite(p.moveSpeed)?p.moveSpeed:3):(e.moveSpeed||.72)),step=Math.min(baseBossSpeed*(Number.isFinite(enemySpeedMul)?enemySpeedMul:1),approach);
+      const approach=Math.max(0,d-112),baseBossSpeed=(e.isGhostBoss&&e.specialPhase==="active")?(e.moveSpeed||.88)*2:(halloweenWave===8&&e.specialPhase==="active"?(Number.isFinite(p.moveSpeed)?p.moveSpeed:3):(e.moveSpeed||.72)),finalVampireRush=(halloweenWave===8&&e.specialPhase==="active"),step=Math.min(baseBossSpeed*(finalVampireRush?3:1)*(Number.isFinite(enemySpeedMul)?enemySpeedMul:1),approach);
       e.x+=dx/d*step;e.y+=dy/d*step;
-      e.x=Math.max(470,Math.min(865,e.x));e.y=Math.max(88,Math.min(465,e.y));
+      e.x=Math.max(35,Math.min(865,e.x));e.y=Math.max(35,Math.min(465,e.y));
     }
     if(e.isGhostBoss&&e.ghostInvisible)continue;
     e.cooldown--;

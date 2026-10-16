@@ -4274,8 +4274,12 @@ function syncScreenVisibility() {
     hushBtn.disabled = !showCodeButton;
   }
 
-  const showMapTools = currentScreen === "draw" && !window.halloweenWaveActive;
-  const showAchievementButton = currentScreen === "draw";
+  const tutorialChoice = document.getElementById("tutorialChoice");
+  const mapSelect = document.getElementById("mapSelect");
+  const titleScreen = document.getElementById("title");
+  const selectionOverlayOpen = [tutorialChoice, mapSelect, titleScreen].some(el => el && !el.classList.contains("hidden"));
+  const showMapTools = currentScreen === "draw" && !selectionOverlayOpen && !window.halloweenWaveActive;
+  const showAchievementButton = currentScreen === "draw" && !selectionOverlayOpen;
   if (achievementLockBtn) {
     achievementLockBtn.style.display = showAchievementButton ? "block" : "none";
     achievementLockBtn.style.visibility = showAchievementButton ? "visible" : "hidden";

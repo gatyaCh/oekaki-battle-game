@@ -4691,11 +4691,14 @@ function selectTargetWeapon(type) {
   else if (type === '🏹') document.getElementById("btnBow").classList.add("active");
   else document.getElementById("btnFree").classList.add("active");
   const guideInst = document.getElementById("guideInstruction");
-  if (type === 'FREE') {
-    guideInst.textContent = "自由に描こう！（縦長:⚔️, 横長:🚙, その他:⚔️）";
-  } else {
-    guideInst.textContent = "ガイドのガイドライン・★マークを正確になぞろう！ズレると別の武器になっちゃうぞ！";
-  }
+  const guideMessages = {
+    "⚔️": "⚔️ 剣のガイドラインに合わせて、先端をとがらせて描こう！",
+    "🏹": "🏹 弓のカーブと、中央の弦のガイドラインをなぞろう！",
+    "🚙": "🚙 車体の輪郭と、2つのタイヤのガイドラインをなぞろう！",
+    "🪄": "🪄 杖の先端にある星の形のガイドラインをなぞろう！",
+    "FREE": "🎨 自由描画！剣・弓・車・魔法の杖のどれかを自由に描こう！"
+  };
+  guideInst.textContent = guideMessages[type] || guideMessages.FREE;
   clearCanvas();
 }
 function drawGuideOutline(points, closePath = true) {

@@ -7562,9 +7562,25 @@ function updateRikuUI() {
 })();
 function loop() {
   if (!gameArea.classList.contains("hidden")) update();
-  document.getElementById("atkText").textContent = (atkBuff * (kizuku2Active ? 2.0 : 1)).toFixed(1);
-  document.getElementById("shieldText").textContent = shieldEquipped ? shieldRemainingTime.toFixed(1) + "s" : "なし";
-  document.getElementById("reviveText").textContent = revive ? "所持" : "なし";
+  // HUDは戦闘処理の早期returnやポーズ中でも毎フレーム最新状態に同期する。
+  // 通常マップ・ハロウィンマップ共通で、HP/敵HP/コイン/強化状態を表示する。
+  const hudHp = document.getElementById("hp");
+  const hudMaxHp = document.getElementById("maxHpText");
+  const hudEnemyHp = document.getElementById("ehp");
+  const hudCoins = document.getElementById("coinText");
+  const hudAtk = document.getElementById("atkText");
+  const hudShield = document.getElementById("shieldText");
+  const hudRevive = document.getElementById("reviveText");
+  const hudSpecialStock = document.getElementById("specialStockText");
+  if (hudHp && p) hudHp.textContent = Math.max(0, Math.floor(p.hp));
+  if (hudMaxHp && p) hudMaxHp.textContent = Math.floor(p.max);
+  if (hudEnemyHp && enemy) hudEnemyHp.textContent = Math.max(0, Math.floor(enemy.hp));
+  if (hudCoins) hudCoins.textContent = coins;
+  if (hudAtk) hudAtk.textContent = (atkBuff * (kizuku2Active ? 2.0 : 1)).toFixed(1);
+  if (hudShield) hudShield.textContent = shieldEquipped ? Math.max(0, shieldRemainingTime).toFixed(1) + "s" : "なし";
+  if (hudRevive) hudRevive.textContent = revive ? "所持" : "なし";
+  if (hudSpecialStock) hudSpecialStock.textContent = specialStock;
+  updateSpecialGauge();
   draw();
   requestAnimationFrame(loop);
 }

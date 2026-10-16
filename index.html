@@ -6346,14 +6346,15 @@ function halloweenSpawnWave() {
   halloweenEnemies.push({x:700,y:250,hp:bossHp,maxHp:bossHp,r:36,kind,atk:20,cooldown:45,moveSpeed:halloweenWave===8?1.0:halloweenWave===4?0.88:0.72,isBoss:true,isGhostBoss:halloweenWave===4,ghostCycleFrames:0,ghostInvisibleFrames:0,ghostInvisible:false,specialCharge:0,specialPhase:"charging",specialTimer:0,specialShotTimer:0,specialShotsFired:0,isMinion:false,alive:true});
 
   // 子分は通常マップの各ステージと同じ初期位置・HP・攻撃力にする。
+  const minionHpByWave={1:30,2:40,3:50,4:67,5:80,6:90,7:99,8:110};
   const minionSpecs={
-    1:[{x:650,y:150,hp:42,atk:5,type:"normal",cooldown:100},{x:650,y:350,hp:42,atk:5,type:"normal",cooldown:120}],
-    2:[{x:650,y:150,hp:48,atk:8,type:"normal",cooldown:90},{x:650,y:350,hp:48,atk:8,type:"normal",cooldown:110}],
-    3:[{x:650,y:120,hp:53,atk:10,type:"normal",cooldown:80},{x:650,y:250,hp:53,atk:10,type:"normal",cooldown:100},{x:650,y:380,hp:53,atk:10,type:"normal",cooldown:120}],
-    5:[{x:650,y:180,hp:53,atk:10,type:"jellyfish",cooldown:90},{x:650,y:320,hp:53,atk:10,type:"jellyfish",cooldown:110}],
-    6:[{x:650,y:180,hp:64,atk:15,type:"magma",cooldown:100},{x:650,y:320,hp:64,atk:15,type:"magma",cooldown:140}],
-    7:[{x:750,y:120,hp:75,atk:15,type:"wind",cooldown:70},{x:750,y:380,hp:75,atk:15,type:"wind",cooldown:90}],
-    8:[{x:650,y:150,hp:97,atk:20,type:"shield_minion",cooldown:60},{x:650,y:350,hp:97,atk:20,type:"shield_minion",cooldown:80}]
+    1:[{x:650,y:150,hp:minionHpByWave[1],atk:5,type:"normal",cooldown:100},{x:650,y:350,hp:minionHpByWave[1],atk:5,type:"normal",cooldown:120}],
+    2:[{x:650,y:150,hp:minionHpByWave[2],atk:8,type:"normal",cooldown:90},{x:650,y:350,hp:minionHpByWave[2],atk:8,type:"normal",cooldown:110}],
+    3:[{x:650,y:120,hp:minionHpByWave[3],atk:10,type:"normal",cooldown:80},{x:650,y:250,hp:minionHpByWave[3],atk:10,type:"normal",cooldown:100},{x:650,y:380,hp:minionHpByWave[3],atk:10,type:"normal",cooldown:120}],
+    5:[{x:650,y:180,hp:minionHpByWave[5],atk:10,type:"jellyfish",cooldown:90},{x:650,y:320,hp:minionHpByWave[5],atk:10,type:"jellyfish",cooldown:110}],
+    6:[{x:650,y:180,hp:minionHpByWave[6],atk:15,type:"magma",cooldown:100},{x:650,y:320,hp:minionHpByWave[6],atk:15,type:"magma",cooldown:140}],
+    7:[{x:750,y:120,hp:minionHpByWave[7],atk:15,type:"wind",cooldown:70},{x:750,y:380,hp:minionHpByWave[7],atk:15,type:"wind",cooldown:90}],
+    8:[{x:650,y:150,hp:minionHpByWave[8],atk:20,type:"shield_minion",cooldown:60},{x:650,y:350,hp:minionHpByWave[8],atk:20,type:"shield_minion",cooldown:80}]
   };
   const specs=minionSpecs[halloweenWave]||[];
   halloweenMinionsSummoned=specs.length;
@@ -6625,7 +6626,7 @@ function halloweenUpdate() {
     if(e.cooldown<=0){
       const a=Math.atan2(p.y-e.y,p.x-e.x),v=(e.isBoss?4:3)*(Number.isFinite(enemySpeedMul)?enemySpeedMul:1);
       halloweenEnemyBullets.push({x:e.x,y:e.y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,atk:e.atk,fromGhostBoss:!!e.isGhostBoss});
-      e.cooldown=e.isBoss?60:100+Math.random()*50;
+      e.cooldown=e.isBoss?42:72;
     }
   }
 

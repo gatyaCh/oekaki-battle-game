@@ -9362,7 +9362,9 @@ body.mobile-mode #battlePickupNotice {
       const d=rec.data||{};
       const mapName=d.halloweenWaveActive?"🎃 ハロウィンマップ":"🌿 通常マップ";
       const stageText=d.halloweenWaveActive?"Wave "+(d.halloweenWave||1):"Stage "+(d.stage||1);
-      return '<article class="game-save-record"><strong>💾 '+esc(formatDate(rec.createdAt))+'</strong><p>'+esc(mapName)+' / '+esc(stageText)+'</p><div class="game-save-actions"><button data-load="'+esc(rec.id)+'">ロード</button><button data-delete="'+esc(rec.id)+'">削除</button></div></article>';
+      const defaultTitle=mapName+" / "+stageText;
+      const saveTitle=String(rec.title||defaultTitle);
+      return '<article class="game-save-record"><strong>💾 '+esc(saveTitle)+'</strong><p>'+esc(formatDate(rec.createdAt))+'</p><p>'+esc(mapName)+' / '+esc(stageText)+'</p><div class="game-save-actions"><button data-load="'+esc(rec.id)+'">ロード</button><button data-rename="'+esc(rec.id)+'">タイトル変更</button><button data-delete="'+esc(rec.id)+'">削除</button></div></article>';
     }).join("");
   }
   function openRecords(){
@@ -9414,6 +9416,19 @@ body.mobile-mode #battlePickupNotice {
     if(t.dataset.load){const rec=readSaves().find(x=>x.id===t.dataset.load);if(!rec)return;const d=rec.data||{};const label=d.halloweenWaveActive?"ハロウィンマップ Wave "+d.halloweenWave:"通常マップ Stage "+d.stage;showOverlay("ロード確認",'<p>このセーブデータをロードしますか？</p><p>'+esc(formatDate(rec.createdAt))+'</p><p>'+esc(label)+'</p><div class="game-save-actions"><button data-load-confirm="'+esc(rec.id)+'">ロードする</button><button id="gameSaveLoadNo">しない</button></div>',false);return;}
     if(t.id==="gameSaveLoadNo"){renderRecords();return;}
     if(t.dataset.loadConfirm){const rec=readSaves().find(x=>x.id===t.dataset.loadConfirm);if(rec)beginLoad(rec);return;}
+    if(t.dataset.rename){
+      const list=readSaves();const rec=list.find(x=>x.id===t.dataset.rename);if(!rec)return;
+      const d=rec.data||{};const mapName=d.halloweenWaveActive?"🎃 ハロウィンマップ":"🌿 通常マップ";const stageText=d.halloweenWaveActive?"Wave "+(d.halloweenWave||1):"Stage "+(d.stage||1);
+      const current=String(rec.title|| (mapName+" / "+stageText));
+      const nextTitle=window.prompt("セーブデータのタイトルを入力してください。",current);
+      if(nextTitle===null){renderRecords();return;}
+      const trimmed=nextTitle.trim();
+      if(!trimmed){message.textContent="タイトルは空欄にできません。";renderRecords();return;}
+      if(trimmed.length>40){message.textContent="タイトルは40文字以内にしてください。";renderRecords();return;}
+      rec.title=trimmed;
+      if(writeSaves(list)){renderRecords();message.textContent="タイトルを変更しました。";}else{message.textContent="タイトルの変更に失敗しました。";renderRecords();}
+      return;
+    }
     if(t.dataset.delete){const rec=readSaves().find(x=>x.id===t.dataset.delete);if(!rec)return;showOverlay("削除確認",'<p>'+esc(formatDate(rec.createdAt))+' の記録を削除しますか？</p><div class="game-save-actions"><button data-delete-confirm="'+esc(rec.id)+'">削除する</button><button id="gameSaveDeleteNo">しない</button></div>',false);return;}
     if(t.id==="gameSaveDeleteNo"){renderRecords();return;}
     if(t.dataset.deleteConfirm){const next=readSaves().filter(x=>x.id!==t.dataset.deleteConfirm);if(writeSaves(next)){renderRecords();message.textContent="セーブ記録を削除しました。";}else message.textContent="削除に失敗しました。";}

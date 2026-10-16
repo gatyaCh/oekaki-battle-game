@@ -5133,7 +5133,7 @@ function beginAttackCharge() {
   if (weapon === "🪄") {
     if (wandCooldown <= 0) {
       fireWandMagic();
-      wandCooldown = window.adminNoCooldown ? 0 : 2.5; // クールタイム 2.5秒
+      wandCooldown = window.adminNoCooldown ? 0 : 1; // クールタイム 1秒
     } else {
       msg.textContent = "⏳ 魔法の杖クールタイム中... (" + wandCooldown.toFixed(1) + "s)";
     }
@@ -5334,12 +5334,12 @@ function damageMinion(m, amount) {
 }
 function fireWandMagic() {
   // 全方位へ17発の拡散弾。追尾せず、各弾は11ダメージ。
-  for (let i = 0; i < 17; i++) {
+  for (let i = 0; i < 20; i++) {
     const angle = Math.PI * 2 * i / 17;
     magicOrbs.push({x:p.x,y:p.y,vx:Math.cos(angle)*3.2,vy:Math.sin(angle)*3.2,life:4.5,
       dmg:(11*atkBuff*(window.halloweenEffects&&window.halloweenEffects.candy>0?3:1)*(kizuku2Active?2:1)*(adminRankAbility==="damage4"?4:1))/(1+(stage-1)*0.013),r:8,homing:false});
   }
-  msg.textContent = "🪄 全方位に拡散弾17発！（1発11ダメージ）";
+  msg.textContent = "🪄 全方位に拡散弾20発！（1発11ダメージ）";
 }
 function attack() {
   if (halloweenWaveActive) { if(halloweenShopOpen||halloweenIntroFrame>=0||halloweenStartBanner>0||halloweenCooldown>0||gameOver||stageClear)return; halloweenCooldown=12; const t=halloweenEnemies.filter(e=>e.alive).sort((x,y)=>Math.hypot(p.x-x.x,p.y-x.y)-Math.hypot(p.x-y.x,p.y-y.y))[0]; if(t&&Math.hypot(p.x-t.x,p.y-t.y)<260){t.hp-=12*halloweenBuff.damage*(ghostTimer>0?0.7:1);awardHalloweenTarget(t);msg.textContent="攻撃！ ソウル："+halloweenSouls;} return; }
@@ -6403,8 +6403,8 @@ function halloweenAttack() {
   }
   if(weapon==="🪄"){
     if(wandCooldown>0){msg.textContent="⏳ 魔法の杖クールタイム中...";return;}
-    for(let i=0;i<17;i++){const a=Math.PI*2*i/17;halloweenMagicOrbs.push({x:p.x,y:p.y,vx:Math.cos(a)*3.2,vy:Math.sin(a)*3.2,life:4.5,dmg:11*atkBuff*halloweenBuff.damage*(window.halloweenEffects&&window.halloweenEffects.candy>0?3:1)*(kizuku2Active?2:1)*(adminRankAbility==="damage4"?4:1),homing:false});}
-    wandCooldown=window.adminNoCooldown?0:2.5;msg.textContent="🪄 全方位に拡散弾17発！（1発11ダメージ）";return;
+    for(let i=0;i<20;i++){const a=Math.PI*2*i/20;halloweenMagicOrbs.push({x:p.x,y:p.y,vx:Math.cos(a)*3.2,vy:Math.sin(a)*3.2,life:4.5,dmg:11*atkBuff*halloweenBuff.damage*(window.halloweenEffects&&window.halloweenEffects.candy>0?3:1)*(kizuku2Active?2:1)*(adminRankAbility==="damage4"?4:1),homing:false});}
+    wandCooldown=window.adminNoCooldown?0:1;msg.textContent="🪄 全方位に拡散弾20発！（1発11ダメージ）";return;
   }
   halloweenCooldown=weapon==="🏹"?18:12;
   if(weapon==="⚔️"){
@@ -7515,7 +7515,7 @@ function updateRikuUI() {
     if (weapon === "🪄") {
       if (wandCooldown <= 0) {
         fireWandMagic();
-        wandCooldown = window.adminNoCooldown ? 0 : 2.5;
+        wandCooldown = window.adminNoCooldown ? 0 : 1;
       } else {
         msg.textContent = "⏳ 魔法の杖クールタイム中...";
       }

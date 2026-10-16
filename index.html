@@ -8742,7 +8742,7 @@ function drawAdminRankBullets(){
 </script>
 
 <script>
-(function initRankPointTable(){const overlay=document.getElementById("rankPointOverlay");const close=document.getElementById("rankPointClose");if(close)close.addEventListener("click",()=>overlay&&overlay.classList.add("hidden"));window.openRankPointTable=()=>{if(overlay)overlay.classList.remove("hidden");};const trophy=document.getElementById("achievementLockBtn");const notice=document.getElementById("achievementLockNotice");if(trophy&&notice){const show=()=>notice.classList.remove("hidden");const hide=()=>notice.classList.add("hidden");trophy.addEventListener("mouseenter",show);trophy.addEventListener("mouseleave",hide);trophy.addEventListener("focus",show);trophy.addEventListener("blur",hide);trophy.addEventListener("click",()=>notice.classList.toggle("hidden"));}})();
+(function initRankPointTable(){const overlay=document.getElementById("rankPointOverlay");const close=document.getElementById("rankPointClose");if(close)close.addEventListener("click",()=>overlay&&overlay.classList.add("hidden"));window.openRankPointTable=()=>{if(overlay)overlay.classList.remove("hidden");};const trophy=document.getElementById("achievementLockBtn");const notice=document.getElementById("achievementLockNotice");if(trophy&&notice){const show=()=>notice.classList.remove("hidden");const hide=()=>notice.classList.add("hidden");trophy.addEventListener("mouseenter",show);trophy.addEventListener("mouseleave",hide);trophy.addEventListener("focus",show);trophy.addEventListener("blur",hide);trophy.addEventListener("click",show);}})();
 </script>
 
 <script>

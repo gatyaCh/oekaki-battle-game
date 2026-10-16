@@ -4803,6 +4803,11 @@ function calcAvgDistToPolyline(points, isClosed = true) {
 }
 function judge() {
   if (locked) return;
+  if(pts.length<35){
+    document.getElementById("result").textContent="✏️ 武器をしっかり描いてね！（もう少し長く描こう）";
+    document.getElementById("battleBtn").classList.add("hidden");
+    return;
+  }
   locked = true;
   ["Wand", "Sword", "Car", "Bow", "Free", "judgeBtn", "clearBtn"].forEach(id => {
     const el = document.getElementById("btn" + id) || document.getElementById(id);
@@ -4820,16 +4825,16 @@ function judge() {
     weapon = deviceMode === 'mobile' ? "⚔️" : "🏹";
   } else if (selectedTarget === '🪄') {
     let avg = calcAvgDistToPolyline(starPoints, true);
-    weapon = (avg < 32 && pts.length > 25) ? "🪄" : fallbackWeapon();
+    weapon = (avg < 25 && pts.length > 40) ? "🪄" : fallbackWeapon();
   } else if (selectedTarget === '⚔️') {
     let avg = calcAvgDistToPolyline(swordPoints, true);
-    weapon = (avg < 35 && pts.length > 25) ? "⚔️" : fallbackWeapon();
+    weapon = (avg < 27 && pts.length > 40) ? "⚔️" : fallbackWeapon();
   } else if (selectedTarget === '🚙') {
     let avg = calcAvgDistToPolyline(carPoints, true);
-    weapon = (avg < 35 && pts.length > 25) ? "🚙" : fallbackWeapon();
+    weapon = (avg < 27 && pts.length > 40) ? "🚙" : fallbackWeapon();
   } else if (selectedTarget === '🏹') {
     let avg = calcAvgDistToPolyline(bowArcPoints, false);
-    weapon = deviceMode === 'mobile' ? fallbackWeapon() : ((avg < 35 && pts.length > 20) ? "🏹" : fallbackWeapon());
+    weapon = deviceMode === 'mobile' ? fallbackWeapon() : ((avg < 27 && pts.length > 35) ? "🏹" : fallbackWeapon());
   } else {
     weapon = fallbackWeapon();
   }
@@ -6447,6 +6452,21 @@ function halloweenResolvePlayerDeath(){
   if(revive){revive=false;p.hp=Math.max(1,Math.ceil(p.max*.35));halloweenEnemyBullets=[];msg.textContent="🗿 復活！ HPが回復した！";return true;}
   p.hp=0;gameOver=true;msg.textContent="💀 ハロウィンマップ GAME OVER";halloweenShowResult(false);return true;
 }
+function halloweenPlayerBlocked(x,y){
+  const layout=halloweenMapLayouts[halloweenWave-1]||halloweenMapLayouts[0];
+  const playerRadius=18, obstacleRadius=31;
+  if(x<playerRadius||x>900-playerRadius||y<80+playerRadius||y>500-playerRadius)return true;
+  return (layout.obstacles||[]).some(([emoji,ox,oy])=>{
+    const r=emoji==="🌳"?36:obstacleRadius;
+    return Math.hypot(x-ox,y-oy)<playerRadius+r;
+  });
+}
+function moveHalloweenPlayer(dx,dy){
+  const nx=Math.max(20,Math.min(880,p.x+dx));
+  const ny=Math.max(80,Math.min(480,p.y+dy));
+  if(!halloweenPlayerBlocked(nx,p.y))p.x=nx;
+  if(!halloweenPlayerBlocked(p.x,ny))p.y=ny;
+}
 function halloweenUpdate() {
   if (window.gameSavePaused) return;
   const rouletteOverlay=document.getElementById("halloweenRouletteOverlay");
@@ -6475,12 +6495,14 @@ function halloweenUpdate() {
   if(halloweenFx.candy>0)speed*=1.8;
   if(halloweenFx.horse>0)speed*=2.3;
   if(halloweenFx.zombie>0)speed*=3;
-  if(keys[window.controlKeys.up]||keys.arrowup)p.y-=speed;
-  if(keys[window.controlKeys.down]||keys.arrowdown)p.y+=speed;
-  if(keys[window.controlKeys.left]||keys.arrowleft)p.x-=speed;
-  if(keys[window.controlKeys.right]||keys.arrowright)p.x+=speed;
+  let moveX=0,moveY=0;
+  if(keys[window.controlKeys.up]||keys.arrowup)moveY-=speed;
+  if(keys[window.controlKeys.down]||keys.arrowdown)moveY+=speed;
+  if(keys[window.controlKeys.left]||keys.arrowleft)moveX-=speed;
+  if(keys[window.controlKeys.right]||keys.arrowright)moveX+=speed;
+  moveHalloweenPlayer(moveX,moveY);
   if(dashTimer>0){
-    p.x+=dashVX;p.y+=dashVY;dashTimer--;
+    moveHalloweenPlayer(dashVX,dashVY);dashTimer--;
     if(!carHitThisDash){
       const hit=halloweenEnemies.find(e=>e.alive&&Math.hypot(p.x-e.x,p.y-e.y)<e.r+p.r);
       if(hit){

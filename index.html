@@ -3836,7 +3836,7 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
         <button onclick="selectNormalMap()">通常マップで遊ぶ</button>
         <button class="map-tutorial-button" onclick="askMapTutorial('normal')">📘 チュートリアル</button>
       </div>
-      <div class="map-option map-locked"><h2>🎃 ハロウィンマップ</h2><p>コードを入力すると先行プレイできます</p><span class="map-lock-label">🔐 先行プレイ</span><button onclick="openHalloweenCodeScreen()">先行プレイコードを入力</button></div>
+      <div class="map-option"><h2>🎃 ハロウィンマップ</h2><p>8ウェーブのハロウィンバトルに挑戦！</p><span class="map-lock-label">🎃 公開中</span><button onclick="selectHalloweenMap()">ハロウィンマップで遊ぶ</button></div>
     </div>
   </div>
 </div>
@@ -4530,7 +4530,7 @@ window.addEventListener('orientationchange', () => {
 });
 
 let pendingMapTutorial = null;
-function selectNormalMap(){window.halloweenWaveActive=false;setScreen("draw");redrawCanvas();}
+function selectNormalMap(){window.halloweenWaveActive=false;setScreen("draw");redrawCanvas();} function selectHalloweenMap(){if(deviceMode==="mobile"){msg.textContent="🎃 ハロウィンマップは現在PC版のみでプレイできます。";return;}window.halloweenWaveActive=true;window.halloweenWaveTestRequested=true;const result=document.getElementById("result");if(result){result.textContent="🎃 ハロウィンマップ";result.style.color="#ffb347";}const battleBtn=document.getElementById("battleBtn");if(battleBtn){battleBtn.classList.remove("hidden");battleBtn.onclick=e=>{e.preventDefault();e.stopPropagation();halloweenStart();};}setScreen("draw");redrawCanvas();msg.textContent="🎃 公開中！武器を選んで「戦闘開始」を押そう。";}
 function openHalloweenCodeScreen(){if(deviceMode==="mobile"){msg.textContent="🎃 ハロウィンマップは現在PC版のみでプレイできます。";return;}const input=document.getElementById("halloweenAccessCode");const message=document.getElementById("halloweenAccessMessage");if(input)input.value="";if(message)message.textContent="";document.getElementById("halloweenCodeScreen").classList.remove("hidden");setTimeout(()=>input&&input.focus(),0);}
 function closeHalloweenCodeScreen(){document.getElementById("halloweenCodeScreen").classList.add("hidden");setScreen("mapSelect");}
 function checkHalloweenAccessCode(){if(deviceMode==="mobile"){msg.textContent="🎃 ハロウィンマップは現在PC版のみでプレイできます。";return;}const input=document.getElementById("halloweenAccessCode");const message=document.getElementById("halloweenAccessMessage");const code=input?input.value.trim().toLowerCase():"";if(code!=="kabotya"){if(message)message.textContent="❌ コードが違います。";if(input){input.select();input.focus();}return;}window.halloweenWaveActive=true;window.halloweenWaveTestRequested=true;document.getElementById("halloweenCodeScreen").classList.add("hidden");const result=document.getElementById("result");if(result){result.textContent="🎃 ハロウィンマップ先行プレイ";result.style.color="#ffb347";}const battleBtn=document.getElementById("battleBtn");if(battleBtn){battleBtn.classList.remove("hidden");battleBtn.onclick=e=>{e.preventDefault();e.stopPropagation();halloweenStart();};}setScreen("draw");redrawCanvas();if(message)message.textContent="";msg.textContent="🔓 解放！武器を決めて「戦闘開始」を押そう。";}

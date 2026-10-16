@@ -5279,7 +5279,7 @@ function getDamage() {
   const halloweenCandyMul = halloweenFx.candy > 0 ? 1.8 : 1;
   const halloweenZombieMul = halloweenFx.zombie > 0 ? 2.3 : 1;
   const kizuku2AtkMul = kizuku2Active ? 2.0 : 1;
-  const sougoAtkMul = (typeof sougoBoostFrames !== "undefined" && sougoBoostFrames > 0) ? 3 : 1;
+  const sougoAtkMul = window.sougoBoostActive ? 3 : 1;
   const adminRankMul = adminRankAbility === "damage4" ? 4.0 : 1;
   return (10 + charge / 8) * atkBuff * 1.03 * kizuku2AtkMul * sougoAtkMul * adminRankMul * halloweenCandyMul * halloweenZombieMul * (1 + upgradeLevels.atk * 0.04);
 }
@@ -8170,11 +8170,12 @@ loop();
     if(specialCodes.sougo && currentScreen === "game" && !gameOver && !stageClear && !halloweenWaveActive){
       if(sougoBoostFrames > 0){
         sougoBoostFrames--;
-        if(sougoBoostFrames === 0) msg.textContent = "⚔️ sougoの攻撃力3倍効果が終了したよ。";
+        if(sougoBoostFrames === 0) { window.sougoBoostActive=false; msg.textContent = "⚔️ sougoの攻撃力3倍効果が終了したよ。"; }
       }else if(!sougoBoostUsed){
         if(sougoFramesUntilBoost > 0) sougoFramesUntilBoost--;
         if(sougoFramesUntilBoost <= 0){
           sougoBoostFrames = 180;
+          window.sougoBoostActive=true;
           sougoBoostUsed = true;
           msg.textContent = "🔥 sougo発動！攻撃力3倍！（3秒間）";
         }
@@ -8245,6 +8246,7 @@ loop();
     specialCodes.sougo=false;
     sougoFramesUntilBoost=0;
     sougoBoostFrames=0;
+    window.sougoBoostActive=false;
     sougoBoostUsed=false;
     if(p && p.__hp20Applied){
       p.max=Math.max(0,p.max-20);

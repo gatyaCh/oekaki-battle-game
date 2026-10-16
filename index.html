@@ -6607,7 +6607,7 @@ function halloweenUpdate() {
               }
             }
             e.specialShotTimer=(e.specialShotTimer||0)+1;
-            if(e.specialShotTimer>=10&&e.specialShotsFired<30){
+            if(halloweenWave!==8&&e.specialShotTimer>=10&&e.specialShotsFired<30){
               const base=Math.atan2(p.y-e.y,p.x-e.x);
               const angle=base+(Math.random()-0.5)*1.15;
               halloweenEnemyBullets.push({x:e.x,y:e.y,vx:Math.cos(angle)*4.5,vy:Math.sin(angle)*4.5,atk:40,fromGhostBoss:false,special:"cosmic"});

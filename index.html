@@ -6373,7 +6373,7 @@ function halloweenStart() {
   halloweenBuff={speed:1,damage:1,reduction:1};halloweenLevels={attack:0,defense:0,speed:0};
   halloweenPlayerBullets=[];halloweenEnemyBullets=[];halloweenMagicOrbs=[];
   halloweenIntroFrame=240;halloweenStartBanner=0;halloweenResultShown=false;halloweenShieldFrames=0;
-  halloweenMoveTarget=null;gameOver=false;stageClear=false;p.x=100;p.y=250;p.hp=p.max;
+  halloweenMoveTarget=null;gameOver=false;stageClear=false;p.x=100;p.y=250;p.max=300;p.hp=300;
   attackCooldown=0;wandCooldown=0;slashTimer=0;dashTimer=0;dashVX=0;dashVY=0;carHitThisDash=false;
   const hadmOpen=document.getElementById("halloweenAdminOpen");if(hadmOpen)hadmOpen.style.display=window.halloweenAdminUnlocked?"block":"none";
   const hadmPanel=document.getElementById("halloweenAdminPanel");if(hadmPanel)hadmPanel.classList.add("hidden");

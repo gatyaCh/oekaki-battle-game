@@ -8926,8 +8926,8 @@ function drawAdminRankBullets(){
 <script>
 (function(){
 const overlay=document.getElementById("halloweenRouletteOverlay"),wheel=document.getElementById("halloweenWheel"),status=document.getElementById("halloweenRouletteStatus"),result=document.getElementById("halloweenRouletteResult"),useBtn=document.getElementById("halloweenUseItemBtn");
-const pool=[{id:"potion",name:"🧙 魔女の回復薬",rate:41,desc:"30%でHP+100、50%でHP+50、20%で毒（5秒間、0.5秒ごとに1ダメージ）"},{id:"horse",name:"👻 ゴーストライダー",rate:10,desc:"5秒間、速度2.3倍・障害物すり抜け"},{id:"candy",name:"🍬 キャンディー",rate:18,desc:"4秒間、攻撃力と速度1.8倍"},{id:"bat",name:"🦇 コウモリシールド",rate:5,desc:"7秒間、受けるダメージを75%軽減"},{id:"allies",name:"🍭 トリック・オア・トリート",rate:25,desc:"仲間4体が7秒間、攻撃力7の弾を発射"},{id:"zombie",name:"🧟 イモータルゾンビ",rate:1,desc:"死亡時に発動。10秒間、無限HP・速度3倍・攻撃力2.3倍。敵の必殺技を封じる"}];
-let chosen=null,spinning=false,paused=false;const defaultRates=[41,10,18,5,25,1];
+const pool=[{id:"potion",name:"🧙 魔女の回復薬",rate:65,desc:"30%でHP+100、50%でHP+50、20%で毒（5秒間、0.5秒ごとに1ダメージ）"},{id:"horse",name:"👻 ゴーストライダー",rate:15,desc:"5秒間、速度2.3倍・障害物すり抜け"},{id:"candy",name:"🍬 キャンディー",rate:10,desc:"4秒間、攻撃力と速度1.8倍"},{id:"bat",name:"🦇 コウモリシールド",rate:4,desc:"7秒間、受けるダメージを75%軽減"},{id:"allies",name:"🍭 トリック・オア・トリート",rate:5,desc:"仲間4体が7秒間、攻撃力7の弾を発射"},{id:"zombie",name:"🧟 イモータルゾンビ",rate:1,desc:"死亡時に発動。10秒間、無限HP・速度3倍・攻撃力2.3倍。敵の必殺技を封じる"}];
+let chosen=null,spinning=false,paused=false;const defaultRates=[65,15,10,4,5,1];
 const rateStorageKey="oekakiHalloweenRouletteRatesV1";
 let matchRateEditorMode=false;
 const rateInputs=document.getElementById("halloweenRateInputs"),rateTotal=document.getElementById("halloweenRateTotal"),rateMessage=document.getElementById("halloweenRateMessage"),rateOverlay=document.getElementById("halloweenRateOverlay");

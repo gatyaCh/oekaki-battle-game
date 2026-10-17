@@ -7030,9 +7030,12 @@ function update() {
       tripleGatlingTarget = targets[0] || null;
     }
     if (tripleGatlingFireTimer % 4 === 0 && targetIsAlive(tripleGatlingTarget)) {
-      // 各ガトリングの1発のダメージは1。3基すべて同じ敵を攻撃する。
-      if (tripleGatlingTarget === enemy) damageEnemy(1);
-      else damageMinion(tripleGatlingTarget, 1);
+      // 3基それぞれ1ダメージ。全員同じ敵を狙い、倒した時点で次の発射周期に次の敵へ切り替える。
+      for (let shot = 0; shot < 3; shot++) {
+        if (!targetIsAlive(tripleGatlingTarget)) break;
+        if (tripleGatlingTarget === enemy) damageEnemy(1);
+        else damageMinion(tripleGatlingTarget, 1);
+      }
       if (!targetIsAlive(tripleGatlingTarget)) tripleGatlingTarget = null;
     }
     if (tripleGatlingTimer <= 0) tripleGatlingTarget = null;

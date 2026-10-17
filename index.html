@@ -5075,7 +5075,7 @@ let adminAttackBullets = [];
 let specialGaugeDamage = 0;
 let specialGaugeMaxed = false; // そのステージで一度MAXになったら100%固定
 let isGatlingActive = false, gatlingTimer = 0;
-let tripleGatlingTimer = 0, tripleGatlingFireTimer = 0;
+let tripleGatlingTimer = 0, tripleGatlingFireTimer = 0, tripleGatlingTarget = null;
 let isBlackholeActive = false, blackholeTimer = 0;
 let bigSlashAnimTimer = 0;
 let isPausedForSpecial = false;
@@ -7019,24 +7019,23 @@ function update() {
   if (tripleGatlingTimer > 0) {
     tripleGatlingTimer = Math.max(0, tripleGatlingTimer - dt);
     tripleGatlingFireTimer++;
-    if (tripleGatlingFireTimer % 4 === 0) {
-      const guns = [
-        {x:p.x-34,y:p.y-28},
-        {x:p.x+34,y:p.y-28},
-        {x:p.x,y:p.y+36}
+    const targetIsAlive = t => t && (t === enemy ? t.hp > 0 : minions.includes(t) && t.hp > 0);
+    // 3基とも同じ敵をロックオン。倒したら次の敵を選び直す。
+    if (!targetIsAlive(tripleGatlingTarget)) {
+      const targets = [
+        ...minions.filter(m => m.hp > 0),
+        ...(enemy && enemy.hp > 0 ? [enemy] : [])
       ];
-      for (const gun of guns) {
-        const targets = [
-          ...minions.filter(m => m.hp > 0).map(target => ({target, minion:true})),
-          ...(enemy && enemy.hp > 0 ? [{target:enemy, minion:false}] : [])
-        ];
-        if (!targets.length) continue;
-        targets.sort((a,b) => Math.hypot(a.target.x-gun.x,a.target.y-gun.y)-Math.hypot(b.target.x-gun.x,b.target.y-gun.y));
-        const chosen = targets[0];
-        if (chosen.minion) damageMinion(chosen.target, 2);
-        else damageEnemy(2);
-      }
+      targets.sort((a,b) => Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y));
+      tripleGatlingTarget = targets[0] || null;
     }
+    if (tripleGatlingFireTimer % 4 === 0 && targetIsAlive(tripleGatlingTarget)) {
+      // 各ガトリングの1発のダメージは1。3基すべて同じ敵を攻撃する。
+      if (tripleGatlingTarget === enemy) damageEnemy(1);
+      else damageMinion(tripleGatlingTarget, 1);
+      if (!targetIsAlive(tripleGatlingTarget)) tripleGatlingTarget = null;
+    }
+    if (tripleGatlingTimer <= 0) tripleGatlingTarget = null;
   }
   if (isGatlingActive) {
     gatlingTimer--;
@@ -7308,6 +7307,11 @@ function draw() {
       {x:p.x,y:p.y+36}
     ];
     ctx.save();
+    if (tripleGatlingTarget && (tripleGatlingTarget === enemy ? tripleGatlingTarget.hp > 0 : minions.includes(tripleGatlingTarget) && tripleGatlingTarget.hp > 0)) {
+      // 必殺技と同じように、狙っている敵までロックオン線を表示。
+      ctx.strokeStyle = "#ffff00"; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(tripleGatlingTarget.x,tripleGatlingTarget.y); ctx.stroke();
+    }
     ctx.font = "25px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
     ctx.strokeStyle = "rgba(253,224,71,0.8)"; ctx.lineWidth = 2;
     guns.forEach(g => { ctx.beginPath(); ctx.arc(g.x,g.y,17,0,Math.PI*2); ctx.stroke(); ctx.fillText("🔫",g.x,g.y); });

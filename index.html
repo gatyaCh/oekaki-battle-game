@@ -4295,7 +4295,7 @@ function syncScreenVisibility() {
   const mapSelect = document.getElementById("mapSelect");
   const titleScreen = document.getElementById("title");
   const selectionOverlayOpen = [tutorialChoice, mapSelect, titleScreen].some(el => el && !el.classList.contains("hidden"));
-  const showMapTools = currentScreen === "draw" && !selectionOverlayOpen && !window.halloweenWaveActive;
+  const showMapTools = currentScreen === "draw" && !selectionOverlayOpen;
   const drawScreen = document.getElementById("draw");
   const drawScreenActuallyVisible = !!drawScreen && !drawScreen.classList.contains("hidden") && getComputedStyle(drawScreen).display !== "none";
   const showAchievementButton = currentScreen === "draw" && drawScreenActuallyVisible && !selectionOverlayOpen;

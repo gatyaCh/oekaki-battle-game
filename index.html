@@ -4136,7 +4136,7 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
     <button id="admMeteor">☄️ メテオ (100ダメ)</button>
     <button id="admBlackhole">🌀 ブラックホール (吸引)</button>
     <button id="admSlash">⚔️ 広範囲スラッシュ (弾消去)</button><hr style="margin: 4px 0;">
-    <button id="admItem">🎁 アイテム選択</button><button id="admHalloweenBox" style="border-color:#fb923c;color:#ffd166;">🎃 ハロウィンボックス召喚（ADMIN限定）</button>
+    <button id="admItem">🎁 アイテム選択</button><button id="admTripleGatling" style="border-color:#facc15;color:#fde68a;">🔫 トリプルガトリング付与（テスト）</button><button id="admHalloweenBox" style="border-color:#fb923c;color:#ffd166;">🎃 ハロウィンボックス召喚（ADMIN限定）</button>
     <button id="admHalloweenRates" style="border-color:#fb923c;color:#ffd166;">🎰 ハロウィン確率設定</button>
     <button id="admDown">⚡️ 敵ダウン</button>
     <button id="admEnemyHP">💀 敵HP変更</button>
@@ -5075,6 +5075,7 @@ let adminAttackBullets = [];
 let specialGaugeDamage = 0;
 let specialGaugeMaxed = false; // そのステージで一度MAXになったら100%固定
 let isGatlingActive = false, gatlingTimer = 0;
+let tripleGatlingTimer = 0, tripleGatlingFireTimer = 0;
 let isBlackholeActive = false, blackholeTimer = 0;
 let bigSlashAnimTimer = 0;
 let isPausedForSpecial = false;
@@ -5289,6 +5290,8 @@ c.onmousemove = e => {
   mouse.y = (e.clientY - r.top) * (CANVAS_HEIGHT / r.height);
 };
 function weightedItem() {
+  // 通常の🎁から独立した0.3%抽選。通常アイテムの確率設定には影響させない。
+  if (Math.random() < 0.003) return "tripleGatling";
   const entries = Object.entries(window.itemRates);
   const total = entries.reduce((a, [, v]) => a + Math.max(0, Number(v) || 0), 0);
   if (total <= 0) return "❤";
@@ -5711,7 +5714,7 @@ function resetGame() {
     mobileControls.style.display = "none";
     mobileControls.style.pointerEvents = "none";
   }
-  isGatlingActive = false; isBlackholeActive = false; bigSlashAnimTimer = 0;
+  isGatlingActive = false; gatlingTimer = 0; tripleGatlingTimer = 0; tripleGatlingFireTimer = 0; isBlackholeActive = false; blackholeTimer = 0; bigSlashAnimTimer = 0;
   locked = false;
   ["Wand", "Sword", "Car", "Bow", "Free", "judgeBtn", "clearBtn"].forEach(id => {
     const el = document.getElementById("btn" + id) || document.getElementById(id);
@@ -7011,6 +7014,28 @@ function update() {
     }
   });
   magmaZones = magmaZones.filter(mz => mz.life > 0);
+  if (tripleGatlingTimer > 0) {
+    tripleGatlingTimer = Math.max(0, tripleGatlingTimer - dt);
+    tripleGatlingFireTimer++;
+    if (tripleGatlingFireTimer % 4 === 0) {
+      const guns = [
+        {x:p.x-34,y:p.y-28},
+        {x:p.x+34,y:p.y-28},
+        {x:p.x,y:p.y+36}
+      ];
+      for (const gun of guns) {
+        const targets = [
+          ...minions.filter(m => m.hp > 0).map(target => ({target, minion:true})),
+          ...(enemy && enemy.hp > 0 ? [{target:enemy, minion:false}] : [])
+        ];
+        if (!targets.length) continue;
+        targets.sort((a,b) => Math.hypot(a.target.x-gun.x,a.target.y-gun.y)-Math.hypot(b.target.x-gun.x,b.target.y-gun.y));
+        const chosen = targets[0];
+        if (chosen.minion) damageMinion(chosen.target, 2);
+        else damageEnemy(2);
+      }
+    }
+  }
   if (isGatlingActive) {
     gatlingTimer--;
     if (gatlingTimer % 4 === 0) damageEnemy(4 * (kizuku2Active ? 2.0 : 1));
@@ -7198,7 +7223,7 @@ function update() {
       if (box.item === "🎃") { boxes.splice(i, 1); window.startHalloweenRoulette && window.startHalloweenRoulette(); continue; }
       if (typeof window.addInventoryItem === "function") {
         window.addInventoryItem(box.item);
-        showBattlePickupNotice(box.item + " GET！🗄️保管庫に追加");
+        showBattlePickupNotice((box.item === "tripleGatling" ? "🔫 トリプルガトリング" : box.item) + " GET！🗄️保管庫に追加");
       } else {
         msg.textContent = "⚠️ アイテム保管庫を読み込めませんでした。";
       }
@@ -7274,6 +7299,18 @@ function draw() {
     ctx.beginPath(); ctx.arc(orb.x, orb.y, orb.r, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = "#e080ff"; ctx.lineWidth = 2; ctx.stroke(); ctx.lineWidth = 1;
   });
+  if (tripleGatlingTimer > 0) {
+    const guns = [
+      {x:p.x-34,y:p.y-28},
+      {x:p.x+34,y:p.y-28},
+      {x:p.x,y:p.y+36}
+    ];
+    ctx.save();
+    ctx.font = "25px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.strokeStyle = "rgba(253,224,71,0.8)"; ctx.lineWidth = 2;
+    guns.forEach(g => { ctx.beginPath(); ctx.arc(g.x,g.y,17,0,Math.PI*2); ctx.stroke(); ctx.fillText("🔫",g.x,g.y); });
+    ctx.restore();
+  }
   if (isGatlingActive) {
     ctx.strokeStyle = "#ffff00"; ctx.lineWidth = 4;
     ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(enemy.x, enemy.y); ctx.stroke();
@@ -7916,10 +7953,19 @@ loop();
     damageEnemy(120 * (kizuku2Active ? 2.0 : 1)); enemyBullets = enemyBullets.filter(b => !b.enemy); bigSlashAnimTimer = 20;
     msg.textContent = "⚔️ 必殺技：【広範囲スラッシュ】(弾全消去+120ダメ)";
   };
+  document.getElementById("admTripleGatling").onclick = () => {
+    if (typeof window.addInventoryItem === "function") {
+      window.addInventoryItem("tripleGatling");
+      msg.textContent = "🔫 トリプルガトリングを保管庫に追加！保管庫から使ってテストできるよ。";
+    } else {
+      msg.textContent = "⚠️ アイテム保管庫を読み込めませんでした。";
+    }
+  };
   document.getElementById("admItem").onclick = () => {
-    const i = prompt("❤ 💪 🛡️ 👻 🔮 ⚡️");
+    const i = prompt("❤ 💪 🛡️ 👻 🔮 ⚡️ / トリプルガトリング");
     if (i) {
-      if (i === "❤") p.hp = p.max;
+      if (i === "トリプルガトリング" || i === "tripleGatling") { tripleGatlingTimer = 5; tripleGatlingFireTimer = 0; msg.textContent = "🔫 トリプルガトリング起動！5秒間、自動攻撃！"; }
+      else if (i === "❤") p.hp = p.max;
       else if (i === "💪") atkBuff += .1;
       else if (i === "🛡️") { shieldEquipped = true; shieldRemainingTime = 7.0; }
       else if (i === "👻") { ghost = true; ghostTimer = 5; }
@@ -9485,7 +9531,8 @@ body.mobile-mode #battlePickupNotice {
     {id:"🗿",name:"🗿 復活",desc:"倒れたときに復活"},
     {id:"👻",name:"👻 ゴースト",desc:"5秒間・攻撃力0.7倍"},
     {id:"🔮",name:"🔮 弾幕",desc:"必殺技を準備"},
-    {id:"⚡️",name:"⚡️ 雷撃",desc:"敵に最大HPの5%ダメージ"}
+    {id:"⚡️",name:"⚡️ 雷撃",desc:"敵に最大HPの5%ダメージ"},
+    {id:"tripleGatling",name:"🔫 トリプルガトリング【激レア・出現率0.3%】",desc:"プレイヤーの周囲に3基設置。5秒間、自動攻撃（1発2ダメージ）"}
   ];
   const halloweenItems=[
     {id:"horse",name:"👻 ゴーストライダー",desc:"5秒間、速度2.3倍・障害物すり抜け"},
@@ -9573,7 +9620,7 @@ body.mobile-mode #battlePickupNotice {
     if(id==="🗿"&&revive)return;
     bag[key]--;
     pendingUses.push({tab,id});
-    const names={ "❤":"❤ 回復アイテム","💪":"💪 攻撃力アップ","🛡️":"🛡️ シールド","🗿":"🗿 復活","👻":"👻 ゴースト","🔮":"🔮 弾幕","⚡️":"⚡️ 雷撃",horse:"👻 ゴーストライダー",candy:"🍬 キャンディー",bat:"🦇 コウモリシールド",allies:"🍭 トリック・オア・トリート",zombie:"🧟 イモータルゾンビ",potionLarge:"🧙 大回復薬",potionSmall:"🧙 小回復薬"};
+    const names={ "❤":"❤ 回復アイテム","💪":"💪 攻撃力アップ","🛡️":"🛡️ シールド","🗿":"🗿 復活","👻":"👻 ゴースト","🔮":"🔮 弾幕","⚡️":"⚡️ 雷撃",tripleGatling:"🔫 トリプルガトリング",horse:"👻 ゴーストライダー",candy:"🍬 キャンディー",bat:"🦇 コウモリシールド",allies:"🍭 トリック・オア・トリート",zombie:"🧟 イモータルゾンビ",potionLarge:"🧙 大回復薬",potionSmall:"🧙 小回復薬"};
     showUsedNotice(names[id]||id);
   }
   function applyUse(use){
@@ -9586,6 +9633,7 @@ body.mobile-mode #battlePickupNotice {
       else if(id==="👻"){ghost=true;ghostTimer=5;enemyBullets=enemyBullets.filter(b=>!b.enemy);enemyRushing=0;rushDownTimer=0;}
       else if(id==="🔮")bulletHellReady=true;
       else if(id==="⚡️"){lightningTimer=2.3;damageEnemy(enemy.maxHp*.05);}
+      else if(id==="tripleGatling"){tripleGatlingTimer=5;tripleGatlingFireTimer=0;msg.textContent="🔫 トリプルガトリング起動！5秒間、自動攻撃！";}
     }else{
       const fx=window.halloweenEffects||(window.halloweenEffects={});
       if(id==="potionLarge")p.hp=Math.min(p.max,p.hp+100);

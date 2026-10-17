@@ -5101,6 +5101,7 @@ window.admin = { god: false, invincible: false, noCooldown: false, autoHeal: fal
 // 宝箱の確率ドロップ設定（通常:70%, レア:25%, 超レア:4.9%, ウルトラレア:0.1%）
 window.chestRates = { normal: 70.0, rare: 25.0, superRare: 4.9, ultraRare: 0.1 };
 window.itemRates = { "❤": 59.1, "💪": 24.3, "🛡️": 10, "👻": 4.1, "🔮": 1.7, "⚡️": 0.7 };
+window.tripleGatlingRate = 0.3;
 window.adminBoxCount = 2;
 let enemySpeedMul = 1;
 function getBossBaseSpeed(stg) {
@@ -5290,8 +5291,9 @@ c.onmousemove = e => {
   mouse.y = (e.clientY - r.top) * (CANVAS_HEIGHT / r.height);
 };
 function weightedItem() {
-  // 通常の🎁から独立した0.3%抽選。通常アイテムの確率設定には影響させない。
-  if (Math.random() < 0.003) return "tripleGatling";
+  // 管理者パネルで変更できる独立抽選率（初期値0.3%）。
+  const tripleRate = Math.max(0, Math.min(100, Number(window.tripleGatlingRate ?? 0.3) || 0));
+  if (Math.random() < tripleRate / 100) return "tripleGatling";
   const entries = Object.entries(window.itemRates);
   const total = entries.reduce((a, [, v]) => a + Math.max(0, Number(v) || 0), 0);
   if (total <= 0) return "❤";
@@ -8032,19 +8034,25 @@ loop();
       };
       document.getElementById("adminRateApply").onclick = () => {
         const inputs = [...box.querySelectorAll("input[data-item]")];
-        const next = {}; let total = 0;
-        inputs.forEach(i => { const v = Number(i.value.trim()); next[i.dataset.item] = v; total += Number.isFinite(v) ? v : 0; });
+        const next = {}; let total = 0; let tripleRate = Number(window.tripleGatlingRate ?? 0.3);
+        inputs.forEach(i => {
+          const v = Number(i.value.trim());
+          if (i.dataset.item === "__tripleGatlingRate") tripleRate = v;
+          else { next[i.dataset.item] = v; total += Number.isFinite(v) ? v : 0; }
+        });
         const msgEl = document.getElementById("adminRateMsg");
-        if (inputs.some(i => { const v = Number(i.value.trim()); return i.value.trim() === "" || !Number.isFinite(v) || v < 0; })) {
-          msgEl.textContent = "⚠️ 0以上の数字を入力してください"; return;
+        if (inputs.some(i => { const v = Number(i.value.trim()); return i.value.trim() === "" || !Number.isFinite(v) || v < 0 || (i.dataset.item === "__tripleGatlingRate" && v > 100); })) {
+          msgEl.textContent = "⚠️ 0以上の数字を入力してください（トリプルガトリングは最大100%）"; return;
         }
         if (total <= 0) { msgEl.textContent = "⚠️ 少なくとも1つは0%より大きくしてください"; return; }
-        window.itemRates = next; boxes = []; spawnBox();
-        msgEl.textContent = "✅ 適用されました！";
+        window.itemRates = next;
+        window.tripleGatlingRate = tripleRate;
+        boxes = []; spawnBox();
+        msgEl.textContent = "✅ 適用されました！（トリプルガトリング " + tripleRate + "%）";
       };
     }
     const rows = document.getElementById("adminRateRows");
-    rows.innerHTML = Object.entries(window.itemRates).map(([item, rate]) => `<label style="display:block;margin:5px 0">${item} <input data-item="${item}" type="text" value="${rate}" style="width:70px"> %</label>`).join("");
+    rows.innerHTML = Object.entries(window.itemRates).map(([item, rate]) => `<label style="display:block;margin:5px 0">${item} <input data-item="${item}" type="text" value="${rate}" style="width:70px"> %</label>`).join("") + `<hr><label style="display:block;margin:5px 0">🔫 トリプルガトリング（激レア） <input data-item="__tripleGatlingRate" type="text" value="${Number(window.tripleGatlingRate ?? 0.3)}" style="width:70px"> %</label><small>※独立抽選。通常アイテムの確率とは別に設定できます（0〜100%）。</small>`;
   };
   document.getElementById("admBoxCount").onclick = () => {
     const input = prompt("ドロップボックス数を設定（1〜10）", window.adminBoxCount);

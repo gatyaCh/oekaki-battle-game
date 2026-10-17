@@ -6389,7 +6389,7 @@ function halloweenSpawnWave() {
   halloweenEnemies=[];halloweenPlayerBullets=[];halloweenEnemyBullets=[];halloweenMagicOrbs=[];
   // プレイヤーとボスの初期位置は通常マップに合わせる。
   p.x=100;p.y=250;halloweenCooldown=0;halloweenMinionsSummoned=0;
-  halloweenMinionSpawnTimer=halloweenWave===4?600:halloweenWave===8?180:0;
+  halloweenMinionSpawnTimer=600; // ボス生存中は10秒ごとに子分を召喚
   const bossHp=(halloweenWave===8?900:halloweenWave===4?500:650)+({1:100,2:110,3:130,4:200,5:300,6:370,7:430,8:500}[halloweenWave]||0);
   halloweenEnemies.push({x:700,y:250,hp:bossHp,maxHp:bossHp,r:36,kind,atk:20,cooldown:45,moveSpeed:halloweenWave===8?1.0:halloweenWave===4?0.88:0.72,isBoss:true,isGhostBoss:halloweenWave===4,ghostCycleFrames:0,ghostInvisibleFrames:0,ghostInvisible:false,specialCharge:0,specialPhase:"charging",specialTimer:0,specialShotTimer:0,specialShotsFired:0,isMinion:false,alive:true});
 
@@ -6448,7 +6448,7 @@ function halloweenAttack() {
   if((!Number.isFinite(dx)||!Number.isFinite(dy)||(Math.abs(dx)+Math.abs(dy)<1))&&nearest){dx=nearest.x-p.x;dy=nearest.y-p.y;}
   const d=Math.hypot(dx,dy)||1;
   const dmg=getDamage()*halloweenBuff.damage*(ghostTimer>0?0.7:1);
-  const award=(target)=>{if(target.hp<=0&&target.alive){const reward=target.isBoss?10:target.isMinion?3:2;target.hp=0;target.alive=false;halloweenSouls+=reward;msg.textContent=(target.isBoss?"👹 ボス撃破！":target.isMinion?"👾 子分撃破！":"敵を撃破！")+" 💫+"+reward;}};
+  const award=(target)=>{if(target.hp<=0&&target.alive){const reward=target.isTimedBossMinion?1:target.isBoss?10:target.isMinion?3:2;target.hp=0;target.alive=false;halloweenSouls+=reward;triggerTimedMinionHalloweenRoulette(target);msg.textContent=(target.isBoss?"👹 ボス撃破！":target.isMinion?"👾 子分撃破！":"敵を撃破！")+" 💫+"+reward;}};
   if(bulletHellReady){
     bulletHellReady=false;
     for(let i=0;i<12;i++){const a=Math.PI*2*i/12;halloweenPlayerBullets.push({x:p.x,y:p.y,vx:Math.cos(a)*7,vy:Math.sin(a)*7,damage:dmg*0.8});}
@@ -6475,10 +6475,20 @@ function halloweenAttack() {
     msg.textContent="🚙 突進攻撃！";return;
   }
 }
+function triggerTimedMinionHalloweenRoulette(target){
+  if(!target||!target.isTimedBossMinion||target.halloweenRouletteChecked)return;
+  target.halloweenRouletteChecked=true;
+  if(Math.random()<0.01&&typeof window.startHalloweenRoulette==="function"){
+    halloweenItemBox={x:p.x,y:p.y,opened:true,item:"🎃"};
+    msg.textContent="🎃 レアドロップ！1%の確率でハロウィンルーレット！";
+    window.startHalloweenRoulette();
+  }
+}
 function awardHalloweenTarget(target){
   if(!target||target.hp>0||!target.alive)return;
-  const reward=target.isBoss?10:target.isMinion?3:2;
+  const reward=target.isTimedBossMinion?1:target.isBoss?10:target.isMinion?3:2;
   target.hp=0;target.alive=false;halloweenSouls+=reward;
+  triggerTimedMinionHalloweenRoulette(target);
   if(target.isBoss&&halloweenWave>=1&&halloweenWave<=8){
     if(!halloweenBossWavesDefeated.includes(halloweenWave))halloweenBossWavesDefeated.push(halloweenWave);
     if(halloweenWave===4&&typeof window.unlockHalloweenLimitedSkin==="function")window.unlockHalloweenLimitedSkin("witch");
@@ -6565,23 +6575,25 @@ function halloweenUpdate() {
   if(halloweenShieldFrames>0)halloweenShieldFrames--;
   if(slashTimer>0)slashTimer--;
 
-  // 通常マップのStage 4・8と同じ子分召喚ルール。
-  const liveMinions=halloweenEnemies.filter(e=>e.isMinion&&e.alive).length;
+  // 全ウェーブ共通：ボスが生存している間、10秒ごとに子分を1体召喚する。
   const liveBoss=halloweenEnemies.find(e=>e.isBoss&&e.alive);
-  if(halloweenWave===4&&liveBoss&&liveMinions<5){
+  if(liveBoss){
     halloweenMinionSpawnTimer--;
     if(halloweenMinionSpawnTimer<=0){
-      halloweenEnemies.push({x:liveBoss.x,y:liveBoss.y,hp:53,maxHp:53,r:18,kind:(halloweenWave-1)%4,atk:10,cooldown:80,alive:true,isBoss:false,isMinion:true,minionType:"normal"});
-      halloweenMinionsSummoned++;halloweenMinionSpawnTimer=500;
+      const hp=30+halloweenWave*10;
+      halloweenEnemies.push({
+        x:Math.max(35,Math.min(865,liveBoss.x+(Math.random()*50-25))),
+        y:Math.max(90,Math.min(470,liveBoss.y+(Math.random()*50-25))),
+        hp,maxHp:hp,r:18,kind:(halloweenWave-1)%4,atk:3+halloweenWave*2,
+        cooldown:Math.max(55,110-halloweenWave*5),alive:true,isBoss:false,isMinion:true,
+        minionType:"normal",isTimedBossMinion:true
+      });
+      halloweenMinionsSummoned++;
+      halloweenMinionSpawnTimer=600;
       msg.textContent="👾 ボスが子分を召喚した！";
     }
-  }else if(halloweenWave===8&&liveBoss&&halloweenMinionsSummoned<10&&liveMinions<2){
-    halloweenMinionSpawnTimer--;
-    if(halloweenMinionSpawnTimer<=0){
-      halloweenEnemies.push({x:liveBoss.x+(Math.random()*40-20),y:liveBoss.y+(Math.random()*40-20),hp:97,maxHp:97,r:20,kind:(halloweenWave-1)%4,atk:20,cooldown:60,alive:true,isBoss:false,isMinion:true,minionType:"shield_minion"});
-      halloweenMinionsSummoned++;halloweenMinionSpawnTimer=180;
-      msg.textContent="🛡️ ボスがシールド子分を召喚！ ("+halloweenMinionsSummoned+"/10)";
-    }
+  }else{
+    halloweenMinionSpawnTimer=600;
   }
 
   // 魔法の杖の弾：拡散弾は直進し、追尾しない。

@@ -9801,7 +9801,7 @@ body.mobile-mode #battlePickupNotice {
    const icon=document.createElement("div");icon.className="achievement-row-icon";icon.textContent=done?item.skin:"🔒";
    const content=document.createElement("div");content.className="achievement-row-content";
    const title=document.createElement("strong");title.textContent=(item.hidden&&!done)?"？？？":item.name;
-   const desc=document.createElement("span");desc.textContent=(item.hidden&&!done)?(allOtherDone?"最後の試練は、通常マップにあるらしい……":"条件は秘密。"):item.desc;
+   const desc=document.createElement("span");desc.textContent=(item.hidden&&!done)?(allOtherDone?"何も使わずに……？":"条件は秘密。"):item.desc;
    content.append(title,desc);
    const status=document.createElement("b");status.className="achievement-row-status";status.textContent=done?"解除済み":"未解除";
    row.append(icon,content,status);rows.appendChild(row);

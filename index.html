@@ -9964,6 +9964,17 @@ judge=function(){
  document.getElementById("result").innerHTML="🎉 判定成功！武器：<span style='color:#00ffff;'>"+target+"</span>";
  document.getElementById("battleBtn").classList.remove("hidden");
 };
+// 既存のクリックイベントが古いjudge関数を保持していても、必ず新しい判定ラッパーを通す。
+const previewJudgeButton=document.getElementById("judgeBtn");
+if(previewJudgeButton){
+ previewJudgeButton.addEventListener("click",function(e){
+  if(!NEW_WEAPONS.includes(selectedTarget))return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  judge();
+ },true);
+}
+
 
 const originalBeginAttackCharge=beginAttackCharge,originalReleaseAttackCharge=releaseAttackCharge;
 function liveTargets(){if(window.halloweenWaveActive){try{return halloweenEnemies.filter(e=>e.alive&&e.hp>0);}catch(e){return [];}}return [...minions.filter(m=>m.hp>0),...(enemy.hp>0?[enemy]:[])];}

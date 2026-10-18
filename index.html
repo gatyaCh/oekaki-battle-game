@@ -9827,7 +9827,7 @@ body.mobile-mode #battlePickupNotice {
  window.openGameAchievements=openPanel;
  ensurePanel();
  const trophy=document.getElementById("achievementLockBtn");
- if(trophy){trophy.disabled=false;trophy.style.display="";trophy.style.visibility="visible";trophy.style.pointerEvents="auto";trophy.setAttribute("aria-label","実績一覧");trophy.title="実績一覧";trophy.textContent="🏆️";trophy.addEventListener("click",e=>{e.preventDefault();e.stopImmediatePropagation();openPanel();});}
+ if(trophy){trophy.disabled=false;trophy.setAttribute("aria-label","実績一覧");trophy.title="実績一覧";trophy.textContent="🏆️";trophy.addEventListener("mouseenter",()=>{const n=document.getElementById("achievementLockNotice");if(n)n.classList.add("hidden");});trophy.addEventListener("focus",()=>{const n=document.getElementById("achievementLockNotice");if(n)n.classList.add("hidden");});trophy.addEventListener("click",e=>{e.preventDefault();e.stopImmediatePropagation();openPanel();});}
  const battle=document.getElementById("battleBtn");
  if(battle)battle.addEventListener("click",()=>unlockAchievement(1));
  if(typeof window.showResult==="function"){

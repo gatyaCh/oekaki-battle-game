@@ -7535,14 +7535,21 @@ function draw() {
   }
   let enemyFace = "😈";
   if (stun > 0 || rushDownTimer > 0 || lightningTimer > 0 || isBlackholeActive) enemyFace = "😵";
-  /* ボスの描画状態を明示して、先に描いたエフェクト等のCanvas設定に影響されないようにする */
+  /* 絵文字フォントが描画されない環境でもボスが見えるよう、先に図形の顔を描く */
   ctx.save();
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = "source-over";
-  ctx.font = "36px serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
+  ctx.fillStyle = "#7f1d1d";
+  ctx.beginPath(); ctx.arc(enemy.x, enemy.y, 24, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = "#fecaca"; ctx.lineWidth = 3; ctx.stroke();
   ctx.fillStyle = "#ffffff";
+  ctx.beginPath(); ctx.arc(enemy.x - 8, enemy.y - 5, 4, 0, Math.PI * 2); ctx.arc(enemy.x + 8, enemy.y - 5, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#111827";
+  ctx.beginPath(); ctx.arc(enemy.x - 8, enemy.y - 5, 1.8, 0, Math.PI * 2); ctx.arc(enemy.x + 8, enemy.y - 5, 1.8, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = "#fecaca"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(enemy.x, enemy.y + 5, 9, 0.15, Math.PI - 0.15); ctx.stroke();
+  ctx.font = "36px serif";
   ctx.fillText(enemyFace, enemy.x, enemy.y);
   ctx.restore();
   /* メインの敵HPバー：敵の頭上に常時表示 */

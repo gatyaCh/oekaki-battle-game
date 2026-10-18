@@ -7515,6 +7515,14 @@ function draw() {
   let enemyFace = "😈";
   if (stun > 0 || rushDownTimer > 0 || lightningTimer > 0 || isBlackholeActive) enemyFace = "😵";
   ctx.font = "36px serif"; ctx.fillText(enemyFace, enemy.x, enemy.y);
+  /* 絵文字フォントが使えない環境でもボスの顔が見えるように描画 */
+  ctx.save();
+  ctx.fillStyle = "#7c3aed"; ctx.strokeStyle = "#fca5a5"; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.arc(enemy.x, enemy.y, 20, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "#fff";
+  ctx.beginPath(); ctx.arc(enemy.x - 7, enemy.y - 4, 3.5, 0, Math.PI * 2); ctx.arc(enemy.x + 7, enemy.y - 4, 3.5, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = "#fff"; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(enemy.x, enemy.y + 5, 7, 0.15, Math.PI - 0.15); ctx.stroke();
+  ctx.restore();
   /* メインの敵HPバー：敵の頭上に常時表示 */
   {
     const bw=62,bh=7,ratio=Math.max(0,Math.min(1,enemy.hp/Math.max(1,enemy.maxHp)));
@@ -7529,6 +7537,11 @@ function draw() {
     ctx.font = "28px serif";
     let icon = m.type === "jellyfish" ? "🪼" : m.type === "magma" ? "🔥" : m.type === "wind" ? "🌪️" : m.type === "shield_minion" ? "🛡️" : "👿";
     ctx.fillText(icon, m.x, m.y);
+    /* 子分も絵文字非対応環境向けに顔を重ねて描画 */
+    ctx.save(); ctx.fillStyle = m.type === "magma" ? "#ea580c" : "#6d28d9"; ctx.strokeStyle = "#fca5a5"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(m.x, m.y, 12, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(m.x - 4, m.y - 2, 2, 0, Math.PI * 2); ctx.arc(m.x + 4, m.y - 2, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(m.x, m.y + 3, 4, 0.2, Math.PI - 0.2); ctx.stroke(); ctx.restore();
     let barW = 34, barH = 5, barX = m.x - barW / 2, barY = m.y - 20;
     ctx.fillStyle = "rgba(0, 0, 0, 0.7)"; ctx.fillRect(barX - 1, barY - 1, barW + 2, barH + 2);
     let ratio = Math.max(0, m.hp / m.maxHp);

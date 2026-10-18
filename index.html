@@ -4828,8 +4828,8 @@ function calcAvgDistToPolyline(points, isClosed = true) {
 function judge() {
   if (locked) return;
 
-  // 線の長さ制限を少しだけ緩和（35 → 30）
-  if (pts.length < 30) {
+  // テスト武器の線の長さ制限を20点に設定
+  if (pts.length < 20) {
     document.getElementById("result").textContent =
       "✏️ 武器をしっかり描いてね！（もう少し長く描こう）";
     document.getElementById("battleBtn").classList.add("hidden");

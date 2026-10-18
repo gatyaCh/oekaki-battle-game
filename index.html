@@ -9038,8 +9038,8 @@ return origUpdate.apply(this,arguments)};
    {id:'achievement_08',name:'ランクアップ！',icon:'🚀',achievement:true,achievementId:8,condition:'初めてランクB以上を獲得すると解放！',category:'実績解除２'},
    {id:'achievement_09',name:'ハロウィン探検隊',icon:'🍬',achievement:true,achievementId:9,condition:'ハロウィンマップのWave 3に到達すると解放！',category:'実績解除２'},
    {id:'achievement_10',name:'真の勇者',icon:'🗡️',achievement:true,achievementId:10,condition:'ハロウィンマップの最終ボスを倒すと解放！',category:'実績解除２'},
-   {id:'achievement_11',name:'魂の収集家',icon:'💫',achievement:true,achievementId:11,condition:'1回のハロウィンバトルで魂を100個以上集めると解放！',category:'実績解除２'},
-   {id:'achievement_12',name:'？？？',icon:'🤫',achievement:true,achievementId:12,condition:'隠し実績：ハロウィンマップを必殺技・復活アイテムなしでクリアすると解放！',category:'実績解除２'},
+   {id:'achievement_11',name:'魂の収集家',icon:'💫',achievement:true,achievementId:11,condition:'1回の通常バトルでポイントを100以上獲得すると解放！',category:'実績解除２'},
+   {id:'achievement_12',name:'？？？',icon:'🤫',achievement:true,achievementId:12,condition:'隠し実績：通常マップを必殺技・復活アイテムなしでクリアすると解放！',category:'実績解除２'},
    {id:'gold',name:'ゴールド',icon:'🥇',condition:'ステージ4をクリアしよう！',category:'コモン'},
    {id:'magic',name:'マジック',icon:'🫥',condition:'Aランクを達成しよう！',category:'コモン'},
    {id:'gamer',name:'ゲーマー',icon:'👾',condition:'強化ショップでどれか1つをレベルMAXにしよう！',category:'コモン'},
@@ -9837,7 +9837,12 @@ body.mobile-mode #battlePickupNotice {
    const damage=(typeof totalDamageTaken!=="undefined")?totalDamageTaken:Infinity;
    const out=original.apply(this,arguments);
    if(wasCleared){unlockAchievement(2);if(damage===0)unlockAchievement(4);}
-   try{const rank=typeof resultData!=="undefined"&&resultData?String(resultData.rank||""):"";if(rank&& !/^C(?:ランク)?$/i.test(rank)&&!rank.includes("Cランク"))unlockAchievement(8);}catch(e){}
+   try{
+    if(typeof resultData!=="undefined"&&resultData&&Number(resultData.total)>=100)unlockAchievement(11);
+    if(wasCleared&&typeof specialUsed!=="undefined"&&!specialUsed&&typeof reviveUsed!=="undefined"&&!reviveUsed)unlockAchievement(12);
+    const rank=typeof resultData!=="undefined"&&resultData?String(resultData.rank||""):"";
+    if(rank&&!/^C(?:ランク)?$/i.test(rank)&&!rank.includes("Cランク"))unlockAchievement(8);
+   }catch(e){}
    return out;
   };
  }
@@ -9862,14 +9867,6 @@ body.mobile-mode #battlePickupNotice {
  if(typeof window.unlockHalloweenLimitedSkin==="function"){
   const original=window.unlockHalloweenLimitedSkin;
   window.unlockHalloweenLimitedSkin=function(key){const out=original.apply(this,arguments);if(key==="spider")unlockAchievement(9);return out;};
- }
- if(typeof window.awardHalloweenTarget==="function"){
-  const original=window.awardHalloweenTarget;
-  window.awardHalloweenTarget=function(target){const out=original.apply(this,arguments);try{if(target&&target.isBoss&&typeof halloweenWave!=="undefined"&&halloweenWave===8)unlockAchievement(10);if(typeof halloweenSouls!=="undefined"&&halloweenSouls>=100)unlockAchievement(11);}catch(e){}return out;};
- }
- if(typeof window.halloweenShowResult==="function"){
-  const original=window.halloweenShowResult;
-  window.halloweenShowResult=function(cleared){const out=original.apply(this,arguments);if(cleared){try{if(typeof specialUsed!=="undefined"&&!specialUsed&&typeof reviveUsed!=="undefined"&&!reviveUsed)unlockAchievement(12);}catch(e){}}return out;};
  }
  renderAchievements();
 })();

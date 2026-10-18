@@ -4828,7 +4828,8 @@ function calcAvgDistToPolyline(points, isClosed = true) {
 function judge() {
   if (locked) return;
 
-  if (pts.length < 35) {
+  // 線の長さ制限を少しだけ緩和（35 → 30）
+  if (pts.length < 30) {
     document.getElementById("result").textContent =
       "✏️ 武器をしっかり描いてね！（もう少し長く描こう）";
     document.getElementById("battleBtn").classList.add("hidden");
@@ -4850,8 +4851,8 @@ function judge() {
     const ys = pts.map(p => p.y);
     const w = Math.max(...xs) - Math.min(...xs);
     const h = Math.max(...ys) - Math.min(...ys);
-    if (w > h * 1.35) return "🚙";
-    if (h > w * 1.25) return "⚔️";
+    if (w > h * 1.2) return "🚙"; // 1.35 → 1.2 に緩和（横長なら車になりやすく）
+    if (h > w * 1.1) return "⚔️"; // 1.25 → 1.1 に緩和（縦長なら剣になりやすく）
     return "🏹";
   }
 
@@ -4862,68 +4863,147 @@ function judge() {
     const minY = Math.min(...ys), maxY = Math.max(...ys);
     const w = maxX - minX, h = maxY - minY;
     const ratio = w / Math.max(1, h);
+
     const pathLength = pts.reduce(
-      (sum, p, i) => i ? sum + Math.hypot(p.x - pts[i - 1].x, p.y - pts[i - 1].y) : 0,
+      (sum, p, i) =>
+        i ? sum + Math.hypot(
+          p.x - pts[i - 1].x,
+          p.y - pts[i - 1].y
+        ) : 0,
       0
     );
+
     const start = pts[0], end = pts[pts.length - 1];
-    const endGap = Math.hypot(start.x - end.x, start.y - end.y);
+    const endGap = Math.hypot(
+      start.x - end.x,
+      start.y - end.y
+    );
     const closure = endGap / Math.max(1, Math.hypot(w, h));
+
     let turns = 0, sharpTurns = 0;
 
     for (let i = 2; i < pts.length; i++) {
-      const a = Math.atan2(pts[i - 1].y - pts[i - 2].y, pts[i - 1].x - pts[i - 2].x);
-      const b = Math.atan2(pts[i].y - pts[i - 1].y, pts[i].x - pts[i - 1].x);
+      const a = Math.atan2(
+        pts[i - 1].y - pts[i - 2].y,
+        pts[i - 1].x - pts[i - 2].x
+      );
+      const b = Math.atan2(
+        pts[i].y - pts[i - 1].y,
+        pts[i].x - pts[i - 1].x
+      );
+
       let delta = Math.abs(b - a);
       if (delta > Math.PI) delta = 2 * Math.PI - delta;
-      if (delta > 0.48) turns++;
-      if (delta > 1.0) sharpTurns++;
+
+      if (delta > 0.45) turns++; // 0.48 → 0.45（曲がりを検知しやすく）
+      if (delta > 0.9) sharpTurns++; // 1.0 → 0.9（カクカクを検知しやすく）
     }
 
     const density = pathLength / Math.max(1, Math.hypot(w, h));
 
-    // 新武器の形状判定を既存武器より先に行う。
-    if (sharpTurns >= 4 && turns >= 7) return "⚡️";
-    if (closure < 0.32 && ratio >= 0.65 && ratio <= 1.45 && density > 1.65) return "🚨";
-    if (closure > 0.10 && closure < 0.55 && (ratio > 1.45 || ratio < 0.68)) return "🪃";
+    // 【⚡️ 雷】カクカクの回数制限を緩和
+    if (sharpTurns >= 3 && turns >= 5) return "⚡️";
 
-    // 既存武器の判定
-    if (w > 55 && h > 35 && ratio > 1.15 && ratio < 2.8 && closure < 0.24 && density > 1.45) return "🚙";
-    if (sharpTurns >= 5 && turns >= 10 && density > 2.0) return "🪄";
-    if (closure > 0.22 && ratio < 0.9) return "⚔️";
-    if (closure > 0.22 && ratio >= 0.9 && ratio < 1.25 && sharpTurns >= 3) return "🪄";
-    if (closure > 0.2 && ratio >= 0.9) return "🚙";
-    if (ratio > 1.0 && turns < Math.max(8, pts.length * 0.12)) return "🏹";
+    // 【🚨 サイレン】丸の閉じ具合や比率をマイルドに
+    if (
+      closure < 0.40 &&
+      ratio >= 0.55 && ratio <= 1.55 &&
+      density > 1.35
+    ) return "🚨";
+
+    // 【🪃 ブーメラン】
+    if (
+      closure > 0.05 && closure < 0.65 &&
+      (ratio > 1.25 || ratio < 0.75)
+    ) return "🪃";
+
+    // 【🚙 車】
+    if (
+      w > 40 && h > 25 &&
+      ratio > 1.0 && ratio < 3.2 &&
+      closure < 0.35 &&
+      density > 1.20
+    ) return "🚙";
+
+    // 【🪄 杖（星）】複雑な描き方の基準を緩和
+    if (
+      sharpTurns >= 4 &&
+      turns >= 8 &&
+      density > 1.6
+    ) return "🪄";
+
+    // 【⚔️ 剣】
+    if (closure > 0.15 && ratio < 1.1) return "⚔️";
+
+    // 【🪄 杖（丸っこい星）】
+    if (
+      closure > 0.18 &&
+      ratio >= 0.8 && ratio < 1.35 &&
+      sharpTurns >= 2
+    ) return "🪄";
+
+    // 【🚙 車２】
+    if (closure > 0.15 && ratio >= 0.8) return "🚙";
+
+    // 【🏹 弓】
+    if (
+      ratio > 0.8 &&
+      turns < Math.max(10, pts.length * 0.15)
+    ) return "🏹";
+
     return fallbackWeapon();
   }
 
+  // なぞり書きモードの判定（許容するズレ avg を 25〜27 から 35〜38 に拡大）
   if (selectedTarget === "FREE") {
     weapon = classifyFreeDrawing();
+
   } else if (selectedTarget === "🪄") {
     const avg = calcAvgDistToPolyline(starPoints, true);
-    weapon = avg < 25 && pts.length > 40 ? "🪄" : fallbackWeapon();
+    weapon = avg < 35 && pts.length > 35
+      ? "🪄"
+      : fallbackWeapon();
+
   } else if (selectedTarget === "⚔️") {
     const avg = calcAvgDistToPolyline(swordPoints, true);
-    weapon = avg < 27 && pts.length > 40 ? "⚔️" : fallbackWeapon();
+    weapon = avg < 38 && pts.length > 35
+      ? "⚔️"
+      : fallbackWeapon();
+
   } else if (selectedTarget === "🚙") {
     const avg = calcAvgDistToPolyline(carPoints, true);
-    weapon = avg < 27 && pts.length > 40 ? "🚙" : fallbackWeapon();
+    weapon = avg < 38 && pts.length > 35
+      ? "🚙"
+      : fallbackWeapon();
+
   } else if (selectedTarget === "🏹") {
     const avg = calcAvgDistToPolyline(bowArcPoints, false);
-    weapon = deviceMode === "mobile" ? fallbackWeapon() : (avg < 27 && pts.length > 35 ? "🏹" : fallbackWeapon());
-  } else if (selectedTarget === "⚡️" || selectedTarget === "🪃" || selectedTarget === "🚨") {
-    weapon = classifyFreeDrawing() === selectedTarget ? selectedTarget : fallbackWeapon();
+    weapon = deviceMode === "mobile"
+      ? fallbackWeapon()
+      : (avg < 38 && pts.length > 30 ? "🏹" : fallbackWeapon());
+
+  } else if (
+    selectedTarget === "⚡️" ||
+    selectedTarget === "🪃" ||
+    selectedTarget === "🚨"
+  ) {
+    weapon = classifyFreeDrawing() === selectedTarget
+      ? selectedTarget
+      : fallbackWeapon();
+
   } else {
     weapon = fallbackWeapon();
   }
 
   if (selectedTarget !== "FREE" && weapon !== selectedTarget) {
     document.getElementById("result").innerHTML =
-      "❌ なぞり失敗！判定：" + weapon + " になりました（やり直し不可）";
+      "❌ なぞり失敗！判定：" + weapon +
+      " になりました（やり直し不可）";
   } else {
     document.getElementById("result").innerHTML =
       "🎉 判定成功！武器：" + weapon;
   }
+
   document.getElementById("battleBtn").classList.remove("hidden");
 }
 function startCountdown() {

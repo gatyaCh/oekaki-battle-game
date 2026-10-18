@@ -9797,11 +9797,11 @@ body.mobile-mode #battlePickupNotice {
   const progress=panel.querySelector("#achievementProgress");if(progress)progress.textContent="解除済み："+count+" / 12";
   const rows=panel.querySelector("#achievementList");if(!rows)return;rows.innerHTML="";
   list.forEach(item=>{
-   const done=completed(item.id),row=document.createElement("div");row.className="achievement-row"+(done?" achievement-done":"");
+   const done=completed(item.id),allOtherDone=item.id===12&&list.filter(x=>x.id!==12).every(x=>completed(x.id)),row=document.createElement("div");row.className="achievement-row"+(done?" achievement-done":"");
    const icon=document.createElement("div");icon.className="achievement-row-icon";icon.textContent=done?item.skin:"🔒";
    const content=document.createElement("div");content.className="achievement-row-content";
    const title=document.createElement("strong");title.textContent=(item.hidden&&!done)?"？？？":item.name;
-   const desc=document.createElement("span");desc.textContent=(item.hidden&&!done)?"条件は秘密。":item.desc;
+   const desc=document.createElement("span");desc.textContent=(item.hidden&&!done)?(allOtherDone?"最後の試練は、通常マップにあるらしい……":"条件は秘密。"):item.desc;
    content.append(title,desc);
    const status=document.createElement("b");status.className="achievement-row-status";status.textContent=done?"解除済み":"未解除";
    row.append(icon,content,status);rows.appendChild(row);
@@ -9839,7 +9839,8 @@ body.mobile-mode #battlePickupNotice {
    if(wasCleared){unlockAchievement(2);if(damage===0)unlockAchievement(4);}
    try{
     if(typeof resultData!=="undefined"&&resultData&&Number(resultData.total)>=100)unlockAchievement(11);
-    if(wasCleared&&typeof specialUsed!=="undefined"&&!specialUsed&&typeof reviveUsed!=="undefined"&&!reviveUsed)unlockAchievement(12);
+    const allOtherAchievementsDone=list.filter(x=>x.id!==12).every(x=>completed(x.id));
+    if(allOtherAchievementsDone&&wasCleared&&typeof specialUsed!=="undefined"&&!specialUsed&&typeof reviveUsed!=="undefined"&&!reviveUsed)unlockAchievement(12);
     const rank=typeof resultData!=="undefined"&&resultData?String(resultData.rank||""):"";
     if(rank&&!/^C(?:ランク)?$/i.test(rank)&&!rank.includes("Cランク"))unlockAchievement(8);
    }catch(e){}

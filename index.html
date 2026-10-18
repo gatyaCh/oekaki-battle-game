@@ -10110,3 +10110,51 @@ const originalStartCountdown=startCountdown;startCountdown=function(){boomerangs
 const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChooseDevice(mode);refreshWeaponButtons();};
 })();
 </script>
+
+
+/* DESKTOP SAFETY FIX: mobile-mode chosen on a wide browser must not pin HUD to the viewport edge */
+@media (min-width: 901px) {
+  body.mobile-mode #gameArea {
+    justify-content: center !important;
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+    gap: 6px !important;
+  }
+  body.mobile-mode #gameArea #specialGaugeContainer,
+  body.mobile-mode #gameArea #chargeContainer {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    transform: none !important;
+    width: min(100%, 760px) !important;
+    max-width: 760px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    margin: 6px auto !important;
+    padding: 6px 14px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    border: 1px solid #475569 !important;
+    border-radius: 10px !important;
+    background: rgba(15,23,42,.92) !important;
+    z-index: 2 !important;
+  }
+  body.mobile-mode #gameArea #specialGauge { width: 200px !important; height: 16px !important; }
+  body.mobile-mode #gameArea #specialGaugePercent { font-size: 12px !important; }
+  body.mobile-mode #gameArea #charge { width: min(360px,45vw) !important; height: 16px !important; }
+  body.mobile-mode #gameArea #game {
+    width: min(900px, 88vw) !important;
+    max-width: 900px !important;
+    max-height: none !important;
+    height: auto !important;
+    margin: 0 auto !important;
+  }
+  body.mobile-mode #battlePickupNotice {
+    right: max(12px, calc((100vw - 1180px) / 2)) !important;
+    max-width: 320px !important;
+  }
+}

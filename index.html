@@ -3795,29 +3795,6 @@ html body #draw:not(.hidden) #gearBtn {
 body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
 #halloweenCodeScreen{position:fixed;inset:0;z-index:10020;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.88);color:#fff}#halloweenCodeScreen.hidden{display:none!important}#halloweenCodeScreen .map-confirm-card{max-height:90vh;overflow:auto}
 </style>
-
-<style id="device-select-screen-privacy-fix">
-/* 機種選択画面を中央にまとめ、コードや開発用テキストが表示されないようにする */
-#title.device-select-screen { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; min-height:100vh; box-sizing:border-box; padding:24px 16px; text-align:center; }
-#title.device-select-screen h1 { margin:0 0 8px !important; }
-#title.device-select-screen h2 { margin:0 0 8px !important; }
-#title.device-select-screen > button:not(#gameSaveOpenBtn) { min-width:220px; }
-#title.device-select-screen #gameSaveOpenBtn { position:absolute; top:12px; right:12px; }
-</style>
-
-<style id="desktop-safety-fix">
-/* DESKTOP SAFETY FIX: mobile-mode chosen on a wide browser must not pin HUD to the viewport edge */
-@media (min-width: 901px) {
-  body.mobile-mode #gameArea { justify-content: center !important; padding-top: 12px !important; padding-bottom: 12px !important; gap: 6px !important; }
-  body.mobile-mode #gameArea #specialGaugeContainer,
-  body.mobile-mode #gameArea #chargeContainer { position: relative !important; top: auto !important; left: auto !important; right: auto !important; transform: none !important; width: min(100%, 760px) !important; max-width: 760px !important; height: 34px !important; min-height: 34px !important; margin: 6px auto !important; padding: 6px 14px !important; box-sizing: border-box !important; display: flex !important; align-items: center !important; justify-content: center !important; gap: 12px !important; border: 1px solid #475569 !important; border-radius: 10px !important; background: rgba(15,23,42,.92) !important; z-index: 2 !important; }
-  body.mobile-mode #gameArea #specialGauge { width: 200px !important; height: 16px !important; }
-  body.mobile-mode #gameArea #specialGaugePercent { font-size: 12px !important; }
-  body.mobile-mode #gameArea #charge { width: min(360px,45vw) !important; height: 16px !important; }
-  body.mobile-mode #gameArea #game { width: min(900px, 88vw) !important; max-width: 900px !important; max-height: none !important; height: auto !important; margin: 0 auto !important; }
-  body.mobile-mode #battlePickupNotice { right: max(12px, calc((100vw - 1180px) / 2)) !important; max-width: 320px !important; }
-}
-</style>
 </head>
 <body>
 
@@ -3843,7 +3820,7 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
   </div>
 </div>
 
-<div id="title" class="device-select-screen">
+<div id="title">
   <button id="gameSaveOpenBtn" type="button" aria-label="セーブ記録を開く">💾</button>
   <h1 style="margin: 40px 0 20px;">🎨 正式版お絵かきバトルVer1.00</h1>
   <h2 style="margin-bottom:16px;">遊ぶ端末を選択してください</h2>
@@ -7535,23 +7512,7 @@ function draw() {
   }
   let enemyFace = "😈";
   if (stun > 0 || rushDownTimer > 0 || lightningTimer > 0 || isBlackholeActive) enemyFace = "😵";
-  /* 絵文字フォントが描画されない環境でもボスが見えるよう、先に図形の顔を描く */
-  ctx.save();
-  ctx.globalAlpha = 1;
-  ctx.globalCompositeOperation = "source-over";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillStyle = "#7f1d1d";
-  ctx.beginPath(); ctx.arc(enemy.x, enemy.y, 24, 0, Math.PI * 2); ctx.fill();
-  ctx.strokeStyle = "#fecaca"; ctx.lineWidth = 3; ctx.stroke();
-  ctx.fillStyle = "#ffffff";
-  ctx.beginPath(); ctx.arc(enemy.x - 8, enemy.y - 5, 4, 0, Math.PI * 2); ctx.arc(enemy.x + 8, enemy.y - 5, 4, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = "#111827";
-  ctx.beginPath(); ctx.arc(enemy.x - 8, enemy.y - 5, 1.8, 0, Math.PI * 2); ctx.arc(enemy.x + 8, enemy.y - 5, 1.8, 0, Math.PI * 2); ctx.fill();
-  ctx.strokeStyle = "#fecaca"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(enemy.x, enemy.y + 5, 9, 0.15, Math.PI - 0.15); ctx.stroke();
-  ctx.font = "36px serif";
-  ctx.fillText(enemyFace, enemy.x, enemy.y);
-  ctx.restore();
+  ctx.font = "36px serif"; ctx.fillText(enemyFace, enemy.x, enemy.y);
   /* メインの敵HPバー：敵の頭上に常時表示 */
   {
     const bw=62,bh=7,ratio=Math.max(0,Math.min(1,enemy.hp/Math.max(1,enemy.maxHp)));
@@ -10128,23 +10089,23 @@ const originalBeginAttackCharge=beginAttackCharge,originalReleaseAttackCharge=re
 function liveTargets(){if(window.halloweenWaveActive){try{return halloweenEnemies.filter(e=>e.alive&&e.hp>0);}catch(e){return [];}}return [...minions.filter(m=>m.hp>0),...(enemy.hp>0?[enemy]:[])];}
 function nearestTarget(x=p.x,y=p.y){const a=liveTargets();a.sort((u,v)=>Math.hypot(u.x-x,u.y-y)-Math.hypot(v.x-x,v.y-y));return a[0]||null;}
 function hitNewWeaponTarget(t,dmg){if(!t||t.hp<=0)return;if(window.halloweenWaveActive){halloweenDamageTarget(t,dmg);if(t.hp<=0)awardHalloweenTarget(t);}else if(t===enemy)damageEnemy(dmg);else damageMinion(t,dmg);}
-function addBoomerang(){if(boomerangs.length)return;const t=nearestTarget();const dx=t?t.x-p.x:1,dy=t?t.y-p.y:0,d=Math.hypot(dx,dy)||1;boomerangs.push({x:p.x,y:p.y,vx:dx/d*12.48,vy:dy/d*12.48,dir:"out",travel:0,hit:new Set(),life:240});}
+function addBoomerang(){const dx=mouse.x-p.x,dy=mouse.y-p.y,d=Math.hypot(dx,dy)||1;boomerangs.push({x:p.x,y:p.y,vx:dx/d*10.4,vy:dy/d*10.4,dir:"out",travel:0,hit:new Set(),life:240});}
 function fireSmallLightning(){const t=nearestTarget();const dx=t?t.x-p.x:mouse.x-p.x,dy=t?t.y-p.y:mouse.y-p.y,d=Math.hypot(dx,dy)||1;smallLightnings.push({x:p.x,y:p.y,vx:dx/d*5,vy:dy/d*5,target:t,homing:180,life:240,dmg:4});smallLightningCooldownFrames=42;}
 function startThunderStorm(ratio){thunderCooldownFrames=900;thunderStormFrames=420;thunderStrikeFrames=0;thunderStrikeLimit=ratio>=.9?6:ratio>=.6?5:4;thunderShadows=[];msg.textContent="⚡ サンダーインパクト！7秒間、雷が降る！";}
-function newWeaponAttack(){if(gameOver||stageClear||isPausedForSpecial||bossSpecialState)return;if(weapon==="🪃"){if(boomerangs.length)return;addBoomerang();return;}if(weapon==="⚡️"){if(thunderCooldownFrames>0){fireSmallLightning();return;}startThunderStorm(Math.max(0,Math.min(1,charge/150)));return;}if(weapon==="🚨"){const reach=74,targets=liveTargets().filter(t=>Math.hypot(t.x-p.x,t.y-p.y)<reach);if(targets.length){targets.forEach(t=>hitNewWeaponTarget(t,typeof getDamage==="function"?getDamage():15));slashTimer=12;return;}if(policeStock>0&&policeTraps.length<6){policeTraps.push({x:p.x,y:p.y,r:25,life:Infinity});policeStock--;msg.textContent="🕳️ トラップ設置！ 残り "+policeStock+" 個";}else msg.textContent=policeStock<=0?"🕳️ トラップ補充中...":"🕳️ トラップは最大6個まで設置中だよ。";}}
-beginAttackCharge=function(){if(!NEW_WEAPONS.includes(weapon))return originalBeginAttackCharge();if(weapon==="🪃"&&boomerangs.length)return;if(gameOver||stageClear||isPausedForSpecial||window.gameSavePaused||(attackCooldown>0&&weapon!=="⚡️"))return;if(weapon==="⚡️"&&thunderCooldownFrames>0){if(smallLightningCooldownFrames<=0){fireSmallLightning();smallLightningUsedOnPress=true;}else msg.textContent="⚡ 小さな雷のクールタイム中...";return;}charging=true;charge=0;if(weapon==="⚡️")thunderChargeFrames=0;};
+function newWeaponAttack(){if(gameOver||stageClear||isPausedForSpecial||bossSpecialState)return;if(weapon==="🪃"){addBoomerang();return;}if(weapon==="⚡️"){if(thunderCooldownFrames>0){fireSmallLightning();return;}startThunderStorm(Math.max(0,Math.min(1,charge/150)));return;}if(weapon==="🚨"){const reach=74,targets=liveTargets().filter(t=>Math.hypot(t.x-p.x,t.y-p.y)<reach);if(targets.length){targets.forEach(t=>hitNewWeaponTarget(t,typeof getDamage==="function"?getDamage():15));slashTimer=12;return;}if(policeStock>0&&policeTraps.length<6){policeTraps.push({x:p.x,y:p.y,r:25,life:Infinity});policeStock--;msg.textContent="🕳️ トラップ設置！ 残り "+policeStock+" 個";}else msg.textContent=policeStock<=0?"🕳️ トラップ補充中...":"🕳️ トラップは最大6個まで設置中だよ。";}}
+beginAttackCharge=function(){if(!NEW_WEAPONS.includes(weapon))return originalBeginAttackCharge();if(gameOver||stageClear||isPausedForSpecial||window.gameSavePaused||(attackCooldown>0&&weapon!=="⚡️"))return;if(weapon==="⚡️"&&thunderCooldownFrames>0){if(smallLightningCooldownFrames<=0){fireSmallLightning();smallLightningUsedOnPress=true;}else msg.textContent="⚡ 小さな雷のクールタイム中...";return;}charging=true;charge=0;if(weapon==="⚡️")thunderChargeFrames=0;};
 releaseAttackCharge=function(){if(!NEW_WEAPONS.includes(weapon))return originalReleaseAttackCharge();if(weapon==="⚡️"&&thunderCooldownFrames>0){smallLightningUsedOnPress=false;charging=false;charge=0;thunderChargeFrames=0;return;}if(!charging)return;charging=false;newWeaponAttack();attackCooldown=(window.adminNoCooldown?0:0.3);charge=0;thunderChargeFrames=0;};
 function updateNewWeaponSystems(){if(currentScreen!=="game"||window.gameSavePaused||isPausedForSpecial||gameOver||stageClear)return;if(thunderCooldownFrames>0)thunderCooldownFrames--;if(smallLightningCooldownFrames>0)smallLightningCooldownFrames--;if(policeStock<6){policeRechargeFrames++;if(policeRechargeFrames>=600){policeStock++;policeRechargeFrames=0;}}else policeRechargeFrames=0;if(weapon==="⚡️"&&charging&&thunderCooldownFrames<=0){thunderChargeFrames=Math.min(360,thunderChargeFrames+1);charge=150*Math.pow(thunderChargeFrames/360,1.55);}
  if(thunderStormFrames>0){thunderStormFrames--;thunderStrikeFrames++;if((thunderStrikeFrames===1||thunderStrikeFrames%78===1)&&Math.floor((thunderStrikeFrames-1)/78)<thunderStrikeLimit){thunderShadows.push({x:60+Math.random()*780,y:75+Math.random()*350,wait:120});}}
  for(let i=thunderShadows.length-1;i>=0;i--){const sh=thunderShadows[i];sh.wait--;if(sh.wait<=0){liveTargets().forEach(t=>{if(Math.hypot(t.x-sh.x,t.y-sh.y)<95)hitNewWeaponTarget(t,10);});thunderShadows.splice(i,1);}}
- for(let i=boomerangs.length-1;i>=0;i--){const b=boomerangs[i];b.life--;if(b.dir==="out"){b.x+=b.vx;b.y+=b.vy;b.travel+=Math.hypot(b.vx,b.vy);liveTargets().forEach(t=>{if(!b.hit.has(t)&&Math.hypot(t.x-b.x,t.y-b.y)<28){hitNewWeaponTarget(t,13);b.hit.add(t);}});if(b.travel>=320)b.dir="return";}else{const dx=p.x-b.x,dy=p.y-b.y,d=Math.hypot(dx,dy)||1;b.x+=dx/d*12.48;b.y+=dy/d*12.48;if(d<13)boomerangs.splice(i,1);}if(b.life<=0){const j=boomerangs.indexOf(b);if(j>=0)boomerangs.splice(j,1);}}
+ for(let i=boomerangs.length-1;i>=0;i--){const b=boomerangs[i];b.life--;if(b.dir==="out"){b.x+=b.vx;b.y+=b.vy;b.travel+=Math.hypot(b.vx,b.vy);liveTargets().forEach(t=>{if(!b.hit.has(t)&&Math.hypot(t.x-b.x,t.y-b.y)<28){hitNewWeaponTarget(t,13);b.hit.add(t);}});if(b.travel>=260)b.dir="return";}else{const dx=p.x-b.x,dy=p.y-b.y,d=Math.hypot(dx,dy)||1;b.x+=dx/d*10.4;b.y+=dy/d*10.4;if(d<13)boomerangs.splice(i,1);}if(b.life<=0){const j=boomerangs.indexOf(b);if(j>=0)boomerangs.splice(j,1);}}
  for(let i=smallLightnings.length-1;i>=0;i--){const b=smallLightnings[i];b.life--;if(b.homing>0&&b.target&&b.target.hp>0){const dx=b.target.x-b.x,dy=b.target.y-b.y,d=Math.hypot(dx,dy)||1;b.vx+=(dx/d*5-b.vx)*.12;b.vy+=(dy/d*5-b.vy)*.12;b.homing--;}else if(b.homing>0){b.target=nearestTarget(b.x,b.y);}b.x+=b.vx;b.y+=b.vy;const t=liveTargets().find(t=>Math.hypot(t.x-b.x,t.y-b.y)<25);if(t){hitNewWeaponTarget(t,4);smallLightnings.splice(i,1);continue;}if(b.life<=0||b.x<0||b.x>900||b.y<0||b.y>500)smallLightnings.splice(i,1);}
  for(let i=policeTraps.length-1;i>=0;i--){const tr=policeTraps[i];tr.life--;if(tr.life<=0){policeTraps.splice(i,1);continue;}const t=liveTargets().find(t=>Math.hypot(t.x-tr.x,t.y-tr.y)<(t.r||20)+tr.r);if(t){hitNewWeaponTarget(t,3);t.trappedFrames=360;t.trapX=t.x;t.trapY=t.y;if(t===enemy){stun=Math.max(stun,360);enemyShootTimer=999999;}else if(t.cooldown!==undefined)t.cooldown=Math.max(Number(t.cooldown)||0,60);policeTraps.splice(i,1);}}
  try{const arr=window.halloweenWaveActive?halloweenEnemies:[enemy,...minions];arr.forEach(t=>{if(t.trappedFrames>0){t.trappedFrames--;t.x=t.trapX;t.y=t.trapY;["cooldown","shootTimer","attackTimer","fireTimer","spawnTimer"].forEach(k=>{if(k in t)t[k]=Math.max(Number(t[k])||0,60);});}else if(t.trappedFrames===0){t.trappedFrames=-1;if(t===enemy)enemyShootTimer=60;}});}catch(e){}
  let count=document.getElementById("policeTrapCount");if(!count){const hp=document.getElementById("maxHpText");if(hp&&hp.parentElement){count=document.createElement("span");count.id="policeTrapCount";hp.parentElement.appendChild(count);}}if(count){count.style.display=weapon==="🚨"?"inline":"none";count.textContent="🕳️ × "+policeStock;}
 }
 const originalUpdate=update;function prepareTrappedTargets(){try{const arr=window.halloweenWaveActive?halloweenEnemies:[enemy,...minions];arr.forEach(t=>{if(t.trappedFrames>0){t.x=t.trapX;t.y=t.trapY;["cooldown","shootTimer","attackTimer","fireTimer","spawnTimer"].forEach(k=>{if(k in t)t[k]=Math.max(Number(t[k])||0,60);});}});if(!window.halloweenWaveActive&&enemy.trappedFrames>0)enemyShootTimer=999999;}catch(e){}}update=function(){prepareTrappedTargets();originalUpdate();updateNewWeaponSystems();};
-const originalDraw=draw;draw=function(){originalDraw();try{ctx.save();ctx.globalAlpha=1;ctx.globalCompositeOperation="source-over";ctx.textAlign="center";ctx.textBaseline="middle";if(enemy&&enemy.hp>0){ctx.fillStyle="#7f1d1d";ctx.beginPath();ctx.arc(enemy.x,enemy.y,24,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#fecaca";ctx.lineWidth=3;ctx.stroke();ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(enemy.x-8,enemy.y-5,4,0,Math.PI*2);ctx.arc(enemy.x+8,enemy.y-5,4,0,Math.PI*2);ctx.fill();}minions.forEach(m=>{if(!m||m.hp<=0)return;ctx.fillStyle="#6b7280";ctx.beginPath();ctx.arc(m.x,m.y,Number(m.r)||18,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#fff";ctx.lineWidth=2;ctx.stroke();});boomerangs.forEach(b=>{ctx.font="30px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("🪃",b.x,b.y);});smallLightnings.forEach(b=>{ctx.font="18px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("⚡",b.x,b.y);});thunderShadows.forEach(sh=>{ctx.fillStyle="rgba(20,20,20,.35)";ctx.beginPath();ctx.ellipse(sh.x,sh.y,48,23,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle="rgba(255,255,255,.8)";ctx.lineWidth=2;ctx.stroke();});policeTraps.forEach(tr=>{ctx.font="27px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("🕳️",tr.x,tr.y);});ctx.restore();}catch(e){}};
+const originalDraw=draw;draw=function(){originalDraw();try{ctx.save();boomerangs.forEach(b=>{ctx.font="30px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("🪃",b.x,b.y);});smallLightnings.forEach(b=>{ctx.font="18px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("⚡",b.x,b.y);});thunderShadows.forEach(sh=>{ctx.fillStyle="rgba(20,20,20,.35)";ctx.beginPath();ctx.ellipse(sh.x,sh.y,48,23,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle="rgba(255,255,255,.8)";ctx.lineWidth=2;ctx.stroke();});policeTraps.forEach(tr=>{ctx.font="27px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("🕳️",tr.x,tr.y);});ctx.restore();}catch(e){}};
 const originalStartCountdown=startCountdown;startCountdown=function(){boomerangs=[];smallLightnings=[];thunderShadows=[];policeTraps=[];policeStock=6;policeRechargeFrames=0;thunderCooldownFrames=0;thunderStormFrames=0;thunderChargeFrames=0;originalStartCountdown();};
 const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChooseDevice(mode);refreshWeaponButtons();};
 })();

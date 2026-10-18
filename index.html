@@ -3795,6 +3795,15 @@ html body #draw:not(.hidden) #gearBtn {
 body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
 #halloweenCodeScreen{position:fixed;inset:0;z-index:10020;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.88);color:#fff}#halloweenCodeScreen.hidden{display:none!important}#halloweenCodeScreen .map-confirm-card{max-height:90vh;overflow:auto}
 </style>
+
+<style id="device-select-screen-privacy-fix">
+/* 機種選択画面を中央にまとめ、コードや開発用テキストが表示されないようにする */
+#title.device-select-screen { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; min-height:100vh; box-sizing:border-box; padding:24px 16px; text-align:center; }
+#title.device-select-screen h1 { margin:0 0 8px !important; }
+#title.device-select-screen h2 { margin:0 0 8px !important; }
+#title.device-select-screen > button:not(#gameSaveOpenBtn) { min-width:220px; }
+#title.device-select-screen #gameSaveOpenBtn { position:absolute; top:12px; right:12px; }
+</style>
 </head>
 <body>
 
@@ -3820,7 +3829,7 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
   </div>
 </div>
 
-<div id="title">
+<div id="title" class="device-select-screen">
   <button id="gameSaveOpenBtn" type="button" aria-label="セーブ記録を開く">💾</button>
   <h1 style="margin: 40px 0 20px;">🎨 正式版お絵かきバトルVer1.00</h1>
   <h2 style="margin-bottom:16px;">遊ぶ端末を選択してください</h2>

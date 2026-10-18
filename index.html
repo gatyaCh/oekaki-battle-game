@@ -9932,7 +9932,8 @@ function previewJudgeGuide(target){
  if(!path||pts.length<15)return false;
  const drawn=pts.map(p=>({x:p.x,y:p.y}));
  const guideSamples=previewSamplePath(path);
- const tolerance=29;
+ // PCのマウス入力は点の間隔が広くなりやすいため、少し余裕を持たせる。
+ const tolerance=42;
  let drawnNear=0,drawnDistance=0;
  drawn.forEach(p=>{const d=previewDistanceToPath(p,path);drawnDistance+=d;if(d<=tolerance)drawnNear++;});
  let guideNear=0,guideDistance=0;
@@ -9940,7 +9941,8 @@ function previewJudgeGuide(target){
  const drawnCoverage=drawnNear/drawn.length;
  const guideCoverage=guideNear/guideSamples.length;
  const average=(drawnDistance/drawn.length)+(guideDistance/guideSamples.length);
- return drawnCoverage>=0.78&&guideCoverage>=0.76&&average/2<=24;
+ // 線の近さだけでなく、ガイド全体をなぞれているかも確認する。
+ return drawnCoverage>=0.68&&guideCoverage>=0.62&&average/2<=35;
 }
 const originalSelectTargetWeapon=selectTargetWeapon;
 selectTargetWeapon=function(type){if(NEW_WEAPONS.includes(type)){if(locked)return;if(!isUnlocked(type)){openUnlock(type);return;}selectedTarget=type;["Wand","Sword","Free"].forEach(w=>document.getElementById("btn"+w)?.classList.remove("active"));NEW_WEAPONS.forEach(w=>document.querySelector('[data-weapon="'+w+'"]')?.classList.remove("active"));document.querySelector('[data-weapon="'+type+'"]')?.classList.add("active");const guide=document.getElementById("guideInstruction");if(guide)guide.textContent=({"🪃":"🪃 ガイドラインを一周なぞろう！","⚡️":"⚡️ ガイドラインを一周なぞろう！","🚨":"🚨 ガイドラインを一周なぞろう！"})[type];clearCanvas();return;}return originalSelectTargetWeapon(type);};

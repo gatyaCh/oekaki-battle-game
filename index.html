@@ -5231,7 +5231,10 @@ document.addEventListener("keydown", e => {
   if (halloweenWaveActive) {
     if (k === window.controlKeys.attack || window.attackExtraKeys?.includes(k)) {
       e.preventDefault();
-      if (!e.repeat) halloweenAttack();
+      if (!e.repeat) {
+        if (["🪃","⚡️","🚨"].includes(weapon)) beginAttackCharge();
+        else halloweenAttack();
+      }
     }
     return;
   }
@@ -5261,7 +5264,7 @@ document.addEventListener("keyup", e => {
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
   const k = e.key.toLowerCase();
   keys[k] = false;
-  if (halloweenWaveActive) return;
+  if (halloweenWaveActive && !["🪃","⚡️","🚨"].includes(weapon)) return;
   if (k === window.controlKeys.attack || window.attackExtraKeys?.includes(k)) {
     e.preventDefault();
     releaseAttackCharge();
@@ -9917,7 +9920,7 @@ function startThunderStorm(ratio){thunderCooldownFrames=900;thunderStormFrames=4
 function newWeaponAttack(){if(gameOver||stageClear||isPausedForSpecial||bossSpecialState)return;if(weapon==="🪃"){addBoomerang();return;}if(weapon==="⚡️"){if(thunderCooldownFrames>0){fireSmallLightning();return;}startThunderStorm(Math.max(0,Math.min(1,charge/150)));return;}if(weapon==="🚨"){const reach=74,targets=liveTargets().filter(t=>Math.hypot(t.x-p.x,t.y-p.y)<reach);if(targets.length){targets.forEach(t=>hitNewWeaponTarget(t,typeof getDamage==="function"?getDamage():15));slashTimer=12;return;}if(policeStock>0&&policeTraps.length<6){policeTraps.push({x:p.x,y:p.y,r:25,life:Infinity});policeStock--;msg.textContent="🕳️ トラップ設置！ 残り "+policeStock+" 個";}else msg.textContent=policeStock<=0?"🕳️ トラップ補充中...":"🕳️ トラップは最大6個まで設置中だよ。";}}
 beginAttackCharge=function(){if(!NEW_WEAPONS.includes(weapon))return originalBeginAttackCharge();if(gameOver||stageClear||isPausedForSpecial||window.gameSavePaused||(attackCooldown>0&&weapon!=="⚡️"))return;if(weapon==="⚡️"&&thunderCooldownFrames>0){if(smallLightningCooldownFrames<=0){fireSmallLightning();smallLightningUsedOnPress=true;}else msg.textContent="⚡ 小さな雷のクールタイム中...";return;}charging=true;charge=0;if(weapon==="⚡️")thunderChargeFrames=0;};
 releaseAttackCharge=function(){if(!NEW_WEAPONS.includes(weapon))return originalReleaseAttackCharge();if(weapon==="⚡️"&&thunderCooldownFrames>0){smallLightningUsedOnPress=false;charging=false;charge=0;thunderChargeFrames=0;return;}if(!charging)return;charging=false;newWeaponAttack();attackCooldown=(window.adminNoCooldown?0:0.3);charge=0;thunderChargeFrames=0;};
-function updateNewWeaponSystems(){if(currentScreen!=="game")return;if(thunderCooldownFrames>0)thunderCooldownFrames--;if(smallLightningCooldownFrames>0)smallLightningCooldownFrames--;if(policeStock<6){policeRechargeFrames++;if(policeRechargeFrames>=600){policeStock++;policeRechargeFrames=0;}}else policeRechargeFrames=0;if(weapon==="⚡️"&&charging&&thunderCooldownFrames<=0){thunderChargeFrames=Math.min(360,thunderChargeFrames+1);charge=150*Math.pow(thunderChargeFrames/360,1.55);}
+function updateNewWeaponSystems(){if(currentScreen!=="game"||window.gameSavePaused||isPausedForSpecial||gameOver||stageClear)return;if(thunderCooldownFrames>0)thunderCooldownFrames--;if(smallLightningCooldownFrames>0)smallLightningCooldownFrames--;if(policeStock<6){policeRechargeFrames++;if(policeRechargeFrames>=600){policeStock++;policeRechargeFrames=0;}}else policeRechargeFrames=0;if(weapon==="⚡️"&&charging&&thunderCooldownFrames<=0){thunderChargeFrames=Math.min(360,thunderChargeFrames+1);charge=150*Math.pow(thunderChargeFrames/360,1.55);}
  if(thunderStormFrames>0){thunderStormFrames--;thunderStrikeFrames++;if((thunderStrikeFrames===1||thunderStrikeFrames%78===1)&&Math.floor((thunderStrikeFrames-1)/78)<thunderStrikeLimit){thunderShadows.push({x:60+Math.random()*780,y:75+Math.random()*350,wait:120});}}
  for(let i=thunderShadows.length-1;i>=0;i--){const sh=thunderShadows[i];sh.wait--;if(sh.wait<=0){liveTargets().forEach(t=>{if(Math.hypot(t.x-sh.x,t.y-sh.y)<65)hitNewWeaponTarget(t,10);});thunderShadows.splice(i,1);}}
  for(let i=boomerangs.length-1;i>=0;i--){const b=boomerangs[i];b.life--;if(b.dir==="out"){b.x+=b.vx;b.y+=b.vy;b.travel+=Math.hypot(b.vx,b.vy);liveTargets().forEach(t=>{if(!b.hit.has(t)&&Math.hypot(t.x-b.x,t.y-b.y)<28){hitNewWeaponTarget(t,13);b.hit.add(t);}});if(b.travel>=260)b.dir="return";}else{const dx=p.x-b.x,dy=p.y-b.y,d=Math.hypot(dx,dy)||1;b.x+=dx/d*10.4;b.y+=dy/d*10.4;if(d<13)boomerangs.splice(i,1);}if(b.life<=0){const j=boomerangs.indexOf(b);if(j>=0)boomerangs.splice(j,1);}}

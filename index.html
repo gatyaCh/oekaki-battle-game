@@ -3837,7 +3837,13 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
   <div id="adminAbuseLockedCard">
     <h1 id="adminAbuseLockedTitle">👑 ADMIN ABUSE 👑</h1>
     <p class="admin-abuse-note">※ PC版のみプレイ可能です</p>
-    <div class="admin-abuse-lock">🔒 現在ロック中</div>
+    <div id="adminAbuseLockStatus" class="admin-abuse-lock">🔒 現在ロック中</div>
+    <div id="adminAbuseCodeArea">
+      <p>テスト解放コードを入力</p>
+      <input id="adminAbuseCodeInput" type="text" autocomplete="off" placeholder="解放コード" aria-label="ADMIN ABUSE解放コード">
+      <button type="button" onclick="submitAdminAbuseUnlockCode()">解放</button>
+      <p id="adminAbuseCodeMessage" role="status" aria-live="polite"></p>
+    </div>
     <div><button type="button" onclick="closeAdminAbuseLockedScreen()">戻る</button></div>
   </div>
 </div>
@@ -9698,17 +9704,43 @@ body.mobile-mode #battlePickupNotice {
 
 
 <script id="admin-abuse-locked-script">
-function openAdminAbuseLockedScreen(){
-  const screen=document.getElementById("adminAbuseLockedScreen");
-  if(screen) screen.classList.remove("hidden");
-}
-function closeAdminAbuseLockedScreen(){
-  const screen=document.getElementById("adminAbuseLockedScreen");
-  if(screen) screen.classList.add("hidden");
-}
-document.addEventListener("keydown",function(e){
-  if(e.key==="Escape") closeAdminAbuseLockedScreen();
-});
+(function(){
+  const STORAGE_KEY="oekakiBattleAdminAbuseUnlockedTest";
+  function isUnlocked(){try{return localStorage.getItem(STORAGE_KEY)==="1";}catch(e){return false;}}
+  function renderAdminAbuseLock(){
+    const status=document.getElementById("adminAbuseLockStatus");
+    const area=document.getElementById("adminAbuseCodeArea");
+    if(status)status.textContent=isUnlocked()?"🔓 テスト解放済み！":"🔒 現在ロック中";
+    if(area)area.style.display=isUnlocked()?"none":"block";
+  }
+  window.openAdminAbuseLockedScreen=function(){
+    const screen=document.getElementById("adminAbuseLockedScreen");
+    if(screen)screen.classList.remove("hidden");
+    renderAdminAbuseLock();
+  };
+  window.closeAdminAbuseLockedScreen=function(){
+    const screen=document.getElementById("adminAbuseLockedScreen");
+    if(screen)screen.classList.add("hidden");
+  };
+  window.submitAdminAbuseUnlockCode=function(){
+    const input=document.getElementById("adminAbuseCodeInput");
+    const message=document.getElementById("adminAbuseCodeMessage");
+    if(!input||!message)return;
+    if(input.value.trim().toUpperCase()==="ABUSE TASTO"){
+      try{localStorage.setItem(STORAGE_KEY,"1");}catch(e){}
+      message.textContent="✅ ADMIN ABUSEをテスト解放しました！";
+      renderAdminAbuseLock();
+    }else{
+      message.textContent="❌ コードが違います。もう一度確認してね。";
+    }
+  };
+  document.addEventListener("keydown",function(e){
+    if(e.key==="Escape")window.closeAdminAbuseLockedScreen();
+    if(e.key==="Enter"&&document.getElementById("adminAbuseLockedScreen")&&!document.getElementById("adminAbuseLockedScreen").classList.contains("hidden"))window.submitAdminAbuseUnlockCode();
+  });
+  document.addEventListener("DOMContentLoaded",renderAdminAbuseLock);
+  renderAdminAbuseLock();
+})();
 </script>
 
 </body>

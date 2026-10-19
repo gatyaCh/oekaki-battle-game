@@ -3787,6 +3787,19 @@ html body #draw:not(.hidden) #gearBtn {
 body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
 #halloweenCodeScreen{position:fixed;inset:0;z-index:10020;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.88);color:#fff}#halloweenCodeScreen.hidden{display:none!important}#halloweenCodeScreen .map-confirm-card{max-height:90vh;overflow:auto}
 </style>
+
+<style id="admin-abuse-locked-style">
+#adminAbuseOpenBtn{display:none;position:absolute;left:50%;transform:translateX(-50%);bottom:16px;font-size:22px;padding:10px 18px;border:1px solid #c9a227;border-radius:14px;background:linear-gradient(135deg,#31240a,#5a430e);color:#ffe58a;box-shadow:0 4px 16px #0007;cursor:pointer}
+#adminAbuseLockedScreen{position:fixed;inset:0;z-index:1000100;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(4,7,18,.96);color:#fff;text-align:center}
+#adminAbuseLockedScreen.hidden{display:none!important}
+#adminAbuseLockedCard{width:min(560px,96vw);padding:30px 22px;background:linear-gradient(160deg,#1b2233,#101522);border:2px solid #b8942e;border-radius:20px;box-shadow:0 12px 48px #000a}
+#adminAbuseLockedCard h1{margin:0 0 18px;color:#ffe17a;text-shadow:0 0 18px #f7b92855}
+#adminAbuseLockedCard .admin-abuse-note{margin:0 0 22px;color:#e5e7eb;font-size:15px}
+#adminAbuseLockedCard .admin-abuse-lock{display:inline-block;padding:10px 18px;margin:4px 0 22px;border:1px solid #64748b;border-radius:12px;background:#273244;color:#dbeafe;font-weight:700}
+#adminAbuseLockedCard button{font-size:16px;padding:9px 24px}
+@media (hover:hover) and (min-width:700px){#adminAbuseOpenBtn{display:block}}
+</style>
+
 </head>
 <body>
 
@@ -3818,6 +3831,15 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
   <h2 style="margin-bottom:16px;">遊ぶ端末を選択してください</h2>
   <button onclick="chooseDevice('pc')" style="font-size:20px; padding:14px 28px;">💻 PC版</button>
   <button onclick="chooseDevice('mobile')" style="font-size:20px; padding:14px 28px;">📱 スマホ版</button>
+  <button id="adminAbuseOpenBtn" type="button" onclick="openAdminAbuseLockedScreen()">👑 ADMIN ABUSE 👑</button>
+</div>
+<div id="adminAbuseLockedScreen" class="hidden" role="dialog" aria-modal="true" aria-labelledby="adminAbuseLockedTitle">
+  <div id="adminAbuseLockedCard">
+    <h1 id="adminAbuseLockedTitle">👑 ADMIN ABUSE 👑</h1>
+    <p class="admin-abuse-note">※ PC版のみプレイ可能です</p>
+    <div class="admin-abuse-lock">🔒 現在ロック中</div>
+    <div><button type="button" onclick="closeAdminAbuseLockedScreen()">戻る</button></div>
+  </div>
 </div>
 <div id="mapSelect" class="hidden" aria-label="マップ選択">
   <div class="map-select-card">
@@ -9672,6 +9694,21 @@ body.mobile-mode #battlePickupNotice {
   setInterval(styleRefresh,300);
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!overlay.classList.contains("hidden")){e.preventDefault();startCountdown();}});
 })();
+</script>
+
+
+<script id="admin-abuse-locked-script">
+function openAdminAbuseLockedScreen(){
+  const screen=document.getElementById("adminAbuseLockedScreen");
+  if(screen) screen.classList.remove("hidden");
+}
+function closeAdminAbuseLockedScreen(){
+  const screen=document.getElementById("adminAbuseLockedScreen");
+  if(screen) screen.classList.add("hidden");
+}
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape") closeAdminAbuseLockedScreen();
+});
 </script>
 
 </body>

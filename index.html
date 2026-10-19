@@ -9991,10 +9991,10 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
     const segs = segments(target);
     const ds = pts.map(p => Math.min(...segs.map(q => dist(p, q[0], q[1]))));
     const mean = ds.reduce((a,b) => a+b, 0) / ds.length;
-    const ratio = ds.filter(d => d < 150).length / ds.length;
+    const ratio = ds.filter(d => d < 300).length / ds.length;
 
-    // 判定基準：かなり甘め。大きくずれていても、少しガイド付近を通れば成功。
-    let matched = mean < 220 || ratio >= 0.10;
+    // 判定基準：前回よりさらに約2倍甘くする。少しでも描けば、形が大きくずれていても成功しやすい。
+    let matched = mean < 440 || ratio >= 0.05;
 
     // ⚔（剣）は2本とも厳密に描かなくてもよい。全体判定だけで成功にする。
 

@@ -9997,7 +9997,7 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
     let totalSamples = 0;
     let coveredSamples = 0;
     let touchedSegments = 0;
-    const tolerance = 70; // 少しずれても、ガイドラインから70px以内ならなぞった部分として扱う
+    const tolerance = 90; // テスト武器はかなり広めの許容範囲で、なぞった線を拾う
 
     segs.forEach(([a, b]) => {
       const length = Math.hypot(b.x - a.x, b.y - a.y);
@@ -10015,12 +10015,12 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
         }
       }
 
-      if (segmentCovered / (steps + 1) >= 0.12) touchedSegments++;
+      if (segmentCovered / (steps + 1) >= 0.05) touchedSegments++;
     });
 
     const coverage = totalSamples ? coveredSamples / totalSamples : 0;
-    const minTouched = cleanEmoji(target) === "⚔" ? 2 : Math.max(1, Math.ceil(segs.length * 0.20));
-    const matched = coverage >= 0.15 && touchedSegments >= minTouched;
+    const minTouched = cleanEmoji(target) === "⚔" ? 2 : 1;
+    const matched = coverage >= 0.05 && touchedSegments >= minTouched;
 
     if(!matched){
       document.getElementById("result").textContent = "❌ ガイドラインに近づけて描いてね。線が少しずれても大丈夫！";

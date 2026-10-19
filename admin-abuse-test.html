@@ -3599,6 +3599,7 @@ body:not(.mobile-mode) #gameArea #game{margin-top:22px}
 #adminAbuseTestTimer.active{display:block}
 #adminAbuseDialogue{display:none;box-sizing:border-box;width:min(100%,900px);min-height:28px;margin:4px auto 8px;padding:0 12px;text-align:center;font-family:system-ui,sans-serif;font-size:clamp(16px,2vw,23px);font-weight:900;line-height:1.25;letter-spacing:.02em;color:#7deaff;-webkit-text-stroke:1.2px #ff3b30;paint-order:stroke fill;text-shadow:0 1px 0 #ff3b30,1px 0 0 #ff3b30,-1px 0 0 #ff3b30,0 -1px 0 #ff3b30,0 0 9px rgba(0,0,0,.8)}
 #adminAbuseDialogue.active{display:block}
+#adminAbuseTestStartArea{display:none} #adminAbuseTestStartArea[style*="display: block"]{display:block!important} #adminAbuseTestStartArea p{margin:8px 0;color:#dbeafe} #adminAbuseTestStartArea button{display:block;margin:10px auto;padding:10px 16px;font-weight:800;}
 </style>
 
 
@@ -9781,7 +9782,7 @@ body.mobile-mode #battlePickupNotice {
     if(status)status.textContent=isUnlocked()?"🔓 テスト解放済み！":"🔒 現在ロック中";
     if(area)area.style.display=isUnlocked()?"none":"block";
     const startArea=document.getElementById("adminAbuseTestStartArea");
-    if(startArea)startArea.style.display=isUnlocked()?"block":"none";
+    if(startArea)startArea.style.setProperty("display",isUnlocked()?"block":"none","important");
   }
   window.openAdminAbuseLockedScreen=function(){
     const screen=document.getElementById("adminAbuseLockedScreen");

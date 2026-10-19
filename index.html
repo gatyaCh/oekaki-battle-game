@@ -3589,6 +3589,11 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 #adminAbuseBoostHUD>div{display:flex;align-items:center;justify-content:space-between;gap:15px}
 #adminAbuseBoostHUD span{font-size:19px}#adminAbuseBoostHUD b{font-variant-numeric:tabular-nums;color:#ffe28a}
 @media(max-width:600px){#adminAbuseBoostHUD{right:7px;bottom:7px;font-size:14px;padding:6px 8px;min-width:92px}}
+/* ADMIN ABUSE dialogue: reserve a strip above the playfield without moving HP/HUD */
+#adminAbuseDialogue{display:none;box-sizing:border-box;width:min(100%,900px);min-height:28px;margin:4px auto 8px;padding:0 12px;text-align:center;font-family:system-ui,sans-serif;font-size:clamp(16px,2vw,23px);font-weight:900;line-height:1.25;letter-spacing:.02em;color:#7deaff;-webkit-text-stroke:1.2px #ff3b30;paint-order:stroke fill;text-shadow:0 1px 0 #ff3b30,1px 0 0 #ff3b30,-1px 0 0 #ff3b30,0 -1px 0 #ff3b30,0 0 9px rgba(0,0,0,.8)}
+#adminAbuseDialogue.active{display:block}
+body:not(.mobile-mode) #gameArea #game{margin-top:22px}
+@media(max-width:900px){body:not(.mobile-mode) #gameArea #game{margin-top:12px}#adminAbuseDialogue{font-size:16px}}
 </style>
 
 
@@ -3951,6 +3956,7 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
     <span id="specialGaugePercent">0%</span>
   </div>
   <div id="msg"></div>
+  <div id="adminAbuseDialogue" aria-live="polite" aria-atomic="true"></div>
   <canvas id="game" width="900" height="500"></canvas>
   <p id="guideText">設定キーで移動 / 攻撃キー長押し→離して攻撃 (右クリックでチャージキャンセル) / <b>[Q] キーで必殺技</b></p>
 </div>
@@ -9713,6 +9719,19 @@ body.mobile-mode #battlePickupNotice {
 </script>
 
 
+<script id="admin-abuse-dialogue-display-script">
+(function(){
+  window.showAdminAbuseDialogue=function(message){
+    const el=document.getElementById("adminAbuseDialogue");if(!el)return;
+    el.textContent=String(message||"");
+    el.classList.toggle("active",Boolean(message));
+  };
+  window.hideAdminAbuseDialogue=function(){
+    const el=document.getElementById("adminAbuseDialogue");if(!el)return;
+    el.textContent="";el.classList.remove("active");
+  };
+})();
+</script>
 <script id="admin-abuse-boost-hud-script">
 (function(){
   const multipliers={luck:1,attack:1,speed:1};

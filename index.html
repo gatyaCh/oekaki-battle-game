@@ -3443,14 +3443,6 @@ body.mobile-mode.draw-canvas-expanded #draw:not(.hidden) #drawCanvas{
   }
 }
 
-/* スマホ版では弓・🚙車の武器選択を非表示 */
-body.mobile-mode #btnBow,
-body.mobile-mode #btnCar{
-  display:none !important;
-}
-
-/* スマホ版だけ弓を非表示 */
-body.mobile-mode #btnBow{display:none !important;}
  
 /* RESULT SCREEN / POINT SYSTEM */
 #resultScreen{
@@ -3850,8 +3842,6 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
     <p style="margin-bottom:8px; font-size:14px;"><b>【狙う武器を選択（ガイド付き）】</b></p>
     <button id="btnWand" onclick="selectTargetWeapon('🪄')">🪄 魔法の杖</button>
     <button id="btnSword" onclick="selectTargetWeapon('⚔️')">⚔️ 剣</button>
-    <button id="btnCar" onclick="selectTargetWeapon('🚙')">🚙 車</button>
-    <button id="btnBow" onclick="selectTargetWeapon('🏹')">🏹 弓</button>
     <button id="btnFree" class="active" onclick="selectTargetWeapon('FREE')">🎨 自由描画</button>
   </div>
   <p id="guideInstruction" style="color:#ffcc00; font-size:14px; margin-bottom:8px;">★マークを丁寧になぞろう！ずれると他の武器になっちゃうぞ！</p>
@@ -4743,18 +4733,6 @@ function redrawCanvas() {
     drawGuideOutline(starPoints, true);
   } else if (selectedTarget === '⚔️') {
     drawGuideOutline(swordPoints, true);
-  } else if (selectedTarget === '🚙') {
-    drawGuideOutline(carPoints, true);
-    dctx.strokeStyle = "#bbb"; dctx.lineWidth = 4;
-    dctx.beginPath(); dctx.arc(carWheel1.x, carWheel1.y, carWheel1.r, 0, Math.PI * 2); dctx.stroke();
-    dctx.beginPath(); dctx.arc(carWheel2.x, carWheel2.y, carWheel2.r, 0, Math.PI * 2); dctx.stroke();
-  } else if (selectedTarget === '🏹') {
-    drawGuideOutline(bowArcPoints, false);
-    dctx.strokeStyle = "#bbb"; dctx.lineWidth = 4;
-    dctx.beginPath();
-    dctx.moveTo(bowStringPoints[0].x, bowStringPoints[0].y);
-    dctx.lineTo(bowStringPoints[1].x, bowStringPoints[1].y);
-    dctx.stroke();
   }
   if (pts.length > 0) {
     dctx.strokeStyle = "#000";
@@ -4882,12 +4860,6 @@ function judge() {
   } else if (selectedTarget === '⚔️') {
     let avg = calcAvgDistToPolyline(swordPoints, true);
     weapon = (avg < 27 && pts.length > 40) ? "⚔️" : fallbackWeapon();
-  } else if (selectedTarget === '🚙') {
-    let avg = calcAvgDistToPolyline(carPoints, true);
-    weapon = (avg < 27 && pts.length > 40) ? "🚙" : fallbackWeapon();
-  } else if (selectedTarget === '🏹') {
-    let avg = calcAvgDistToPolyline(bowArcPoints, false);
-    weapon = deviceMode === 'mobile' ? fallbackWeapon() : ((avg < 27 && pts.length > 35) ? "🏹" : fallbackWeapon());
   } else {
     weapon = fallbackWeapon();
   }

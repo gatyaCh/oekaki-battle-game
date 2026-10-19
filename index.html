@@ -9885,81 +9885,51 @@ const originalStartCountdown=startCountdown;startCountdown=function(){boomerangs
 const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChooseDevice(mode);refreshWeaponButtons();};
 })();
 
-/* 5種類のガイドラインを統一し、なぞった形で武器を決定する */
+
+/* ガイドライン描画・判定の安定版 */
 (function(){
-  const guideTargets=["🪄","⚔️","🪃","⚡️","🚨"];
-  function guideGeometry(type){
-    const star=[];
-    for(let i=0;i<10;i++){
-      const a=-Math.PI/2+i*Math.PI/5, r=i%2===0?112:48;
-      star.push({x:200+Math.cos(a)*r,y:200+Math.sin(a)*r});
-    }
-    star.push({...star[0]});
-    const sword=[
-      [{x:125,y:285},{x:275,y:105}],
-      [{x:145,y:105},{x:295,y:285}]
-    ];
-    const fan=[{x:200,y:285},{x:100,y:125},{x:200,y:75},{x:300,y:125},{x:200,y:285}];
-    const lightning=[{x:235,y:55},{x:165,y:190},{x:220,y:190},{x:165,y:345},{x:275,y:165},{x:220,y:165},{x:265,y:55}];
-    const police=[{x:115,y:125},{x:285,y:125},{x:255,y:245},{x:145,y:245},{x:115,y:125}];
-    if(type==="🪄")return [star];
-    if(type==="⚔️")return sword;
-    if(type==="🪃")return [fan];
-    if(type==="⚡️")return [lightning];
-    if(type==="🚨")return [police];
-    return [];
-  }
-  function scaledPath(path){
-    const sx=dc.width/400,sy=dc.height/400;
-    return path.map(p=>({x:p.x*sx,y:p.y*sy}));
-  }
-  function guideSegments(type){
-    return guideGeometry(type).map(scaledPath).map(path=>path.slice(1).map((p,i)=>[path[i],p]));
-  }
-  function drawGuide(type){
-    const paths=guideGeometry(type).map(scaledPath);
-    dctx.save();dctx.strokeStyle="#aaa";dctx.fillStyle="#aaa";dctx.lineWidth=5;dctx.lineCap="round";dctx.lineJoin="round";
-    paths.forEach(path=>{
-      dctx.beginPath();dctx.moveTo(path[0].x,path[0].y);
-      path.slice(1).forEach(p=>dctx.lineTo(p.x,p.y));dctx.stroke();
-      path.slice(0,-1).forEach(p=>{dctx.beginPath();dctx.arc(p.x,p.y,3,0,Math.PI*2);dctx.fill();});
-    });
-    dctx.restore();
-  }
-  redrawCanvas=function(){
-    dctx.fillStyle="#fff";dctx.fillRect(0,0,dc.width,dc.height);
-    if(guideTargets.includes(selectedTarget))drawGuide(selectedTarget);
-    if(pts.length>0){dctx.strokeStyle="#000";dctx.lineWidth=6;dctx.lineCap="round";dctx.lineJoin="round";dctx.beginPath();dctx.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)dctx.lineTo(pts[i].x,pts[i].y);dctx.stroke();}
-  };
-  function pointSegmentDistance(p,a,b){
-    const dx=b.x-a.x,dy=b.y-a.y,l2=dx*dx+dy*dy||1;
-    const t=Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/l2));
-    return Math.hypot(p.x-(a.x+t*dx),p.y-(a.y+t*dy));
-  }
-  const previousJudge=judge;
-  judge=function(){
-    if(!guideTargets.includes(selectedTarget))return previousJudge();
-    if(locked)return;
-    if(!Array.isArray(pts)||pts.length<12){
-      document.getElementById("result").textContent="✏️ ガイドラインにそって、もう少し長く描いてね！";
-      document.getElementById("battleBtn").classList.add("hidden");return;
-    }
-    const groups=guideSegments(selectedTarget),segments=groups.flat();
-    const distances=pts.map(p=>Math.min(...segments.map(seg=>pointSegmentDistance(p,seg[0],seg[1]))));
-    const closeCount=distances.filter(d=>d<52).length;
-    let matched=distances.reduce((a,b)=>a+b,0)/distances.length<43 && closeCount/distances.length>=0.58;
-    if(selectedTarget==="⚔️"){
-      matched=matched&&groups.every(group=>pts.filter(p=>group.some(seg=>pointSegmentDistance(p,seg[0],seg[1])<55)).length>=3);
-    }
-    if(!matched){
-      document.getElementById("result").textContent="❌ ガイドラインに近づけて描いてみてね！「描き直し」で再挑戦できるよ。";
-      document.getElementById("battleBtn").classList.add("hidden");
-      return;
-    }
-    weapon=selectedTarget;locked=true;
-    ["Wand","Sword","Free","judgeBtn","clearBtn","btnBoomerang","btnThunder","btnPolice"].forEach(id=>{const el=document.getElementById("btn"+id)||document.getElementById(id);if(el)el.disabled=true;});
-    document.getElementById("result").innerHTML="🎉 判定成功！武器：<span style='color:#00aaff;'>"+weapon+"</span>";
-    document.getElementById("battleBtn").classList.remove("hidden");
-  };
+ const guideTargets=["🪄","⚔️","🪃","⚡️","🚨"];
+ function activeGuideTarget(){
+   const norm=v=>String(v||"").replace(/\uFE0F/g,"").trim();
+   let v=norm(selectedTarget);
+   if(guideTargets.some(w=>norm(w)===v))return guideTargets.find(w=>norm(w)===v);
+   const b=document.querySelector("[data-weapon].active");
+   if(b){v=norm(b.getAttribute("data-weapon"));const found=guideTargets.find(w=>norm(w)===v);if(found)return found;}
+   return "";
+ }
+ function geometry(type){
+   const star=[];for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,r=i%2===0?112:48;star.push({x:200+Math.cos(a)*r,y:200+Math.sin(a)*r});}star.push({...star[0]});
+   if(type==="🪄")return [star];
+   if(type==="⚔️")return [[{x:125,y:285},{x:275,y:105}],[{x:145,y:105},{x:295,y:285}]];
+   if(type==="🪃")return [[{x:200,y:285},{x:100,y:125},{x:200,y:75},{x:300,y:125},{x:200,y:285}]];
+   if(type==="⚡️")return [[{x:235,y:55},{x:165,y:190},{x:220,y:190},{x:165,y:345},{x:275,y:165},{x:220,y:165},{x:265,y:55}]];
+   if(type==="🚨")return [[{x:115,y:125},{x:285,y:125},{x:255,y:245},{x:145,y:245},{x:115,y:125}]];
+   return [];
+ }
+ function scaled(path){return path.map(p=>({x:p.x*dc.width/400,y:p.y*dc.height/400}));}
+ function segments(type){return geometry(type).map(scaled).flatMap(path=>path.slice(1).map((p,i)=>[path[i],p]));}
+ function draw(type){dctx.save();dctx.strokeStyle="#aaa";dctx.fillStyle="#aaa";dctx.lineWidth=5;dctx.lineCap="round";dctx.lineJoin="round";geometry(type).map(scaled).forEach(path=>{dctx.beginPath();dctx.moveTo(path[0].x,path[0].y);path.slice(1).forEach(p=>dctx.lineTo(p.x,p.y));dctx.stroke();path.slice(0,-1).forEach(p=>{dctx.beginPath();dctx.arc(p.x,p.y,3,0,Math.PI*2);dctx.fill();});});dctx.restore();}
+ redrawCanvas=function(){
+   dctx.fillStyle="#fff";dctx.fillRect(0,0,dc.width,dc.height);
+   const target=activeGuideTarget();if(target)draw(target);
+   if(pts.length){dctx.strokeStyle="#000";dctx.lineWidth=6;dctx.lineCap="round";dctx.lineJoin="round";dctx.beginPath();dctx.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)dctx.lineTo(pts[i].x,pts[i].y);dctx.stroke();}
+ };
+ function dist(p,a,b){const dx=b.x-a.x,dy=b.y-a.y,l2=dx*dx+dy*dy||1,t=Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/l2));return Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy);}
+ const prevJudge=judge;
+ judge=function(){
+   const target=activeGuideTarget();if(!target)return prevJudge();
+   if(locked)return;
+   if(!Array.isArray(pts)||pts.length<8){document.getElementById("result").textContent="✏️ ガイドラインにそって、もう少し描いてね！";document.getElementById("battleBtn").classList.add("hidden");return;}
+   const segs=segments(target);
+   const ds=pts.map(p=>Math.min(...segs.map(q=>dist(p,q[0],q[1]))));
+   const mean=ds.reduce((a,b)=>a+b,0)/ds.length,ratio=ds.filter(d=>d<85).length/ds.length;
+   let matched=mean<72&&ratio>=0.35;
+   if(target==="⚔️"){const all=geometry(target).map(path=>{const pts2=scaled(path);return pts.filter(p=>pts2.slice(1).some((b,i)=>dist(p,pts2[i],b)<90)).length>=2;});matched=matched&&all.every(Boolean);}
+   if(!matched){document.getElementById("result").textContent="❌ ガイドラインに近づけて描いてね。線が少しずれても大丈夫！";document.getElementById("battleBtn").classList.add("hidden");return;}
+   weapon=target;locked=true;
+   ["Wand","Sword","Free","judgeBtn","clearBtn","btnBoomerang","btnThunder","btnPolice"].forEach(id=>{const el=document.getElementById("btn"+id)||document.getElementById(id);if(el)el.disabled=true;});
+   document.getElementById("result").innerHTML="🎉 判定成功！武器：<span style='color:#00aaff;'>"+weapon+"</span>";
+   document.getElementById("battleBtn").classList.remove("hidden");
+ };
 })();
 </script>

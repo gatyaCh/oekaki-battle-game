@@ -9982,18 +9982,14 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
     if(!target) return prevJudge();
     if(locked) return;
 
-    if(!Array.isArray(pts) || pts.length < 3){
-      document.getElementById("result").textContent = "✏️ 少し描いてみてね！";
-      document.getElementById("battleBtn").classList.add("hidden");
-      return;
-    }
-
     const segs = segments(target);
 
-    // 描いた線を線分として扱い、ガイドライン上の点がどれくらいなぞられたかを調べる
-    const drawnSegs = pts.slice(1).map((p, i) => [pts[i], p]);
+    // 点の個数ではなく、実際に描いた線がガイドラインをどれだけなぞったかで判定する
+    const drawnSegs = Array.isArray(pts) && pts.length >= 2
+      ? pts.slice(1).map((p, i) => [pts[i], p])
+      : [];
     if (drawnSegs.length === 0) {
-      document.getElementById("result").textContent = "✏️ ガイドラインにそって線を描いてね！";
+      document.getElementById("result").textContent = "✏️ ガイドラインをなぞって線を描いてね！";
       document.getElementById("battleBtn").classList.add("hidden");
       return;
     }
@@ -10001,7 +9997,7 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
     let totalSamples = 0;
     let coveredSamples = 0;
     let touchedSegments = 0;
-    const tolerance = 55; // ガイドラインから55px以内なら「なぞれている」とみなす
+    const tolerance = 70; // 少しずれても、ガイドラインから70px以内ならなぞった部分として扱う
 
     segs.forEach(([a, b]) => {
       const length = Math.hypot(b.x - a.x, b.y - a.y);
@@ -10019,12 +10015,12 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
         }
       }
 
-      if (segmentCovered / (steps + 1) >= 0.20) touchedSegments++;
+      if (segmentCovered / (steps + 1) >= 0.12) touchedSegments++;
     });
 
     const coverage = totalSamples ? coveredSamples / totalSamples : 0;
-    const minTouched = cleanEmoji(target) === "⚔" ? 2 : Math.max(2, Math.ceil(segs.length * 0.30));
-    const matched = coverage >= 0.22 && touchedSegments >= minTouched;
+    const minTouched = cleanEmoji(target) === "⚔" ? 2 : Math.max(1, Math.ceil(segs.length * 0.20));
+    const matched = coverage >= 0.15 && touchedSegments >= minTouched;
 
     if(!matched){
       document.getElementById("result").textContent = "❌ ガイドラインに近づけて描いてね。線が少しずれても大丈夫！";

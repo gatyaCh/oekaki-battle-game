@@ -3584,6 +3584,11 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
   body:not(.mobile-mode) #guideText { max-width:1000px; margin:8px auto 0; padding:8px 12px; border-radius:8px; background:rgba(51,65,85,.65); color:#cbd5e1; font-size:13px; }
 }
 
+#adminAbuseBoostHUD{display:none;position:fixed;right:14px;bottom:14px;z-index:10040;background:rgba(14,18,30,.9);color:#fff;border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:8px 11px;box-shadow:0 4px 16px rgba(0,0,0,.35);font:700 16px/1.55 system-ui,sans-serif;min-width:104px;pointer-events:none}
+#adminAbuseBoostHUD.active{display:flex;flex-direction:column;gap:2px}
+#adminAbuseBoostHUD>div{display:flex;align-items:center;justify-content:space-between;gap:15px}
+#adminAbuseBoostHUD span{font-size:19px}#adminAbuseBoostHUD b{font-variant-numeric:tabular-nums;color:#ffe28a}
+@media(max-width:600px){#adminAbuseBoostHUD{right:7px;bottom:7px;font-size:14px;padding:6px 8px;min-width:92px}}
 </style>
 
 
@@ -3846,6 +3851,11 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
     </div>
     <div><button type="button" onclick="closeAdminAbuseLockedScreen()">戻る</button></div>
   </div>
+</div>
+<div id="adminAbuseBoostHUD" aria-label="ADMIN ABUSE強化状況" aria-live="polite">
+  <div><span>☘️</span><b id="adminAbuseLuckValue">×1.00</b></div>
+  <div><span>⚔️</span><b id="adminAbuseAttackValue">×1.00</b></div>
+  <div><span>👟</span><b id="adminAbuseSpeedValue">×1.00</b></div>
 </div>
 <div id="mapSelect" class="hidden" aria-label="マップ選択">
   <div class="map-select-card">
@@ -9703,6 +9713,30 @@ body.mobile-mode #battlePickupNotice {
 </script>
 
 
+<script id="admin-abuse-boost-hud-script">
+(function(){
+  const multipliers={luck:1,attack:1,speed:1};
+  function format(value){const n=Number(value);return "×"+(Number.isFinite(n)&&n>0?n:1).toFixed(2).replace(/0+$/,"").replace(/\\.$/,"");}
+  window.updateAdminAbuseBoostHUD=function(next){
+    next=next||{};
+    ["luck","attack","speed"].forEach(key=>{
+      if(Object.prototype.hasOwnProperty.call(next,key)){
+        const n=Number(next[key]);multipliers[key]=Number.isFinite(n)&&n>0?n:1;
+      }
+    });
+    const hud=document.getElementById("adminAbuseBoostHUD");
+    if(!hud)return;
+    document.getElementById("adminAbuseLuckValue").textContent=format(multipliers.luck);
+    document.getElementById("adminAbuseAttackValue").textContent=format(multipliers.attack);
+    document.getElementById("adminAbuseSpeedValue").textContent=format(multipliers.speed);
+    hud.classList.toggle("active",next.active===true);
+  };
+  window.clearAdminAbuseBoostHUD=function(){
+    multipliers.luck=multipliers.attack=multipliers.speed=1;
+    window.updateAdminAbuseBoostHUD({luck:1,attack:1,speed:1,active:false});
+  };
+})();
+</script>
 <script id="admin-abuse-locked-script">
 (function(){
   const STORAGE_KEY="oekakiBattleAdminAbuseUnlockedTest";

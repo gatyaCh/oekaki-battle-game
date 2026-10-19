@@ -3854,7 +3854,15 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
     <h1 id="adminAbuseLockedTitle">👑 ADMIN ABUSE 👑</h1>
     <p class="admin-abuse-note">※ PC版のみプレイ可能です</p>
     <div id="adminAbuseLockStatus" class="admin-abuse-lock">🔒 現在ロック中</div>
-    <div id="adminAbuseTestStartArea" style="display:none;margin:12px 0 20px"><p>テスト解放済み！20分イベントを開始できます。</p><button type="button" onclick="startAdminAbuseTestEvent()">👑 ADMIN ABUSEテスト開始</button></div>
+    <div id="adminAbuseTestStartArea" style="display:none;margin:12px 0 20px"><p>テスト解放済み！</p><button type="button" onclick="confirmAdminAbuseTestStart()">👑 ADMIN ABUSEをプレイしますか？</button></div>
+    <div id="adminAbuseTestConfirm" class="hidden" role="dialog" aria-modal="true" aria-labelledby="adminAbuseTestConfirmTitle" style="margin:14px auto;padding:16px;max-width:360px;background:#172033;border:1px solid #7deaff;border-radius:12px">
+      <h2 id="adminAbuseTestConfirmTitle">👑 ADMIN ABUSE</h2>
+      <p>ADMIN ABUSEをプレイしますか？</p>
+      <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap">
+        <button type="button" onclick="startAdminAbuseTestEvent()">はい、プレイする</button>
+        <button type="button" onclick="cancelAdminAbuseTestStart()">キャンセル</button>
+      </div>
+    </div>
     <div id="adminAbuseCodeArea">
       <p>テスト解放コードを入力</p>
       <input id="adminAbuseCodeInput" type="text" autocomplete="off" placeholder="解放コード" aria-label="ADMIN ABUSE解放コード">
@@ -9880,6 +9888,8 @@ body.mobile-mode #battlePickupNotice {
  [952,1200,{totem:1.5}],[1001,1121,{attack:1.5,luck:1.5}],[1122,1200,{attack:3,speed:3}]
  ];
  function setTimer(sec){const el=document.getElementById("adminAbuseTestTimer");if(el)el.textContent="👑 ADMIN ABUSE　"+String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");}
+ window.confirmAdminAbuseTestStart=function(){const el=document.getElementById("adminAbuseTestConfirm");if(el)el.classList.remove("hidden");};
+ window.cancelAdminAbuseTestStart=function(){const el=document.getElementById("adminAbuseTestConfirm");if(el)el.classList.add("hidden");};
  function update(t){
    if(!startedAt||ended)return;
    const elapsed=Math.min(1200,Math.floor((Date.now()-startedAt)/1000));setTimer(1200-elapsed);

@@ -9982,8 +9982,8 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
     if(!target) return prevJudge();
     if(locked) return;
 
-    if(!Array.isArray(pts) || pts.length < 8){
-      document.getElementById("result").textContent = "✏️ ガイドラインにそって、もう少し描いてね！";
+    if(!Array.isArray(pts) || pts.length < 3){
+      document.getElementById("result").textContent = "✏️ 少し描いてみてね！";
       document.getElementById("battleBtn").classList.add("hidden");
       return;
     }
@@ -9991,19 +9991,12 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
     const segs = segments(target);
     const ds = pts.map(p => Math.min(...segs.map(q => dist(p, q[0], q[1]))));
     const mean = ds.reduce((a,b) => a+b, 0) / ds.length;
-    const ratio = ds.filter(d => d < 85).length / ds.length;
+    const ratio = ds.filter(d => d < 150).length / ds.length;
 
-    // 判定基準（少しだけ優しく調整：平均距離85未満、カバー率30%以上）
-    let matched = mean < 85 && ratio >= 0.30;
+    // 判定基準：かなり甘め。大きくずれていても、少しガイド付近を通れば成功。
+    let matched = mean < 220 || ratio >= 0.10;
 
-    // ⚔（剣）の特殊チェック（ここもプレーンな文字で判定）
-    if(cleanEmoji(target) === "⚔"){
-      const all = geometry(target).map(path => {
-        const pts2 = scaled(path);
-        return pts.filter(p => pts2.slice(1).some((b,i) => dist(p, pts2[i], b) < 90)).length >= 2;
-      });
-      matched = matched && all.every(Boolean);
-    }
+    // ⚔（剣）は2本とも厳密に描かなくてもよい。全体判定だけで成功にする。
 
     if(!matched){
       document.getElementById("result").textContent = "❌ ガイドラインに近づけて描いてね。線が少しずれても大丈夫！";

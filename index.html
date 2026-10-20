@@ -4123,6 +4123,7 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
       <p>2　Lucky Boost</p>
       <p>3　？？？制作者「宝箱を開けまくれ📦️！！」</p>
       <p>4　<span id="halloween1031Label">ハロウィンマップをプレイ！</span></p>
+      <p>5　10/24　22時25分〜22時35分のADMIN ABUSEに参加しよう！！</p>
     </div>
   </div>
 </div>
@@ -7745,6 +7746,12 @@ loop();
     // すべての一般向けスペシャルコードは、この入力欄に統一。
     // HP20 / Lucky Boost / ryokutya / Special Code は
     // それぞれ固有の処理を使い、効果を混ぜない。
+    if (code === "admin abuse") {
+      let unlocked=false;try{unlocked=localStorage.getItem("oekakiAdminAbuseCodeUnlocked")==="true";}catch(e){}
+      if(!unlocked){codeMsg.textContent="🔒 10/24のADMIN ABUSE参加実績を解除すると使用できます。";return;}
+      window.adminAbuseRewardPending=true;codeInput.value="";codeMsg.textContent="";codeBox.classList.add("hidden");
+      msg.textContent="👑 ADMIN ABUSEコード確認！次の試合開始時に攻撃力＆スピード2倍（30秒間）";return;
+    }
     if (code === "hp20" || code === "lucky boost" || code === "ryokutya" || code === "special code") {
       if (typeof window.useSpecialCode === "function" && window.useSpecialCode(code)) {
         codeInput.value = "";
@@ -9694,7 +9701,8 @@ body.mobile-mode #battlePickupNotice {
   {id:9,name:"ハロウィン探検隊",skin:"🍬",desc:"ハロウィンマップのWave 3に到達する"},
   {id:10,name:"真の勇者",skin:"🗡️",desc:"ハロウィンマップの最終ボスを倒す"},
   {id:11,name:"魂の収集家",skin:"💫",desc:"1回のハロウィンバトルで魂を100個以上集める"},
-  {id:12,name:"？？？",skin:"🤫",desc:"隠し実績：ハロウィンマップを必殺技・復活アイテムなしでクリアする",hidden:true}
+  {id:12,name:"？？？",skin:"🤫",desc:"隠し実績：ハロウィンマップを必殺技・復活アイテムなしでクリアする",hidden:true},
+   {id:13,name:"ADMIN ABUSEに参加する！",skin:"👑",desc:"10/24 22:25〜22:35のADMIN ABUSEに参加する！報酬：スペシャルコード「ADMIN ABUSE」"}
  ];
  let state={completed:[],bossKills:0,usedItems:[]};
  try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");if(saved&&typeof saved==="object")state={...state,...saved};}catch(e){}
@@ -9707,7 +9715,7 @@ body.mobile-mode #battlePickupNotice {
   state.completed.push(id);save();
   const skinId="achievement_"+String(id).padStart(2,"0");
   if(typeof window.unlockGameSkin==="function")window.unlockGameSkin(skinId);
-  if(state.completed.length>=list.length&&typeof window.unlockGameSkin==="function")window.unlockGameSkin("limited2_trophy");
+  if(state.completed.length>=12&&typeof window.unlockGameSkin==="function")window.unlockGameSkin("limited2_trophy");
   const toast=document.getElementById("skinUnlockToast");
   if(toast){toast.textContent="🏆 実績解除！ "+item.name+"\n🎨 スキン "+item.skin+" を解放！";toast.style.whiteSpace="pre-line";toast.style.display="block";}
   renderAchievements();
@@ -9748,7 +9756,7 @@ body.mobile-mode #battlePickupNotice {
    ".achievement-row-status{font-size:11px;white-space:nowrap;color:#fde68a}#achievementCloseBtn{margin:18px auto 0;min-width:180px;padding:12px;font-size:16px}@media(max-width:600px){#achievementList{grid-template-columns:1fr}.achievement-row{padding:10px}}";
   document.head.appendChild(style);
   const panel=document.createElement("div");panel.id="achievementPanel";panel.className="hidden";panel.setAttribute("role","dialog");panel.setAttribute("aria-modal","true");panel.setAttribute("aria-labelledby","achievementTitle");
-  panel.innerHTML='<h2 id="achievementTitle">🏆 実績一覧</h2><p id="achievementProgress">解除済み：0 / 12</p><div id="achievementList"></div><button id="achievementCloseBtn" type="button">閉じる</button>';
+  panel.innerHTML='<h2 id="achievementTitle">🏆 実績一覧</h2><p id="achievementProgress">解除済み：0 / 13</p><div id="achievementList"></div><button id="achievementCloseBtn" type="button">閉じる</button>';
   document.body.appendChild(panel);panel.querySelector("#achievementCloseBtn").addEventListener("click",()=>panel.classList.add("hidden"));
   panel.addEventListener("click",e=>{if(e.target===panel)panel.classList.add("hidden");});
  }
@@ -9758,7 +9766,8 @@ body.mobile-mode #battlePickupNotice {
  const trophy=document.getElementById("achievementLockBtn");
  if(trophy){trophy.disabled=false;trophy.setAttribute("aria-label","実績一覧");trophy.title="実績一覧";trophy.textContent="🏆️";trophy.addEventListener("mouseenter",()=>{const n=document.getElementById("achievementLockNotice");if(n)n.classList.add("hidden");});trophy.addEventListener("focus",()=>{const n=document.getElementById("achievementLockNotice");if(n)n.classList.add("hidden");});trophy.addEventListener("click",e=>{e.preventDefault();e.stopImmediatePropagation();openPanel();});}
  const battle=document.getElementById("battleBtn");
- if(battle)battle.addEventListener("click",()=>unlockAchievement(1));
+ document.addEventListener("click",e=>{const btn=e.target&&e.target.closest?e.target.closest("#battleBtn"):null;if(!btn||!window.adminAbuseRewardPending)return;window.adminAbuseRewardPending=false;setTimeout(()=>{if(currentScreen!=="game")return;const until=Date.now()+30000;window.adminAbuseRewardBoostUntil=until;const oldSpeed=(typeof p!=="undefined"&&typeof p.speed==="number")?p.speed:null;if(oldSpeed!==null)p.speed=oldSpeed*2;const oldDamage=window.getDamage;if(typeof oldDamage==="function"&&!oldDamage.__adminAbuseReward){const wrapped=function(){const d=oldDamage.apply(this,arguments);return Date.now()<Number(window.adminAbuseRewardBoostUntil||0)?d*2:d;};wrapped.__adminAbuseReward=true;window.getDamage=wrapped;}msg.textContent="👑 ADMIN ABUSE発動！攻撃力＆スピード2倍（30秒間）";setTimeout(()=>{if(Date.now()>=Number(window.adminAbuseRewardBoostUntil||0)){if(oldSpeed!==null&&typeof p!=="undefined")p.speed=oldSpeed;msg.textContent="ADMIN ABUSEの強化効果が終了したよ。"}},30100);},0);},true);
+ if(battle)battle.addEventListener("click",()=>{unlockAchievement(1);const now=new Date(),start=new Date(2026,9,24,22,25,0),end=new Date(2026,9,24,22,35,0);if(now>=start&&now<=end){unlockAchievement(13);try{localStorage.setItem("oekakiAdminAbuseCodeUnlocked","true")}catch(e){}}});
  if(typeof window.showResult==="function"){
   const original=window.showResult;
   window.showResult=function(cleared){

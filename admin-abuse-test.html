@@ -9775,6 +9775,8 @@ body.mobile-mode #battlePickupNotice {
 <script id="admin-abuse-locked-script">
 (function(){
   const STORAGE_KEY="oekakiBattleAdminAbuseUnlockedTest";
+  /* テスト用：ページを開くたびに解放状態をロックへ戻してコード入力を再確認 */
+  try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
   function isUnlocked(){try{return localStorage.getItem(STORAGE_KEY)==="1";}catch(e){return false;}}
   function renderAdminAbuseLock(){
     const status=document.getElementById("adminAbuseLockStatus");

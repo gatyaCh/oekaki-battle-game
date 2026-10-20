@@ -8981,7 +8981,7 @@ return origUpdate.apply(this,arguments)};
    {id:'halloween_gravestone',name:'墓石',icon:'🪦',condition:'ハロウィンマップで死亡した回数が合計5回になると解放！',category:'期間限定'},
    {id:'halloween_immortal_zombie',name:'イモータルゾンビ',icon:'🧟',condition:'ハロウィンマップでイモータルゾンビを使うと解放！',category:'期間限定'},
    {id:'limited2_moon',name:'ムーン',icon:'🌙',condition:'すべての限定スキンをゲットすると解放！',category:'限定スキン2'},
-   {id:'limited2_unknown1',name:'？',icon:'？',condition:'ゲット方法：未定',category:'限定スキン2'},
+   {id:'limited2_trophy',name:'トロフィー',icon:'🏆',condition:'すべての実績を解放するとゲット！',category:'限定スキン2'},
    {id:'limited2_unknown2',name:'？',icon:'？',condition:'ゲット方法：未定',category:'限定スキン2'},
    {id:'limited2_unknown3',name:'？',icon:'？',condition:'ゲット方法：未定',category:'限定スキン2'},
    {id:'limited2_unknown4',name:'？',icon:'？',condition:'ゲット方法：未定',category:'限定スキン2'},
@@ -9707,6 +9707,7 @@ body.mobile-mode #battlePickupNotice {
   state.completed.push(id);save();
   const skinId="achievement_"+String(id).padStart(2,"0");
   if(typeof window.unlockGameSkin==="function")window.unlockGameSkin(skinId);
+  if(state.completed.length>=list.length&&typeof window.unlockGameSkin==="function")window.unlockGameSkin("limited2_trophy");
   const toast=document.getElementById("skinUnlockToast");
   if(toast){toast.textContent="🏆 実績解除！ "+item.name+"\n🎨 スキン "+item.skin+" を解放！";toast.style.whiteSpace="pre-line";toast.style.display="block";}
   renderAchievements();

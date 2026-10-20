@@ -3584,16 +3584,6 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
   body:not(.mobile-mode) #guideText { max-width:1000px; margin:8px auto 0; padding:8px 12px; border-radius:8px; background:rgba(51,65,85,.65); color:#cbd5e1; font-size:13px; }
 }
 
-#adminAbuseBoostHUD{display:none;position:fixed;right:14px;bottom:14px;z-index:10040;background:rgba(14,18,30,.9);color:#fff;border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:8px 11px;box-shadow:0 4px 16px rgba(0,0,0,.35);font:700 16px/1.55 system-ui,sans-serif;min-width:104px;pointer-events:none}
-#adminAbuseBoostHUD.active{display:flex;flex-direction:column;gap:2px}
-#adminAbuseBoostHUD>div{display:flex;align-items:center;justify-content:space-between;gap:15px}
-#adminAbuseBoostHUD span{font-size:19px}#adminAbuseBoostHUD b{font-variant-numeric:tabular-nums;color:#ffe28a}
-@media(max-width:600px){#adminAbuseBoostHUD{right:7px;bottom:7px;font-size:14px;padding:6px 8px;min-width:92px}}
-/* ADMIN ABUSE dialogue: reserve a strip above the playfield without moving HP/HUD */
-#adminAbuseDialogue{display:none;box-sizing:border-box;width:min(100%,900px);min-height:28px;margin:4px auto 8px;padding:0 12px;text-align:center;font-family:system-ui,sans-serif;font-size:clamp(16px,2vw,23px);font-weight:900;line-height:1.25;letter-spacing:.02em;color:#7deaff;-webkit-text-stroke:1.2px #ff3b30;paint-order:stroke fill;text-shadow:0 1px 0 #ff3b30,1px 0 0 #ff3b30,-1px 0 0 #ff3b30,0 -1px 0 #ff3b30,0 0 9px rgba(0,0,0,.8)}
-#adminAbuseDialogue.active{display:block}
-body:not(.mobile-mode) #gameArea #game{margin-top:22px}
-@media(max-width:900px){body:not(.mobile-mode) #gameArea #game{margin-top:12px}#adminAbuseDialogue{font-size:16px}}
 </style>
 
 
@@ -3797,19 +3787,6 @@ html body #draw:not(.hidden) #gearBtn {
 body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
 #halloweenCodeScreen{position:fixed;inset:0;z-index:10020;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.88);color:#fff}#halloweenCodeScreen.hidden{display:none!important}#halloweenCodeScreen .map-confirm-card{max-height:90vh;overflow:auto}
 </style>
-
-<style id="admin-abuse-locked-style">
-#adminAbuseOpenBtn{display:none;position:absolute;top:58px;right:14px;left:auto;transform:none;font-size:22px;padding:8px 12px;border:1px solid #c9a227;border-radius:12px;background:linear-gradient(135deg,#31240a,#5a430e);color:#ffe58a;box-shadow:0 4px 16px #0007;cursor:pointer;z-index:21}
-#adminAbuseLockedScreen{position:fixed;inset:0;z-index:1000100;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(4,7,18,.96);color:#fff;text-align:center}
-#adminAbuseLockedScreen.hidden{display:none!important}
-#adminAbuseLockedCard{width:min(560px,96vw);padding:30px 22px;background:linear-gradient(160deg,#1b2233,#101522);border:2px solid #b8942e;border-radius:20px;box-shadow:0 12px 48px #000a}
-#adminAbuseLockedCard h1{margin:0 0 18px;color:#ffe17a;text-shadow:0 0 18px #f7b92855}
-#adminAbuseLockedCard .admin-abuse-note{margin:0 0 22px;color:#e5e7eb;font-size:15px}
-#adminAbuseLockedCard .admin-abuse-lock{display:inline-block;padding:10px 18px;margin:4px 0 22px;border:1px solid #64748b;border-radius:12px;background:#273244;color:#dbeafe;font-weight:700}
-#adminAbuseLockedCard button{font-size:16px;padding:9px 24px}
-@media (hover:hover) and (min-width:700px){#adminAbuseOpenBtn{display:block}}
-</style>
-
 </head>
 <body>
 
@@ -3841,26 +3818,6 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
   <h2 style="margin-bottom:16px;">遊ぶ端末を選択してください</h2>
   <button onclick="chooseDevice('pc')" style="font-size:20px; padding:14px 28px;">💻 PC版</button>
   <button onclick="chooseDevice('mobile')" style="font-size:20px; padding:14px 28px;">📱 スマホ版</button>
-  <button id="adminAbuseOpenBtn" type="button" onclick="openAdminAbuseLockedScreen()" aria-label="ADMIN ABUSE">👑</button>
-</div>
-<div id="adminAbuseLockedScreen" class="hidden" role="dialog" aria-modal="true" aria-labelledby="adminAbuseLockedTitle">
-  <div id="adminAbuseLockedCard">
-    <h1 id="adminAbuseLockedTitle">👑 ADMIN ABUSE 👑</h1>
-    <p class="admin-abuse-note">※ PC版のみプレイ可能です</p>
-    <div id="adminAbuseLockStatus" class="admin-abuse-lock">🔒 現在ロック中</div>
-    <div id="adminAbuseCodeArea">
-      <p>テスト解放コードを入力</p>
-      <input id="adminAbuseCodeInput" type="text" autocomplete="off" placeholder="解放コード" aria-label="ADMIN ABUSE解放コード">
-      <button type="button" onclick="submitAdminAbuseUnlockCode()">解放</button>
-      <p id="adminAbuseCodeMessage" role="status" aria-live="polite"></p>
-    </div>
-    <div><button type="button" onclick="closeAdminAbuseLockedScreen()">戻る</button></div>
-  </div>
-</div>
-<div id="adminAbuseBoostHUD" aria-label="ADMIN ABUSE強化状況" aria-live="polite">
-  <div><span>☘️</span><b id="adminAbuseLuckValue">×1.00</b></div>
-  <div><span>⚔️</span><b id="adminAbuseAttackValue">×1.00</b></div>
-  <div><span>👟</span><b id="adminAbuseSpeedValue">×1.00</b></div>
 </div>
 <div id="mapSelect" class="hidden" aria-label="マップ選択">
   <div class="map-select-card">
@@ -3956,7 +3913,6 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
     <span id="specialGaugePercent">0%</span>
   </div>
   <div id="msg"></div>
-  <div id="adminAbuseDialogue" aria-live="polite" aria-atomic="true"></div>
   <canvas id="game" width="900" height="500"></canvas>
   <p id="guideText">設定キーで移動 / 攻撃キー長押し→離して攻撃 (右クリックでチャージキャンセル) / <b>[Q] キーで必殺技</b></p>
 </div>
@@ -9715,84 +9671,6 @@ body.mobile-mode #battlePickupNotice {
   };
   setInterval(styleRefresh,300);
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!overlay.classList.contains("hidden")){e.preventDefault();startCountdown();}});
-})();
-</script>
-
-
-<script id="admin-abuse-dialogue-display-script">
-(function(){
-  window.showAdminAbuseDialogue=function(message){
-    const el=document.getElementById("adminAbuseDialogue");if(!el)return;
-    el.textContent=String(message||"");
-    el.classList.toggle("active",Boolean(message));
-  };
-  window.hideAdminAbuseDialogue=function(){
-    const el=document.getElementById("adminAbuseDialogue");if(!el)return;
-    el.textContent="";el.classList.remove("active");
-  };
-})();
-</script>
-<script id="admin-abuse-boost-hud-script">
-(function(){
-  const multipliers={luck:1,attack:1,speed:1};
-  function format(value){const n=Number(value);return "×"+(Number.isFinite(n)&&n>0?n:1).toFixed(2).replace(/0+$/,"").replace(/\\.$/,"");}
-  window.updateAdminAbuseBoostHUD=function(next){
-    next=next||{};
-    ["luck","attack","speed"].forEach(key=>{
-      if(Object.prototype.hasOwnProperty.call(next,key)){
-        const n=Number(next[key]);multipliers[key]=Number.isFinite(n)&&n>0?n:1;
-      }
-    });
-    const hud=document.getElementById("adminAbuseBoostHUD");
-    if(!hud)return;
-    document.getElementById("adminAbuseLuckValue").textContent=format(multipliers.luck);
-    document.getElementById("adminAbuseAttackValue").textContent=format(multipliers.attack);
-    document.getElementById("adminAbuseSpeedValue").textContent=format(multipliers.speed);
-    hud.classList.toggle("active",next.active===true);
-  };
-  window.clearAdminAbuseBoostHUD=function(){
-    multipliers.luck=multipliers.attack=multipliers.speed=1;
-    window.updateAdminAbuseBoostHUD({luck:1,attack:1,speed:1,active:false});
-  };
-})();
-</script>
-<script id="admin-abuse-locked-script">
-(function(){
-  const STORAGE_KEY="oekakiBattleAdminAbuseUnlockedTest";
-  function isUnlocked(){try{return localStorage.getItem(STORAGE_KEY)==="1";}catch(e){return false;}}
-  function renderAdminAbuseLock(){
-    const status=document.getElementById("adminAbuseLockStatus");
-    const area=document.getElementById("adminAbuseCodeArea");
-    if(status)status.textContent=isUnlocked()?"🔓 テスト解放済み！":"🔒 現在ロック中";
-    if(area)area.style.display=isUnlocked()?"none":"block";
-  }
-  window.openAdminAbuseLockedScreen=function(){
-    const screen=document.getElementById("adminAbuseLockedScreen");
-    if(screen)screen.classList.remove("hidden");
-    renderAdminAbuseLock();
-  };
-  window.closeAdminAbuseLockedScreen=function(){
-    const screen=document.getElementById("adminAbuseLockedScreen");
-    if(screen)screen.classList.add("hidden");
-  };
-  window.submitAdminAbuseUnlockCode=function(){
-    const input=document.getElementById("adminAbuseCodeInput");
-    const message=document.getElementById("adminAbuseCodeMessage");
-    if(!input||!message)return;
-    if(input.value.trim().toUpperCase()==="ABUSE TASTO"){
-      try{localStorage.setItem(STORAGE_KEY,"1");}catch(e){}
-      message.textContent="✅ ADMIN ABUSEをテスト解放しました！";
-      renderAdminAbuseLock();
-    }else{
-      message.textContent="❌ コードが違います。もう一度確認してね。";
-    }
-  };
-  document.addEventListener("keydown",function(e){
-    if(e.key==="Escape")window.closeAdminAbuseLockedScreen();
-    if(e.key==="Enter"&&document.getElementById("adminAbuseLockedScreen")&&!document.getElementById("adminAbuseLockedScreen").classList.contains("hidden"))window.submitAdminAbuseUnlockCode();
-  });
-  document.addEventListener("DOMContentLoaded",renderAdminAbuseLock);
-  renderAdminAbuseLock();
 })();
 </script>
 

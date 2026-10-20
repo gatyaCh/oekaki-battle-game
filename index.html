@@ -7020,7 +7020,7 @@ function update() {
   if (bigSlashAnimTimer > 0) bigSlashAnimTimer--;
   let speedMult = slowDebuffTimer > 0 ? 0.5 : 1.0;
   if (stage === 5) speedMult *= 0.85;
-  let sp = (charging ? 2 : 4) * speedMult * (kizuku2Active ? 2.0 : 1) * (1 + upgradeLevels.speed * 0.05);
+  let sp = (charging ? 2 : 4) * speedMult * (kizuku2Active ? 2.0 : 1) * (1 + upgradeLevels.speed * 0.05) * (Date.now() < Number(window.adminAbuseRewardBoostUntil || 0) ? 2 : 1);
   const ku = window.controlKeys.up, kd = window.controlKeys.down, kl = window.controlKeys.left, kr = window.controlKeys.right;
   let dx = 0, dy = 0;
   const halloweenFx = window.halloweenEffects || {};
@@ -9766,7 +9766,7 @@ body.mobile-mode #battlePickupNotice {
  const trophy=document.getElementById("achievementLockBtn");
  if(trophy){trophy.disabled=false;trophy.setAttribute("aria-label","実績一覧");trophy.title="実績一覧";trophy.textContent="🏆️";trophy.addEventListener("mouseenter",()=>{const n=document.getElementById("achievementLockNotice");if(n)n.classList.add("hidden");});trophy.addEventListener("focus",()=>{const n=document.getElementById("achievementLockNotice");if(n)n.classList.add("hidden");});trophy.addEventListener("click",e=>{e.preventDefault();e.stopImmediatePropagation();openPanel();});}
  const battle=document.getElementById("battleBtn");
- document.addEventListener("click",e=>{const btn=e.target&&e.target.closest?e.target.closest("#battleBtn"):null;if(!btn||!window.adminAbuseRewardPending)return;window.adminAbuseRewardPending=false;setTimeout(()=>{if(currentScreen!=="game")return;const until=Date.now()+30000;window.adminAbuseRewardBoostUntil=until;const oldSpeed=(typeof p!=="undefined"&&typeof p.speed==="number")?p.speed:null;if(oldSpeed!==null)p.speed=oldSpeed*2;const oldDamage=window.getDamage;if(typeof oldDamage==="function"&&!oldDamage.__adminAbuseReward){const wrapped=function(){const d=oldDamage.apply(this,arguments);return Date.now()<Number(window.adminAbuseRewardBoostUntil||0)?d*2:d;};wrapped.__adminAbuseReward=true;window.getDamage=wrapped;}msg.textContent="👑 ADMIN ABUSE発動！攻撃力＆スピード2倍（30秒間）";setTimeout(()=>{if(Date.now()>=Number(window.adminAbuseRewardBoostUntil||0)){if(oldSpeed!==null&&typeof p!=="undefined")p.speed=oldSpeed;msg.textContent="ADMIN ABUSEの強化効果が終了したよ。"}},30100);},0);},true);
+ document.addEventListener("click",e=>{const btn=e.target&&e.target.closest?e.target.closest("#battleBtn"):null;if(!btn||!window.adminAbuseRewardPending)return;window.adminAbuseRewardPending=false;setTimeout(()=>{if(currentScreen!=="game")return;const until=Date.now()+30000;window.adminAbuseRewardBoostUntil=until;const oldDamage=window.getDamage;if(typeof oldDamage==="function"&&!oldDamage.__adminAbuseReward){const wrapped=function(){const d=oldDamage.apply(this,arguments);return Date.now()<Number(window.adminAbuseRewardBoostUntil||0)?d*2:d;};wrapped.__adminAbuseReward=true;window.getDamage=wrapped;}msg.textContent="👑 ADMIN ABUSE発動！攻撃力＆スピード2倍（30秒間）";setTimeout(()=>{if(Date.now()>=Number(window.adminAbuseRewardBoostUntil||0)){msg.textContent="ADMIN ABUSEの強化効果が終了したよ。"}},30100);},0);},true);
  if(battle)battle.addEventListener("click",()=>{unlockAchievement(1);const now=new Date(),start=new Date(2026,9,24,22,25,0),end=new Date(2026,9,24,22,35,0);if(now>=start&&now<=end){unlockAchievement(13);try{localStorage.setItem("oekakiAdminAbuseCodeUnlocked","true")}catch(e){}}});
  if(typeof window.showResult==="function"){
   const original=window.showResult;

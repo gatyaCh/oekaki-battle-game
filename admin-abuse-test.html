@@ -9797,7 +9797,7 @@ body.mobile-mode #battlePickupNotice {
     const input=document.getElementById("adminAbuseCodeInput");
     const message=document.getElementById("adminAbuseCodeMessage");
     if(!input||!message)return;
-    if(input.value.trim().toUpperCase()==="ABUSE TASTO"){
+    if(input.value.trim().toUpperCase()==="ADMIN TEST"){
       try{localStorage.setItem(STORAGE_KEY,"1");}catch(e){}
       message.textContent="✅ ADMIN ABUSEをテスト解放しました！";
       renderAdminAbuseLock();

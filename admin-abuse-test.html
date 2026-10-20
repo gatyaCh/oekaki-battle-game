@@ -3855,6 +3855,7 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
     <h1 id="adminAbuseLockedTitle">👑 ADMIN ABUSE 👑</h1>
     <p class="admin-abuse-note">※ PC版のみプレイ可能です</p>
     <div id="adminAbuseLockStatus" class="admin-abuse-lock">🔒 現在ロック中</div>
+    <div style="margin:10px 0"><button type="button" onclick="resetAdminAbuseTestUnlock()">🔄 解放状態をリセット</button></div>
     <div id="adminAbuseTestStartArea" style="display:none;margin:12px 0 20px"><p>テスト解放済み！</p><button type="button" onclick="confirmAdminAbuseTestStart()">👑 ADMIN ABUSEをプレイしますか？</button></div>
     <div id="adminAbuseTestConfirm" class="hidden" role="dialog" aria-modal="true" aria-labelledby="adminAbuseTestConfirmTitle" style="margin:14px auto;padding:16px;max-width:360px;background:#172033;border:1px solid #7deaff;border-radius:12px">
       <h2 id="adminAbuseTestConfirmTitle">👑 ADMIN ABUSE</h2>
@@ -9792,6 +9793,16 @@ body.mobile-mode #battlePickupNotice {
   window.closeAdminAbuseLockedScreen=function(){
     const screen=document.getElementById("adminAbuseLockedScreen");
     if(screen)screen.classList.add("hidden");
+  };
+  window.resetAdminAbuseTestUnlock=function(){
+    try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
+    const input=document.getElementById("adminAbuseCodeInput");
+    const message=document.getElementById("adminAbuseCodeMessage");
+    const confirm=document.getElementById("adminAbuseTestConfirm");
+    if(input)input.value="";
+    if(message)message.textContent="🔄 解放状態をリセットしました。コードをもう一度入力してね。";
+    if(confirm)confirm.classList.add("hidden");
+    renderAdminAbuseLock();
   };
   window.submitAdminAbuseUnlockCode=function(){
     const input=document.getElementById("adminAbuseCodeInput");

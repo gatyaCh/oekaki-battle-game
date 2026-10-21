@@ -10110,6 +10110,8 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
   judge = function(){
     const target = activeGuideTarget();
     if(!target) return prevJudge();
+    // テスト武器は先に定義された精度・ボーナス判定を使う。後続の共通判定で上書きしない。
+    if(["🪃","⚡","🚨"].includes(cleanEmoji(target))) return prevJudge();
     if(locked) return;
 
     const segs = segments(target);

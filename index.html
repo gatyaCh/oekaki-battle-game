@@ -9939,16 +9939,16 @@ function judgePreviewWeapon(target) {
         return;
     }
 
-    // 表示中のガイドライン geometry() と同じ座標を使い、表示と精度判定のズレをなくす
+    // 表示中の redrawCanvas() と同じ座標を使い、表示と精度判定を一致させる
     const previewTemplates = {
         "🪃": [
-            {x:200, y:285}, {x:100, y:125}, {x:200, y:75},
-            {x:300, y:125}, {x:200, y:285}
+            {x:90, y:105}, {x:310, y:175}, {x:280, y:220},
+            {x:105, y:145}, {x:90, y:105}
         ],
         "⚡️": [
-            {x:235, y:55}, {x:165, y:190}, {x:220, y:190},
-            {x:165, y:345}, {x:275, y:165}, {x:220, y:165},
-            {x:265, y:55}
+            {x:230, y:55}, {x:165, y:205}, {x:220, y:205},
+            {x:170, y:345}, {x:275, y:180}, {x:220, y:180},
+            {x:270, y:55}, {x:230, y:55}
         ],
         "🚨": [
             {x:115, y:125}, {x:285, y:125}, {x:255, y:245},
@@ -9971,9 +9971,10 @@ function judgePreviewWeapon(target) {
         y: p.y * scaleY
     }));
 
-    // ⚔️・魔法の杖と同じ平均距離方式で精度を計算する
+    // 全武器で同じ平均距離方式を使う。🪃・🚨は手描きのズレを考慮して許容距離を広げる。
     const avgDistance = calcAvgDistToPolyline(guide, true);
-    drawAccuracyScore = Math.max(0, Math.min(100, Math.round(100 * (1 - avgDistance / 27))));
+    const distanceTolerance = (target === "🪃" || target === "🚨") ? 60 : 27;
+    drawAccuracyScore = Math.max(0, Math.min(100, Math.round(100 * (1 - avgDistance / distanceTolerance))));
     applyDrawBonusTier(drawAccuracyScore);
 
     weapon = target;

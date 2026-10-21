@@ -4846,18 +4846,14 @@ function judge() {
     const w=Math.max(...xs)-Math.min(...xs),h=Math.max(...ys)-Math.min(...ys);
     return h>w*1.1 ? "⚔️" : "🪄";
   }
-  if (pts.length < 15) weapon = "⚔️";
-  else if (selectedTarget === "FREE") {
+  if (selectedTarget === "FREE") {
     const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);
     const w=Math.max(...xs)-Math.min(...xs),h=Math.max(...ys)-Math.min(...ys);
     weapon = h>w*1.1 ? "⚔️" : fallbackWeapon();
-  } else if (selectedTarget === "🪄") {
-    const avg=calcAvgDistToPolyline(starPoints,true);
-    weapon=(avg<25&&pts.length>40)?"🪄":fallbackWeapon();
-  } else if (selectedTarget === "⚔️") {
-    const avg=calcAvgDistToPolyline(swordPoints,true);
-    weapon=(avg<27&&pts.length>40)?"⚔️":fallbackWeapon();
-  } else weapon=fallbackWeapon();
+  } else {
+    // 選択した武器を固定し、描き方から別の武器へ誤判定しない
+    weapon = selectedTarget;
+  }
   if (selectedTarget === "FREE") {
     document.getElementById("result").innerHTML = "🎉 判定成功！武器：" + weapon + "<br>💡 体力・攻撃力ボーナスはガイド付き武器をなぞると獲得できるよ！";
   } else {

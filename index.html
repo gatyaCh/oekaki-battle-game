@@ -9930,9 +9930,24 @@ function judgePreviewWeapon(target){
   return;
  }
  weapon=target;
+ drawAccuracyScore=0;drawHpBonus=0;drawAttackBonus=0;drawBonusPending=false;
+ const previewTemplates={
+  "🪃":[{x:90,y:105},{x:310,y:175},{x:280,y:220},{x:105,y:145}],
+  "⚡️":[{x:230,y:55},{x:165,y:205},{x:220,y:205},{x:170,y:345},{x:275,y:180},{x:220,y:180},{x:270,y:55}],
+  "🚨":[{x:115,y:125},{x:285,y:125},{x:255,y:245},{x:145,y:245}]
+ };
+ const avgDistance=calcAvgDistToPolyline(previewTemplates[target],true);
+ const limit=target==="⚡️"?30:target==="🪃"?30:25;
+ drawAccuracyScore=Math.max(0,Math.min(100,Math.round(100*(1-avgDistance/limit))));
+ if(drawAccuracyScore>=100){drawHpBonus=.20;drawAttackBonus=.20;}
+ else if(drawAccuracyScore>=95){drawHpBonus=.18;drawAttackBonus=.15;}
+ else if(drawAccuracyScore>=85){drawHpBonus=.15;drawAttackBonus=.12;}
+ else if(drawAccuracyScore>=70){drawHpBonus=.10;drawAttackBonus=.08;}
+ else if(drawAccuracyScore>=50){drawHpBonus=.05;drawAttackBonus=.05;}
+ drawBonusPending=true;
  locked=true;
  ["btnBoomerang","btnThunder","btnPolice","btnWand","btnSword","btnCar","btnBow","btnFree","judgeBtn","clearBtn"].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=true;});
- document.getElementById("result").innerHTML="🎉 判定成功！武器：<span style='color:#00ffff;'>"+target+"</span>";
+ document.getElementById("result").innerHTML="🎉 判定成功！武器：<span style='color:#00ffff;'>"+target+"</span><br>🎯 なぞり精度："+drawAccuracyScore+"%<br>❤️ 体力ボーナス：+"+Math.round(drawHpBonus*100)+"%<br>⚔️ 攻撃力ボーナス：+"+Math.round(drawAttackBonus*100)+"%（この戦闘中のみ）";
  document.getElementById("battleBtn").classList.remove("hidden");
 }
 judge=function(){

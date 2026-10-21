@@ -9910,7 +9910,7 @@ document.getElementById("weaponPreviewSubmit").addEventListener("click",unlockSu
 const originalSelectTargetWeapon=selectTargetWeapon;
 selectTargetWeapon=function(type){if(NEW_WEAPONS.includes(type)){if(locked)return;if(!isUnlocked(type)){openUnlock(type);return;}selectedTarget=type;["Wand","Sword","Free"].forEach(w=>document.getElementById("btn"+w)?.classList.remove("active"));NEW_WEAPONS.forEach(w=>document.querySelector('[data-weapon="'+w+'"]')?.classList.remove("active"));document.querySelector('[data-weapon="'+type+'"]')?.classList.add("active");const guide=document.getElementById("guideInstruction");if(guide)guide.textContent=({"🪃":"🪃 ブーメランのガイドラインをなぞろう！","⚡️":"⚡️ 雷の形のガイドラインをなぞろう！","🚨":"🚨 ポリスのガイドラインをなぞろう！"})[type];clearCanvas();return;}return originalSelectTargetWeapon(type);};
 const originalRedrawCanvas=redrawCanvas;
-redrawCanvas=function(){originalRedrawCanvas();if(!NEW_WEAPONS.includes(selectedTarget))return;dctx.save();dctx.strokeStyle="#aaa";dctx.fillStyle="#aaa";dctx.lineWidth=6;dctx.lineCap="round";dctx.lineJoin="round";if(selectedTarget==="🪃"){const p=[[100,105],[300,190],[275,225],[170,175],[130,155]];dctx.beginPath();dctx.moveTo(p[0][0],p[0][1]);p.slice(1).forEach(q=>dctx.lineTo(q[0],q[1]));dctx.closePath();dctx.stroke();p.forEach(q=>{dctx.beginPath();dctx.arc(q[0],q[1],4,0,Math.PI*2);dctx.fill();});}else if(selectedTarget==="⚡️"){const p=[[230,55],[165,205],[220,205],[170,345],[275,180],[220,180],[270,55]];dctx.beginPath();dctx.moveTo(p[0][0],p[0][1]);p.slice(1).forEach(q=>dctx.lineTo(q[0],q[1]));dctx.closePath();dctx.stroke();p.forEach(q=>{dctx.beginPath();dctx.arc(q[0],q[1],4,0,Math.PI*2);dctx.fill();});}else if(selectedTarget==="🚨"){const p=[[125,115],[275,115],[275,245],[125,245]];dctx.beginPath();dctx.moveTo(p[0][0],p[0][1]);p.slice(1).forEach(q=>dctx.lineTo(q[0],q[1]));dctx.closePath();dctx.stroke();p.forEach(q=>{dctx.beginPath();dctx.arc(q[0],q[1],4,0,Math.PI*2);dctx.fill();});}dctx.restore();};
+redrawCanvas=function(){originalRedrawCanvas();if(!NEW_WEAPONS.includes(selectedTarget))return;dctx.save();dctx.strokeStyle="#aaa";dctx.fillStyle="#aaa";dctx.lineWidth=6;dctx.lineCap="round";dctx.lineJoin="round";if(selectedTarget==="🪃"){const p=[[100,105],[300,190],[275,225],[170,175],[130,155]];dctx.beginPath();dctx.moveTo(p[0][0],p[0][1]);p.slice(1).forEach(q=>dctx.lineTo(q[0],q[1]));dctx.closePath();dctx.stroke();p.forEach(q=>{dctx.beginPath();dctx.arc(q[0],q[1],4,0,Math.PI*2);dctx.fill();});}else if(selectedTarget==="⚡️"){const p=[[230,55],[165,205],[220,205],[170,345],[275,180],[220,180],[270,55]];dctx.beginPath();dctx.moveTo(p[0][0],p[0][1]);p.slice(1).forEach(q=>dctx.lineTo(q[0],q[1]));dctx.closePath();dctx.stroke();p.forEach(q=>{dctx.beginPath();dctx.arc(q[0],q[1],4,0,Math.PI*2);dctx.fill();});}else if(selectedTarget==="🚨"){const p=[[170,105],[230,105],[265,160],[285,225],[115,225],[135,160]];dctx.beginPath();dctx.moveTo(p[0][0],p[0][1]);p.slice(1).forEach(q=>dctx.lineTo(q[0],q[1]));dctx.closePath();dctx.stroke();p.forEach(q=>{dctx.beginPath();dctx.arc(q[0],q[1],4,0,Math.PI*2);dctx.fill();});}dctx.restore();};
 // テスト武器専用の判定処理（既存武器の judge には触れない）
 const originalJudge=judge;
 function getPreviewWeaponForJudging(){
@@ -9951,8 +9951,8 @@ function judgePreviewWeapon(target) {
             {x:265, y:55}
         ],
         "🚨": [
-            {x:125, y:115}, {x:275, y:115}, {x:275, y:245},
-            {x:125, y:245}, {x:125, y:115}
+            {x:170, y:105}, {x:230, y:105}, {x:265, y:160},
+            {x:285, y:225}, {x:115, y:225}, {x:135, y:160}
         ]
     };
 

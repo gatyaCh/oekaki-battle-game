@@ -9873,6 +9873,17 @@ judge=function(){
  if(target){judgePreviewWeapon(target);return;}
  return originalJudge();
 };
+// ボタンの既存イベントより先にテスト武器の判定を処理し、旧判定との競合を防ぐ
+const previewJudgeButton=document.getElementById("judgeBtn");
+if(previewJudgeButton){
+ previewJudgeButton.addEventListener("click",function(event){
+  const target=getPreviewWeaponForJudging();
+  if(!target)return;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  judgePreviewWeapon(target);
+ },true);
+}
 
 const originalBeginAttackCharge=beginAttackCharge,originalReleaseAttackCharge=releaseAttackCharge;
 function liveTargets(){if(window.halloweenWaveActive){try{return halloweenEnemies.filter(e=>e.alive&&e.hp>0);}catch(e){return [];}}return [...minions.filter(m=>m.hp>0),...(enemy.hp>0?[enemy]:[])];}

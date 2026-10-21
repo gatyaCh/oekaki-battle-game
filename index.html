@@ -9962,12 +9962,22 @@ function judgePreviewWeapon(target){
  drawAccuracyScore=0;drawHpBonus=0;drawAttackBonus=0;drawBonusPending=false;
  // 描画座標とガイド座標のスケール差に影響されないよう、400×400基準で精度を測る。
  const normalizedPts=pts.map(p=>({x:p.x/scaleX,y:p.y/scaleY}));
- const savedPts=pts;
- pts=normalizedPts;
- const avgDistance=calcAvgDistToPolyline(template,true);
- pts=savedPts;
- const limit=target==="⚡️"?65:target==="🪃"?65:55;
- drawAccuracyScore=Math.max(0,Math.min(100,Math.round(100*(1-avgDistance/limit))));
+ // ガイドライン各区間のカバー率を精度として使う。
+ // 点の距離平均だけだと、線の座標系や描き方の差で高精度でも0%になりやすいため。
+ const coverageTolerance=target==="🚨"?34:30;
+ let scoreSamples=0,scoreCovered=0;
+ guideSegments.forEach(([a,b])=>{
+  const length=Math.hypot(b.x-a.x,b.y-a.y);
+  const steps=Math.max(4,Math.ceil(length/8));
+  for(let j=0;j<=steps;j++){
+   const t=j/steps,sample={x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t};
+   let nearest=Infinity;
+   drawnSegments.forEach(([p1,p2])=>{nearest=Math.min(nearest,distance(sample,p1,p2));});
+   scoreSamples++;
+   if(nearest<=coverageTolerance)scoreCovered++;
+  }
+ });
+ drawAccuracyScore=scoreSamples?Math.max(0,Math.min(100,Math.round(100*scoreCovered/scoreSamples))):0;
  if(drawAccuracyScore>=100){drawHpBonus=.20;drawAttackBonus=.20;}
  else if(drawAccuracyScore>=95){drawHpBonus=.18;drawAttackBonus=.15;}
  else if(drawAccuracyScore>=85){drawHpBonus=.15;drawAttackBonus=.12;}

@@ -5655,6 +5655,7 @@ function retryFromGameOver() {
 }
 
 function resetGame() {
+  drawAccuracyScore = 0; drawHpBonus = 0; drawAttackBonus = 0; drawBonusPending = false;
   tutorialActive = false;
   tutorialPhase = "battle";
   tutorialStep = 0;

@@ -9958,22 +9958,10 @@ function judgePreviewWeapon(target){
  // 失敗判定で止めず、選択したテスト武器をそのまま確定。
  weapon=target;
  drawAccuracyScore=0;drawHpBonus=0;drawAttackBonus=0;drawBonusPending=false;
- // ガイドライン全体のカバー率を精度として使う。
- // 点の距離平均だけだと、線の座標系や描き方の差で高精度でも0%になりやすいため。
- const coverageTolerance=target==="🚨"?34:30;
- let scoreSamples=0,scoreCovered=0;
- guideSegments.forEach(([a,b])=>{
-  const length=Math.hypot(b.x-a.x,b.y-a.y);
-  const steps=Math.max(4,Math.ceil(length/8));
-  for(let j=0;j<=steps;j++){
-   const t=j/steps,sample={x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t};
-   let nearest=Infinity;
-   drawnSegments.forEach(([p1,p2])=>{nearest=Math.min(nearest,distance(sample,p1,p2));});
-   scoreSamples++;
-   if(nearest<=coverageTolerance)scoreCovered++;
-  }
- });
- drawAccuracyScore=scoreSamples?Math.max(0,Math.min(100,Math.round(100*scoreCovered/scoreSamples))):0;
+ // 上で求めたガイドラインのカバー率をそのまま精度に使用。
+ // テスト武器ごとに別の距離しきい値を使わず、3種類すべて同じ基準にする。
+ const coverage=totalSamples?coveredSamples/totalSamples:0;
+ drawAccuracyScore=Math.max(0,Math.min(100,Math.round(coverage*100)));
  if(drawAccuracyScore>=100){drawHpBonus=.20;drawAttackBonus=.20;}
  else if(drawAccuracyScore>=95){drawHpBonus=.18;drawAttackBonus=.15;}
  else if(drawAccuracyScore>=85){drawHpBonus=.15;drawAttackBonus=.12;}

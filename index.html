@@ -4825,6 +4825,17 @@ function calcAvgDistToPolyline(points, isClosed = true) {
   });
   return totalDist / pts.length;
 }
+function applyDrawBonusTier(score) {
+  // ⚔️・魔法の杖・テスト武器で共通のボーナス段階
+  drawHpBonus = 0;
+  drawAttackBonus = 0;
+  if (score >= 86) { drawHpBonus = 0.30; drawAttackBonus = 0.30; }
+  else if (score >= 76) { drawHpBonus = 0.25; drawAttackBonus = 0.25; }
+  else if (score >= 61) { drawHpBonus = 0.23; drawAttackBonus = 0.23; }
+  else if (score >= 46) { drawHpBonus = 0.18; drawAttackBonus = 0.18; }
+  else if (score >= 36) { drawHpBonus = 0.12; drawAttackBonus = 0.12; }
+  else if (score >= 21) { drawHpBonus = 0.05; drawAttackBonus = 0.05; }
+}
 function judge() {
   if (locked) return;
   drawAccuracyScore = 0;
@@ -4861,11 +4872,7 @@ function judge() {
     const limit = selectedTarget === "🪄" ? 25 : 27;
     const avgDistance = calcAvgDistToPolyline(template, true);
     drawAccuracyScore = Math.max(0, Math.min(100, Math.round(100 * (1 - avgDistance / limit))));
-    if (drawAccuracyScore >= 100) { drawHpBonus = 0.20; drawAttackBonus = 0.20; }
-    else if (drawAccuracyScore >= 95) { drawHpBonus = 0.18; drawAttackBonus = 0.15; }
-    else if (drawAccuracyScore >= 85) { drawHpBonus = 0.15; drawAttackBonus = 0.12; }
-    else if (drawAccuracyScore >= 70) { drawHpBonus = 0.10; drawAttackBonus = 0.08; }
-    else if (drawAccuracyScore >= 50) { drawHpBonus = 0.05; drawAttackBonus = 0.05; }
+    applyDrawBonusTier(drawAccuracyScore);
     drawBonusPending = true;
     document.getElementById("result").innerHTML = "🎉 判定成功！武器：" + weapon +
       "<br>🎯 なぞり精度：" + drawAccuracyScore + "%" +
@@ -9918,7 +9925,11 @@ function getPreviewWeaponForJudging(){
 }
 function judgePreviewWeapon(target) {
     if (typeof locked !== 'undefined' && locked) return;
-    if (typeof pts === 'undefined' || !Array.isArray(pts) || pts.length < 2) {
+    drawAccuracyScore = 0;
+    drawHpBonus = 0;
+    drawAttackBonus = 0;
+    drawBonusPending = false;
+    if (typeof pts === 'undefined' || !Array.isArray(pts) || pts.length < 35) {
         document.getElementById("result").textContent = "✏️ ガイドラインをなぞって線を描いてね！";
         document.getElementById("battleBtn").classList.add("hidden");
         return;
@@ -9962,71 +9973,13 @@ function judgePreviewWeapon(target) {
         y: p.y * scaleY
     }));
 
-    // 線分リストを作成（新しいテンプレートは最初から閉じている・または一筆書きを考慮して組んでいます）
-    const guideSegments = guide.slice(1).map((p, i) => [guide[i], p]);
-
-    const drawnSegments = pts.slice(1).map((p, i) => [pts[i], p]);
-
-    const distance = (p, a, b) => {
-        const dx = b.x - a.x;
-        const dy = b.y - a.y;
-        const l2 = dx * dx + dy * dy;
-        if (l2 === 0) return Math.hypot(p.x - a.x, p.y - a.y);
-        
-        const t = Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / l2));
-        return Math.hypot(p.x - a.x - t * dx, p.y - a.y - t * dy);
-    };
-
-    let totalSamples = 0;
-    let coveredSamples = 0;
-    
-    // 💡 画面上の線が太いため、許容誤差（判定の甘さ）を 120px に広げました
-    const tolerance = 120; 
-
-    guideSegments.forEach(([a, b]) => {
-        const length = Math.hypot(b.x - a.x, b.y - a.y);
-        const steps = Math.max(5, Math.ceil(length / 8));
-
-        for (let j = 0; j <= steps; j++) {
-            const t = j / steps;
-            const sample = {
-                x: a.x + (b.x - a.x) * t,
-                y: a.y + (b.y - a.y) * t
-            };
-
-            let nearest = Infinity;
-            drawnSegments.forEach(([p1, p2]) => {
-                nearest = Math.min(nearest, distance(sample, p1, p2));
-            });
-
-            totalSamples++;
-            if (nearest <= tolerance) {
-                coveredSamples++;
-            }
-        }
-    });
+    // ⚔️・魔法の杖と同じ平均距離方式で精度を計算する
+    const avgDistance = calcAvgDistToPolyline(guide, true);
+    drawAccuracyScore = Math.max(0, Math.min(100, Math.round(100 * (1 - avgDistance / 27))));
+    applyDrawBonusTier(drawAccuracyScore);
 
     weapon = target;
-    drawAccuracyScore = 0;
-    drawHpBonus = 0;
-    drawAttackBonus = 0;
-
-    const coverage = totalSamples ? coveredSamples / totalSamples : 0;
-    drawAccuracyScore = Math.max(0, Math.min(100, Math.round(coverage * 100)));
-
-    if (drawAccuracyScore >= 86) {
-        drawHpBonus = .30; drawAttackBonus = .30;
-    } else if (drawAccuracyScore >= 76) {
-        drawHpBonus = .25; drawAttackBonus = .25;
-    } else if (drawAccuracyScore >= 61) {
-        drawHpBonus = .23; drawAttackBonus = .23;
-    } else if (drawAccuracyScore >= 46) {
-        drawHpBonus = .18; drawAttackBonus = .18;
-    } else if (drawAccuracyScore >= 36) {
-        drawHpBonus = .12; drawAttackBonus = .12;
-    } else if (drawAccuracyScore >= 21) {
-        drawHpBonus = .05; drawAttackBonus = .05;
-    }
+    locked = true;
 
     drawBonusPending = true;
     locked = true;

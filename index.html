@@ -9995,7 +9995,8 @@ function judgePreviewWeapon(target) {
         `🎉 判定成功！武器：<span style='color:#00ffff;'>${target}</span><br>` +
         `🎯 なぞり精度：${drawAccuracyScore}%<br>` +
         `❤️ 体力ボーナス：+${Math.round(drawHpBonus * 100)}%<br>` +
-        `⚔️ 攻撃力ボーナス：+${Math.round(drawAttackBonus * 100)}%（この戦闘中のみ）`;
+        `⚔️ 攻撃力ボーナス：+${Math.round(drawAttackBonus * 100)}%（この戦闘中のみ）` +
+        (target === "🪃" || target === "🚨" ? `<br><small>確認用：平均距離=${avgDistance.toFixed(1)}px / 描画点=${pts.length} / Canvas=${dc.width}×${dc.height}</small>` : "");
 
     document.getElementById("battleBtn").classList.remove("hidden");
 }

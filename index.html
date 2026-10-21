@@ -4858,9 +4858,7 @@ function judge() {
     const avg=calcAvgDistToPolyline(swordPoints,true);
     weapon=(avg<27&&pts.length>40)?"⚔️":fallbackWeapon();
   } else weapon=fallbackWeapon();
-  if (selectedTarget !== "FREE" && weapon !== selectedTarget) {
-    document.getElementById("result").innerHTML = "❌ なぞり失敗！判定：" + weapon + " になりました（やり直し不可）";
-  } else if (selectedTarget === "FREE") {
+  if (selectedTarget === "FREE") {
     document.getElementById("result").innerHTML = "🎉 判定成功！武器：" + weapon + "<br>💡 体力・攻撃力ボーナスはガイド付き武器をなぞると獲得できるよ！";
   } else {
     const template = selectedTarget === "🪄" ? starPoints : swordPoints;
@@ -9925,18 +9923,51 @@ function getPreviewWeaponForJudging(){
 function judgePreviewWeapon(target){
  if(locked)return;
  if(!Array.isArray(pts)||pts.length<2){
-  document.getElementById("result").textContent="✏️ 線を少し描いてね！";
+  document.getElementById("result").textContent="✏️ ガイドラインをなぞって線を描いてね！";
   document.getElementById("battleBtn").classList.add("hidden");
   return;
  }
- weapon=target;
- drawAccuracyScore=0;drawHpBonus=0;drawAttackBonus=0;drawBonusPending=false;
  const previewTemplates={
   "🪃":[{x:90,y:105},{x:310,y:175},{x:280,y:220},{x:105,y:145}],
   "⚡️":[{x:230,y:55},{x:165,y:205},{x:220,y:205},{x:170,y:345},{x:275,y:180},{x:220,y:180},{x:270,y:55}],
   "🚨":[{x:115,y:125},{x:285,y:125},{x:255,y:245},{x:145,y:245}]
  };
- const avgDistance=calcAvgDistToPolyline(previewTemplates[target],true);
+ // ⚔️・🪄と同じく、選んだ武器は固定。描いた線がガイドに触れているかだけを確認する。
+ const template=previewTemplates[target];
+ const scaleX=dc.width/400,scaleY=dc.height/400;
+ const guide=template.map(p=>({x:p.x*scaleX,y:p.y*scaleY}));
+ const guideSegments=guide.slice(1).map((p,i)=>[guide[i],p]);
+ guideSegments.push([guide[guide.length-1],guide[0]]);
+ const drawnSegments=pts.slice(1).map((p,i)=>[pts[i],p]);
+ const distance=(p,a,b)=>{
+  const dx=b.x-a.x,dy=b.y-a.y,l2=dx*dx+dy*dy||1;
+  const t=Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/l2));
+  return Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy);
+ };
+ let totalSamples=0,coveredSamples=0,touchedSegments=0;
+ const tolerance=90;
+ guideSegments.forEach(([a,b])=>{
+  const length=Math.hypot(b.x-a.x,b.y-a.y);
+  const steps=Math.max(3,Math.ceil(length/12));
+  let segmentCovered=0;
+  for(let j=0;j<=steps;j++){
+   const t=j/steps,sample={x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t};
+   let nearest=Infinity;
+   drawnSegments.forEach(([p1,p2])=>{nearest=Math.min(nearest,distance(sample,p1,p2));});
+   totalSamples++;
+   if(nearest<=tolerance){coveredSamples++;segmentCovered++;}
+  }
+  if(segmentCovered/(steps+1)>=0.05)touchedSegments++;
+ });
+ const coverage=totalSamples?coveredSamples/totalSamples:0;
+ if(coverage<0.05||touchedSegments<1){
+  document.getElementById("result").textContent="✏️ ガイドラインに沿って少しなぞってね！武器の種類を間違えて判定することはないよ。";
+  document.getElementById("battleBtn").classList.add("hidden");
+  return;
+ }
+ weapon=target;
+ drawAccuracyScore=0;drawHpBonus=0;drawAttackBonus=0;drawBonusPending=false;
+ const avgDistance=calcAvgDistToPolyline(template,true);
  const limit=target==="⚡️"?30:target==="🪃"?30:25;
  drawAccuracyScore=Math.max(0,Math.min(100,Math.round(100*(1-avgDistance/limit))));
  if(drawAccuracyScore>=100){drawHpBonus=.20;drawAttackBonus=.20;}

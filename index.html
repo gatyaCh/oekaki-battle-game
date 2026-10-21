@@ -9917,19 +9917,18 @@ function getPreviewWeaponForJudging(){
  return "";
 }
 function judgePreviewWeapon(target) {
-    // グローバル変数や外部変数の存在チェック（エラー防止）
     if (typeof locked !== 'undefined' && locked) return;
     if (typeof pts === 'undefined' || !Array.isArray(pts) || pts.length < 2) {
         document.getElementById("result").textContent = "✏️ ガイドラインをなぞって線を描いてね！";
         document.getElementById("battleBtn").classList.add("hidden");
         return;
     }
-    // dc (canvas要素など) の存在チェック
     if (typeof dc === 'undefined' || !dc.width || !dc.height) {
         console.error("Canvas 'dc' is not defined.");
         return;
     }
 
+    // 画面のガイド表示と座標がズレている場合、ここの数値を画面に合わせて調整してください
     const previewTemplates = {
         "🪃": [
             {x:200,y:285},{x:100,y:125}, {x:200,y:75},{x:300,y:125}
@@ -9957,10 +9956,10 @@ function judgePreviewWeapon(target) {
         y: p.y * scaleY
     }));
 
-    // 【修正①】最後の点と最初の点を結ばない（一筆書きの線分を作る）
+    // ガイドの線分リストを作成
     const guideSegments = guide.slice(1).map((p, i) => [guide[i], p]);
     
-    // パトランプ(🚨)など、ループさせたい武器だけ閉じる場合はここで個別処理する
+    // 【バグ修正】ポリス(🚨)の最後と最初を正しく結ぶ
     if (target === "🚨") {
         guideSegments.push([guide[guide.length - 1], guide[0]]);
     }
@@ -9984,15 +9983,14 @@ function judgePreviewWeapon(target) {
 
     let totalSamples = 0;
     let coveredSamples = 0;
-    let touchedSegments = 0;
     
-    // ガイドから90px以内なら一致と判定
-    const tolerance = 90;
+    // 📢 判定が厳しすぎる場合は、この数値を 120 や 150 に広げてください
+    const tolerance = 90; 
 
+    // ガイド線上の各サンプル点が、プレイヤーの線（drawnSegments）の近くにあるかを判定
     guideSegments.forEach(([a, b]) => {
         const length = Math.hypot(b.x - a.x, b.y - a.y);
-        const steps = Math.max(3, Math.ceil(length / 12));
-        let segmentCovered = 0;
+        const steps = Math.max(5, Math.ceil(length / 8)); // サンプル数を少し増やして精度向上
 
         for (let j = 0; j <= steps; j++) {
             const t = j / steps;
@@ -10009,48 +10007,35 @@ function judgePreviewWeapon(target) {
             totalSamples++;
             if (nearest <= tolerance) {
                 coveredSamples++;
-                segmentCovered++;
             }
-        }
-
-        if (segmentCovered / (steps + 1) >= 0.05) {
-            touchedSegments++;
         }
     });
 
-    // 武器を確定とボーナス初期化
+    // 外部変数の更新
     weapon = target;
     drawAccuracyScore = 0;
     drawHpBonus = 0;
     drawAttackBonus = 0;
-    drawBonusPending = false;
 
     // ① なぞり精度を計算
     const coverage = totalSamples ? coveredSamples / totalSamples : 0;
     drawAccuracyScore = Math.max(0, Math.min(100, Math.round(coverage * 100)));
 
     // ② 精度に応じてボーナスを計算
-    if (drawAccuracyScore >= 100) {
-        drawHpBonus = .20;
-        drawAttackBonus = .20;
-    } else if (drawAccuracyScore >= 95) {
-        drawHpBonus = .18;
-        drawAttackBonus = .15;
-    } else if (drawAccuracyScore >= 85) {
-        drawHpBonus = .15;
-        drawAttackBonus = .12;
-    } else if (drawAccuracyScore >= 70) {
-        drawHpBonus = .10;
-        drawAttackBonus = .08;
+    if (drawAccuracyScore >= 90) { // 全体的にボーナス閾値を少し優しく調整
+        drawHpBonus = .20; drawAttackBonus = .20;
+    } else if (drawAccuracyScore >= 75) {
+        drawHpBonus = .15; drawAttackBonus = .12;
     } else if (drawAccuracyScore >= 50) {
-        drawHpBonus = .05;
-        drawAttackBonus = .05;
+        drawHpBonus = .10; drawAttackBonus = .08;
+    } else if (drawAccuracyScore >= 20) {
+        drawHpBonus = .05; drawAttackBonus = .05;
     }
 
     drawBonusPending = true;
     locked = true;
 
-    // ③ ボタンを無効化
+    // ③ ボタンの無効化
     [
         "btnBoomerang", "btnThunder", "btnPolice",
         "btnWand", "btnSword", "btnCar", "btnBow",
@@ -10060,7 +10045,7 @@ function judgePreviewWeapon(target) {
         if (el) el.disabled = true;
     });
 
-    // ④ 計算結果を画面に表示
+    // ④ 結果表示
     document.getElementById("result").innerHTML = 
         `🎉 判定成功！武器：<span style='color:#00ffff;'>${target}</span><br>` +
         `🎯 なぞり精度：${drawAccuracyScore}%<br>` +

@@ -4657,6 +4657,13 @@ if (battleStartButton) {
   battleStartButton.onclick = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (drawBonusPending && !tutorialActive && !window.halloweenWaveActive) {
+      p.max = Math.round(p.max * (1 + drawHpBonus));
+      p.hp = p.max;
+      drawBonusPending = false;
+      startCountdown();
+      return;
+    }
     startCountdown();
   };
   battleStartButton.style.touchAction = "manipulation";
@@ -4820,6 +4827,10 @@ function calcAvgDistToPolyline(points, isClosed = true) {
 }
 function judge() {
   if (locked) return;
+  drawAccuracyScore = 0;
+  drawHpBonus = 0;
+  drawAttackBonus = 0;
+  drawBonusPending = false;
   if (pts.length < 35) {
     document.getElementById("result").textContent = "✏️ 武器をしっかり描いてね！（もう少し長く描こう）";
     document.getElementById("battleBtn").classList.add("hidden");
@@ -4849,8 +4860,23 @@ function judge() {
   } else weapon=fallbackWeapon();
   if (selectedTarget !== "FREE" && weapon !== selectedTarget) {
     document.getElementById("result").innerHTML = "❌ なぞり失敗！判定：" + weapon + " になりました（やり直し不可）";
+  } else if (selectedTarget === "FREE") {
+    document.getElementById("result").innerHTML = "🎉 判定成功！武器：" + weapon + "<br>💡 体力・攻撃力ボーナスはガイド付き武器をなぞると獲得できるよ！";
   } else {
-    document.getElementById("result").innerHTML = "🎉 判定成功！武器：" + weapon;
+    const template = selectedTarget === "🪄" ? starPoints : swordPoints;
+    const limit = selectedTarget === "🪄" ? 25 : 27;
+    const avgDistance = calcAvgDistToPolyline(template, true);
+    drawAccuracyScore = Math.max(0, Math.min(100, Math.round(100 * (1 - avgDistance / limit))));
+    if (drawAccuracyScore >= 100) { drawHpBonus = 0.20; drawAttackBonus = 0.20; }
+    else if (drawAccuracyScore >= 95) { drawHpBonus = 0.18; drawAttackBonus = 0.15; }
+    else if (drawAccuracyScore >= 85) { drawHpBonus = 0.15; drawAttackBonus = 0.12; }
+    else if (drawAccuracyScore >= 70) { drawHpBonus = 0.10; drawAttackBonus = 0.08; }
+    else if (drawAccuracyScore >= 50) { drawHpBonus = 0.05; drawAttackBonus = 0.05; }
+    drawBonusPending = true;
+    document.getElementById("result").innerHTML = "🎉 判定成功！武器：" + weapon +
+      "<br>🎯 なぞり精度：" + drawAccuracyScore + "%" +
+      "<br>❤️ 体力ボーナス：+" + Math.round(drawHpBonus * 100) + "%" +
+      "<br>⚔️ 攻撃力ボーナス：+" + Math.round(drawAttackBonus * 100) + "%（この戦闘中のみ）";
   }
   document.getElementById("battleBtn").classList.remove("hidden");
 }
@@ -4991,6 +5017,8 @@ let stage8TotalSummoned = 0; // Stage 8用の子分総召喚数カウンター
 let keys = {}, charging = false, charge = 0, stun = 0;
 let mouse = { x: 100, y: 250 };
 let atkBuff = 1;
+// なぞり精度ボーナス：武器決定ごとに更新し、戦闘開始時に適用
+let drawAccuracyScore = 0, drawHpBonus = 0, drawAttackBonus = 0, drawBonusPending = false;
 let shieldEquipped = false, shieldRemainingTime = 0, shieldActive = false;
 let revive = false;
 let ghost = false, ghostTimer = 0;
@@ -5300,7 +5328,7 @@ function getDamage() {
   const kizuku2AtkMul = kizuku2Active ? 2.0 : 1;
   const sougoAtkMul = window.sougoBoostActive ? 3 : 1;
   const adminRankMul = adminRankAbility === "damage4" ? 4.0 : 1;
-  return (10 + charge / 8) * atkBuff * 1.03 * kizuku2AtkMul * sougoAtkMul * adminRankMul * halloweenCandyMul * halloweenZombieMul * (1 + upgradeLevels.atk * 0.04);
+  return (10 + charge / 8) * atkBuff * (1 + drawAttackBonus) * 1.03 * kizuku2AtkMul * sougoAtkMul * adminRankMul * halloweenCandyMul * halloweenZombieMul * (1 + upgradeLevels.atk * 0.04);
 }
 function damageEnemy(amount) {
   if (bossSpecialState) return;
@@ -5361,7 +5389,7 @@ function fireWandMagic() {
   for(let i=0;i<20;i++){
     const angle=Math.PI*2*i/20;
     magicOrbs.push({x:p.x,y:p.y,vx:Math.cos(angle)*3.2,vy:Math.sin(angle)*3.2,life:4.5,
-      dmg:(10*atkBuff*(window.halloweenEffects&&window.halloweenEffects.candy>0?1.5:1)*(kizuku2Active?2:1)*(adminRankAbility==="damage4"?4:1))/(1+(stage-1)*0.013),r:8,homing:homingIndexes.has(i),homingSpeed:3.8});
+      dmg:(10*atkBuff*(1+drawAttackBonus)*(window.halloweenEffects&&window.halloweenEffects.candy>0?1.5:1)*(kizuku2Active?2:1)*(adminRankAbility==="damage4"?4:1))/(1+(stage-1)*0.013),r:8,homing:homingIndexes.has(i),homingSpeed:3.8});
   }
   msg.textContent="🪄 拡散弾20発！追尾弾："+homingCount+"発";
 }
@@ -9928,16 +9956,16 @@ function liveTargets(){if(window.halloweenWaveActive){try{return halloweenEnemie
 function nearestTarget(x=p.x,y=p.y){const a=liveTargets();a.sort((u,v)=>Math.hypot(u.x-x,u.y-y)-Math.hypot(v.x-x,v.y-y));return a[0]||null;}
 function hitNewWeaponTarget(t,dmg){if(!t||t.hp<=0)return;if(window.halloweenWaveActive){halloweenDamageTarget(t,dmg);if(t.hp<=0)awardHalloweenTarget(t);}else if(t===enemy)damageEnemy(dmg);else damageMinion(t,dmg);}
 function addBoomerang(){const dx=mouse.x-p.x,dy=mouse.y-p.y,d=Math.hypot(dx,dy)||1;boomerangs.push({x:p.x,y:p.y,vx:dx/d*10.4,vy:dy/d*10.4,dir:"out",travel:0,hit:new Set(),hitBack:new Set(),life:240});}
-function fireSmallLightning(){const t=nearestTarget();const dx=t?t.x-p.x:mouse.x-p.x,dy=t?t.y-p.y:mouse.y-p.y,d=Math.hypot(dx,dy)||1;smallLightnings.push({x:p.x,y:p.y,vx:dx/d*5,vy:dy/d*5,target:t,homing:180,life:240,dmg:5});smallLightningCooldownFrames=72;}
+function fireSmallLightning(){const t=nearestTarget();const dx=t?t.x-p.x:mouse.x-p.x,dy=t?t.y-p.y:mouse.y-p.y,d=Math.hypot(dx,dy)||1;smallLightnings.push({x:p.x,y:p.y,vx:dx/d*5,vy:dy/d*5,target:t,homing:180,life:240,dmg:5*(1+drawAttackBonus)});smallLightningCooldownFrames=72;}
 function startThunderStorm(ratio){thunderCooldownFrames=390;thunderStormFrames=420;thunderStrikeFrames=0;thunderStrikeLimit=ratio>=.9?6:ratio>=.6?5:4;thunderShadows=[];msg.textContent="⚡ サンダーインパクト！7秒間、雷が降る！";}
 function newWeaponAttack(){if(gameOver||stageClear||isPausedForSpecial||bossSpecialState)return;if(weapon==="🪃"){addBoomerang();return;}if(weapon==="⚡️"){if(thunderCooldownFrames>0){fireSmallLightning();return;}startThunderStorm(Math.max(0,Math.min(1,charge/150)));return;}if(weapon==="🚨"){const reach=74,targets=liveTargets().filter(t=>Math.hypot(t.x-p.x,t.y-p.y)<reach);if(targets.length){targets.forEach(t=>hitNewWeaponTarget(t,typeof getDamage==="function"?getDamage():15));slashTimer=12;return;}if(policeStock>0&&policeTraps.length<6){policeTraps.push({x:p.x,y:p.y,r:25,life:Infinity});policeStock--;msg.textContent="🕳️ トラップ設置！ 残り "+policeStock+" 個";}else msg.textContent=policeStock<=0?"🕳️ トラップ補充中...":"🕳️ トラップは最大6個まで設置中だよ。";}}
 beginAttackCharge=function(){if(!NEW_WEAPONS.includes(weapon))return originalBeginAttackCharge();if(gameOver||stageClear||isPausedForSpecial||window.gameSavePaused||(attackCooldown>0&&weapon!=="⚡️"))return;if(weapon==="⚡️"&&thunderCooldownFrames>0){if(smallLightningCooldownFrames<=0){fireSmallLightning();smallLightningUsedOnPress=true;}else msg.textContent="⚡ 小さな雷のクールタイム中...";return;}charging=true;charge=0;if(weapon==="⚡️")thunderChargeFrames=0;};
 releaseAttackCharge=function(){if(!NEW_WEAPONS.includes(weapon))return originalReleaseAttackCharge();if(weapon==="⚡️"&&thunderCooldownFrames>0){smallLightningUsedOnPress=false;charging=false;charge=0;thunderChargeFrames=0;return;}if(!charging)return;charging=false;newWeaponAttack();attackCooldown=(window.adminNoCooldown?0:0.3);charge=0;thunderChargeFrames=0;};
 function updateNewWeaponSystems(){if(currentScreen!=="game")return;if(thunderCooldownFrames>0)thunderCooldownFrames--;if(smallLightningCooldownFrames>0)smallLightningCooldownFrames--;if(policeStock<6){policeRechargeFrames++;if(policeRechargeFrames>=600){policeStock++;policeRechargeFrames=0;}}else policeRechargeFrames=0;if(weapon==="⚡️"&&charging&&thunderCooldownFrames<=0){thunderChargeFrames=Math.min(360,thunderChargeFrames+1);charge=150*Math.pow(thunderChargeFrames/360,1.55);}
  if(thunderStormFrames>0){thunderStormFrames--;thunderStrikeFrames++;if((thunderStrikeFrames===1||thunderStrikeFrames%78===1)&&Math.floor((thunderStrikeFrames-1)/78)<thunderStrikeLimit){thunderShadows.push({x:60+Math.random()*780,y:75+Math.random()*350,wait:120});}}
- for(let i=thunderShadows.length-1;i>=0;i--){const sh=thunderShadows[i];sh.wait--;if(sh.wait<=0){liveTargets().forEach(t=>{if(Math.hypot(t.x-sh.x,t.y-sh.y)<65)hitNewWeaponTarget(t,20);});thunderShadows.splice(i,1);}}
- for(let i=boomerangs.length-1;i>=0;i--){const b=boomerangs[i];b.life--;if(b.dir==="out"){b.x+=b.vx;b.y+=b.vy;b.travel+=Math.hypot(b.vx,b.vy);liveTargets().forEach(t=>{if(!b.hit.has(t)&&Math.hypot(t.x-b.x,t.y-b.y)<28){hitNewWeaponTarget(t,10);b.hit.add(t);}});if(b.travel>=260)b.dir="return";}else{const dx=p.x-b.x,dy=p.y-b.y,d=Math.hypot(dx,dy)||1;b.x+=dx/d*10.4;b.y+=dy/d*10.4;const t=liveTargets().find(t=>!b.hitBack.has(t)&&Math.hypot(t.x-b.x,t.y-b.y)<28);if(t){hitNewWeaponTarget(t,10);b.hitBack.add(t);}if(d<13)boomerangs.splice(i,1);}if(b.life<=0){const j=boomerangs.indexOf(b);if(j>=0)boomerangs.splice(j,1);}}
- for(let i=smallLightnings.length-1;i>=0;i--){const b=smallLightnings[i];b.life--;if(b.homing>0&&b.target&&b.target.hp>0){const dx=b.target.x-b.x,dy=b.target.y-b.y,d=Math.hypot(dx,dy)||1;b.vx+=(dx/d*5-b.vx)*.12;b.vy+=(dy/d*5-b.vy)*.12;b.homing--;}else if(b.homing>0){b.target=nearestTarget(b.x,b.y);}b.x+=b.vx;b.y+=b.vy;const t=liveTargets().find(t=>Math.hypot(t.x-b.x,t.y-b.y)<25);if(t){hitNewWeaponTarget(t,4);smallLightnings.splice(i,1);continue;}if(b.life<=0||b.x<0||b.x>900||b.y<0||b.y>500)smallLightnings.splice(i,1);}
+ for(let i=thunderShadows.length-1;i>=0;i--){const sh=thunderShadows[i];sh.wait--;if(sh.wait<=0){liveTargets().forEach(t=>{if(Math.hypot(t.x-sh.x,t.y-sh.y)<65)hitNewWeaponTarget(t,20*(1+drawAttackBonus));});thunderShadows.splice(i,1);}}
+ for(let i=boomerangs.length-1;i>=0;i--){const b=boomerangs[i];b.life--;if(b.dir==="out"){b.x+=b.vx;b.y+=b.vy;b.travel+=Math.hypot(b.vx,b.vy);liveTargets().forEach(t=>{if(!b.hit.has(t)&&Math.hypot(t.x-b.x,t.y-b.y)<28){hitNewWeaponTarget(t,10*(1+drawAttackBonus));b.hit.add(t);}});if(b.travel>=260)b.dir="return";}else{const dx=p.x-b.x,dy=p.y-b.y,d=Math.hypot(dx,dy)||1;b.x+=dx/d*10.4;b.y+=dy/d*10.4;const t=liveTargets().find(t=>!b.hitBack.has(t)&&Math.hypot(t.x-b.x,t.y-b.y)<28);if(t){hitNewWeaponTarget(t,10*(1+drawAttackBonus));b.hitBack.add(t);}if(d<13)boomerangs.splice(i,1);}if(b.life<=0){const j=boomerangs.indexOf(b);if(j>=0)boomerangs.splice(j,1);}}
+ for(let i=smallLightnings.length-1;i>=0;i--){const b=smallLightnings[i];b.life--;if(b.homing>0&&b.target&&b.target.hp>0){const dx=b.target.x-b.x,dy=b.target.y-b.y,d=Math.hypot(dx,dy)||1;b.vx+=(dx/d*5-b.vx)*.12;b.vy+=(dy/d*5-b.vy)*.12;b.homing--;}else if(b.homing>0){b.target=nearestTarget(b.x,b.y);}b.x+=b.vx;b.y+=b.vy;const t=liveTargets().find(t=>Math.hypot(t.x-b.x,t.y-b.y)<25);if(t){hitNewWeaponTarget(t,b.dmg);smallLightnings.splice(i,1);continue;}if(b.life<=0||b.x<0||b.x>900||b.y<0||b.y>500)smallLightnings.splice(i,1);}
  for(let i=policeTraps.length-1;i>=0;i--){const tr=policeTraps[i];tr.life--;if(tr.life<=0){policeTraps.splice(i,1);continue;}const t=liveTargets().find(t=>Math.hypot(t.x-tr.x,t.y-tr.y)<(t.r||20)+tr.r);if(t){hitNewWeaponTarget(t,3);t.trappedFrames=360;t.trapX=t.x;t.trapY=t.y;if(t===enemy){stun=Math.max(stun,360);enemyShootTimer=999999;}else if(t.cooldown!==undefined)t.cooldown=Math.max(Number(t.cooldown)||0,60);policeTraps.splice(i,1);}}
  try{const arr=window.halloweenWaveActive?halloweenEnemies:[enemy,...minions];arr.forEach(t=>{if(t.trappedFrames>0){t.trappedFrames--;t.x=t.trapX;t.y=t.trapY;["cooldown","shootTimer","attackTimer","fireTimer","spawnTimer"].forEach(k=>{if(k in t)t[k]=Math.max(Number(t[k])||0,60);});}else if(t.trappedFrames===0){t.trappedFrames=-1;if(t===enemy)enemyShootTimer=60;}});}catch(e){}
  let count=document.getElementById("policeTrapCount");if(!count){const hp=document.getElementById("maxHpText");if(hp&&hp.parentElement){count=document.createElement("span");count.id="policeTrapCount";hp.parentElement.appendChild(count);}}if(count){count.style.display=weapon==="🚨"?"inline":"none";count.textContent="🕳️ × "+policeStock;}

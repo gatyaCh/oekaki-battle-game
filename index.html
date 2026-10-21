@@ -9928,17 +9928,21 @@ function judgePreviewWeapon(target) {
         return;
     }
 
-    // 画面のガイド表示と座標がズレている場合、ここの数値を画面に合わせて調整してください
+    // 💡 画面上の見た目（パトランプ型、ギザギザの雷、三日月型のブーメラン）に合わせて座標を一新しました
     const previewTemplates = {
         "🪃": [
-            {x:200,y:285},{x:100,y:125}, {x:200,y:75},{x:300,y:125}
+            {x:100, y:200}, {x:200, y:120}, {x:300, y:280}, 
+            {x:220, y:200}, {x:100, y:200}
         ],
         "⚡️": [
-            {x:235,y:55},{x:165,y:190}, {x:220,y:190},{x:165,y:345}, 
-            {x:275,y:165},{x:220,y:165}, {x:265,y:55}
+            {x:230, y:60},  {x:160, y:180}, {x:210, y:180}, 
+            {x:160, y:340}, {x:260, y:200}, {x:210, y:200}, 
+            {x:250, y:60}
         ],
         "🚨": [
-            {x:115,y:125},{x:285,y:125}, {x:255,y:245},{x:145,y:245}
+            {x:130, y:150}, {x:270, y:150}, {x:270, y:220}, 
+            {x:240, y:220}, {x:240, y:300}, {x:160, y:300}, 
+            {x:160, y:220}, {x:130, y:220}, {x:130, y:150}
         ]
     };
 
@@ -9948,6 +9952,9 @@ function judgePreviewWeapon(target) {
         return;
     }
 
+    // 💡 もしキャンバスの見た目のサイズと、内部的な解像度が異なる場合は、
+    // scaleX = 1, scaleY = 1 に固定して pts の生データと直接比較した方が安定します。
+    // ここでは一旦元の計算を残していますが、ズレる場合は 1 に変更してください。
     const scaleX = dc.width / 400;
     const scaleY = dc.height / 400;
     
@@ -9956,18 +9963,11 @@ function judgePreviewWeapon(target) {
         y: p.y * scaleY
     }));
 
-    // ガイドの線分リストを作成
+    // 線分リストを作成（新しいテンプレートは最初から閉じている・または一筆書きを考慮して組んでいます）
     const guideSegments = guide.slice(1).map((p, i) => [guide[i], p]);
-    
-    // 【バグ修正】ポリス(🚨)の最後と最初を正しく結ぶ
-    if (target === "🚨") {
-        guideSegments.push([guide[guide.length - 1], guide[0]]);
-    }
 
-    // プレイヤーが描いた線の線分リスト
     const drawnSegments = pts.slice(1).map((p, i) => [pts[i], p]);
 
-    // 点と線分の最短距離を計算する関数
     const distance = (p, a, b) => {
         const dx = b.x - a.x;
         const dy = b.y - a.y;
@@ -9975,22 +9975,18 @@ function judgePreviewWeapon(target) {
         if (l2 === 0) return Math.hypot(p.x - a.x, p.y - a.y);
         
         const t = Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / l2));
-        return Math.hypot(
-            p.x - a.x - t * dx,
-            p.y - a.y - t * dy
-        );
+        return Math.hypot(p.x - a.x - t * dx, p.y - a.y - t * dy);
     };
 
     let totalSamples = 0;
     let coveredSamples = 0;
     
-    // 📢 判定が厳しすぎる場合は、この数値を 120 や 150 に広げてください
-    const tolerance = 90; 
+    // 💡 画面上の線が太いため、許容誤差（判定の甘さ）を 120px に広げました
+    const tolerance = 120; 
 
-    // ガイド線上の各サンプル点が、プレイヤーの線（drawnSegments）の近くにあるかを判定
     guideSegments.forEach(([a, b]) => {
         const length = Math.hypot(b.x - a.x, b.y - a.y);
-        const steps = Math.max(5, Math.ceil(length / 8)); // サンプル数を少し増やして精度向上
+        const steps = Math.max(5, Math.ceil(length / 8));
 
         for (let j = 0; j <= steps; j++) {
             const t = j / steps;
@@ -10011,31 +10007,27 @@ function judgePreviewWeapon(target) {
         }
     });
 
-    // 外部変数の更新
     weapon = target;
     drawAccuracyScore = 0;
     drawHpBonus = 0;
     drawAttackBonus = 0;
 
-    // ① なぞり精度を計算
     const coverage = totalSamples ? coveredSamples / totalSamples : 0;
     drawAccuracyScore = Math.max(0, Math.min(100, Math.round(coverage * 100)));
 
-    // ② 精度に応じてボーナスを計算
-    if (drawAccuracyScore >= 90) { // 全体的にボーナス閾値を少し優しく調整
+    if (drawAccuracyScore >= 80) { 
         drawHpBonus = .20; drawAttackBonus = .20;
-    } else if (drawAccuracyScore >= 75) {
+    } else if (drawAccuracyScore >= 60) {
         drawHpBonus = .15; drawAttackBonus = .12;
-    } else if (drawAccuracyScore >= 50) {
+    } else if (drawAccuracyScore >= 40) {
         drawHpBonus = .10; drawAttackBonus = .08;
-    } else if (drawAccuracyScore >= 20) {
+    } else if (drawAccuracyScore >= 15) {
         drawHpBonus = .05; drawAttackBonus = .05;
     }
 
     drawBonusPending = true;
     locked = true;
 
-    // ③ ボタンの無効化
     [
         "btnBoomerang", "btnThunder", "btnPolice",
         "btnWand", "btnSword", "btnCar", "btnBow",
@@ -10045,7 +10037,6 @@ function judgePreviewWeapon(target) {
         if (el) el.disabled = true;
     });
 
-    // ④ 結果表示
     document.getElementById("result").innerHTML = 
         `🎉 判定成功！武器：<span style='color:#00ffff;'>${target}</span><br>` +
         `🎯 なぞり精度：${drawAccuracyScore}%<br>` +

@@ -10015,13 +10015,17 @@ function judgePreviewWeapon(target) {
     const coverage = totalSamples ? coveredSamples / totalSamples : 0;
     drawAccuracyScore = Math.max(0, Math.min(100, Math.round(coverage * 100)));
 
-    if (drawAccuracyScore >= 80) { 
-        drawHpBonus = .20; drawAttackBonus = .20;
-    } else if (drawAccuracyScore >= 60) {
-        drawHpBonus = .15; drawAttackBonus = .12;
-    } else if (drawAccuracyScore >= 40) {
-        drawHpBonus = .10; drawAttackBonus = .08;
-    } else if (drawAccuracyScore >= 15) {
+    if (drawAccuracyScore >= 86) {
+        drawHpBonus = .30; drawAttackBonus = .30;
+    } else if (drawAccuracyScore >= 76) {
+        drawHpBonus = .25; drawAttackBonus = .25;
+    } else if (drawAccuracyScore >= 61) {
+        drawHpBonus = .23; drawAttackBonus = .23;
+    } else if (drawAccuracyScore >= 46) {
+        drawHpBonus = .18; drawAttackBonus = .18;
+    } else if (drawAccuracyScore >= 36) {
+        drawHpBonus = .12; drawAttackBonus = .12;
+    } else if (drawAccuracyScore >= 21) {
         drawHpBonus = .05; drawAttackBonus = .05;
     }
 

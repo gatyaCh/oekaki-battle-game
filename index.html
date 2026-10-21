@@ -9962,9 +9962,7 @@ function judgePreviewWeapon(target) {
         return;
     }
 
-    // 💡 もしキャンバスの見た目のサイズと、内部的な解像度が異なる場合は、
-    // scaleX = 1, scaleY = 1 に固定して pts の生データと直接比較した方が安定します。
-    // ここでは一旦元の計算を残していますが、ズレる場合は 1 に変更してください。
+    // 描画キャンバスの内部サイズに合わせてガイド座標を変換する。
     const scaleX = dc.width / 400;
     const scaleY = dc.height / 400;
     
@@ -9982,7 +9980,6 @@ function judgePreviewWeapon(target) {
     locked = true;
 
     drawBonusPending = true;
-    locked = true;
 
     [
         "btnBoomerang", "btnThunder", "btnPolice",
@@ -10091,22 +10088,7 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
       [{x:125,y:285},{x:275,y:105}],
       [{x:145,y:105},{x:295,y:285}]
     ];
-    if(cleanType === "🪃") return [[
-      {x:200,y:285},{x:100,y:125},
-      {x:200,y:75},{x:300,y:125},
-      {x:200,y:285}
-    ]];
-    if(cleanType === "⚡") return [[
-      {x:235,y:55},{x:165,y:190},
-      {x:220,y:190},{x:165,y:345},
-      {x:275,y:165},{x:220,y:165},
-      {x:265,y:55}
-    ]];
-    if(cleanType === "🚨") return [[
-      {x:115,y:125},{x:285,y:125},
-      {x:255,y:245},{x:145,y:245},
-      {x:115,y:125}
-    ]];
+    // 🪃・⚡️・🚨は専用の精度判定へ委譲するため、ここでは通常武器のみ扱う。
     return [];
   }
 

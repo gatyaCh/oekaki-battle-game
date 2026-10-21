@@ -9971,42 +9971,10 @@ function judgePreviewWeapon(target) {
         y: p.y * scaleY
     }));
 
-    // 🪃・🚨は、描いた点の平均距離ではなく「ガイド線をどれだけなぞれたか」で精度を計算する。
-    // 描き始め/描き終わりの余分な点に引っ張られて、精度が常に0%になる問題を防ぐ。
-    if (target === "🪃" || target === "🚨") {
-        const drawnSegments = pts.slice(1).map((p, i) => [pts[i], p]);
-        function pointToSegmentDistance(p, a, b) {
-            const dx = b.x - a.x, dy = b.y - a.y;
-            const lengthSquared = dx * dx + dy * dy || 1;
-            const t = Math.max(0, Math.min(1, ((p.x-a.x)*dx + (p.y-a.y)*dy) / lengthSquared));
-            return Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy));
-        }
-        let totalSamples = 0;
-        let coveredSamples = 0;
-        const tolerance = Math.max(24, Math.min(dc.width, dc.height) * 0.11);
-        for (let i = 0; i < guide.length; i++) {
-            const a = guide[i];
-            const b = guide[(i + 1) % guide.length];
-            const length = Math.hypot(b.x - a.x, b.y - a.y);
-            const steps = Math.max(3, Math.ceil(length / 10));
-            for (let j = 0; j <= steps; j++) {
-                const t = j / steps;
-                const sample = {x: a.x + (b.x-a.x)*t, y: a.y + (b.y-a.y)*t};
-                let nearest = Infinity;
-                for (const segment of drawnSegments) {
-                    nearest = Math.min(nearest, pointToSegmentDistance(sample, segment[0], segment[1]));
-                }
-                totalSamples++;
-                if (nearest <= tolerance) coveredSamples++;
-            }
-        }
-        const coverage = totalSamples ? coveredSamples / totalSamples : 0;
-        drawAccuracyScore = Math.max(0, Math.min(100, Math.round(coverage * 100)));
-    } else {
-        // ⚡️の精度計算は従来のまま変更しない。
-        const avgDistance = calcAvgDistToPolyline(guide, true);
-        drawAccuracyScore = Math.max(0, Math.min(100, Math.round(100 * (1 - avgDistance / 27))));
-    }
+    // ⚡️で動作している精度計算を🪃・🚨にもそのまま共通適用する。
+    // 武器ごとに計算方式を分けず、同じ平均距離・同じ許容値で精度を算出する。
+    const avgDistance = calcAvgDistToPolyline(guide, true);
+    drawAccuracyScore = Math.max(0, Math.min(100, Math.round(100 * (1 - avgDistance / 27))));
     applyDrawBonusTier(drawAccuracyScore);
 
     weapon = target;

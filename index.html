@@ -9956,15 +9956,12 @@ function judgePreviewWeapon(target){
   if(segmentCovered/(steps+1)>=0.05)touchedSegments++;
  });
  const coverage=totalSamples?coveredSamples/totalSamples:0;
- if(coverage<0.05||touchedSegments<1){
-  document.getElementById("result").textContent="✏️ ガイドラインに沿って少しなぞってね！武器の種類を間違えて判定することはないよ。";
-  document.getElementById("battleBtn").classList.add("hidden");
-  return;
- }
+ // 失敗判定で止めず、選択したテスト武器をそのまま確定。
+ // 精度はガイドラインとの距離から計算し、なぞりが甘い場合はボーナスが低くなる。
  weapon=target;
  drawAccuracyScore=0;drawHpBonus=0;drawAttackBonus=0;drawBonusPending=false;
- const avgDistance=calcAvgDistToPolyline(template,true);
- const limit=target==="⚡️"?30:target==="🪃"?30:25;
+ const avgDistance=calcAvgDistToPolyline(guide,true);
+ const limit=(target==="⚡️"?30:target==="🪃"?30:25)*Math.min(scaleX,scaleY);
  drawAccuracyScore=Math.max(0,Math.min(100,Math.round(100*(1-avgDistance/limit))));
  if(drawAccuracyScore>=100){drawHpBonus=.20;drawAttackBonus=.20;}
  else if(drawAccuracyScore>=95){drawHpBonus=.18;drawAttackBonus=.15;}

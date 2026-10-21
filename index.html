@@ -9960,8 +9960,13 @@ function judgePreviewWeapon(target){
  // 精度はガイドラインとの距離から計算し、なぞりが甘い場合はボーナスが低くなる。
  weapon=target;
  drawAccuracyScore=0;drawHpBonus=0;drawAttackBonus=0;drawBonusPending=false;
- const avgDistance=calcAvgDistToPolyline(guide,true);
- const limit=(target==="⚡️"?30:target==="🪃"?30:25)*Math.min(scaleX,scaleY);
+ // 描画座標とガイド座標のスケール差に影響されないよう、400×400基準で精度を測る。
+ const normalizedPts=pts.map(p=>({x:p.x/scaleX,y:p.y/scaleY}));
+ const savedPts=pts;
+ pts=normalizedPts;
+ const avgDistance=calcAvgDistToPolyline(template,true);
+ pts=savedPts;
+ const limit=target==="⚡️"?65:target==="🪃"?65:55;
  drawAccuracyScore=Math.max(0,Math.min(100,Math.round(100*(1-avgDistance/limit))));
  if(drawAccuracyScore>=100){drawHpBonus=.20;drawAttackBonus=.20;}
  else if(drawAccuracyScore>=95){drawHpBonus=.18;drawAttackBonus=.15;}

@@ -5177,7 +5177,7 @@ function beginAttackCharge() {
     return;
   }
   if (gameOver || stageClear || attackCooldown > 0 || isPausedForSpecial || bossSpecialState) return;
-  if (weapon === "🪄") {
+  if (weapon === "🪄" && !window.specialCodes?.sougo) {
     if (wandCooldown <= 0) {
       fireWandMagic();
       wandCooldown = window.adminNoCooldown ? 0 : 1.7; // クールタイム 1.7秒
@@ -5189,12 +5189,17 @@ function beginAttackCharge() {
   }
 }
 function releaseAttackCharge() {
-  if (weapon === "🪄") return;
+  if (weapon === "🪄" && !window.specialCodes?.sougo) return;
   if (!charging) return;
   if (attackCooldown <= 0) {
-    if (bulletHellReady) fireBulletHell();
-    else attack();
-    attackCooldown = (window.adminNoCooldown ? 0 : 0.3);
+    if (bulletHellReady) {
+      fireBulletHell();
+      attackCooldown = (window.adminNoCooldown ? 0 : 0.3);
+    } else {
+      const hammerCharge = Math.max(0, Math.min(150, charge));
+      attack();
+      attackCooldown = window.adminNoCooldown ? 0 : (window.specialCodes?.sougo ? 3 + 4 * (hammerCharge / 150) : 0.3);
+    }
   }
   charging = false;
   charge = 0;
@@ -5397,6 +5402,24 @@ function fireWandMagic() {
 function attack() {
   if (halloweenWaveActive) { if(halloweenShopOpen||halloweenIntroFrame>=0||halloweenStartBanner>0||halloweenCooldown>0||gameOver||stageClear)return; halloweenCooldown=12; const t=halloweenEnemies.filter(e=>e.alive).sort((x,y)=>Math.hypot(p.x-x.x,p.y-x.y)-Math.hypot(p.x-y.x,p.y-y.y))[0]; if(t&&Math.hypot(p.x-t.x,p.y-t.y)<260){t.hp-=12*halloweenBuff.damage*(ghostTimer>0?0.7:1);awardHalloweenTarget(t);msg.textContent="攻撃！ ソウル："+halloweenSouls;} return; }
   if (window.adminPanelInteracting || gameOver || stageClear) return;
+  if (window.specialCodes?.sougo) {
+    const hammerCharge = Math.max(0, Math.min(150, charge)) / 150;
+    const hammerBaseDamage = 20 + 30 * hammerCharge;
+    const halloweenFx = window.halloweenEffects || {};
+    const hammerDamage = hammerBaseDamage * atkBuff * (1 + drawAttackBonus) * 1.03
+      * (kizuku2Active ? 2 : 1) * (window.sougoBoostActive ? 3 : 1)
+      * (adminRankAbility === "damage4" ? 4 : 1)
+      * (halloweenFx.candy > 0 ? 1.8 : 1) * (halloweenFx.zombie > 0 ? 2.3 : 1)
+      * (1 + upgradeLevels.atk * 0.04);
+    const hammerRange = (72 + charge / 2) * 3;
+    slashTimer = 20;
+    minions.forEach(m => {
+      if (Math.hypot(p.x - m.x, p.y - m.y) < hammerRange) damageMinion(m, hammerDamage);
+    });
+    if (Math.hypot(p.x - enemy.x, p.y - enemy.y) < hammerRange) damageEnemy(hammerDamage);
+    msg.textContent = "⚒️ ハンマー！ " + Math.round(hammerBaseDamage) + "ダメージ / 範囲3倍 / CT " + (3 + 4 * hammerCharge).toFixed(1) + "秒";
+    return;
+  }
   const dmg = getDamage();
   if (weapon === "⚔️") {
     slashTimer = 12;
@@ -7668,7 +7691,7 @@ function updateRikuUI() {
       return;
     }
 
-    if (weapon === "🪄") {
+    if (weapon === "🪄" && !window.specialCodes?.sougo) {
       if (wandCooldown <= 0) {
         fireWandMagic();
         wandCooldown = window.adminNoCooldown ? 0 : 1.7;
@@ -7678,9 +7701,13 @@ function updateRikuUI() {
       return;
     }
 
-    if (bulletHellReady) fireBulletHell();
-    else attack();
-    attackCooldown = window.adminNoCooldown ? 0 : 0.3;
+    if (bulletHellReady) {
+      fireBulletHell();
+      attackCooldown = window.adminNoCooldown ? 0 : 0.3;
+    } else {
+      attack();
+      attackCooldown = window.adminNoCooldown ? 0 : (window.specialCodes?.sougo ? 3 : 0.3);
+    }
   }
   function attackPointerUp(e) {
     e.preventDefault();
@@ -8235,7 +8262,7 @@ loop();
     }
     if (c === "kakeru") {
       specialCodes.kakeru = true;
-      msg.textContent = "🐢 kakeru 発動！敵の移動速度が0.5倍になるよ！";
+      msg.textContent = "🐢 kakeru 発動！敵の移動速度0.5倍＋保管庫アイテム無限（所持数∞）！";
       return true;
     }
     if (c === "sougo") {
@@ -8243,7 +8270,7 @@ loop();
       sougoFramesUntilBoost = 300 + Math.floor(Math.random() * 901);
       sougoBoostFrames = 0;
       sougoBoostUsed = false;
-      msg.textContent = "⚔️ sougo 発動！この試合中、ランダムなタイミングで攻撃力が3秒間3倍になるよ！";
+      msg.textContent = "⚒️ sougo 発動！専用武器ハンマー（範囲3倍・20〜50ダメージ・CT3〜7秒）＋ランダムなタイミングで攻撃力3秒間3倍！";
       return true;
     }
     if (c === "special code") {
@@ -8269,8 +8296,8 @@ loop();
       '<span>HP20 → 最大HP +20</span><br>' +
       '<span>Lucky Boost → 📦ボックス・🧰宝箱のレア確率UP</span><br>' +
       '<span>ryokutya → 📦ボックスが全ステージ4個（HP20とは別の効果）</span><br>' +
-      '<span>kakeru → 敵の移動速度が0.5倍</span><br>' +
-      '<span>sougo → ランダムなタイミングで攻撃力3倍（3秒間）</span><br>' +
+      '<span>kakeru → 敵の移動速度0.5倍＋保管庫アイテム無限（所持数∞）</span><br>' +
+      '<span>sougo → 専用武器⚒️ハンマー（範囲3倍・20〜50ダメージ・CT3〜7秒）＋ランダムな攻撃力3倍（3秒間）</span><br>' +
       '<span>？？？ → 🧰宝箱から発見できる3つ目の隠しコード</span><br>' +
       '<span id="specialCodeDiscovered" style="display:none">Special Code → 敵の攻撃力・HP低下</span>' +
       '<div style="margin-top:7px">' +
@@ -9636,8 +9663,9 @@ body.mobile-mode #battlePickupNotice {
   function totalPotion(){const h=inventory().halloween;return (h.potionLarge||0)+(h.potionSmall||0);}
   function row(item,sub){
     const n=item.id==="potion"?totalPotion():count(item.id);
-    const disabled=n<1||(item.id==="🗿"&&revive);
-    return '<div class="game-inventory-row'+(sub?' game-inventory-sub':'')+'"><div class="game-inventory-name"><strong>'+esc(item.name)+'</strong><small>'+esc(item.desc)+'</small><small>所持数：'+n+'</small></div><button data-use-item="'+esc(item.id)+'" '+(disabled?'disabled':'')+'>使用する</button></div>';
+    const infinite=!!window.specialCodes?.kakeru;
+    const disabled=(!infinite&&n<1)||(item.id==="🗿"&&revive);
+    return '<div class="game-inventory-row'+(sub?' game-inventory-sub':'')+'"><div class="game-inventory-name"><strong>'+esc(item.name)+'</strong><small>'+esc(item.desc)+'</small><small>所持数：'+(infinite?'∞':n)+'</small></div><button data-use-item="'+esc(item.id)+'" '+(disabled?'disabled':'')+'>使用する</button></div>';
   }
   function render(){
     inventory();
@@ -9664,9 +9692,10 @@ body.mobile-mode #battlePickupNotice {
     let key=id,bag=tab==="normal"?inv.normal:inv.halloween;
     if(tab==="halloween"&&id==="potionLarge")key="potionLarge";
     if(tab==="halloween"&&id==="potionSmall")key="potionSmall";
-    if(!Number.isFinite(bag[key])||bag[key]<1)return;
+    const infinite=!!window.specialCodes?.kakeru;
+    if(!infinite&&(!Number.isFinite(bag[key])||bag[key]<1))return;
     if(id==="🗿"&&revive)return;
-    bag[key]--;
+    if(!infinite)bag[key]--;
     if(typeof window.recordGameAchievementEvent==='function')window.recordGameAchievementEvent('itemUsed',String(id));
     pendingUses.push({tab,id});
     const names={ "❤":"❤ 回復アイテム","💪":"💪 攻撃力アップ","🛡️":"🛡️ シールド","🗿":"🗿 復活","👻":"👻 ゴースト","🔮":"🔮 弾幕","⚡️":"⚡️ 雷撃",tripleGatling:"🔫 トリプルガトリング",horse:"👻 ゴーストライダー",candy:"🍬 キャンディー",bat:"🦇 コウモリシールド",allies:"🍭 トリック・オア・トリート",zombie:"🧟 イモータルゾンビ",potionLarge:"🧙 大回復薬",potionSmall:"🧙 小回復薬"};

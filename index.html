@@ -3935,6 +3935,14 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
     | 必殺技ストック: <span id="specialStockText" style="color: #ff3366; font-weight: bold;">0</span>
   </div>
   <div id="chargeContainer">Charge <progress id="charge" max="150" value="0" style="width: 200px; height: 20px;"></progress></div>
+<div id="sougoHammerHud" class="hidden" style="position:fixed;top:64px;left:8px;z-index:99988;background:rgba(35,12,60,.94);border:2px solid #c084fc;border-radius:12px;padding:8px 12px;color:#fff;min-width:210px;box-shadow:0 0 12px #9333ea;font-size:14px">
+  <div style="font-size:18px;font-weight:bold">⚒️ ハンマーチャージ</div>
+  <div style="display:flex;justify-content:space-between;gap:12px"><span>チャージ</span><b id="sougoHammerChargeText">0%</b></div>
+  <progress id="sougoHammerChargeBar" max="150" value="0" style="width:100%;height:14px;accent-color:#c084fc"></progress>
+  <div style="display:flex;justify-content:space-between;gap:12px;margin-top:4px"><span>次の攻撃まで</span><b id="sougoHammerCooldownText">攻撃可能</b></div>
+  <progress id="sougoHammerCooldownBar" max="7" value="0" style="width:100%;height:10px;accent-color:#f59e0b"></progress>
+  <div id="sougoHammerDamageText" style="text-align:center;margin-top:3px">予想ダメージ：20</div>
+</div>
   <div id="specialGaugeContainer" aria-label="必殺技ゲージ">
     <span>必殺技ゲージ</span>
     <progress id="specialGauge" max="1" value="0"></progress>
@@ -7787,6 +7795,25 @@ function updateRikuUI() {
   holdKeyButton(chestBtn, window.controlKeys.chest);
 })();
 function loop() {
+  const hammerHud=document.getElementById("sougoHammerHud");
+  if(hammerHud){
+    const active=!!window.specialCodes?.sougo && currentScreen==="game" && !gameArea.classList.contains("hidden") && !gameOver && !stageClear;
+    hammerHud.classList.toggle("hidden",!active);
+    if(active){
+      const c=Math.max(0,Math.min(150,Number(charge)||0));
+      const cd=Math.max(0,Number(attackCooldown)||0);
+      const chargeText=document.getElementById("sougoHammerChargeText");
+      const chargeBar=document.getElementById("sougoHammerChargeBar");
+      const cooldownText=document.getElementById("sougoHammerCooldownText");
+      const cooldownBar=document.getElementById("sougoHammerCooldownBar");
+      const damageText=document.getElementById("sougoHammerDamageText");
+      if(chargeText)chargeText.textContent=Math.round(c/150*100)+"%";
+      if(chargeBar)chargeBar.value=c;
+      if(cooldownText)cooldownText.textContent=cd>0?cd.toFixed(1)+"秒":"攻撃可能";
+      if(cooldownBar){cooldownBar.max=7;cooldownBar.value=cd;}
+      if(damageText)damageText.textContent="予想ダメージ："+Math.round(20+30*c/150);
+    }
+  }
   if (!gameArea.classList.contains("hidden")) update();
   // HUDは戦闘処理の早期returnやポーズ中でも毎フレーム最新状態に同期する。
   // 通常マップ・ハロウィンマップ共通で、HP/敵HP/コイン/強化状態を表示する。

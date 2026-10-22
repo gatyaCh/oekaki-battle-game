@@ -7836,7 +7836,7 @@ loop();
       window.adminAbuseRewardPending=true;codeInput.value="";codeMsg.textContent="";codeBox.classList.add("hidden");
       msg.textContent="👑 ADMIN ABUSEコード確認！次の試合開始時に攻撃力＆スピード2倍（30秒間）";return;
     }
-    if (code === "hp20" || code === "lucky boost" || code === "ryokutya" || code === "special code") {
+    if (code === "hp20" || code === "lucky boost" || code === "ryokutya" || code === "special code" || code === "kakeru" || code === "sougo") {
       if (typeof window.useSpecialCode === "function" && window.useSpecialCode(code)) {
         codeInput.value = "";
         codeMsg.textContent = "✅ コードが承認されました！";

@@ -9249,8 +9249,7 @@ return origUpdate.apply(this,arguments)};
  $('fusionStartBtn').onclick=()=>{if($('fusionStartBtn').disabled)return;const total=selected.reduce((sum,id)=>sum+(skins.find(x=>x.id===id)?.points||0),0);if(!confirm('選択した3つのスキンを素材にしてヒューズを開始しますか？\n合計ポイント：'+total+'\n開始後は素材を変更できません。'))return;saveData.fused=[...new Set([...(saveData.fused||[]),...selected])];saveData.processing={startedAt:Date.now(),materials:[...selected],total};selected=[null,null,null];save();renderSlots();$('fusionStatus').textContent='ヒューズを開始しました。進行状況は保存されています。';};
  document.addEventListener('keydown',e=>{if(e.key==='Escape'){entry.classList.add('hidden');picker.classList.add('hidden');}});
 })();
-<script>
-
+</script>
 
 <style id="draw-layout-and-skin-shop-refresh">
 /* キャンバス左・操作ボタン右のレイアウト */

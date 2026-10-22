@@ -5177,7 +5177,7 @@ function beginAttackCharge() {
     return;
   }
   if (gameOver || stageClear || (attackCooldown > 0 && !window.specialCodes?.kakeru) || isPausedForSpecial || bossSpecialState) return;
-  if (weapon === "🪄" && !window.specialCodes?.sougo) {
+  if (weapon === "🪄" && !window.specialCodes?.sougo && !window.specialCodes?.kakeru) {
     if (wandCooldown <= 0) {
       fireWandMagic();
       wandCooldown = window.adminNoCooldown ? 0 : 1.7; // クールタイム 1.7秒
@@ -7715,7 +7715,7 @@ function updateRikuUI() {
       return;
     }
 
-    if (weapon === "🪄" && !window.specialCodes?.sougo) {
+    if (weapon === "🪄" && !window.specialCodes?.sougo && !window.specialCodes?.kakeru) {
       if (wandCooldown <= 0) {
         fireWandMagic();
         wandCooldown = window.adminNoCooldown ? 0 : 1.7;
@@ -8285,6 +8285,7 @@ loop();
       return true;
     }
     if (c === "kakeru") {
+      specialCodes.kakeruPreviousWeapon = weapon === "🤜" ? "⚔️" : weapon;
       specialCodes.kakeru = true;
       const inv = window.gameItemInventory || (window.gameItemInventory = {normal:{},halloween:{}});
       if (!inv.normal) inv.normal = {};
@@ -8460,6 +8461,8 @@ loop();
     specialCodes.ryokutya=false;
     specialCodes.specialFound=false;
     specialCodes.specialActive=false;
+    if (specialCodes.kakeruPreviousWeapon) weapon = specialCodes.kakeruPreviousWeapon;
+    specialCodes.kakeruPreviousWeapon = null;
     specialCodes.kakeru=false;
     specialCodes.sougo=false;
     sougoFramesUntilBoost=0;
@@ -9681,7 +9684,7 @@ body.mobile-mode #battlePickupNotice {
   function row(item,sub){
     const n=item.id==="potion"?totalPotion():count(item.id);
     const disabled=(n<1)||(item.id==="🗿"&&revive);
-    return '<div class="game-inventory-row'+(sub?' game-inventory-sub':'')+'"><div class="game-inventory-name"><strong>'+esc(item.name)+'</strong><small>'+esc(item.desc)+'</small><small>所持数：'+(infinite?'∞':n)+'</small></div><button data-use-item="'+esc(item.id)+'" '+(disabled?'disabled':'')+'>使用する</button></div>';
+    return '<div class="game-inventory-row'+(sub?' game-inventory-sub':'')+'"><div class="game-inventory-name"><strong>'+esc(item.name)+'</strong><small>'+esc(item.desc)+'</small><small>所持数：'+n+'</small></div><button data-use-item="'+esc(item.id)+'" '+(disabled?'disabled':'')+'>使用する</button></div>';
   }
   function render(){
     inventory();

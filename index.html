@@ -5410,12 +5410,12 @@ function attack() {
       * ((window.halloweenEffects || {}).zombie > 0 ? 2.3 : 1)
       * (1 + upgradeLevels.atk * 0.04);
     slashTimer = 8;
-    let hitEnemy = false;
+    let hitMainEnemy = false;
     minions.forEach(m => {
-      if (Math.hypot(p.x - m.x, p.y - m.y) < fistRange) { damageMinion(m, fistDamage); hitEnemy = true; }
+      if (Math.hypot(p.x - m.x, p.y - m.y) < fistRange) damageMinion(m, fistDamage);
     });
-    if (Math.hypot(p.x - enemy.x, p.y - enemy.y) < fistRange) { damageEnemy(fistDamage); hitEnemy = true; }
-    if (hitEnemy) {
+    if (Math.hypot(p.x - enemy.x, p.y - enemy.y) < fistRange) { damageEnemy(fistDamage); hitMainEnemy = true; }
+    if (hitMainEnemy) {
       stun = Math.max(stun, 18);
       for (let i = enemyBullets.length - 1; i >= 0; i--) {
         const b = enemyBullets[i];

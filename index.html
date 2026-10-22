@@ -5437,7 +5437,7 @@ function attack() {
   if (window.adminPanelInteracting || gameOver || stageClear) return;
   if (window.specialCodes?.kakeru) {
     const fistRange = (72 + charge / 2) * 0.7;
-    const fistDamage = 7 * atkBuff * (1 + drawAttackBonus) * (kizuku2Active ? 2 : 1)
+    const fistDamage = 4 * atkBuff * (1 + drawAttackBonus) * (kizuku2Active ? 2 : 1)
       * (window.sougoBoostActive ? 3 : 1) * (adminRankAbility === "damage4" ? 4 : 1)
       * ((window.halloweenEffects || {}).candy > 0 ? 1.8 : 1)
       * ((window.halloweenEffects || {}).zombie > 0 ? 2.3 : 1)
@@ -8380,7 +8380,8 @@ loop();
       if (!inv.halloween) inv.halloween = {};
       ["❤","💪","🛡️","🗿","👻","🔮","⚡️","tripleGatling"].forEach(id => { inv.normal[id] = 7; });
       ["horse","candy","bat","allies","zombie","potionLarge","potionSmall"].forEach(id => { inv.halloween[id] = 7; });
-      msg.textContent = "🤜 kakeru 発動！専用武器・拳（攻撃7／範囲70%／CTなし）＋初期アイテム各7個！";
+      p.max = 250; p.hp = 250;
+      msg.textContent = "🤜 kakeru 発動！専用武器・拳（攻撃4／最大体力250／範囲70%／CTなし）＋初期アイテム各7個！";
       return true;
     }
     if (c === "sougo") {

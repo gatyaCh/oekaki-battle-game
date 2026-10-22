@@ -4128,6 +4128,25 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
   <button id="keySaveBtn">💾 保存</button>
   <button id="keyReturnBtn">↩️ 戻る</button>
 </div>
+<div id="weaponCodeChoice" class="hidden" style="position:fixed;inset:0;z-index:2000000;background:rgba(3,9,28,.96);color:white;overflow:auto;padding:18px;box-sizing:border-box;font-family:inherit">
+  <h2 style="text-align:center;font-size:clamp(22px,4vw,36px);margin:6px 0 4px">⭐ スペシャルコード発動！ ⭐</h2>
+  <p style="text-align:center;margin:0 0 16px">コード「0303」認証完了！武器を選んでね</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px;max-width:1200px;margin:auto">
+    <section style="background:#071e3b;border:3px solid #168cff;border-radius:20px;padding:16px;box-shadow:0 0 18px #087dff">
+      <div style="display:flex;align-items:center;gap:14px"><div style="font-size:64px">🤜</div><div><h2 style="margin:0;color:#71bdff">kakeru</h2><b>専用武器：拳</b><div>近接攻撃に特化・連打可能</div></div></div>
+      <hr><h3>武器の性能</h3><p>⚔️ 攻撃力：1発7ダメージ</p><p>📏 攻撃範囲：剣の70%</p><p>⏱️ クールタイム：なし</p>
+      <hr><h3>特殊効果</h3><p>🎒 アイテムを各7個に設定（使用ごとに1個消費）</p><p>🐢 敵の速度は通常どおり</p><p>🛡️ 拳が敵本体に命中すると短時間ひるませ、近くの敵弾も消す</p>
+      <button data-pick-special="kakeru" style="width:100%;padding:14px;border:0;border-radius:12px;background:#087dff;color:white;font-size:20px;font-weight:bold;cursor:pointer">これにする！</button>
+    </section>
+    <section style="background:#1b103b;border:3px solid #a855f7;border-radius:20px;padding:16px;box-shadow:0 0 18px #8b35ff">
+      <div style="display:flex;align-items:center;gap:14px"><div style="font-size:64px">⚒️</div><div><h2 style="margin:0;color:#d6a4ff">sougo</h2><b>専用武器：ハンマー</b><div>広範囲の強力な攻撃</div></div></div>
+      <hr><h3>武器の性能</h3><p>📏 攻撃範囲：剣の3倍</p><p>💥 基本ダメージ：20〜50（チャージで変化）</p><p>⏱️ クールタイム：3〜7秒（チャージで増加）</p>
+      <hr><h3>特殊効果</h3><p>⭐ 戦闘中、ランダムなタイミングで攻撃力が3秒間3倍</p>
+      <button data-pick-special="sougo" style="width:100%;padding:14px;border:0;border-radius:12px;background:#8b35ff;color:white;font-size:20px;font-weight:bold;cursor:pointer">これにする！</button>
+    </section>
+  </div>
+  <p style="text-align:center"><button id="weaponCodeChoiceBack" style="padding:10px 24px;font-size:16px">戻る</button></p>
+</div>
 <div id="specialCodeBox" class="hidden">
   <h2 style="margin-bottom: 8px;">🤫 スペシャルコード</h2>
   <div class="special-code-layout">
@@ -7860,7 +7879,8 @@ loop();
       window.adminAbuseRewardPending=true;codeInput.value="";codeMsg.textContent="";codeBox.classList.add("hidden");
       msg.textContent="👑 ADMIN ABUSEコード確認！次の試合開始時に攻撃力＆スピード2倍（30秒間）";return;
     }
-    if (code === "hp20" || code === "lucky boost" || code === "ryokutya" || code === "special code" || code === "kakeru" || code === "sougo") {
+    if (code === "0303") { codeInput.value = ""; codeMsg.textContent = ""; codeBox.classList.add("hidden"); document.getElementById("weaponCodeChoice").classList.remove("hidden"); return; }
+    if (code === "hp20" || code === "lucky boost" || code === "ryokutya" || code === "special code") {
       if (typeof window.useSpecialCode === "function" && window.useSpecialCode(code)) {
         codeInput.value = "";
         codeMsg.textContent = "✅ コードが承認されました！";
@@ -9799,6 +9819,23 @@ body.mobile-mode #battlePickupNotice {
  modal.style.display="none";
 })();
 </script>
+<script>
+(function(){
+ const panel=document.getElementById("weaponCodeChoice");
+ if(!panel)return;
+ panel.querySelectorAll("[data-pick-special]").forEach(btn=>btn.addEventListener("click",()=>{
+   const choice=btn.getAttribute("data-pick-special");
+   panel.classList.add("hidden");
+   if(typeof window.useSpecialCode==="function") window.useSpecialCode(choice);
+   if(choice==="kakeru"){window.weapon="🤜";}
+   if(typeof startCountdown==="function") startCountdown();
+   else { const battle=document.getElementById("battleBtn"); if(battle) battle.click(); }
+ }));
+ const back=document.getElementById("weaponCodeChoiceBack");
+ if(back)back.addEventListener("click",()=>{panel.classList.add("hidden");const box=document.getElementById("specialCodeBox");if(box)box.classList.remove("hidden");});
+})();
+</script>
+
 </body>
 </html>
 

@@ -3849,7 +3849,7 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
   </div>
   <p id="guideInstruction" style="color:#ffcc00; font-size:14px; margin-bottom:8px;">★マークを丁寧になぞろう！ずれると他の武器になっちゃうぞ！</p>
   <canvas id="drawCanvas" width="400" height="400"></canvas>
-  <div id="skinControls"><button id="skinToggleBtn" type="button">🎨 スキン選択</button><div id="skinPanel" class="hidden" role="dialog" aria-label="スキン選択"><h3>🎨 スキン選択</h3><div id="skinGrid"></div><p id="skinMessage" aria-live="polite"></p><button id="skinCloseBtn" type="button">閉じる</button></div></div>
+  <div id="skinControls"><button id="skinToggleBtn" type="button">🎨 スキン選択</button><button id="fusionCodeBtn" type="button" style="width:100%;margin-top:6px;background:#334155;border:1px solid #94a3b8;color:#f8fafc;">🔒️？？？🔒️</button><div id="skinPanel" class="hidden" role="dialog" aria-label="スキン選択"><h3>🎨 スキン選択</h3><div id="skinGrid"></div><p id="skinMessage" aria-live="polite"></p><button id="skinCloseBtn" type="button">閉じる</button></div></div>
   <button id="expandDrawBtn" type="button">🔍 大きくする</button>
   <button id="closeDrawExpandBtn" type="button">✕ 閉じる</button><br>
   <button id="judgeBtn">武器決定（やり直し不可！）</button>
@@ -9188,6 +9188,69 @@ return origUpdate.apply(this,arguments)};
  render();
 })();
 </script>
+
+<style id="fusion-entry-screen-style">
+#fusionCodeOverlay,#fusionMainScreen{position:fixed;inset:0;z-index:960000;background:#fff;color:#172033;display:flex;align-items:center;justify-content:center;padding:18px;box-sizing:border-box}
+#fusionCodeOverlay.hidden,#fusionMainScreen.hidden{display:none!important}
+.fusion-entry-card{width:min(420px,94vw);padding:24px;border:2px solid #64748b;border-radius:18px;background:#f8fafc;box-shadow:0 12px 36px #0003;text-align:center}
+.fusion-entry-card h2{margin:0 0 12px}.fusion-entry-card input{width:100%;box-sizing:border-box;padding:12px;font-size:18px;margin:10px 0;border:2px solid #94a3b8;border-radius:9px}
+.fusion-entry-actions{display:flex;gap:10px}.fusion-entry-actions button{flex:1;padding:11px;border-radius:9px}
+#fusionMainScreen{display:block;overflow:auto;text-align:center;background:#fff}
+#fusionMainScreen h1{margin:8px 0 16px;font-size:clamp(24px,4vw,36px)}
+#fusionCloseBtn{position:absolute;top:12px;right:12px;width:auto;padding:9px 14px}
+.fusion-layout{width:min(1100px,100%);margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,280px);gap:20px;align-items:start}
+.fusion-slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.fusion-slot{min-height:190px;border:2px dashed #94a3b8;border-radius:16px;background:#f8fafc;color:#334155;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:10px;box-sizing:border-box}
+.fusion-slot .plus{font-size:54px;line-height:1}.fusion-slot button{width:100%;padding:10px 4px}
+.fusion-slot .chosen-icon{font-size:48px}.fusion-odds{border:2px solid #94a3b8;border-radius:14px;padding:14px;text-align:left;background:#f8fafc}
+.fusion-odds h3{margin:0 0 8px}.fusion-odds p{margin:7px 0}.fusion-start{margin:18px auto;padding:13px 30px;font-size:18px;background:#64748b;color:white;border:0;border-radius:12px}.fusion-start.ready{background:#7c3aed;box-shadow:0 0 18px #8b5cf6;cursor:pointer}
+#fusionPicker{position:fixed;inset:0;z-index:960010;background:#0009;display:flex;align-items:center;justify-content:center;padding:12px}
+#fusionPicker.hidden{display:none!important}.fusion-picker-card{width:min(720px,96vw);max-height:85vh;overflow:auto;background:white;color:#172033;border-radius:16px;padding:16px;box-sizing:border-box}
+.fusion-picker-card h2{margin:0 0 10px}.fusion-picker-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.fusion-pick{padding:10px 4px;background:#f1f5f9;color:#172033;border:1px solid #cbd5e1;border-radius:10px;min-height:88px}
+.fusion-pick strong{display:block;font-size:28px}.fusion-pick:disabled{opacity:.35}
+@media(max-width:700px){.fusion-layout{grid-template-columns:1fr}.fusion-slots{gap:6px}.fusion-slot{min-height:140px;padding:6px}.fusion-slot .plus{font-size:42px}.fusion-slot .chosen-icon{font-size:34px}.fusion-odds{order:2}.fusion-picker-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+<div id="fusionCodeOverlay" class="hidden" role="dialog" aria-modal="true" aria-label="Fusionコード入力">
+ <div class="fusion-entry-card"><h2>🔒️ ？？？ 🔒️</h2><p>コードを入力してください</p><input id="fusionCodeInput" type="password" autocomplete="off" placeholder="コード"><p id="fusionCodeMessage" aria-live="polite"></p><div class="fusion-entry-actions"><button id="fusionCodeCancel">キャンセル</button><button id="fusionCodeSubmit">決定</button></div></div>
+</div>
+<div id="fusionMainScreen" class="hidden" role="dialog" aria-modal="true" aria-label="ヒューズマシン">
+ <button id="fusionCloseBtn" type="button">✕ 戻る</button><h1>⚗️ ヒューズマシン</h1>
+ <div class="fusion-layout"><div><div class="fusion-slots" id="fusionSlots"></div><button id="fusionStartBtn" class="fusion-start" disabled>ヒューズ開始</button><p id="fusionStatus" aria-live="polite"></p></div>
+ <aside class="fusion-odds"><h3>📊 排出確率</h3><p id="fusionPointTotal">合計ポイント：0 / 200</p><div id="fusionOddsList">素材スキンを3つ選択してください。</div></aside></div>
+</div>
+<div id="fusionPicker" class="hidden" role="dialog" aria-modal="true"><div class="fusion-picker-card"><h2>素材スキンを選択</h2><p>同じスキンは重複して選べません。</p><div id="fusionPickerList" class="fusion-picker-list"></div><button id="fusionPickerClose" type="button">閉じる</button></div></div>
+<script id="fusion-entry-and-machine-script">
+(function(){
+ const $=id=>document.getElementById(id);
+ const entry=$('fusionCodeOverlay'),main=$('fusionMainScreen'),picker=$('fusionPicker');
+ if(!entry||!main||!picker)return;
+ const storageKey='oekakiBattleFusionV1';
+ let selected=[null,null,null],activeSlot=0;
+ const skins=[
+  {id:'white',name:'ホワイト',icon:'⚪️',cat:'コモン',points:15},{id:'blue',name:'ブルー',icon:'🔵',cat:'コモン',points:15},{id:'black',name:'ブラック',icon:'⚫️',cat:'コモン',points:15},{id:'gold',name:'ゴールド',icon:'🥇',cat:'コモン',points:15},{id:'magic',name:'マジック',icon:'🫥',cat:'コモン',points:15},{id:'gamer',name:'ゲーマー',icon:'👾',cat:'コモン',points:15},
+  {id:'achievement_01',name:'初陣',icon:'🔰',cat:'実績解除１',points:30},{id:'achievement_02',name:'初勝利',icon:'💯',cat:'実績解除１',points:30},{id:'achievement_03',name:'ボスハンター',icon:'👿',cat:'実績解除１',points:30},{id:'achievement_04',name:'無傷の勝利',icon:'🥳',cat:'実績解除１',points:30},{id:'achievement_05',name:'お宝発見！',icon:'📦️',cat:'実績解除１',points:30},{id:'achievement_06',name:'アイテムコレクター',icon:'🎁',cat:'実績解除１',points:30},
+  {id:'achievement_07',name:'強化の極み',icon:'🦾',cat:'実績解除２',points:40},{id:'achievement_08',name:'ランクアップ！',icon:'🚀',cat:'実績解除２',points:40},{id:'achievement_09',name:'ハロウィン探検隊',icon:'🍬',cat:'実績解除２',points:40},{id:'achievement_10',name:'真の勇者',icon:'🗡️',cat:'実績解除２',points:40},{id:'achievement_11',name:'魂の収集家',icon:'💫',cat:'実績解除２',points:40},{id:'achievement_12',name:'？？？',icon:'🤫',cat:'実績解除２',points:40},
+  {id:'halloween_pumpkin',name:'パンプキン',icon:'🎃',cat:'期間限定',points:60},{id:'halloween_cat',name:'黒猫',icon:'🐈‍⬛',cat:'期間限定',points:60},{id:'halloween_spider',name:'スパイダー',icon:'🕷️',cat:'期間限定',points:60},{id:'halloween_witch',name:'魔女',icon:'🧙‍♀️',cat:'期間限定',points:60},{id:'halloween_vampire',name:'ヴァンパイア',icon:'🧛',cat:'期間限定',points:60},{id:'halloween_oni',name:'鬼',icon:'👹',cat:'期間限定',points:60},{id:'halloween_coffin',name:'棺桶',icon:'⚰️',cat:'期間限定',points:60},{id:'halloween_gravestone',name:'墓石',icon:'🪦',cat:'期間限定',points:60},{id:'halloween_zombie',name:'イモータルゾンビ',icon:'🧟',cat:'期間限定',points:60},
+  {id:'limited2_moon',name:'ムーン',icon:'🌙',cat:'限定スキン2',points:80},{id:'limited2_trophy',name:'トロフィー',icon:'🏆',cat:'限定スキン2',points:80}
+ ];
+ let saveData={unlocked:[],fused:[],selected};
+ try{const old=JSON.parse(localStorage.getItem(storageKey)||'null');if(old&&typeof old==='object')saveData={...saveData,...old};selected=Array.isArray(saveData.selected)?saveData.selected.slice(0,3):[null,null,null];while(selected.length<3)selected.push(null);}catch(e){}
+ function save(){saveData.selected=selected;try{localStorage.setItem(storageKey,JSON.stringify(saveData));}catch(e){}}
+ function isSkinUnlocked(id){try{const d=JSON.parse(localStorage.getItem('oekakiBattleSkinsV1')||'{}');return Array.isArray(d.unlocked)?d.unlocked.includes(id):false;}catch(e){return false;}}
+ function renderSlots(){const wrap=$('fusionSlots');wrap.innerHTML='';selected.forEach((id,i)=>{const skin=skins.find(x=>x.id===id);const box=document.createElement('div');box.className='fusion-slot';if(skin){const icon=document.createElement('div');icon.className='chosen-icon';icon.textContent=skin.icon;const label=document.createElement('strong');label.textContent=skin.name;const remove=document.createElement('button');remove.textContent='変更';remove.onclick=()=>openPicker(i);box.append(icon,label,remove);}else{const plus=document.createElement('div');plus.className='plus';plus.textContent='＋';const add=document.createElement('button');add.textContent='素材を選ぶ';add.onclick=()=>openPicker(i);box.append(plus,add);}wrap.appendChild(box);});const total=selected.reduce((sum,id)=>sum+(skins.find(x=>x.id===id)?.points||0),0);$('fusionPointTotal').textContent='合計ポイント：'+total+' / 200';const start=$('fusionStartBtn');start.disabled=selected.some(x=>!x)||new Set(selected).size!==3||total>200;start.classList.toggle('ready',!start.disabled);renderOdds(total);}
+ function renderOdds(total){const rows=total<=50?[['？（コモン）',50],['🥚',20],['🌲',15],['🦦',10],['🐼',5]]:total<=70?[['？（コモン）',45],['🥚',25],['🌲',15],['🦦',8],['🐼',6],['🐻',1]]:total<=100?[['？（コモン）',35],['🥚',22],['🌲',15],['🦦',10],['🐼',9],['🐻',6],['🍳',2],['🌀',1]]:total<=125?[['🥚',46],['🌲',20.5],['🦦',10],['🐼',9],['🐻',8],['🍳',5],['🌀',1],['🌪️',0.5]]:total<=160?[['🥚',45],['🌲',20],['🦦',10],['🐼',9],['🐻',7],['🍳',5],['🌀',3],['🌪️',1]]:[['🥚',50],['🌲',18.5],['🦦',9],['🐼',7],['🐻',6],['🍳',5],['🌀',3],['🌪️',1.5]];const out=$('fusionOddsList');out.innerHTML='';if(total>200){out.textContent='スキンポイントが超過しています！ 選択したスキンの合計ポイントが上限の200ポイントを超えています。素材スキンを少し減らすか、別のスキンに変更することをおすすめします。';return;}if(!selected.every(Boolean)){out.textContent='素材スキンを3つ選択すると確率が表示されます。';return;}rows.forEach(([name,p])=>{const row=document.createElement('p');row.textContent=name+'：'+p+'%';out.appendChild(row);});}
+ function openPicker(slot){activeSlot=slot;const list=$('fusionPickerList');list.innerHTML='';let last='';skins.forEach(sk=>{if(!isSkinUnlocked(sk.id)||saveData.fused.includes(sk.id))return;if(sk.cat!==last){last=sk.cat;const h=document.createElement('h3');h.style.gridColumn='1/-1';h.textContent=last;list.appendChild(h);}const b=document.createElement('button');b.className='fusion-pick';b.disabled=selected.some((id,i)=>i!==slot&&id===sk.id);b.innerHTML='<strong></strong><span></span>';b.querySelector('strong').textContent=sk.icon;b.querySelector('span').textContent=sk.name+' · '+sk.points+'pt';b.onclick=()=>{selected[slot]=sk.id;save();picker.classList.add('hidden');renderSlots();};list.appendChild(b);});picker.classList.remove('hidden');}
+ $('fusionCodeBtn').onclick=()=>{entry.classList.remove('hidden');$('fusionCodeInput').value='';$('fusionCodeMessage').textContent='';$('fusionCodeInput').focus();};
+ $('fusionCodeCancel').onclick=()=>entry.classList.add('hidden');
+ $('fusionCodeSubmit').onclick=()=>{if($('fusionCodeInput').value.trim().toLowerCase()==='fusion'){entry.classList.add('hidden');main.classList.remove('hidden');renderSlots();}else $('fusionCodeMessage').textContent='コードが違います。';};
+ $('fusionCodeInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('fusionCodeSubmit').click();});
+ $('fusionCloseBtn').onclick=()=>main.classList.add('hidden');$('fusionPickerClose').onclick=()=>picker.classList.add('hidden');
+ $('fusionStartBtn').onclick=()=>{if($('fusionStartBtn').disabled)return;const total=selected.reduce((sum,id)=>sum+(skins.find(x=>x.id===id)?.points||0),0);if(!confirm('選択した3つのスキンを素材にしてヒューズを開始しますか？\n合計ポイント：'+total+'\n開始後は素材を変更できません。'))return;saveData.fused=[...new Set([...(saveData.fused||[]),...selected])];saveData.processing={startedAt:Date.now(),materials:[...selected],total};selected=[null,null,null];save();renderSlots();$('fusionStatus').textContent='ヒューズを開始しました。進行状況は保存されています。';};
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'){entry.classList.add('hidden');picker.classList.add('hidden');}});
+})();
+<script>
+
 
 <style id="draw-layout-and-skin-shop-refresh">
 /* キャンバス左・操作ボタン右のレイアウト */

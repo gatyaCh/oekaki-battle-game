@@ -5192,7 +5192,7 @@ function releaseAttackCharge() {
   if (weapon === "🪄" && !window.specialCodes?.sougo && !window.specialCodes?.kakeru) return;
   if (!charging) return;
   if (attackCooldown <= 0 || window.specialCodes?.kakeru) {
-    if (bulletHellReady) {
+    if (bulletHellReady && !window.specialCodes?.kakeru) {
       fireBulletHell();
       attackCooldown = (window.adminNoCooldown ? 0 : 0.3);
     } else {
@@ -7725,7 +7725,7 @@ function updateRikuUI() {
       return;
     }
 
-    if (bulletHellReady) {
+    if (bulletHellReady && !window.specialCodes?.kakeru) {
       fireBulletHell();
       attackCooldown = window.adminNoCooldown ? 0 : 0.3;
     } else {

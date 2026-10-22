@@ -8235,7 +8235,8 @@ loop();
   document.getElementById("admReset").onclick = () => {
     god(false);
     enemySpeedMul = 1;
-    msg.textContent = "🔄 管理者効果をリセットしました";
+    const revokedSkinCount = typeof window.adminDisableAllSkinUnlocks === "function" ? window.adminDisableAllSkinUnlocks() : 0;
+    msg.textContent = revokedSkinCount > 0 ? "🔄 管理者効果をリセットしました。管理者による全スキン解放も解除しました。" : "🔄 管理者効果をリセットしました";
   };
 })();
 // Kizuku Panel Handlers
@@ -9179,7 +9180,8 @@ return origUpdate.apply(this,arguments)};
  const limitedSkinIdsForMoon=['halloween_pumpkin','halloween_cat','halloween_spider','halloween_witch','halloween_vampire','halloween_oni','halloween_coffin','halloween_gravestone','halloween_immortal_zombie'];
  function checkMoonUnlock(){if(limitedSkinIdsForMoon.every(isUnlocked)&&!isUnlocked('limited2_moon'))unlock('limited2_moon');}
  window.unlockGameSkin=unlock;
- window.adminUnlockAllGameSkins=()=>{data.unlocked=[...new Set([...data.unlocked,...skins.map(sk=>sk.id)])];save();render();const m=document.getElementById('skinMessage');if(m)m.textContent='👑 管理者操作：登録済みスキンをすべて解放しました！';return skins.length;};
+ window.adminUnlockAllGameSkins=()=>{const key='oekakiBattleAdminGrantedAllSkinsV1';let granted=[];try{granted=JSON.parse(localStorage.getItem(key)||'[]');if(!Array.isArray(granted))granted=[];}catch(e){granted=[];}const newlyGranted=skins.map(sk=>sk.id).filter(id=>!data.unlocked.includes(id));granted=[...new Set([...granted,...newlyGranted])];try{localStorage.setItem(key,JSON.stringify(granted));}catch(e){}data.unlocked=[...new Set([...data.unlocked,...skins.map(sk=>sk.id)])];save();render();const m=document.getElementById('skinMessage');if(m)m.textContent='👑 管理者操作：登録済みスキンをすべて解放しました！';return skins.length;};
+ window.adminDisableAllSkinUnlocks=()=>{const key='oekakiBattleAdminGrantedAllSkinsV1';let granted=[];try{granted=JSON.parse(localStorage.getItem(key)||'[]');if(!Array.isArray(granted))granted=[];}catch(e){granted=[];}if(!granted.length)return 0;data.unlocked=data.unlocked.filter(id=>!granted.includes(id));if(!data.unlocked.includes(data.selected)){data.selected=data.unlocked.includes('white')?'white':(data.unlocked[0]||'white');}try{localStorage.removeItem(key);}catch(e){}save();render();const m=document.getElementById('skinMessage');if(m)m.textContent='🔒 管理者効果OFF：管理者による全スキン解放を解除しました。元から所持していたスキンは残ります。';return granted.length;};
  window.adminReunlockGameSkin=(query)=>{const q=String(query||'').trim().toLowerCase();const sk=skins.find(x=>x.id.toLowerCase()===q||x.name.toLowerCase()===q||x.icon===q);if(!sk)return false;data.unlocked=[...new Set([...data.unlocked,sk.id])];save();render();const m=document.getElementById('skinMessage');if(m)m.textContent='🔓 '+sk.name+'スキンを再解放しました！';return true;};
  const adminUnlockAllButton=document.getElementById('admUnlockAllSkins');
  if(adminUnlockAllButton)adminUnlockAllButton.addEventListener('click',()=>{if(!confirm('登録されているすべてのスキンを解放しますか？'))return;window.adminUnlockAllGameSkins();alert('登録済みスキン '+skins.length+' 種類を解放しました。スキン選択から確認できます。');});

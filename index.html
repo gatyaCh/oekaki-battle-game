@@ -10482,6 +10482,36 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
 })();
 </script>
 
+<script id="special-move-mini-announcement">
+(function(){
+  "use strict";
+  const EVENT_END = Date.UTC(2026, 9, 25, 13, 35, 0); // 10/25 22:35 JST
+  const RELEASE_AT = Date.UTC(2026, 9, 27, 0, 0, 0); // 10/27 09:00 JST
+  const notice = document.createElement("aside");
+  notice.id = "specialMoveMiniAnnouncement";
+  notice.setAttribute("aria-live","polite");
+  notice.setAttribute("aria-label","必殺技アップデートのお知らせ");
+  notice.style.cssText = "display:none;position:fixed;top:12px;right:12px;z-index:99970;width:min(300px,38vw);box-sizing:border-box;padding:10px 12px;border:2px solid #fbbf24;border-radius:12px;background:rgba(15,23,42,.96);color:#fff;box-shadow:0 5px 20px #0009;font-size:13px;line-height:1.45;text-align:left;pointer-events:none;";
+  document.body.appendChild(notice);
+  function refresh(){
+    const now = Date.now();
+    if(now < EVENT_END){notice.style.display="none";return;}
+    notice.style.display="block";
+    if(now < RELEASE_AT){
+      notice.innerHTML = "<b style='color:#fbbf24;font-size:14px'>🌟 必殺技アップデート予告</b><br>10/27（火）朝9:00解禁！<br>⚔️ 剣・🪄 杖・🪃 ブーメラン・⚡ 雷に専用必殺技が登場！<br>精度に応じて威力も変化するよ。";
+    }else{
+      notice.innerHTML = "<b style='color:#86efac;font-size:14px'>🌟 新必殺技 解禁！</b><br>⚔️ 剣・🪄 杖・🪃 ブーメラン・⚡ 雷の専用必殺技が使用可能！<br>PCはQキー、スマホは必殺ボタンから発動しよう。";
+    }
+    if(window.matchMedia && window.matchMedia("(max-width: 600px)").matches){
+      notice.style.top="8px";notice.style.right="8px";notice.style.width="min(245px,55vw)";notice.style.fontSize="11px";notice.style.padding="7px 8px";
+    }else{
+      notice.style.top="12px";notice.style.right="12px";notice.style.width="min(300px,38vw)";notice.style.fontSize="13px";notice.style.padding="10px 12px";
+    }
+  }
+  refresh();
+  setInterval(refresh,30000);
+})();
+</script>
 <script id="special-move-release-v1">
 (function(){
   "use strict";

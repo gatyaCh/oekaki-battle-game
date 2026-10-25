@@ -10079,7 +10079,15 @@ body.mobile-mode #battlePickupNotice {
 
     if (!isBattleScreenVisible() || typeof stage === "undefined" || stage < 1 || stage > 8) {
       label.textContent = "🏆 最高ランク";
-      if (typeof renderBestRankDisplay === "function") renderBestRankDisplay();
+      if (typeof getBestRankRecord === "function" && typeof getRankFromPoints === "function" && typeof getNextRankInfo === "function") {
+        const record = getBestRankRecord();
+        const rank = record.admin ? "👑 Admin Rank" : getRankFromPoints(record.points);
+        const next = getNextRankInfo(record.points, record.admin);
+        rankText.textContent = rank;
+        pointsText.textContent = next.remaining === null
+          ? (next.next === "最高ランク達成" ? "最高ランク！" : "次のランクは特殊条件")
+          : "次のランク「" + next.next + "」まであと " + next.remaining + " pt";
+      }
       return;
     }
 

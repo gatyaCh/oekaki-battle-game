@@ -5407,18 +5407,15 @@ function damageEnemy(amount) {
   if (actual > 0) {
     dmgText.push({ x: enemy.x, y: enemy.y, t: "-" + Math.floor(actual), life: 45 });
 
-    // ボスに与えた実ダメージだけを必殺技ゲージへ加算。
-    // 子分へのダメージやショップ購入ではこのゲージは増えない。
-    if (!specialGaugeMaxed) {
-      specialGaugeDamage += actual * (adminRankAbility === "gauge" ? 2 : 1) * (1 + upgradeLevels.special * 0.10);
-      const gaugeMaxDamage = getSpecialGaugeMaxDamage();
-      if (specialGaugeDamage >= gaugeMaxDamage) {
-        specialGaugeDamage = gaugeMaxDamage;
-        specialGaugeMaxed = true;
-        specialStock++;
-        msg.textContent = "🌟 必殺技ゲージMAX！ このステージ中は100%固定！ ストック+1 (合計: " + specialStock + ")";
-      }
+    // 必殺技ゲージはボスへの攻撃で加算。上限に達するたびにストックを追加し、余剰分は次のゲージへ。
+    const gaugeMaxDamage = getSpecialGaugeMaxDamage();
+    specialGaugeDamage += actual * (adminRankAbility === "gauge" ? 2 : 1) * (1 + upgradeLevels.special * 0.10);
+    while (specialGaugeDamage >= gaugeMaxDamage) {
+      specialGaugeDamage -= gaugeMaxDamage;
+      specialStock++;
+      msg.textContent = "🌟 必殺技ストック+1！（合計: " + specialStock + "）";
     }
+    specialGaugeMaxed = false;
     updateSpecialGauge();
   }
   if (enemy.hp <= 0 && actual > 0 && !bossDefeatAwardedForStage) {
@@ -10485,6 +10482,244 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
 })();
 </script>
 
+<script id="special-move-release-v1">
+(function(){
+  "use strict";
+  const RELEASE_AT = Date.UTC(2026, 9, 27, 0, 0, 0); // 2026-10-27 09:00 JST
+  const unlocked = () => Date.now() >= RELEASE_AT;
+  const tutorialOverride = () => !!(typeof tutorialActive !== "undefined" && tutorialActive && tutorialPhase === "battle" && tutorialStep === 4);
+  const $ = id => document.getElementById(id);
+  let specialMoveActive = false;
+  let specialMoveTimer = null;
+  let specialMoveIntervals = [];
+  const originalOpenSpecialCanvas = openSpecialCanvas;
+  const originalExecuteSpecialAttack = executeSpecialAttack;
+  function clearSpecialTimers(){
+    if(specialMoveTimer) clearTimeout(specialMoveTimer);
+    specialMoveTimer = null;
+    specialMoveIntervals.forEach(clearInterval);
+    specialMoveIntervals = [];
+  }
+  function closeSpecialWithoutSpending(){
+    if(specialMoveActive) return;
+    $("specialModal").classList.add("hidden");
+    isPausedForSpecial = false;
+    spDrawing = false;
+    msg.textContent = "必殺技をキャンセルしました（ストックは維持）。";
+  }
+  function getMoveName(){
+    const w = String(weapon || "").replace(/\uFE0F/g,"");
+    if(w.includes("⚔")) return "⚔️ 剣：七連刃ラッシュ";
+    if(w.includes("🪄")) return "🪄 魔法の杖：拡散＆ジグザグ弾幕";
+    if(w.includes("🪃")) return "🪃 ブーメラン：7秒追尾ラッシュ";
+    if(w.includes("⚡")) return "⚡️ 雷：中央発・全方向50連撃";
+    if(w.includes("🚨")) return "🚨 ポリス：従来の描き方必殺技";
+    return "必殺技";
+  }
+  function showReleaseMessage(){
+    msg.textContent = "🔒 新しい必殺技は10月27日（火）午前9:00から使えます。";
+  }
+  openSpecialCanvas = function(){
+    if(!unlocked() && !tutorialOverride()){ showReleaseMessage(); return; }
+    if(specialStock <= 0 && !tutorialOverride()){
+      msg.textContent = "⚠️ 必殺技のストックがありません！";
+      return;
+    }
+    originalOpenSpecialCanvas();
+    const title = $("specialModal").querySelector("h2");
+    if(title) title.textContent = getMoveName();
+    const guide = $("specialModal").querySelector(".special-guide-box");
+    if(guide){
+      const descriptions = {
+        "⚔":"剣を7本ずつ30連射。右方向を攻撃し、通常攻撃の2.5倍ダメージ。",
+        "🪄":"40発×3セットのあと、全方向ジグザグ弾30発×3セット。1発5ダメージ、約10秒。",
+        "🪃":"威力2倍の追尾ブーメラン。15ダメージ、3秒間隔で発動し、7秒間追尾。",
+        "⚡":"画面中央から全方向へランダムに50発。1発8ダメージ。",
+        "🚨":"従来の描き方による必殺技。"
+      };
+      const w=String(weapon||"").replace(/\uFE0F/g,"");
+      const key=["⚔","🪄","🪃","⚡","🚨"].find(k=>w.includes(k));
+      guide.innerHTML = "<h3>【必殺技】</h3><p style='font-size:14px;line-height:1.5'>" + (descriptions[key]||"必殺技を発動します。") + "</p><p style='font-size:12px;color:#ffd166;margin-top:8px'>描かずに「発動！」でもOK。キャンセルしてもストックは減りません。</p>";
+    }
+    let cancel = $("specialCancelButton");
+    if(!cancel){
+      cancel=document.createElement("button");
+      cancel.id="specialCancelButton";
+      cancel.type="button";
+      cancel.textContent="キャンセル（ストック維持）";
+      cancel.style.cssText="font-size:16px;background:#475569;margin:10px;padding:8px 18px;font-weight:bold";
+      cancel.addEventListener("click",closeSpecialWithoutSpending);
+      $("specialModal").appendChild(cancel);
+    }
+  };
+  function accuracyMultiplier(){
+    const score = Math.max(0,Math.min(100,Number(drawAccuracyScore)||0));
+    return 1 + score / 200;
+  }
+  function liveMinions(){
+    return Array.isArray(minions) ? minions.filter(m=>m && m.hp>0) : [];
+  }
+  function damageRandomTarget(amount, icon){
+    const targets=[];
+    if(enemy && enemy.hp>0) targets.push({kind:"boss",target:enemy});
+    liveMinions().forEach(m=>targets.push({kind:"minion",target:m}));
+    if(!targets.length) return;
+    const chosen=targets[Math.floor(Math.random()*targets.length)];
+    if(chosen.kind==="boss") damageEnemy(amount);
+    else damageMinion(chosen.target,amount);
+    if(icon) dmgText.push({x:chosen.target.x,y:chosen.target.y,t:icon,life:24});
+  }
+  function hitTargetsRight(amount, count){
+    const range=900*(1+(Math.max(0,Math.min(100,Number(drawAccuracyScore)||0))/100));
+    const targets=[];
+    if(enemy&&enemy.hp>0&&enemy.x>=p.x&&Math.hypot(enemy.x-p.x,enemy.y-p.y)<=range) targets.push({kind:"boss",target:enemy});
+    liveMinions().forEach(m=>{if(m.x>=p.x&&Math.hypot(m.x-p.x,m.y-p.y)<=range)targets.push({kind:"minion",target:m});});
+    if(!targets.length) return;
+    for(let i=0;i<count;i++){
+      const t=targets[i%targets.length];
+      if(t.kind==="boss") damageEnemy(amount);
+      else if(t.target.hp>0) damageMinion(t.target,amount);
+      dmgText.push({x:t.target.x,y:t.target.y,t:"⚔️",life:18});
+    }
+  }
+  function startProtectedDuration(ms, message){
+    specialMoveActive=true;
+    const startX=100, startY=250;
+    p.x=startX; p.y=startY;
+    msg.textContent=message;
+    specialMoveTimer=setTimeout(()=>{
+      specialMoveActive=false;
+      clearSpecialTimers();
+      if(!gameOver&&!stageClear) msg.textContent="必殺技終了！";
+    },ms);
+  }
+  function runSword(){
+    const base=(typeof getDamage==="function"?getDamage():10)*2.5*accuracyMultiplier();
+    startProtectedDuration(3100,"⚔️ 剣の必殺技！右方向へ七連刃を30連射！");
+    let wave=0;
+    const id=setInterval(()=>{
+      if(!specialMoveActive){clearInterval(id);return;}
+      hitTargetsRight(base,7);
+      wave++;
+      if(wave>=30) clearInterval(id);
+    },100);
+    specialMoveIntervals.push(id);
+  }
+  function runWand(){
+    startProtectedDuration(10000,"🪄 魔法の杖！拡散弾120発＋ジグザグ弾90発！");
+    const precision=accuracyMultiplier();
+    for(let set=0;set<3;set++){
+      for(let i=0;i<40;i++){
+        const delay=set*2400+i*55;
+        const id=setTimeout(()=>{if(specialMoveActive)damageRandomTarget(5*precision,"🪄");},delay);
+        specialMoveIntervals.push(id);
+      }
+    }
+    for(let set=0;set<3;set++){
+      for(let i=0;i<30;i++){
+        const delay=6500+set*1000+i*22;
+        const id=setTimeout(()=>{if(specialMoveActive)damageRandomTarget(5*precision,"〰️");},delay);
+        specialMoveIntervals.push(id);
+      }
+    }
+  }
+  function runBoomerang(){
+    const precision=accuracyMultiplier();
+    startProtectedDuration(7000,"🪃 ブーメラン必殺技！威力2倍、7秒間追尾！");
+    for(let n=0;n<3;n++){
+      const id=setTimeout(()=>{
+        if(!specialMoveActive)return;
+        const target=liveMinions().sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y))[0];
+        if(enemy&&enemy.hp>0&&(!target||Math.hypot(enemy.x-p.x,enemy.y-p.y)<=Math.hypot(target.x-p.x,target.y-p.y))){
+          damageEnemy(15*2*precision);dmgText.push({x:enemy.x,y:enemy.y,t:"🪃",life:28});
+        }else if(target){damageMinion(target,15*2*precision);dmgText.push({x:target.x,y:target.y,t:"🪃",life:28});}
+      },n*3000+700);
+      specialMoveIntervals.push(id);
+    }
+  }
+  function runLightning(){
+    startProtectedDuration(2200,"⚡️ 雷の必殺技！画面中央から全方向へ50発！");
+    for(let i=0;i<50;i++){
+      const delay=i*30;
+      const id=setTimeout(()=>{
+        if(!specialMoveActive)return;
+        const angle=Math.random()*Math.PI*2;
+        const origin={x:450,y:250};
+        const targetPool=[];
+        if(enemy&&enemy.hp>0)targetPool.push(enemy);
+        liveMinions().forEach(m=>targetPool.push(m));
+        if(!targetPool.length)return;
+        const target=targetPool[Math.floor(Math.random()*targetPool.length)];
+        const d=Math.hypot(target.x-origin.x,target.y-origin.y)||1;
+        const targetAngle=Math.atan2(target.y-origin.y,target.x-origin.x);
+        const delta=Math.atan2(Math.sin(targetAngle-angle),Math.cos(targetAngle-angle));
+        const hitTarget=Math.abs(delta)<Math.PI/2?target:targetPool[Math.floor(Math.random()*targetPool.length)];
+        if(hitTarget===enemy)damageEnemy(8*accuracyMultiplier());
+        else if(hitTarget&&hitTarget.hp>0)damageMinion(hitTarget,8*accuracyMultiplier());
+        dmgText.push({x:hitTarget.x,y:hitTarget.y,t:"⚡️",life:20});
+      },delay);
+      specialMoveIntervals.push(id);
+    }
+  }
+  const originalUpdate = update;
+  update = function(){
+    if(!specialMoveActive) return originalUpdate.apply(this,arguments);
+    const saved={x:p.x,y:p.y,hp:p.hp,totalDamageTaken,gameOver,stageClear};
+    const result=originalUpdate.apply(this,arguments);
+    p.x=100;p.y=250;
+    p.hp=saved.hp;totalDamageTaken=saved.totalDamageTaken;gameOver=saved.gameOver;stageClear=saved.stageClear;
+    enemyBullets=Array.isArray(enemyBullets)?enemyBullets.filter(b=>!b.enemy):enemyBullets;
+    return result;
+  };
+  const originalDamageMinion = damageMinion;
+  damageMinion = function(m, amount){
+    const before=m&&Number(m.hp);
+    const result=originalDamageMinion.apply(this,arguments);
+    const actual=Math.max(0,Math.min(Number.isFinite(before)?before:0,Number(amount)||0));
+    if(actual>0){
+      const maxDamage=getSpecialGaugeMaxDamage();
+      specialGaugeDamage+=actual*(adminRankAbility==="gauge"?2:1)*(1+upgradeLevels.special*0.10);
+      while(specialGaugeDamage>=maxDamage){specialGaugeDamage-=maxDamage;specialStock++;msg.textContent="🌟 必殺技ストック+1！（合計: "+specialStock+"）";}
+      specialGaugeMaxed=false;
+      updateSpecialGauge();
+    }
+    return result;
+  };
+  executeSpecialAttack = function(){
+    if(!unlocked()&&!tutorialOverride()){showReleaseMessage();return;}
+    if(specialStock<=0&&!tutorialOverride()){msg.textContent="⚠️ 必殺技のストックがありません！";return;}
+    const w=String(weapon||"").replace(/\uFE0F/g,"");
+    if(w.includes("🚨")||(!w.includes("⚔")&&!w.includes("🪄")&&!w.includes("🪃")&&!w.includes("⚡"))){
+      originalExecuteSpecialAttack();
+      return;
+    }
+    specialUsed=true;
+    $("specialModal").classList.add("hidden");
+    if(tutorialOverride()){tutorialSpecialUsed=true;$("tutorialPanel").classList.remove("hidden");}
+    isPausedForSpecial=false;
+    if(specialStock>0)specialStock--;
+    updateSpecialGauge();
+    p.x=100;p.y=250;
+    if(w.includes("⚔"))runSword();
+    else if(w.includes("🪄"))runWand();
+    else if(w.includes("🪃"))runBoomerang();
+    else if(w.includes("⚡"))runLightning();
+    $("specialStockText").textContent=specialStock;
+  };
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Escape"&&!$("specialModal").classList.contains("hidden"))closeSpecialWithoutSpending();
+  });
+  const specialModal=$("specialModal");
+  if(specialModal){
+    specialModal.addEventListener("contextmenu",e=>{
+      if(!specialModal.classList.contains("hidden")&&!specialMoveActive){e.preventDefault();closeSpecialWithoutSpending();}
+    });
+  }
+  const oldOpenButton=$("mobileSpecial");
+  if(oldOpenButton) oldOpenButton.addEventListener("click",()=>{if(!unlocked()&&!tutorialOverride())showReleaseMessage();});
+  window.specialMovesReleaseAt = "2026-10-27T09:00:00+09:00";
+})();
+</script>
 <style id="admin-abuse-result-lock-style">body.admin-abuse-result-lock #resultTrack{transform:translateX(0)!important}body.admin-abuse-result-lock #resultTrack .resultPage:nth-child(2){display:none!important}body.admin-abuse-result-lock .resultSwipeHint{display:none!important}body.admin-abuse-result-lock #resultToTitle{display:inline-block!important}body.admin-abuse-result-lock #resultBackBtn{display:none!important}</style>
 <script id="admin-abuse-v2-script">(function(){"use strict";const $=id=>document.getElementById(id),code=$("adminAbuseCodeScreen"),confirm=$("adminAbuseConfirmScreen"),end=$("adminAbuseEndScreen");let active=false,startAt=0,interval=null,scheduled=[],dialogueToken=0,boost={luck:1,attack:1,speed:1};function eventWindowOpen(){const jst=new Date(Date.now()+9*60*60*1000);return jst.getUTCFullYear()===2026&&jst.getUTCMonth()===9&&jst.getUTCDate()===25&&jst.getUTCHours()===22&&jst.getUTCMinutes()>=25&&jst.getUTCMinutes()<35}function updateOpenButton(){const b=$("adminAbuseOpenBtn");if(!b)return;const open=eventWindowOpen();b.disabled=!open;b.setAttribute("aria-disabled",String(!open));b.textContent="👑 ADMIN ABUSE　10月25日（日）22:25〜22:35";b.title=open?"開催中：クリックして参加":"参加できる時間は10月25日（日）22:25〜22:35のみです"}function updateScheduleTimer(){const el=$("adminAbuseScheduleTimer");if(!el)return;el.style.left="auto";el.style.right="8px";el.style.top="145px";el.style.bottom="auto";el.style.transform="none";if(window.matchMedia&&window.matchMedia("(max-width: 600px)").matches){el.style.right="5px";el.style.top="142px"}el.textContent="👑 ADMIN ABUSE\n📅 10月25日（日）\n🕙 22:25〜22:35"}function show(e){e.classList.remove("hidden")}function hide(e){e.classList.add("hidden")}function openCode(){$("adminAbuseCodeInputV2").value="";$("adminAbuseCodeMessageV2").textContent="";show(code)}function say(t){const dialogue=$("adminAbuseDialogue");if(dialogue.parentElement!==document.body)document.body.appendChild(dialogue);dialogueToken++;dialogue.textContent=t;dialogue.classList.add("active")}function updateEconomyHUD(){const coin=Number(window.adminAbuseCoinMultiplier||1),points=Number(window.adminAbuseRankPointMultiplier||1);$("adminAbuseCoinV2").textContent="×"+(Number.isFinite(coin)?coin:1);$("adminAbusePointsV2").textContent="×"+(Number.isFinite(points)?points:1)}function setBoost(n){boost=Object.assign(boost,n);window.adminAbuseLuckMultiplier=boost.luck;window.adminAbuseAttackMultiplier=boost.attack;window.adminAbuseSpeedMultiplier=boost.speed;$("adminAbuseLuckV2").textContent="×"+boost.luck;$("adminAbuseAttackV2").textContent="×"+boost.attack;$("adminAbuseSpeedV2").textContent="×"+boost.speed;$("adminAbuseBoostHUD").classList.add("active")}function clear(){document.body.classList.remove("admin-abuse-result-lock");boost={luck:1,attack:1,speed:1};window.adminAbuseActive=false;window.adminAbuseLuckMultiplier=window.adminAbuseAttackMultiplier=window.adminAbuseSpeedMultiplier=1;window.adminAbuseRankPointMultiplier=1;window.adminAbuseBonusRankPoints=0;window.adminAbuseNextTotemChance=0;$("adminAbuseTimer").classList.remove("active");$("adminAbuseBoostHUD").classList.remove("active");$("adminAbuseDialogue").classList.remove("active");$("adminAbuseDialogue").textContent="";$("adminAbuseLuckV2").textContent=$("adminAbuseAttackV2").textContent=$("adminAbuseSpeedV2").textContent="×1"}function finish(){active=false;clearInterval(interval);scheduled.forEach(clearTimeout);scheduled=[];clear();hide(code);hide(confirm);show(end)}function tick(){let left=Math.max(0,1200-Math.floor((Date.now()-startAt)/1000));$("adminAbuseTimer").textContent="👑 ADMIN ABUSE　"+String(Math.floor(left/60)).padStart(2,"0")+":"+String(left%60).padStart(2,"0");if(!left)finish()}function later(sec,fn){scheduled.push(setTimeout(()=>{if(active)fn()},sec*1000))}function beginTimeline(){hide(confirm);hide(code);hide(end);active=true;window.adminAbuseActive=true;startAt=Date.now();$("adminAbuseTimer").classList.add("active");setBoost({luck:1,attack:1,speed:1});$("adminAbuseDialogue").classList.remove("active");interval=setInterval(()=>{tick();updateEconomyHUD()},250);updateEconomyHUD();tick();
 let adminAbuseOriginalSkinGetter=null;

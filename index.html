@@ -10487,6 +10487,28 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
 
 <style id="admin-abuse-result-lock-style">body.admin-abuse-result-lock #resultTrack{transform:translateX(0)!important}body.admin-abuse-result-lock #resultTrack .resultPage:nth-child(2){display:none!important}body.admin-abuse-result-lock .resultSwipeHint{display:none!important}body.admin-abuse-result-lock #resultToTitle{display:inline-block!important}body.admin-abuse-result-lock #resultBackBtn{display:none!important}</style>
 <script id="admin-abuse-v2-script">(function(){"use strict";const CODE="test",$=id=>document.getElementById(id),code=$("adminAbuseCodeScreen"),confirm=$("adminAbuseConfirmScreen"),end=$("adminAbuseEndScreen");let active=false,testAccessGranted=false,startAt=0,interval=null,scheduled=[],dialogueToken=0,boost={luck:1,attack:1,speed:1};function getScheduleDay(){const d=new Date(Date.now()+9*60*60*1000);return d.getUTCFullYear()===2026&&d.getUTCMonth()===9&&d.getUTCDate()===24&&(d.getUTCHours()<22||(d.getUTCHours()===22&&d.getUTCMinutes()<35))?24:25}function eventWindowOpen(){const jst=new Date(Date.now()+9*60*60*1000),day=jst.getUTCDate();return jst.getUTCFullYear()===2026&&jst.getUTCMonth()===9&&(day===24||day===25)&&jst.getUTCHours()===22&&jst.getUTCMinutes()>=25&&jst.getUTCMinutes()<35}function updateOpenButton(){const b=$("adminAbuseOpenBtn");if(!b)return;const day=getScheduleDay();b.disabled=false;b.setAttribute("aria-disabled","false");b.textContent="👑 ADMIN ABUSE（テスト参加）";b.title="テストコード test を入力すると参加できます"}function updateScheduleTimer(){const el=$("adminAbuseScheduleTimer");if(!el)return;el.style.left="auto";el.style.right="8px";el.style.top="145px";el.style.bottom="auto";el.style.transform="none";if(window.matchMedia&&window.matchMedia("(max-width: 600px)").matches){el.style.right="5px";el.style.top="142px"}const day=getScheduleDay();el.textContent="👑 ADMIN ABUSE\n📅 10月"+day+"日（"+(day===24?"土":"日")+"）\n🕙 22:25〜22:35"}function show(e){e.classList.remove("hidden")}function hide(e){e.classList.add("hidden")}function openCode(){$("adminAbuseCodeInputV2").value="";$("adminAbuseCodeMessageV2").textContent="";show(code)}function say(t){dialogueToken++;$("adminAbuseDialogue").textContent=t;$("adminAbuseDialogue").classList.add("active")}function updateEconomyHUD(){const coin=Number(window.adminAbuseCoinMultiplier||1),points=Number(window.adminAbuseRankPointMultiplier||1);$("adminAbuseCoinV2").textContent="×"+(Number.isFinite(coin)?coin:1);$("adminAbusePointsV2").textContent="×"+(Number.isFinite(points)?points:1)}function setBoost(n){boost=Object.assign(boost,n);window.adminAbuseLuckMultiplier=boost.luck;window.adminAbuseAttackMultiplier=boost.attack;window.adminAbuseSpeedMultiplier=boost.speed;$("adminAbuseLuckV2").textContent="×"+boost.luck;$("adminAbuseAttackV2").textContent="×"+boost.attack;$("adminAbuseSpeedV2").textContent="×"+boost.speed;$("adminAbuseBoostHUD").classList.add("active")}function clear(){document.body.classList.remove("admin-abuse-result-lock");boost={luck:1,attack:1,speed:1};window.adminAbuseActive=false;window.adminAbuseLuckMultiplier=window.adminAbuseAttackMultiplier=window.adminAbuseSpeedMultiplier=1;window.adminAbuseRankPointMultiplier=1;window.adminAbuseBonusRankPoints=0;window.adminAbuseNextTotemChance=0;$("adminAbuseTimer").classList.remove("active");$("adminAbuseBoostHUD").classList.remove("active");$("adminAbuseDialogue").classList.remove("active");$("adminAbuseDialogue").textContent="";$("adminAbuseLuckV2").textContent=$("adminAbuseAttackV2").textContent=$("adminAbuseSpeedV2").textContent="×1"}function finish(){active=false;clearInterval(interval);scheduled.forEach(clearTimeout);scheduled=[];clear();hide(code);hide(confirm);show(end)}function tick(){let left=Math.max(0,1200-Math.floor((Date.now()-startAt)/1000));$("adminAbuseTimer").textContent="👑 ADMIN ABUSE　"+String(Math.floor(left/60)).padStart(2,"0")+":"+String(left%60).padStart(2,"0");if(!left)finish()}function later(sec,fn){scheduled.push(setTimeout(()=>{if(active)fn()},sec*1000))}function beginTimeline(){hide(confirm);hide(code);hide(end);active=true;window.adminAbuseActive=true;startAt=Date.now();$("adminAbuseTimer").classList.add("active");setBoost({luck:1,attack:1,speed:1});$("adminAbuseDialogue").classList.remove("active");interval=setInterval(()=>{tick();updateEconomyHUD()},250);updateEconomyHUD();tick();
+let adminAbuseOriginalSkinGetter=null;
+function adminAbuseSetTemporarySkin(icon){
+  if(typeof window.getSelectedSkinEmoji!=="function")return;
+  if(!adminAbuseOriginalSkinGetter)adminAbuseOriginalSkinGetter=window.getSelectedSkinEmoji;
+  window.getSelectedSkinEmoji=()=>icon;
+}
+function adminAbuseRestoreSkin(){
+  if(adminAbuseOriginalSkinGetter)window.getSelectedSkinEmoji=adminAbuseOriginalSkinGetter;
+}
+function adminAbuseSpawnBoxes(count,item){
+  if(!Array.isArray(boxes))return;
+  for(let i=0;i<count;i++)boxes.push({x:100+Math.random()*700,y:80+Math.random()*340,item});
+}
+function adminAbuseDamageEnemiesBy30Percent(){
+  if(typeof enemy!=="undefined"&&enemy&&Number.isFinite(enemy.hp)&&enemy.hp>0)enemy.hp=Math.max(0,enemy.hp*0.7);
+  if(Array.isArray(minions))minions.forEach(m=>{if(m&&Number.isFinite(m.hp)&&m.hp>0)m.hp=Math.max(0,m.hp*0.7)});
+  if(typeof halloweenEnemies!=="undefined"&&Array.isArray(halloweenEnemies))halloweenEnemies.forEach(e=>{if(e&&e.alive&&Number.isFinite(e.hp)&&e.hp>0)e.hp=Math.max(0,e.hp*0.7)});
+}
+function adminAbuseClearMinions(){
+  if(Array.isArray(minions))minions.forEach(m=>{if(m)m.hp=0});
+  if(typeof halloweenEnemies!=="undefined"&&Array.isArray(halloweenEnemies))halloweenEnemies.forEach(e=>{if(e&&e.alive&&e.isMinion){e.hp=0;e.alive=false}});
+}
 const events=[
 [0,7,"ADMIN2：どうも！ 新しく管理を任されたADMIN2です！"],
 [7,14,"ADMIN2：今日の前半10分間は、僕が担当するよ！"],
@@ -10612,6 +10634,12 @@ const events=[
 [1090,1097,"がちゃ：残りも頑張って！！"],
 [1100,1107,"がちゃ：じゃあまたハロウィンマップのADMIN ABUSEで！！"]];
 events.forEach(([from,to,line,action])=>{later(from,()=>{say(line);const token=dialogueToken;if(action)action();later(7,()=>{if(active&&dialogueToken===token)$("adminAbuseDialogue").classList.remove("active")})})});
+later(680,()=>adminAbuseSetTemporarySkin("🌪️"));
+later(695,()=>adminAbuseRestoreSkin());
+later(760,()=>adminAbuseSpawnBoxes(10,"🎃"));
+later(883,()=>adminAbuseSpawnBoxes(2,"🎁"));
+later(953,()=>adminAbuseDamageEnemiesBy30Percent());
+later(970,()=>adminAbuseClearMinions());
 later(615,()=>{setBoost({luck:2,attack:2,speed:2});later(180,()=>setBoost({luck:1,attack:1,speed:1}))});
 later(1080,()=>setBoost({luck:2,attack:2,speed:2}));
 }function start(){if(!eventWindowOpen()&&!testAccessGranted){hide(confirm);hide(code);updateOpenButton();return}testAccessGranted=false;hide(confirm);hide(code);hide(end);window.adminAbusePending=true;window.adminAbuseActive=false;window.halloweenWaveActive=false;window.halloweenWaveTestRequested=false;if(typeof window.chooseDevice==="function")window.chooseDevice("pc");if(typeof window.selectNormalMap==="function")window.selectNormalMap();}

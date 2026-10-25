@@ -10520,6 +10520,7 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
     msg.textContent = "🔒 新しい必殺技は10月27日（火）午前9:00から使えます。";
   }
   openSpecialCanvas = function(){
+    if(specialMoveActive){msg.textContent="必殺技の発動中です！";return;}
     if(!unlocked() && !tutorialOverride()){ showReleaseMessage(); return; }
     if(specialStock <= 0 && !tutorialOverride()){
       msg.textContent = "⚠️ 必殺技のストックがありません！";
@@ -10664,10 +10665,16 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
   const originalUpdate = update;
   update = function(){
     if(!specialMoveActive) return originalUpdate.apply(this,arguments);
-    const saved={x:p.x,y:p.y,hp:p.hp,totalDamageTaken,gameOver,stageClear};
+    const saved={
+      x:p.x,y:p.y,hp:p.hp,totalDamageTaken,gameOver,stageClear,
+      bossSpecialState,bossSpecialObjects:Array.isArray(bossSpecialObjects)?bossSpecialObjects.slice():bossSpecialObjects,
+      bossSpecialMinion,magmaZones:Array.isArray(magmaZones)?magmaZones.slice():magmaZones
+    };
     const result=originalUpdate.apply(this,arguments);
     p.x=100;p.y=250;
     p.hp=saved.hp;totalDamageTaken=saved.totalDamageTaken;gameOver=saved.gameOver;stageClear=saved.stageClear;
+    bossSpecialState=saved.bossSpecialState;bossSpecialObjects=saved.bossSpecialObjects;bossSpecialMinion=saved.bossSpecialMinion;
+    magmaZones=saved.magmaZones;
     enemyBullets=Array.isArray(enemyBullets)?enemyBullets.filter(b=>!b.enemy):enemyBullets;
     return result;
   };

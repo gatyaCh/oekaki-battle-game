@@ -3966,6 +3966,58 @@ body::after {
   }
 }
 </style>
+
+<style id="sketch-background-text-contrast-fix">
+/* 淡いスケッチ背景に合わせ、通常画面の文字色とラベルの視認性を調整 */
+body {
+  color: #202b38 !important;
+}
+#title, #draw, #gameArea, #count, #resultScreen, #result, #mapSelect, #tutorialChoice {
+  color: #202b38 !important;
+}
+#title h1, #title h2, #title h3,
+#draw h1, #draw h2, #draw h3,
+#gameArea h1, #gameArea h2, #gameArea h3,
+#count h1, #count h2, #resultScreen h1, #result h1,
+#mapSelect h1, #mapSelect h2, #tutorialChoice h1 {
+  color: #172033 !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,.85), 0 2px 5px rgba(255,255,255,.45) !important;
+}
+/* 背景の上に直接出る案内・数値は暗い文字＋明るい薄影に */
+#stageLabel, #hp, #maxHpText, #ehp, #sougoHammerDamageText,
+#gameArea .hud-label, #gameArea .status-label,
+#draw #guideInstruction, #draw label, #draw p,
+#title p, #mapSelect p, #resultStatus, #resultTotal,
+#resultRank, #resultBreakdown {
+  color: #202b38 !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,.8) !important;
+}
+/* メッセージは薄い明色の下地を付け、背景模様に埋もれないように */
+#msg {
+  color: #7c2d12 !important;
+  background: rgba(255,255,255,.82) !important;
+  border: 1px solid rgba(100,116,139,.28);
+  border-radius: 8px;
+  text-shadow: none !important;
+  height: auto;
+  min-height: 35px;
+  padding: 4px 8px;
+}
+/* 描画エリア内の入力ラベルも読みやすい濃色へ */
+#draw label, #draw .setting-label, #draw .weapon-select-box,
+#draw .weapon-select-box label, #draw .skin-category-nav h4 {
+  color: #202b38 !important;
+}
+/* 既存の暗色HUD・モーダルは配色を維持し、白文字を保護 */
+#chargeContainer, #specialGaugeContainer, #gameSaveOverlay, #gameSaveCard,
+#gameInventoryOverlay, #gameInventoryCard, #shopModal, #upgradeShopModal,
+#shopRouletteModal, #specialModal, #adminPanel, #kizukuPanel, #rikuPanel,
+#adminRateEditor, #specialCodeFoundModal, #rankPointOverlay,
+#adminAbuseCodeScreen, #adminAbuseConfirmScreen, #adminAbuseEndScreen,
+#halloweenRouletteOverlay, #fusionCodeOverlay, #fusionMainScreen {
+  color: #f8fafc;
+}
+</style>
 </head>
 <body>
 

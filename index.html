@@ -3853,7 +3853,59 @@ html, body, #title, #mapSelect, #draw, #gameArea, #resultScreen, #result {
 }
 body:not(.mobile-mode) #gameArea { border-color: #999 !important; }
 #game { background: var(--game-page-background, #fff) !important; }
-</style></head>
+</style>
+<style id="sketch-background-visual-fix">
+/* スケッチ背景を画面全体に見せ、タイトル領域だけ白い帯になるのを防ぐ */
+html, body { background: transparent !important; }
+html { background-color: #f6f3eb !important; }
+body { background: transparent !important; }
+#title {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 1px 12px 18px;
+  overflow: visible;
+}
+#title h1 {
+  color: #202b38 !important;
+  text-shadow: 0 3px 0 rgba(255,255,255,.78), 0 8px 24px rgba(42,91,118,.15) !important;
+  animation: sketchTitleReveal .9s cubic-bezier(.2,.75,.25,1) both;
+}
+#title h2 {
+  color: #34465a !important;
+  animation: sketchSubtitleReveal .8s .22s ease-out both;
+}
+#title > button, #title > div {
+  animation: sketchChoiceReveal .7s ease-out both;
+}
+#title > button:nth-of-type(1) { animation-delay: .42s; }
+#title > button:nth-of-type(2) { animation-delay: .58s; }
+#title > div { animation-delay: .74s; }
+@keyframes sketchTitleReveal {
+  from { opacity: 0; transform: translateY(18px) scale(.97); filter: blur(5px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+@keyframes sketchSubtitleReveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes sketchChoiceReveal {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* 端末選択後のマップ・お絵かき・戦闘画面も透明背景を維持 */
+#mapSelect, #draw, #gameArea, #count {
+  background-color: transparent;
+}
+@media (prefers-reduced-motion: reduce) {
+  #title h1, #title h2, #title > button, #title > div { animation: none !important; }
+}
+</style>
+</head>
 <body>
 
 <div id="tutorialChoice" class="hidden" aria-label="チュートリアル選択">

@@ -3939,6 +3939,33 @@ body::after { z-index: -1 !important; }
   body::before, body::after { animation: none !important; }
 }
 </style>
+
+<style id="performance-background-optimization">
+/* パフォーマンス優先：背景は静止画として描画し、常時再描画を避ける */
+body::before, body::after {
+  animation: none !important;
+  will-change: auto !important;
+  transform: none !important;
+}
+body::before {
+  inset: 0 !important;
+  background-size: auto !important;
+}
+body::after {
+  inset: 0 !important;
+  opacity: .35 !important;
+  background-size: auto !important;
+}
+/* タイトル登場演出は軽量な opacity / transform のみ維持 */
+#title h1, #title h2, #title > button, #title > div {
+  filter: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  #title h1, #title h2, #title > button, #title > div {
+    animation: none !important;
+  }
+}
+</style>
 </head>
 <body>
 

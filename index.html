@@ -3905,6 +3905,40 @@ body { background: transparent !important; }
   #title h1, #title h2, #title > button, #title > div { animation: none !important; }
 }
 </style>
+
+<style id="sketch-background-all-primary-screens">
+/* スケッチ風の動く背景を、主要なゲーム画面すべてに共通適用 */
+html, body {
+  min-height: 100%;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+body::before, body::after {
+  position: fixed !important;
+  inset: -12% !important;
+  pointer-events: none !important;
+}
+body::before { z-index: -2 !important; }
+body::after { z-index: -1 !important; }
+/* 画面コンテナの白い面・帯を透明にして背景をつなげる */
+#title, #mapSelect, #draw, #count, #gameArea, #resultScreen, #tutorialChoice {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: transparent;
+  box-shadow: none;
+}
+/* 選択・ゲーム画面の見出しは明るい背景でも読みやすく */
+#mapSelect h1, #mapSelect h2, #draw > h2, #gameArea > h2, #resultScreen h1, #resultScreen h2 {
+  text-shadow: 0 1px 5px rgba(255,255,255,.72);
+}
+/* 描画キャンバスは武器を描く白い紙として維持する */
+#drawCanvas { background: #fff !important; }
+/* 動きを減らす設定の端末では背景の移動を停止 */
+@media (prefers-reduced-motion: reduce) {
+  body::before, body::after { animation: none !important; }
+}
+</style>
 </head>
 <body>
 

@@ -6061,6 +6061,9 @@ function resetGame() {
   currentScreen = "title";
   syncScreenVisibility();
   stage = 1;
+  specialGaugeStageSeen = 1;
+  specialGaugeUsesThisStage = 0;
+  specialGaugeLastTime = Date.now();
   setStageObstacles(1);
   coins = 0;
   upgradeLevels = { atk:0, speed:0, defense:0, points:0, heal:0, special:0, hp:0 };

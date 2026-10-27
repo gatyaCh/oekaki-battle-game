@@ -5398,9 +5398,11 @@ function updateSpecialGauge() {
 }
 
 function addRandomSpecialStock() {
-  specialStock++;
+  const maxDamage = getSpecialGaugeMaxDamage();
+  specialGaugeDamage = maxDamage;
+  specialGaugeMaxed = true;
   updateSpecialGauge();
-  msg.textContent = "🌟 必殺技ストックが+1されました！ (合計: " + specialStock + ")";
+  msg.textContent = "✨ 必殺技チャージMAX！Qキーまたは必殺技ボタンで発動！";
 }
 function createMinionsForStage(stg) {
   minions = [];
@@ -5491,10 +5493,10 @@ document.addEventListener("keydown", e => {
     return;
   }
   if ((k === "q" || k === "Q") && !isPausedForSpecial && !gameOver && !stageClear) {
-    if (specialStock > 0) {
+    if (specialGaugeMaxed || specialStock > 0) {
       openSpecialCanvas();
     } else {
-      msg.textContent = "⚠️ 必殺技のストックがありません！";
+      msg.textContent = "⚡ 必殺技チャージ中…";
     }
   }
   if (e.repeat) return;
@@ -7886,7 +7888,9 @@ function executeSpecialAttack() {
   document.getElementById("specialModal").classList.add("hidden");
   if (tutorialActive && tutorialPhase === "battle" && tutorialStep === 4) { tutorialSpecialUsed = true; document.getElementById("tutorialPanel").classList.remove("hidden"); }
   isPausedForSpecial = false;
-  if (specialStock > 0) specialStock--;
+  specialStock = 0;
+  specialGaugeDamage = 0;
+  specialGaugeMaxed = false;
   updateSpecialGauge();
   const dmgMul = kizuku2Active ? 2.0 : 1;
   if (spPoints.length < 5) {
@@ -11328,3 +11332,10 @@ later(615,()=>{setBoost({luck:2,attack:2,speed:2});later(180,()=>setBoost({luck:
 later(1080,()=>setBoost({luck:2,attack:2,speed:2}));
 }function start(){if(!eventWindowOpen()){hide(confirm);hide(code);updateOpenButton();return}hide(confirm);hide(code);hide(end);window.adminAbusePending=true;window.adminAbuseActive=false;window.halloweenWaveActive=false;window.halloweenWaveTestRequested=false;if(typeof window.chooseDevice==="function")window.chooseDevice("pc");if(typeof window.selectNormalMap==="function")window.selectNormalMap();}
 document.addEventListener("click",e=>{const btn=e.target&&e.target.closest?e.target.closest("#battleBtn"):null;if(btn&&window.adminAbusePending){window.adminAbusePending=false;setTimeout(()=>{if(!active)beginTimeline()},0)}},true);updateOpenButton();updateScheduleTimer();setInterval(()=>{updateOpenButton();updateScheduleTimer()},250);$("adminAbuseOpenBtn")?.addEventListener("click",()=>{if(!eventWindowOpen()){updateOpenButton();return}show(confirm)});$("adminAbuseCodeSubmitV2").addEventListener("click",()=>{});$("adminAbuseCodeInputV2").addEventListener("keydown",e=>{if(e.key==="Escape")hide(code)});$("adminAbuseCodeBackV2").addEventListener("click",()=>hide(code));$("adminAbuseYesV2").addEventListener("click",start);$("adminAbuseNoV2").addEventListener("click",()=>hide(confirm));$("adminAbuseEndOkV2").addEventListener("click",()=>location.reload());const originalShowResult=window.showResult;if(typeof originalShowResult==="function"){window.showResult=function(cleared){const result=originalShowResult.apply(this,arguments);if(active){document.body.classList.add("admin-abuse-result-lock");const retry=$("resultToTitle"),back=$("resultBackBtn");if(retry){retry.textContent="🔄 リトライ";retry.onclick=e=>{if(e)e.preventDefault();if(typeof window.retryFromGameOver==="function")window.retryFromGameOver()}}if(back)back.classList.add("hidden");}return result;};}const hook=()=>{if(typeof window.getDamage==="function"&&!window.getDamage.__abuseV2){const old=window.getDamage;const fn=function(){let d=old.apply(this,arguments);return window.adminAbuseActive?d*(window.adminAbuseAttackMultiplier||1):d};fn.__abuseV2=true;window.getDamage=fn}};const hookId=setInterval(()=>{hook();if(document.readyState==="complete")clearInterval(hookId)},500);window.addEventListener("beforeunload",()=>{clearInterval(interval);scheduled.forEach(clearTimeout)})})();</script>
+
+<style id="final-ui-fixes">
+#gameSaveOpenBtn{position:fixed!important;top:12px!important;right:12px!important;left:auto!important;bottom:auto!important;z-index:1000000!important;display:flex!important;align-items:center!important;justify-content:center!important;width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;padding:0!important;border:2px solid #facc15!important;border-radius:12px!important;background:#172033!important;color:#fff!important;font-size:27px!important;box-shadow:0 3px 12px #0009!important;cursor:pointer!important}
+#title #adminAbuseOpenBtn{display:none!important}
+#specialGaugeContainer{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;box-sizing:border-box!important;width:100%!important;margin:2px auto 4px!important;order:-1!important;position:relative!important;z-index:2!important}
+#specialGauge{accent-color:#fb456d!important}
+</style>

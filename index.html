@@ -7849,8 +7849,10 @@ function draw() {
   let enemyFace = "😈";
   if (stun > 0 || rushDownTimer > 0 || lightningTimer > 0 || isBlackholeActive) enemyFace = "😵";
   ctx.font = "36px serif"; ctx.fillText(enemyFace, enemy.x, enemy.y);
-  /* 必殺技ゲージ描画は一時停止 */
+  /* プレイヤー必殺技ゲージは停止。敵HPバーは通常どおり描画 */
   {
+    const bw=70,bh=7,ratio=Math.max(0,Math.min(1,enemy.hp/Math.max(1,enemy.maxHp)));
+    const bx=enemy.x-bw/2,by=enemy.y-31;
     ctx.fillStyle="rgba(0,0,0,.9)";ctx.fillRect(bx-1,by-1,bw+2,bh+2);
     ctx.fillStyle="#4b5563";ctx.fillRect(bx,by,bw,bh);
     ctx.fillStyle=ratio>.5?"#22c55e":ratio>.25?"#facc15":"#ef4444";

@@ -10938,7 +10938,7 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
     $("specialModal").classList.add("hidden");
     isPausedForSpecial = false;
     spDrawing = false;
-    msg.textContent = "必殺技をキャンセルしました（ストックは維持）。";
+    msg.textContent = "必殺技をキャンセルしました（チャージは維持）。";
   }
   function getMoveName(){
     const w = String(weapon || "").replace(/\uFE0F/g,"");
@@ -10973,14 +10973,14 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
       };
       const w=String(weapon||"").replace(/\uFE0F/g,"");
       const key=["⚔","🪄","🪃","⚡","🚨"].find(k=>w.includes(k));
-      guide.innerHTML = "<h3>【必殺技】</h3><p style='font-size:14px;line-height:1.5'>" + (descriptions[key]||"必殺技を発動します。") + "</p><p style='font-size:12px;color:#ffd166;margin-top:8px'>描かずに「発動！」でもOK。キャンセルしてもストックは減りません。</p>";
+      guide.innerHTML = "<h3>【必殺技】</h3><p style='font-size:14px;line-height:1.5'>" + (descriptions[key]||"必殺技を発動します。") + "</p><p style='font-size:12px;color:#ffd166;margin-top:8px'>描かずに「発動！」でもOK。キャンセルしてもチャージは消費しません。</p>";
     }
     let cancel = $("specialCancelButton");
     if(!cancel){
       cancel=document.createElement("button");
       cancel.id="specialCancelButton";
       cancel.type="button";
-      cancel.textContent="キャンセル（ストック維持）";
+      cancel.textContent="キャンセル（チャージ維持）";
       cancel.style.cssText="font-size:16px;background:#475569;margin:10px;padding:8px 18px;font-weight:bold";
       cancel.addEventListener("click",closeSpecialWithoutSpending);
       $("specialModal").appendChild(cancel);

@@ -10530,6 +10530,19 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 }
 </style>
 
+
+<style id="special-gauge-final-position-fix">
+/* 必殺技ゲージはHTML版を完全に隠し、敵のHPバー上のcanvasゲージだけを表示 */
+#gameArea #specialGaugeContainer,
+body #gameArea:not(.hidden) #specialGaugeContainer,
+body.mobile-mode #gameArea:not(.hidden) #specialGaugeContainer {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+/* 左上の通常チャージゲージは今までどおり表示 */
+</style>
 </body>
 </html>
 

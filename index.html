@@ -7640,6 +7640,14 @@ function update() {
   if (slashTimer > 0) slashTimer--;
 }
 function draw() {
+  // 描画状態が前フレームの演出に残されても、毎フレーム通常状態へ戻す。
+  // globalAlpha / transform / composite の残留で背景だけ表示される不具合を防ぐ。
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "source-over";
+  ctx.filter = "none";
+  ctx.shadowBlur = 0;
+  ctx.clearRect(0, 0, c.width, c.height);
   if (halloweenWaveActive) { halloweenDraw(); return; }
   const bg = ["#72b95f", "#888", "#7da0d8", "#8b6b43", "#0284c7", "#7f1d1d", "#38bdf8", "#0f172a"][stage - 1];
   ctx.fillStyle = bg; ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);

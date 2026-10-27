@@ -7451,7 +7451,7 @@ function update() {
   }
   // ボス必殺技：HPしきい値で発動。警告5秒→必殺技。
   const bossSpecialRunning = updateBossSpecial(dt);
-  if (!bossSpecialRunning && !admin.enemyStopped && !isPausedForSpecial) {
+  if (!bossSpecialRunning && !admin.enemyStopped && !isPausedForSpecial && lightningUltimateFleeFrames <= 0) {
     bossSpecialStartWarning();
   }
   // Stage 6 Magma Zone Spawn

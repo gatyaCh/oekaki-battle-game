@@ -6304,7 +6304,8 @@ function closeUpgradeShop() {
     mc.style.display = show ? "block" : "none";
     mc.style.pointerEvents = "none";
   }
-  if (upgradeShopNeedsAdvance) {
+  if (upgradeShopNeedsAdvance || stageClear) {
+    // ステージクリア中なら、古いUI処理などで進行フラグが落ちていても次へ進める。
     // フラグを先に解除し、連打やイベント重複でステージが飛ばないようにする。
     upgradeShopNeedsAdvance = false;
     try {

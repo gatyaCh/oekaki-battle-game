@@ -4050,7 +4050,7 @@ body {
 </div>
 
 <div id="title">
-  <button id="gameSaveOpenBtn" type="button" aria-label="セーブ記録を開く">💾</button>
+  <button id="gameSaveOpenBtn" type="button" aria-label="セーブ記録を開く" style="display:flex!important;visibility:visible!important;opacity:1!important">💾</button>
   <h1 style="margin: 40px 0 20px;">🎨 正式版お絵かきバトルVer1.00</h1>
   <h2 style="margin-bottom:16px;">遊ぶ端末を選択してください</h2>
   <button onclick="chooseDevice('pc')" style="font-size:20px; padding:14px 28px;">💻 PC版</button>
@@ -5394,7 +5394,7 @@ function updateSpecialGauge() {
   gauge.title = "ボスへのダメージでチャージ：" + percent + "%";
   const percentEl = document.getElementById("specialGaugePercent");
   if (percentEl) percentEl.textContent = percent + "%";
-  specialStock = specialGaugeMaxed ? 1 : 0; // 旧入力経路との互換用。実際のチャージはゲージのみで管理。
+  specialStock = 0; // 旧変数は互換用のみ。ストック制は廃止。
 }
 
 function addRandomSpecialStock() {
@@ -7610,7 +7610,7 @@ function update() {
   document.getElementById("ehp").textContent = Math.floor(enemy.hp);
   document.getElementById("coinText").textContent = coins;
   document.getElementById("charge").value = charge;
-  document.getElementById("specialStockText").textContent = specialStock;
+  // 旧ストック表示は廃止。チャージゲージのみ更新する。
   updateSpecialGauge();
   dmgText = dmgText.filter(t => { t.y -= 1; t.life--; return t.life > 0; });
   if (slashTimer > 0) slashTimer--;
@@ -8043,7 +8043,7 @@ function updateRikuUI() {
   specialBtn.addEventListener('pointerdown', e => {
     if (deviceMode !== 'mobile') return; e.preventDefault();
     if (!isPausedForSpecial && !gameOver && !stageClear) {
-      if (specialGaugeMaxed || specialStock > 0) openSpecialCanvas(); else msg.textContent = '⚡ 必殺技チャージ中…';
+      if (specialGaugeMaxed || tutorialActive) openSpecialCanvas(); else msg.textContent = '⚡ 必殺技チャージ中…';
     }
   }, {passive:false});
   function holdKeyButton(btn, key) {
@@ -10955,8 +10955,8 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
   openSpecialCanvas = function(){
     if(specialMoveActive){msg.textContent="必殺技の発動中です！";return;}
     if(!unlocked() && !tutorialOverride()){ showReleaseMessage(); return; }
-    if(specialStock <= 0 && !tutorialOverride()){
-      msg.textContent = "⚠️ 必殺技のストックがありません！";
+    if(!specialGaugeMaxed && !tutorialOverride()){
+      msg.textContent = "⚡ 必殺技チャージ中…";
       return;
     }
     originalOpenSpecialCanvas();
@@ -11137,7 +11137,7 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
   };
   executeSpecialAttack = function(){
     if(!unlocked()&&!tutorialOverride()){showReleaseMessage();return;}
-    if(specialStock<=0&&!tutorialOverride()){msg.textContent="⚠️ 必殺技のストックがありません！";return;}
+    if(!specialGaugeMaxed&&!tutorialOverride()){msg.textContent="⚡ 必殺技チャージ中…";return;}
     const w=String(weapon||"").replace(/\uFE0F/g,"");
     if(!w.includes("⚔")&&!w.includes("🪄")&&!w.includes("🪃")&&!w.includes("⚡")&&!w.includes("🚨")){
       originalExecuteSpecialAttack();
@@ -11157,7 +11157,7 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
     else if(w.includes("🪃"))runBoomerang();
     else if(w.includes("⚡"))runLightning();
     else if(w.includes("🚨"))runPolice();
-    $("specialStockText").textContent=specialStock;
+    // ストック表示は廃止。
   };
   document.addEventListener("keydown",e=>{
     if(e.key==="Escape"&&!$("specialModal").classList.contains("hidden"))closeSpecialWithoutSpending();

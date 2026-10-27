@@ -5297,6 +5297,7 @@ let bulletHellBullets = [];
 let magicOrbs = [];
 let wandCooldown = 0;
 let wandSpecialTimer = 0;
+let weaponSpecialBuffUntil = 0;
 let lightningTimer = 0;
 let slowDebuffTimer = 0;
 // Treasure Chest System
@@ -5646,7 +5647,8 @@ function getDamage() {
   const kizuku2AtkMul = kizuku2Active ? 2.0 : 1;
   const sougoAtkMul = window.sougoBoostActive ? 3 : 1;
   const adminRankMul = adminRankAbility === "damage4" ? 4.0 : 1;
-  return (10 + charge / 8) * atkBuff * (1 + drawAttackBonus) * 1.03 * kizuku2AtkMul * sougoAtkMul * adminRankMul * halloweenCandyMul * halloweenZombieMul * (1 + upgradeLevels.atk * 0.04);
+  const weaponSpecialBuffMul = Date.now() < weaponSpecialBuffUntil ? 1.5 : 1;
+  return (10 + charge / 8) * atkBuff * (1 + drawAttackBonus) * 1.03 * kizuku2AtkMul * sougoAtkMul * adminRankMul * halloweenCandyMul * halloweenZombieMul * weaponSpecialBuffMul * (1 + upgradeLevels.atk * 0.04);
 }
 function damageEnemy(amount) {
   if (bossSpecialState) return;
@@ -6192,6 +6194,7 @@ function proceedToNextStageNumber() {
   specialGaugeDamage = 0;
   specialGaugeLastTime = Date.now();
   wandSpecialTimer = 0;
+  weaponSpecialBuffUntil = 0;
   magicOrbs = [];
   updateSpecialGauge();
   enemy.x = 700; enemy.y = 250;
@@ -7499,7 +7502,7 @@ function update() {
   if (bigSlashAnimTimer > 0) bigSlashAnimTimer--;
   let speedMult = slowDebuffTimer > 0 ? 0.5 : 1.0;
   if (stage === 5) speedMult *= 0.85;
-  let sp = (charging ? 2 : 4) * speedMult * (kizuku2Active ? 2.0 : 1) * (1 + upgradeLevels.speed * 0.05) * (Date.now() < Number(window.adminAbuseRewardBoostUntil || 0) ? 2 : 1);
+  let sp = (charging ? 2 : 4) * speedMult * (kizuku2Active ? 2.0 : 1) * (1 + upgradeLevels.speed * 0.05) * (Date.now() < Number(window.adminAbuseRewardBoostUntil || 0) ? 2 : 1) * (Date.now() < weaponSpecialBuffUntil ? 1.35 : 1);
   const ku = window.controlKeys.up, kd = window.controlKeys.down, kl = window.controlKeys.left, kr = window.controlKeys.right;
   let dx = 0, dy = 0;
   const halloweenFx = window.halloweenEffects || {};
@@ -7906,6 +7909,15 @@ function draw() {
       ctx.stroke();
       ctx.restore();
     }
+    else if (b.special === "slash") {
+      ctx.save(); ctx.translate(b.x,b.y); ctx.rotate(Math.atan2(b.vy,b.vx));
+      ctx.strokeStyle = "#dbeafe"; ctx.lineWidth = 5; ctx.shadowColor = "#60a5fa"; ctx.shadowBlur = 10;
+      ctx.beginPath(); ctx.moveTo(-b.size, b.size*0.35); ctx.quadraticCurveTo(0,-b.size*0.55,b.size,0); ctx.stroke(); ctx.restore();
+    }
+    else if (b.special === "arrow") {
+      ctx.save(); ctx.translate(b.x,b.y); ctx.rotate(Math.atan2(b.vy,b.vx));
+      ctx.strokeStyle = "#fde68a"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(-b.size/2,0); ctx.lineTo(b.size/2,0); ctx.lineTo(b.size/4,-5); ctx.moveTo(b.size/2,0); ctx.lineTo(b.size/4,5); ctx.stroke(); ctx.restore();
+    }
     else if (b.special === "drill") {
       ctx.font = "48px sans-serif";
       ctx.fillText("🔩", b.x, b.y);
@@ -8014,6 +8026,18 @@ function executeSpecialAttack() {
   updateSpecialGauge();
   const dmgMul = kizuku2Active ? 2.0 : 1;
   // 魔法の杖の必殺技は、敵へ直接ダメージを与えずプレイヤー位置から弾幕を発射。
+  // 通常武器はそれぞれ専用の必殺技にする。描いた形に関係なく武器ごとの技だけを実行。
+  if (weapon === "⚔️") {
+    const dx = mouse.x - p.x, dy = mouse.y - p.y, baseAngle = Math.atan2(dy, dx);
+    const slashDamage = getDamage() * 2.5 * dmgMul;
+    for (let i = 0; i < 7; i++) {
+      const angle = baseAngle + (i - 3) * 0.12;
+      enemyBullets.push({x:p.x,y:p.y,vx:Math.cos(angle)*8.5,vy:Math.sin(angle)*8.5,dmg:slashDamage,enemy:false,special:"slash",size:34,life:90});
+    }
+    bigSlashAnimTimer = 18;
+    msg.textContent = "⚔️ 必殺技【飛翔七連斬】！7本の斬撃を発射！";
+    return;
+  }
   if (weapon === "🪄") {
     wandSpecialTimer = 2.8;
     enemyRushing = 0;
@@ -8028,6 +8052,29 @@ function executeSpecialAttack() {
       magicOrbs.push({x:p.x,y:p.y,vx:Math.cos(angle + wobble)*5.2,vy:Math.sin(angle + wobble)*5.2,life:2.8,dmg:baseDamage,r:7,homing:false,special:true});
     }
     msg.textContent = "🪄 必殺技【マジック・バラージ】！敵を停止させて弾幕60発！";
+    return;
+  }
+  if (weapon === "🏹") {
+    // 弓は攻撃・移動速度を一時強化し、同時に矢の弾幕を放つ。
+    weaponSpecialBuffUntil = Date.now() + 6000;
+    const baseAngle = Math.atan2(enemy.y - p.y, enemy.x - p.x);
+    const arrowDamage = getDamage() * 1.2 * dmgMul;
+    for (let i = 0; i < 15; i++) {
+      const angle = baseAngle + (i - 7) * 0.075;
+      enemyBullets.push({x:p.x,y:p.y,vx:Math.cos(angle)*9,vy:Math.sin(angle)*9,dmg:arrowDamage,enemy:false,special:"arrow",size:18});
+    }
+    msg.textContent = "🏹 必殺技【アローストーム】！15連射＋6秒間攻撃・移動速度アップ！";
+    return;
+  }
+  if (weapon === "🚙") {
+    // 車は敵を止めず、狙った方向へ高速突進する。
+    const dx = mouse.x - p.x, dy = mouse.y - p.y, d = Math.hypot(dx, dy) || 1;
+    dashTimer = 36;
+    dashVX = dx / d * 15;
+    dashVY = dy / d * 15;
+    carHitThisDash = false;
+    slashTimer = 20;
+    msg.textContent = "🚙 必殺技【ターボクラッシュ】！高速突進！";
     return;
   }
   if (spPoints.length < 5) {

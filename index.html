@@ -6154,17 +6154,18 @@ function proceedToNextStageNumber() {
   specialGaugeDamage = 0;
   updateSpecialGauge();
 
+  // 前ステージの攻撃・敵・チャージ状態を持ち越さず、新しい戦闘を組み立てる。
+  stageClear = true; // 初期化が完了するまで戦闘更新を止める
+  charging = false; charge = 0; stun = 0;
   p.x = 100; p.y = 250;
   p.hp = Math.min(p.max, p.hp + 30 + upgradeLevels.heal * 10);
   enemy.maxHp = stageBosses[stage - 1].hp;
   enemy.hp = enemy.maxHp;
-  specialGaugeMaxed = false;
-  specialGaugeDamage = 0;
-  updateSpecialGauge();
   enemy.x = 700; enemy.y = 250;
+  minions = [];
   enemyBullets = []; magmaZones = [];
-  enemyShootTimer = 0; rushTimer = 0; rushDownTimer = 0; dashTimer = 0;
-  carHitThisDash = false; attackCooldown = 0; stun = 0; bossSpecialTimer = 0;
+  enemyShootTimer = 0; rushTimer = 0; rushDownTimer = 0; rushDownTimer = 0; dashTimer = 0;
+  carHitThisDash = false; attackCooldown = 0; bossSpecialTimer = 0;
   bossDefeatAwardedForStage = false;
   stage4PointEligibleKills = 0;
   if (adminRankAbility === "guard") adminGuardBlocksLeft = 5;
@@ -6173,6 +6174,10 @@ function proceedToNextStageNumber() {
   setStageObstacles(stage);
   createMinionsForStage(stage);
   spawnBox();
+  // 敵生成処理の後にもボスHPを確定し、前ステージの0HPを残さない。
+  enemy.maxHp = stageBosses[stage - 1].hp;
+  enemy.hp = enemy.maxHp;
+  enemy.x = 700; enemy.y = 250;
   stageClear = false;
   document.getElementById("stageLabel").textContent = stageBosses[stage - 1].name;
 }
@@ -10891,7 +10896,7 @@ function fireSmallLightning(){const t=nearestTarget();const dx=t?t.x-p.x:mouse.x
 function startThunderStorm(ratio){thunderCooldownFrames=390;thunderStormFrames=420;thunderStrikeFrames=0;thunderStrikeLimit=ratio>=.9?6:ratio>=.6?5:4;thunderShadows=[];msg.textContent="⚡ サンダーインパクト！7秒間、雷が降る！";}
 function newWeaponAttack(){weapon=canonicalNewWeapon(weapon);if(gameOver||stageClear||isPausedForSpecial||bossSpecialState)return;if(weapon==="🪃"){addBoomerang();return;}if(weapon==="⚡️"){if(thunderCooldownFrames>0){fireSmallLightning();return;}startThunderStorm(Math.max(0,Math.min(1,charge/150)));return;}if(weapon==="🚨"){const reach=74,targets=liveTargets().filter(t=>Math.hypot(t.x-p.x,t.y-p.y)<reach);if(targets.length){targets.forEach(t=>hitNewWeaponTarget(t,typeof getDamage==="function"?getDamage():15));slashTimer=12;return;}if(policeStock>0&&policeTraps.length<6){policeTraps.push({x:p.x,y:p.y,r:25,life:Infinity});policeStock--;msg.textContent="🕳️ トラップ設置！ 残り "+policeStock+" 個";}else msg.textContent=policeStock<=0?"🕳️ トラップ補充中...":"🕳️ トラップは最大6個まで設置中だよ。";}}
 beginAttackCharge=function(){weapon=canonicalNewWeapon(weapon);if(!NEW_WEAPONS.includes(weapon))return originalBeginAttackCharge();if(gameOver||stageClear||isPausedForSpecial||window.gameSavePaused||(attackCooldown>0&&weapon!=="⚡️"))return;if(weapon==="⚡️"&&thunderCooldownFrames>0){if(smallLightningCooldownFrames<=0){fireSmallLightning();smallLightningUsedOnPress=true;}else msg.textContent="⚡ 小さな雷のクールタイム中...";return;}charging=true;charge=0;if(weapon==="⚡️")thunderChargeFrames=0;};
-releaseAttackCharge=function(){weapon=canonicalNewWeapon(weapon);if(!NEW_WEAPONS.includes(weapon))return originalReleaseAttackCharge();if(weapon==="⚡️"&&thunderCooldownFrames>0){smallLightningUsedOnPress=false;charging=false;charge=0;thunderChargeFrames=0;return;}if(!charging)return;charging=false;newWeaponAttack();attackCooldown=(window.adminNoCooldown?0:0.3);charge=0;thunderChargeFrames=0;};
+releaseAttackCharge=function(){weapon=canonicalNewWeapon(weapon);if(!NEW_WEAPONS.includes(weapon))return originalReleaseAttackCharge();if(weapon==="⚡️"&&thunderCooldownFrames>0){smallLightningUsedOnPress=false;charging=false;charge=0;thunderChargeFrames=0;return;}if(weapon==="⚡️"&&!charging){if(gameOver||stageClear||isPausedForSpecial||bossSpecialState||window.gameSavePaused)return;newWeaponAttack();attackCooldown=(window.adminNoCooldown?0:0.3);charge=0;thunderChargeFrames=0;return;}if(!charging)return;charging=false;newWeaponAttack();attackCooldown=(window.adminNoCooldown?0:0.3);charge=0;thunderChargeFrames=0;};
 function updateNewWeaponSystems(){if(currentScreen!=="game")return;if(thunderCooldownFrames>0)thunderCooldownFrames--;if(smallLightningCooldownFrames>0)smallLightningCooldownFrames--;if(policeStock<6){policeRechargeFrames++;if(policeRechargeFrames>=600){policeStock++;policeRechargeFrames=0;}}else policeRechargeFrames=0;if(weapon==="⚡️"&&charging&&thunderCooldownFrames<=0){thunderChargeFrames=Math.min(360,thunderChargeFrames+1);charge=150*Math.pow(thunderChargeFrames/360,1.55);}
  if(thunderStormFrames>0){thunderStormFrames--;thunderStrikeFrames++;if((thunderStrikeFrames===1||thunderStrikeFrames%78===1)&&Math.floor((thunderStrikeFrames-1)/78)<thunderStrikeLimit){const target=nearestTarget();thunderShadows.push({x:target?target.x:60+Math.random()*780,y:target?target.y:75+Math.random()*350,target,wait:60});}}
  for(let i=thunderShadows.length-1;i>=0;i--){const sh=thunderShadows[i];if(sh.target&&sh.target.hp>0&&liveTargets().includes(sh.target)){sh.x=sh.target.x;sh.y=sh.target.y;}else{sh.target=nearestTarget(sh.x,sh.y);if(sh.target){sh.x=sh.target.x;sh.y=sh.target.y;}}sh.wait--;if(sh.wait<=0){liveTargets().forEach(t=>{if(Math.hypot(t.x-sh.x,t.y-sh.y)<110)hitNewWeaponTarget(t,20*(1+drawAttackBonus));});thunderShadows.splice(i,1);}}

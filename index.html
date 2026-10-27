@@ -4707,7 +4707,7 @@ function startTutorialFromDraw(){ beginTutorialBattle(); }
 function beginTutorialBattle(){
   document.getElementById("tutorialChoice").classList.add("hidden");
   tutorialActive=true; tutorialPhase="battle"; tutorialStep=0; tutorialSpecialUsed=false;
-  stage=1; gameOver=false; stageClear=false; fullClear=false; isPausedForSpecial=false;
+  stage=1; specialGaugeStageSeen=1; specialGaugeUsesThisStage=0; specialGaugeLastTime=Date.now(); specialGaugeDamage=0; specialGaugeMaxed=false; gameOver=false; stageClear=false; fullClear=false; isPausedForSpecial=false;
   setStageObstacles(1);
   p.x=100;p.y=250;p.hp=150;p.max=150;p.invincibility=999999;
   enemy.x=700;enemy.y=250;enemy.maxHp=10000;enemy.hp=10000;enemy.spawnTimer=999999;
@@ -11253,7 +11253,10 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
     const actual=Math.max(0,Math.min(Number.isFinite(before)?before:0,Number(amount)||0));
     if(actual>0){
       const maxDamage=getSpecialGaugeMaxDamage();
-      if(!specialGaugeMaxed){specialGaugeDamage=Math.min(maxDamage,specialGaugeDamage+actual*(adminRankAbility==="gauge"?2:1)*(1+upgradeLevels.special*0.10));if(specialGaugeDamage>=maxDamage){specialGaugeDamage=maxDamage;specialGaugeMaxed=true;msg.textContent="✨ 必殺技チャージMAX！Qキーまたは必殺技ボタンで発動！";}}
+      if(!(stage>=1&&stage<=4&&specialGaugeUsesThisStage>=2)&&!specialGaugeMaxed){
+        specialGaugeDamage=Math.min(maxDamage,specialGaugeDamage+actual*(adminRankAbility==="gauge"?2:1)*(1+upgradeLevels.special*0.10));
+        if(specialGaugeDamage>=maxDamage){specialGaugeDamage=maxDamage;specialGaugeMaxed=true;msg.textContent="✨ 必殺技チャージMAX！Qキーで発動！";}
+      }
       updateSpecialGauge();
     }
     return result;
@@ -11263,6 +11266,8 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
     if(!specialGaugeMaxed&&!tutorialOverride()){msg.textContent="⚡ 必殺技チャージ中…";return;}
     const w=String(weapon||"").replace(/\uFE0F/g,"");
     if(!w.includes("⚔")&&!w.includes("🪄")&&!w.includes("🪃")&&!w.includes("⚡")&&!w.includes("🚨")){
+      if (stage >= 1 && stage <= 4) specialGaugeUsesThisStage++;
+      specialGaugeLastTime=Date.now();
       originalExecuteSpecialAttack();
       return;
     }

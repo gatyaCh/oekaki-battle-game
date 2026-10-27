@@ -5400,7 +5400,7 @@ function updateSpecialGauge() {
     const percentEl = document.getElementById("specialGaugePercent");
     if (percentEl) percentEl.textContent = percent + "%";
     const box = document.getElementById("specialGaugeContainer");
-    if (box) box.style.display = "none"; // ゲージ本体は敵HPバーの上にcanvas描画する
+    if (box) box.style.setProperty("display", "none", "important"); // 左上のHTMLゲージは隠し、敵HPバーの上にcanvas描画する
   }
   specialStock = 0;
 }

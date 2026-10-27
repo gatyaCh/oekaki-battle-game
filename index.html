@@ -4049,9 +4049,7 @@ body {
   <h2 style="margin-bottom:16px;">遊ぶ端末を選択してください</h2>
   <button onclick="chooseDevice('pc')" style="font-size:20px; padding:14px 28px;">💻 PC版</button>
   <button onclick="chooseDevice('mobile')" style="font-size:20px; padding:14px 28px;">📱 スマホ版</button>
-  <div style="margin-top:14px;">
-    <button id="adminAbuseOpenBtn" type="button" aria-label="ADMIN ABUSEを開く">🎃 ADMIN ABUSE 🎃　10/31　22時20分〜22時30分</button>
-  </div>
+  <div style="margin-top:14px;"><p id="specialMoveAnnouncement" style="max-width:620px;margin:0 auto;padding:10px 14px;border:2px solid #fb7185;border-radius:12px;background:#3b1020;color:#fff;font-weight:bold">✨ 新必殺技のお知らせ：チャージゲージがMAXになると必殺技を発動できます！</p></div>
 </div>
 <div id="adminAbuseCodeScreen" class="hidden" role="dialog" aria-modal="true"><div class="admin-abuse-card"><h2>👑 ADMIN ABUSE</h2><p>開催時間：10/31　22時20分〜22時30分</p><input id="adminAbuseCodeInputV2" type="text" autocomplete="off" placeholder="コードを入力"><p id="adminAbuseCodeMessageV2" role="status"></p><button type="button" id="adminAbuseCodeSubmitV2">決定</button><button type="button" id="adminAbuseCodeBackV2">戻る</button></div></div><div id="adminAbuseConfirmScreen" class="hidden" role="dialog" aria-modal="true"><div class="admin-abuse-card"><h2>👑 ADMIN ABUSEをしますか？</h2><p>20分間の特別イベントを開始します。</p><button type="button" id="adminAbuseYesV2">はい、プレイする</button><button type="button" id="adminAbuseNoV2">いいえ</button></div></div><div id="adminAbuseEndScreen" class="hidden" role="dialog" aria-modal="true"><div class="admin-abuse-card"><h2>⌛ ADMIN ABUSE終了</h2><p>イベント時間が終了しました。イベント専用効果はリセットされました。</p><button type="button" id="adminAbuseEndOkV2">タイトルへ戻る</button></div></div><div id="adminAbuseTimer" aria-live="polite">👑 ADMIN ABUSE　20:00</div><div id="adminAbuseScheduleTimer" aria-live="polite">👑 ADMIN ABUSE　10:00（22:25開始）</div><div id="adminAbuseDialogue" aria-live="polite"></div><div id="adminAbuseBoostHUD" aria-label="ADMIN ABUSE強化状況"><div>☘️ <b id="adminAbuseLuckV2">×1</b></div><div>⚔️ <b id="adminAbuseAttackV2">×1</b></div><div>👟 <b id="adminAbuseSpeedV2">×1</b></div><div>💰️ コイン <b id="adminAbuseCoinV2">×1</b></div><div>✨️ ポイント <b id="adminAbusePointsV2">×1</b></div></div><div id="mapSelect" class="hidden" aria-label="マップ選択">
   <div class="map-select-card">
@@ -4144,7 +4142,6 @@ body {
   <h2 id="stageLabel">🌳 Stage 1</h2>
   <div style="margin: 8px 0;">
     HP:<span id="hp">150</span>/<span id="maxHpText">150</span> 敵HP:<span id="ehp">200</span> 💰:<span id="coinText">0</span> 攻撃×<span id="atkText">1.0</span> 🛡️:<span id="shieldText">0.0s</span> 🗿:<span id="reviveText">なし</span>
-    | 必殺技ストック: <span id="specialStockText" style="color: #ff3366; font-weight: bold;">0</span>
   </div>
   <div id="chargeContainer">Charge <progress id="charge" max="150" value="0" style="width: 200px; height: 20px;"></progress></div>
 <div id="sougoHammerHud" class="hidden" style="position:fixed;top:64px;left:8px;z-index:99988;background:rgba(35,12,60,.94);border:2px solid #c084fc;border-radius:12px;padding:8px 12px;color:#fff;min-width:210px;box-shadow:0 0 12px #9333ea;font-size:14px">
@@ -4156,7 +4153,7 @@ body {
   <div id="sougoHammerDamageText" style="text-align:center;margin-top:3px">予想ダメージ：20</div>
 </div>
   <div id="specialGaugeContainer" aria-label="必殺技ゲージ">
-    <span>必殺技ゲージ</span>
+    <span>必殺技チャージ</span>
     <progress id="specialGauge" max="1" value="0"></progress>
     <span id="specialGaugePercent">0%</span>
   </div>
@@ -4407,7 +4404,6 @@ body {
       <p>2　Lucky Boost</p>
       <p>3　？？？制作者「宝箱を開けまくれ📦️！！」</p>
       <p>4　<span id="halloween1031Label">ハロウィンマップをプレイ！</span></p>
-      <p>5　10/25　22時25分〜22時35分のADMIN ABUSEに参加しよう！！</p>
     </div>
   </div>
 </div>
@@ -5392,8 +5388,7 @@ function updateSpecialGauge() {
   gauge.title = "ボスへのダメージでチャージ：" + percent + "%";
   const percentEl = document.getElementById("specialGaugePercent");
   if (percentEl) percentEl.textContent = percent + "%";
-  const stockEl = document.getElementById("specialStockText");
-  if (stockEl) stockEl.textContent = String(Math.max(0, Math.floor(Number(specialStock) || 0)));
+  specialStock = specialGaugeMaxed ? 1 : 0; // 旧入力経路との互換用。実際のチャージはゲージのみで管理。
 }
 
 function addRandomSpecialStock() {
@@ -5618,13 +5613,10 @@ function damageEnemy(amount) {
 
     // 必殺技ゲージはボスへの攻撃で加算。上限に達するたびにストックを追加し、余剰分は次のゲージへ。
     const gaugeMaxDamage = getSpecialGaugeMaxDamage();
-    specialGaugeDamage += actual * (adminRankAbility === "gauge" ? 2 : 1) * (1 + upgradeLevels.special * 0.10);
-    while (specialGaugeDamage >= gaugeMaxDamage) {
-      specialGaugeDamage -= gaugeMaxDamage;
-      specialStock++;
-      msg.textContent = "🌟 必殺技ストック+1！（合計: " + specialStock + "）";
+    if (!specialGaugeMaxed) {
+      specialGaugeDamage = Math.min(gaugeMaxDamage, specialGaugeDamage + actual * (adminRankAbility === "gauge" ? 2 : 1) * (1 + upgradeLevels.special * 0.10));
+      if (specialGaugeDamage >= gaugeMaxDamage) { specialGaugeDamage = gaugeMaxDamage; specialGaugeMaxed = true; msg.textContent = "✨ 必殺技チャージMAX！Qキーまたは必殺技ボタンで発動！"; }
     }
-    specialGaugeMaxed = false;
     updateSpecialGauge();
   }
   if (enemy.hp <= 0 && actual > 0 && !bossDefeatAwardedForStage) {
@@ -8041,7 +8033,7 @@ function updateRikuUI() {
   specialBtn.addEventListener('pointerdown', e => {
     if (deviceMode !== 'mobile') return; e.preventDefault();
     if (!isPausedForSpecial && !gameOver && !stageClear) {
-      if (specialStock > 0) openSpecialCanvas(); else msg.textContent = '⚠️ 必殺技のストックがありません！';
+      if (specialGaugeMaxed || specialStock > 0) openSpecialCanvas(); else msg.textContent = '⚡ 必殺技チャージ中…';
     }
   }, {passive:false});
   function holdKeyButton(btn, key) {
@@ -8095,7 +8087,6 @@ function loop() {
   const hudAtk = document.getElementById("atkText");
   const hudShield = document.getElementById("shieldText");
   const hudRevive = document.getElementById("reviveText");
-  const hudSpecialStock = document.getElementById("specialStockText");
   if (hudHp && p) hudHp.textContent = Math.max(0, Math.floor(p.hp));
   if (hudMaxHp && p) hudMaxHp.textContent = Math.floor(p.max);
   if (hudEnemyHp && enemy) hudEnemyHp.textContent = Math.max(0, Math.floor(enemy.hp));
@@ -8103,7 +8094,6 @@ function loop() {
   if (hudAtk) hudAtk.textContent = (atkBuff * (kizuku2Active ? 2.0 : 1)).toFixed(1);
   if (hudShield) hudShield.textContent = shieldEquipped ? Math.max(0, shieldRemainingTime).toFixed(1) + "s" : "なし";
   if (hudRevive) hudRevive.textContent = revive ? "所持" : "なし";
-  if (hudSpecialStock) hudSpecialStock.textContent = specialStock;
   updateSpecialGauge();
   draw();
   requestAnimationFrame(loop);
@@ -11131,9 +11121,7 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
     const actual=Math.max(0,Math.min(Number.isFinite(before)?before:0,Number(amount)||0));
     if(actual>0){
       const maxDamage=getSpecialGaugeMaxDamage();
-      specialGaugeDamage+=actual*(adminRankAbility==="gauge"?2:1)*(1+upgradeLevels.special*0.10);
-      while(specialGaugeDamage>=maxDamage){specialGaugeDamage-=maxDamage;specialStock++;msg.textContent="🌟 必殺技ストック+1！（合計: "+specialStock+"）";}
-      specialGaugeMaxed=false;
+      if(!specialGaugeMaxed){specialGaugeDamage=Math.min(maxDamage,specialGaugeDamage+actual*(adminRankAbility==="gauge"?2:1)*(1+upgradeLevels.special*0.10));if(specialGaugeDamage>=maxDamage){specialGaugeDamage=maxDamage;specialGaugeMaxed=true;msg.textContent="✨ 必殺技チャージMAX！Qキーまたは必殺技ボタンで発動！";}}
       updateSpecialGauge();
     }
     return result;
@@ -11150,7 +11138,9 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
     $("specialModal").classList.add("hidden");
     if(tutorialOverride()){tutorialSpecialUsed=true;$("tutorialPanel").classList.remove("hidden");}
     isPausedForSpecial=false;
-    if(specialStock>0)specialStock--;
+    specialStock=0;
+    specialGaugeDamage=0;
+    specialGaugeMaxed=false;
     updateSpecialGauge();
     p.x=100;p.y=250;
     if(w.includes("⚔"))runSword();

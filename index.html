@@ -4018,6 +4018,12 @@ body {
   color: #f8fafc;
 }
 </style>
+<style id="save-button-visibility-fix">
+#gameSaveOpenBtn{position:fixed!important;top:12px!important;right:12px!important;z-index:1000000!important;display:flex!important;align-items:center!important;justify-content:center!important;width:48px!important;height:48px!important;min-width:48px!important;padding:0!important;border:2px solid #facc15!important;border-radius:12px!important;background:#172033!important;color:#fff!important;font-size:27px!important;box-shadow:0 3px 12px #0009!important;cursor:pointer!important}
+#title #adminAbuseOpenBtn{display:none!important}
+#specialGaugeContainer{order:-1;position:relative;z-index:2}
+#specialGaugeContainer:has(#specialGauge[value]){box-sizing:border-box}
+</style>
 </head>
 <body>
 
@@ -4140,6 +4146,11 @@ body {
 <div id="count" class="hidden" style="margin-top: 100px;"><h1 id="countText" style="font-size: 72px;">3</h1></div>
 <div id="gameArea" class="hidden">
   <h2 id="stageLabel">🌳 Stage 1</h2>
+  <div id="specialGaugeContainer" aria-label="必殺技チャージゲージ" style="margin:2px auto 4px;">
+    <span>必殺技チャージ</span>
+    <progress id="specialGauge" max="1" value="0"></progress>
+    <span id="specialGaugePercent">0%</span>
+  </div>
   <div style="margin: 8px 0;">
     HP:<span id="hp">150</span>/<span id="maxHpText">150</span> 敵HP:<span id="ehp">200</span> 💰:<span id="coinText">0</span> 攻撃×<span id="atkText">1.0</span> 🛡️:<span id="shieldText">0.0s</span> 🗿:<span id="reviveText">なし</span>
   </div>
@@ -4152,11 +4163,6 @@ body {
   <progress id="sougoHammerCooldownBar" max="7" value="0" style="width:100%;height:10px;accent-color:#f59e0b"></progress>
   <div id="sougoHammerDamageText" style="text-align:center;margin-top:3px">予想ダメージ：20</div>
 </div>
-  <div id="specialGaugeContainer" aria-label="必殺技ゲージ">
-    <span>必殺技チャージ</span>
-    <progress id="specialGauge" max="1" value="0"></progress>
-    <span id="specialGaugePercent">0%</span>
-  </div>
   <div id="msg"></div>
   <canvas id="game" width="900" height="500"></canvas>
   <p id="guideText">設定キーで移動 / 攻撃キー長押し→離して攻撃 (右クリックでチャージキャンセル) / <b>[Q] キーで必殺技</b></p>
@@ -10488,8 +10494,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   {id:10,name:"真の勇者",skin:"🗡️",desc:"ハロウィンマップの最終ボスを倒す"},
   {id:11,name:"魂の収集家",skin:"💫",desc:"1回のハロウィンバトルで魂を100個以上集める"},
   {id:12,name:"？？？",skin:"🤫",desc:"隠し実績：ハロウィンマップを必殺技・復活アイテムなしでクリアする",hidden:true},
-   {id:13,name:"ADMIN ABUSEに参加する！",skin:"👑",desc:"10/25 22:25〜22:35のADMIN ABUSEに参加する！報酬：スペシャルコード「ADMIN ABUSE」"}
- ];
+  ];
  let state={completed:[],bossKills:0,usedItems:[]};
  try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");if(saved&&typeof saved==="object")state={...state,...saved};}catch(e){}
  if(!Array.isArray(state.completed))state.completed=[];

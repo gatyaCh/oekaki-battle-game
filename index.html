@@ -5686,6 +5686,13 @@ function fireWandMagic() {
 }
 function attack() {
   if (halloweenWaveActive) { if(halloweenShopOpen||halloweenIntroFrame>=0||halloweenStartBanner>0||halloweenCooldown>0||gameOver||stageClear)return; halloweenCooldown=12; const t=halloweenEnemies.filter(e=>e.alive).sort((x,y)=>Math.hypot(p.x-x.x,p.y-x.y)-Math.hypot(p.x-y.x,p.y-y.y))[0]; if(t&&Math.hypot(p.x-t.x,p.y-t.y)<260){t.hp-=12*halloweenBuff.damage*(ghostTimer>0?0.7:1);awardHalloweenTarget(t);msg.textContent="攻撃！ ソウル："+halloweenSouls;} return; }
+  // 管理者パネルが閉じているのに入力フラグだけ残った場合は解除し、通常攻撃を妨げない。
+  if (window.adminPanelInteracting) {
+    const adminPanel = document.getElementById("adminPanel");
+    if (!adminPanel || adminPanel.classList.contains("hidden") || getComputedStyle(adminPanel).display === "none") {
+      window.adminPanelInteracting = false;
+    }
+  }
   if (window.adminPanelInteracting || gameOver || stageClear) return;
   if (window.specialCodes?.kakeru) {
     const fistRange = (72 + charge / 2) * 0.7;
@@ -8114,6 +8121,11 @@ function updateRikuUI() {
   holdKeyButton(chestBtn, window.controlKeys.chest);
 })();
 function loop() {
+  // ゲーム画面では、閉じた管理者パネル由来の入力ロックを残さない。
+  if (currentScreen === "game" && window.adminPanelInteracting) {
+    const adminPanel = document.getElementById("adminPanel");
+    if (!adminPanel || adminPanel.classList.contains("hidden") || getComputedStyle(adminPanel).display === "none") window.adminPanelInteracting = false;
+  }
   const hammerHud=document.getElementById("sougoHammerHud");
   if(hammerHud){
     const active=!!window.specialCodes?.sougo && currentScreen==="game" && !gameArea.classList.contains("hidden") && !gameOver && !stageClear;

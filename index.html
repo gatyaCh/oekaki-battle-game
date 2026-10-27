@@ -10431,6 +10431,51 @@ body.mobile-mode #battlePickupNotice {
 })();
 </script>
 
+
+<style id="global-readable-text-overrides">
+/* ゲーム全体の文字の視認性を改善。レイアウトやゲームロジックは変更しない */
+body{ -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+button,input,select,textarea{font-family:inherit;line-height:1.35}
+button{font-weight:700;text-shadow:none}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #facc15!important;outline-offset:2px!important}
+#msg,#guideText,#guideInstruction,#result,#resultScreen,#halloweenResultScreen,
+#halloweenRouletteOverlay,#halloweenRateOverlay,#skinPanel,#fusionMainScreen,
+#fusionCodeOverlay,#rankPointOverlay,#achievementLockNotice{
+  text-shadow:none;
+}
+#msg{font-weight:800!important;-webkit-text-stroke:.15px currentColor}
+#resultScreen,#halloweenResultScreen,#halloweenRouletteOverlay,#halloweenRateOverlay,
+#fusionMainScreen,#fusionCodeOverlay,#rankPointOverlay{color:#fff}
+#resultScreen p,#resultScreen .resultBreakdown,#resultScreen .resultRules,
+#halloweenResultScreen p,#halloweenRouletteCard p,#halloweenRouletteResult,
+#halloweenRouletteDialogue,#halloweenRateCard label,#fusionMainScreen p,
+#fusionMainScreen label,#rankPointOverlay p{
+  line-height:1.6;
+}
+#resultScreen .resultBreakdown,#resultScreen .resultRules{color:#f8fafc;border:1px solid #64748b}
+#resultScreen .resultNote,#resultScreen .resultSwipeHint{color:#e2e8f0;opacity:1}
+#resultScreen .resultRules h3{color:#fde68a}
+#halloweenRouletteDialogue{color:#fff!important;background:#080814!important;border-color:#facc15!important;font-size:clamp(16px,2.5vw,19px)!important;line-height:1.65!important}
+#halloweenRouletteDialogue b{color:#fde68a!important;font-size:14px!important}
+#halloweenRouletteStatus,#halloweenRouletteResult{color:#fff!important;font-weight:800!important;line-height:1.55}
+#halloweenRateCard{color:#fff}
+#halloweenRateCard label{color:#fff;font-size:16px}
+#skinPanel{color:#fff}
+#skinPanel p,#skinPanel small{line-height:1.55}
+#fusionMainScreen,#fusionCodeOverlay{line-height:1.5}
+#guideText,#guideInstruction{font-weight:700}
+@media(max-width:700px){
+  #resultScreen .resultBreakdown,#resultScreen .resultRules{font-size:15px!important;line-height:1.6!important}
+  #resultScreen .resultNote,#resultScreen .resultSwipeHint{font-size:14px!important}
+  #halloweenRouletteDialogue{font-size:16px!important}
+  #halloweenRateCard label{font-size:15px}
+}
+@media(prefers-contrast:more){
+  body{filter:none}
+  button,input,select,textarea{border:2px solid currentColor}
+}
+</style>
+
 </body>
 </html>
 

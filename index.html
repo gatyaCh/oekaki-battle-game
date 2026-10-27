@@ -7643,10 +7643,11 @@ function update() {
   document.getElementById("charge").value = charge;
   // 旧ストック表示は廃止。チャージゲージのみ更新する。
   updateSpecialGauge();
-  dmgText = dmgText.filter(t => { t.y -= 1; t.life--; return t.life > 0; });
   if (slashTimer > 0) slashTimer--;
 }
 function draw() {
+  // ダメージ表示の寿命は描画ループ側で管理し、更新処理の一時停止で数字が残り続けないようにする。
+  dmgText = dmgText.filter(t => { t.y -= 1; t.life--; return t.life > 0; });
   // 描画状態が前フレームの演出に残されても、毎フレーム通常状態へ戻す。
   // globalAlpha / transform / composite の残留で背景だけ表示される不具合を防ぐ。
   ctx.setTransform(1, 0, 0, 1, 0, 0);

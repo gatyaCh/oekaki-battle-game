@@ -5378,25 +5378,45 @@ function getBossBaseSpeed(stg) {
   return base;
 }
 function getSpecialGaugeMaxDamage() {
-  const bossMax = Number(enemy && enemy.maxHp) || Number(stageBosses[stage - 1]?.hp) || 1;
-  return Math.max(1, bossMax * 0.75);
+  // プレイヤーが敵に合計130ダメージ与えるとMAX
+  return 130;
 }
 
 function updateSpecialGauge() {
+  if (specialGaugeStageSeen !== stage) {
+    specialGaugeStageSeen = stage; specialGaugeUsesThisStage = 0;
+    specialGaugeTimedChargeCount = 0; specialGaugeLastTime = Date.now();
+    specialGaugeDamage = 0; specialGaugeMaxed = false;
+  }
   const gauge = document.getElementById("specialGauge");
-  if (!gauge) return;
   const maxDamage = getSpecialGaugeMaxDamage();
   if (specialGaugeMaxed) specialGaugeDamage = maxDamage;
-  gauge.max = maxDamage;
-  gauge.value = specialGaugeMaxed ? maxDamage : Math.min(maxDamage, Math.max(0, specialGaugeDamage));
-  const percent = specialGaugeMaxed ? 100 : Math.min(100, Math.max(0, Math.round((specialGaugeDamage / maxDamage) * 100)));
-  gauge.setAttribute("aria-valuenow", String(percent));
-  gauge.title = "ボスへのダメージでチャージ：" + percent + "%";
-  const percentEl = document.getElementById("specialGaugePercent");
-  if (percentEl) percentEl.textContent = percent + "%";
-  specialStock = 0; // 旧変数は互換用のみ。ストック制は廃止。
+  if (gauge) {
+    gauge.max = maxDamage;
+    gauge.value = specialGaugeMaxed ? maxDamage : Math.min(maxDamage, Math.max(0, specialGaugeDamage));
+    const percent = specialGaugeMaxed ? 100 : Math.min(100, Math.max(0, Math.round((specialGaugeDamage / maxDamage) * 100)));
+    gauge.setAttribute("aria-valuenow", String(percent));
+    gauge.title = "敵に与えたダメージでチャージ：" + percent + "%";
+    const percentEl = document.getElementById("specialGaugePercent");
+    if (percentEl) percentEl.textContent = percent + "%";
+    const box = document.getElementById("specialGaugeContainer");
+    if (box) box.style.display = "none"; // ゲージ本体は敵HPバーの上にcanvas描画する
+  }
+  specialStock = 0;
 }
 
+setInterval(()=>{
+  if(currentScreen!=="game"||gameOver||stageClear||halloweenResultShown)return;
+  if(specialGaugeStageSeen!==stage){specialGaugeStageSeen=stage;specialGaugeUsesThisStage=0;specialGaugeTimedChargeCount=0;specialGaugeLastTime=Date.now();specialGaugeDamage=0;specialGaugeMaxed=false;}
+  if(stage>=1&&stage<=4&&specialGaugeUsesThisStage>=2)return;
+  if(specialGaugeMaxed)return;
+  if(Date.now()-specialGaugeLastTime>=10000){
+    specialGaugeTimedChargeCount++;
+    specialGaugeDamage=getSpecialGaugeMaxDamage();specialGaugeMaxed=true;
+    specialGaugeLastTime=Date.now();updateSpecialGauge();
+    if(typeof msg!=="undefined"&&msg)msg.textContent="✨ 10秒チャージMAX！スキンが光るよ！Qキーで発動！";
+  }
+},100);
 function addRandomSpecialStock() {
   const maxDamage = getSpecialGaugeMaxDamage();
   specialGaugeDamage = maxDamage;
@@ -5619,11 +5639,15 @@ function damageEnemy(amount) {
   if (actual > 0) {
     dmgText.push({ x: enemy.x, y: enemy.y, t: "-" + Math.floor(actual), life: 45 });
 
-    // 必殺技ゲージはボスへの攻撃で加算。上限に達するたびにストックを追加し、余剰分は次のゲージへ。
+    // 敵に与えた実ダメージを累積。1～4面は各面2回まで。
     const gaugeMaxDamage = getSpecialGaugeMaxDamage();
-    if (!specialGaugeMaxed) {
-      specialGaugeDamage = Math.min(gaugeMaxDamage, specialGaugeDamage + actual * (adminRankAbility === "gauge" ? 2 : 1) * (1 + upgradeLevels.special * 0.10));
-      if (specialGaugeDamage >= gaugeMaxDamage) { specialGaugeDamage = gaugeMaxDamage; specialGaugeMaxed = true; msg.textContent = "✨ 必殺技チャージMAX！Qキーまたは必殺技ボタンで発動！"; }
+    const stageLimitReached = stage >= 1 && stage <= 4 && specialGaugeUsesThisStage >= 2;
+    if (!specialGaugeMaxed && !stageLimitReached) {
+      specialGaugeDamage = Math.min(gaugeMaxDamage, specialGaugeDamage + actual);
+      if (specialGaugeDamage >= gaugeMaxDamage) {
+        specialGaugeDamage = gaugeMaxDamage; specialGaugeMaxed = true;
+        msg.textContent = "✨ 必殺技チャージMAX！スキンが光るよ！Qキーで発動！";
+      }
     }
     updateSpecialGauge();
   }
@@ -7694,6 +7718,11 @@ function draw() {
     ctx.moveTo(CANVAS_WIDTH, 0); ctx.lineTo(0, CANVAS_HEIGHT); ctx.stroke(); ctx.lineWidth = 1;
   }
   ctx.save();
+  if (specialGaugeMaxed) {
+    const pulse=1+Math.sin(Date.now()/90)*0.12;
+    ctx.save();ctx.shadowColor="#ff4da6";ctx.shadowBlur=22;ctx.strokeStyle="#fff176";ctx.lineWidth=4;
+    ctx.beginPath();ctx.arc(p.x,p.y,27*pulse,0,Math.PI*2);ctx.stroke();ctx.restore();
+  }
   if (p.invincibility <= 0 || Math.floor(Date.now() / 100) % 2 === 0) {
     if(!(window.drawSelectedSkin&&window.drawSelectedSkin(ctx,p.x,p.y,36)&&!ghost)){ctx.font = "36px serif"; ctx.fillText(ghost ? "👻" : (window.getSelectedSkinEmoji ? window.getSelectedSkinEmoji() : "😂"), p.x, p.y);}
     const halloweenFx=window.halloweenEffects||{};
@@ -7716,10 +7745,19 @@ function draw() {
   let enemyFace = "😈";
   if (stun > 0 || rushDownTimer > 0 || lightningTimer > 0 || isBlackholeActive) enemyFace = "😵";
   ctx.font = "36px serif"; ctx.fillText(enemyFace, enemy.x, enemy.y);
-  /* メインの敵HPバー：敵の頭上に常時表示 */
+  /* メインの敵HPバー */
   {
     const bw=62,bh=7,ratio=Math.max(0,Math.min(1,enemy.hp/Math.max(1,enemy.maxHp)));
     const bx=enemy.x-bw/2,by=enemy.y-31;
+    // 必殺技ゲージを敵HPバーの直上に表示
+    const maxDamage=getSpecialGaugeMaxDamage(),gaugeRatio=specialGaugeMaxed?1:Math.max(0,Math.min(1,specialGaugeDamage/maxDamage));
+    const gy=by-10;
+    ctx.fillStyle="rgba(0,0,0,.9)";ctx.fillRect(bx-1,gy-1,bw+2,6);
+    ctx.fillStyle="#3f1725";ctx.fillRect(bx,gy,bw,4);
+    ctx.fillStyle=specialGaugeMaxed?(Math.floor(Date.now()/100)%2?"#fff176":"#ff2d75"):"#fb7185";
+    ctx.fillRect(bx,gy,bw*gaugeRatio,4);
+    ctx.strokeStyle=specialGaugeMaxed?"#fff":"rgba(255,255,255,.8)";ctx.lineWidth=1;ctx.strokeRect(bx-1,gy-1,bw+2,6);
+    if(specialGaugeMaxed){ctx.save();ctx.shadowColor="#ff4da6";ctx.shadowBlur=10;ctx.strokeStyle="#fff";ctx.strokeRect(bx-2,gy-2,bw+4,8);ctx.restore();}
     ctx.fillStyle="rgba(0,0,0,.85)";ctx.fillRect(bx-1,by-1,bw+2,bh+2);
     ctx.fillStyle="#4b5563";ctx.fillRect(bx,by,bw,bh);
     ctx.fillStyle=ratio>.5?"#22c55e":ratio>.25?"#facc15":"#ef4444";
@@ -10044,6 +10082,9 @@ body.mobile-mode #battlePickupNotice {
 <style id="game-inventory-style">
 #gameInventoryOpenBtn{position:fixed;right:14px;top:calc(46% + 66px);z-index:899900;display:none;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:22px;min-width:62px;min-height:58px;padding:5px 7px;border:1px solid #a7d7ff;border-radius:14px;background:#17324a;color:#fff;box-shadow:0 3px 12px #0008;cursor:pointer}
 #gameInventoryOpenBtn .return-canvas-label{font-size:10px;line-height:1.15;white-space:nowrap}
+#gameInventoryStorageBtn{position:fixed;right:14px;top:calc(46% + 126px);z-index:899901;display:none;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:22px;min-width:62px;min-height:58px;padding:5px 7px;border:1px solid #86efac;border-radius:14px;background:#14532d;color:#fff;box-shadow:0 3px 12px #0008;cursor:pointer}
+#gameInventoryStorageBtn:hover{background:#166534}
+@media(max-width:600px){#gameInventoryStorageBtn{right:7px;top:calc(43% + 112px);min-width:46px;min-height:46px;font-size:22px}}
 #gameInventoryOpenBtn:hover{background:#24577b}
 
 #gameInventoryOverlay{position:fixed;inset:0;z-index:1000002;display:flex;align-items:center;justify-content:center;padding:14px;box-sizing:border-box;background:rgba(2,6,23,.9);color:#fff}
@@ -10064,6 +10105,7 @@ body.mobile-mode #battlePickupNotice {
 @media(max-width:600px){#gameInventoryOpenBtn{right:7px;top:calc(43% + 58px);min-width:46px;min-height:46px;font-size:22px}#gameInventoryCard{padding:12px}.game-inventory-row{padding:9px 4px;gap:6px}.game-inventory-row button{padding:8px 9px}}
 </style>
 <button id="gameInventoryOpenBtn" type="button" aria-label="キャンバス画面に戻る" title="キャンバス画面に戻る">✏️<span class="return-canvas-label">キャンバスへ</span></button>
+<button id="gameInventoryStorageBtn" type="button" aria-label="アイテム保管庫を開く" title="アイテム保管庫を開く">🗄️<span class="return-canvas-label">保管庫</span></button>
 <div id="gameInventoryOverlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="gameInventoryTitle">
   <section id="gameInventoryCard">
     <h2 id="gameInventoryTitle">🗄️ アイテム保管庫</h2>
@@ -10160,7 +10202,7 @@ body.mobile-mode #battlePickupNotice {
     }
     footer.innerHTML='<button id="gameInventoryPrevBtn" '+(tab==="normal"?'disabled':'')+'>←</button><button id="gameInventoryNextBtn" '+(tab==="halloween"?'disabled':'')+'>→</button><button id="gameInventoryCloseBtn">閉じる（戦闘再開）</button>';
   }
-  function showInventory(){window.gameSavePaused=true;pendingUses=[];tab="normal";render();overlay.classList.remove("hidden");}
+  function showInventory(){window.gameSavePaused=true;pendingUses=[];tab="normal";render();overlay.classList.remove("hidden");}window.openGameInventory=showInventory;
   function showUsedNotice(name){
     overlay.classList.remove("hidden");
     title.textContent="✅ 使用しました";
@@ -10228,6 +10270,8 @@ body.mobile-mode #battlePickupNotice {
       }
     },700);
   }
+  const storageBtn=document.getElementById("gameInventoryStorageBtn");
+  if(storageBtn)storageBtn.addEventListener("click",()=>{if(currentScreen==="game"&&!gameOver&&!stageClear&&!halloweenResultShown)showInventory();});
   openBtn.addEventListener("click",()=>{
     if(currentScreen!=="game"||gameOver||stageClear||halloweenResultShown)return;
     const saveOverlay=document.getElementById("gameSaveOverlay");
@@ -10260,6 +10304,7 @@ body.mobile-mode #battlePickupNotice {
     const visible=currentScreen==="game"&&!gameOver&&!stageClear&&!halloweenResultShown;
     openBtn.style.display=visible&&overlay.classList.contains("hidden")&&document.getElementById("gameSaveOverlay").classList.contains("hidden")?"block":"none";
     openBtn.style.pointerEvents=visible?"auto":"none";
+    if(storageBtn)storageBtn.style.display=visible&&overlay.classList.contains("hidden")&&document.getElementById("gameSaveOverlay").classList.contains("hidden")?"flex":"none";
   };
   setInterval(styleRefresh,300);
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!overlay.classList.contains("hidden")){e.preventDefault();startCountdown();}});
@@ -11156,7 +11201,9 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
     isPausedForSpecial=false;
     specialStock=0;
     specialGaugeDamage=0;
+    if (stage >= 1 && stage <= 4) specialGaugeUsesThisStage++;
     specialGaugeMaxed=false;
+    specialGaugeLastTime=Date.now();
     updateSpecialGauge();
     p.x=100;p.y=250;
     if(w.includes("⚔"))runSword();

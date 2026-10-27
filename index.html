@@ -5296,6 +5296,7 @@ let bulletHellReady = false;
 let bulletHellBullets = [];
 let magicOrbs = [];
 let wandCooldown = 0;
+let wandSpecialTimer = 0;
 let lightningTimer = 0;
 let slowDebuffTimer = 0;
 // Treasure Chest System
@@ -6150,6 +6151,18 @@ function resetGame() {
 }
 function nextStage() {
   stageClear = true;
+  // ステージクリア時に必殺技の途中状態を持ち越さない。
+  specialGaugeLastTime = Date.now();
+  specialGaugeDamage = 0;
+  specialGaugeMaxed = false;
+  specialStock = 0;
+  isPausedForSpecial = false;
+  wandSpecialTimer = 0;
+  spDrawing = false;
+  spPoints = [];
+  const specialModal = document.getElementById("specialModal");
+  if (specialModal) specialModal.classList.add("hidden");
+  updateSpecialGauge();
   if (rikuActive) addRandomSpecialStock();
   setTimeout(() => {
     if (stage === 4) { openShop(1); return; }
@@ -6177,6 +6190,9 @@ function proceedToNextStageNumber() {
   enemy.hp = enemy.maxHp;
   specialGaugeMaxed = false;
   specialGaugeDamage = 0;
+  specialGaugeLastTime = Date.now();
+  wandSpecialTimer = 0;
+  magicOrbs = [];
   updateSpecialGauge();
   enemy.x = 700; enemy.y = 250;
   enemyBullets = []; magmaZones = [];
@@ -7374,6 +7390,7 @@ function update() {
     if (!practiceStep) return;
   }
   const dt = 1 / 60;
+  if (wandSpecialTimer > 0) wandSpecialTimer = Math.max(0, wandSpecialTimer - dt);
 
   updateAdminRankAttack(dt);
   attackCooldown = Math.max(0, attackCooldown - dt);
@@ -7518,14 +7535,14 @@ function update() {
   if (stun > 0) stun--;
   // Stage 8 ボス移動制限（前半無敵時は動かない、子分10体全滅後の後半タイマン覚醒で移動開始）
   const canBossMove = (stage !== 8) || (stage === 8 && stage8TotalSummoned >= 10 && minions.length === 0);
-  if (!bossSpecialState && !admin.enemyStopped && stun <= 0 && rushDownTimer <= 0 && lightningTimer <= 0 && !isBlackholeActive && canBossMove) {
+  if (!bossSpecialState && wandSpecialTimer <= 0 && !admin.enemyStopped && stun <= 0 && rushDownTimer <= 0 && lightningTimer <= 0 && !isBlackholeActive && canBossMove) {
     moveSmartAI(enemy, currentEnemyBaseSpeed, 0.5);
     if (Math.hypot(p.x - enemy.x, p.y - enemy.y) < 45) damagePlayer(normalEnemyDps() * dt * 60);
   }
   // Minion AI & Actions
   for (let i = minions.length - 1; i >= 0; i--) {
     let m = minions[i];
-    if (!bossSpecialState && !admin.enemyStopped && stun <= 0 && lightningTimer <= 0 && !isBlackholeActive) {
+    if (!bossSpecialState && wandSpecialTimer <= 0 && !admin.enemyStopped && stun <= 0 && lightningTimer <= 0 && !isBlackholeActive) {
       let mSpeed = m.type === "magma" ? 3.0 : 1.8;
       if (stage >= 5) mSpeed *= 0.9;
       moveSmartAI(m, mSpeed, 0.4);
@@ -7568,7 +7585,7 @@ function update() {
       }
     }
     if (!hit && Math.hypot(orb.x - enemy.x, orb.y - enemy.y) < 30) {
-      if (Math.random() <= 0.75) damageEnemy(orb.dmg);
+      if (orb.special || Math.random() <= 0.75) damageEnemy(orb.dmg);
       hit = true;
     }
     if (hit || orb.x < 0 || orb.x > CANVAS_WIDTH || orb.y < 0 || orb.y > CANVAS_HEIGHT) {
@@ -7576,7 +7593,7 @@ function update() {
     }
   }
   // Boss Attack Patterns
-  if (!bossSpecialState && !ghost && [2, 4, 5, 6, 8].includes(stage) && !admin.enemyStopped && lightningTimer <= 0 && enemyRushing <= 0) {
+  if (!bossSpecialState && wandSpecialTimer <= 0 && !ghost && [2, 4, 5, 6, 8].includes(stage) && !admin.enemyStopped && lightningTimer <= 0 && enemyRushing <= 0) {
     enemyShootTimer++;
     if (enemyShootTimer >= 60) {
       enemyShootTimer = 0;
@@ -7585,7 +7602,7 @@ function update() {
       enemyBullets.push({ x: enemy.x, y: enemy.y, vx: edx / ed * 5, vy: edy / ed * 5, dmg: bulletDmg, enemy: true });
     }
   }
-  if (!bossSpecialState && !ghost && [3, 4, 7, 8].includes(stage) && !admin.enemyStopped && rushDownTimer <= 0 && lightningTimer <= 0 && canBossMove) {
+  if (!bossSpecialState && wandSpecialTimer <= 0 && !ghost && [3, 4, 7, 8].includes(stage) && !admin.enemyStopped && rushDownTimer <= 0 && lightningTimer <= 0 && canBossMove) {
     if (enemyRushing > 0) {
       enemyRushing--;
       let edx = p.x - enemy.x, edy = p.y - enemy.y, ed = Math.hypot(edx, edy) || 1;
@@ -7996,6 +8013,23 @@ function executeSpecialAttack() {
   specialGaugeMaxed = false;
   updateSpecialGauge();
   const dmgMul = kizuku2Active ? 2.0 : 1;
+  // 魔法の杖の必殺技は、敵へ直接ダメージを与えずプレイヤー位置から弾幕を発射。
+  if (weapon === "🪄") {
+    wandSpecialTimer = 2.8;
+    enemyRushing = 0;
+    rushDownTimer = Math.max(rushDownTimer, 2.8);
+    stun = Math.max(stun, 170);
+    minions.forEach(m => { m.specialFrozen = 2.8; });
+    const count = 60;
+    const baseDamage = 8 * atkBuff * (1 + drawAttackBonus) * dmgMul * (adminRankAbility === "damage4" ? 4 : 1);
+    for (let i = 0; i < count; i++) {
+      const angle = Math.PI * 2 * i / count;
+      const wobble = (i % 2 === 0 ? 0.10 : -0.10);
+      magicOrbs.push({x:p.x,y:p.y,vx:Math.cos(angle + wobble)*5.2,vy:Math.sin(angle + wobble)*5.2,life:2.8,dmg:baseDamage,r:7,homing:false,special:true});
+    }
+    msg.textContent = "🪄 必殺技【マジック・バラージ】！敵を停止させて弾幕60発！";
+    return;
+  }
   if (spPoints.length < 5) {
     damageEnemy(50 * dmgMul);
     msg.textContent = "必殺技：簡易攻撃 (50ダメージ)";

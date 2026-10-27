@@ -10947,7 +10947,7 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
     if(w.includes("🪄")) return "🪄 魔法の杖：拡散＆ジグザグ弾幕";
     if(w.includes("🪃")) return "🪃 ブーメラン：7秒追尾ラッシュ";
     if(w.includes("⚡")) return "⚡️ 雷：中央発・全方向50連撃";
-    if(w.includes("🚨")) return "🚨 ポリス：従来の描き方必殺技";
+    if(w.includes("🚨")) return "🚨 ポリス：緊急サイレン一斉制圧";
     return "必殺技";
   }
   function showReleaseMessage(){
@@ -10970,7 +10970,7 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
         "🪄":"40発×3セットのあと、全方向ジグザグ弾30発×3セット。1発5ダメージ、約10秒。",
         "🪃":"威力2倍の追尾ブーメラン。15ダメージ、3秒間隔で発動し、7秒間追尾。",
         "⚡":"画面中央から全方向へランダムに50発。1発8ダメージ。",
-        "🚨":"従来の描き方による必殺技。"
+        "🚨":"緊急サイレンで全ての敵に攻撃し、ボスを含む敵を短時間停止させる。"
       };
       const w=String(weapon||"").replace(/\uFE0F/g,"");
       const key=["⚔","🪄","🪃","⚡","🚨"].find(k=>w.includes(k));

@@ -4021,7 +4021,7 @@ body {
 <style id="save-button-visibility-fix">
 #gameSaveOpenBtn{position:fixed!important;top:12px!important;right:12px!important;z-index:1000000!important;display:flex!important;align-items:center!important;justify-content:center!important;width:48px!important;height:48px!important;min-width:48px!important;padding:0!important;border:2px solid #facc15!important;border-radius:12px!important;background:#172033!important;color:#fff!important;font-size:27px!important;box-shadow:0 3px 12px #0009!important;cursor:pointer!important}
 #title #adminAbuseOpenBtn{display:none!important}
-#specialGaugeContainer{order:-1;position:relative;z-index:2}
+#specialGaugeContainer{order:0;position:relative;top:auto;left:auto;right:auto;bottom:auto;transform:none;z-index:2}
 #specialGaugeContainer:has(#specialGauge[value]){box-sizing:border-box}
 </style>
 </head>
@@ -8920,11 +8920,18 @@ loop();
     const game=document.getElementById("game");
 
     if(special){
+      // 必殺技ゲージは左上に固定せず、HP表示の直上に通常配置する
+      const hpRow=special.nextElementSibling;
       Object.assign(special.style,{
-        position:"fixed",top:"6px",left:"8px",right:"auto",
-        transform:"none",width:"220px",height:"22px",
-        margin:"0",padding:"2px 6px",zIndex:"99990"
+        position:"relative",top:"auto",left:"auto",right:"auto",bottom:"auto",
+        transform:"none",width:"min(100%, 420px)",height:"auto",
+        margin:"2px auto 4px",padding:"4px 8px",zIndex:"2",
+        boxSizing:"border-box"
       });
+      if(hpRow) {
+        hpRow.style.position="relative";
+        hpRow.style.marginTop="0";
+      }
     }
     if(charge){
       Object.assign(charge.style,{
@@ -11336,6 +11343,6 @@ document.addEventListener("click",e=>{const btn=e.target&&e.target.closest?e.tar
 <style id="final-ui-fixes">
 #gameSaveOpenBtn{position:fixed!important;top:12px!important;right:12px!important;left:auto!important;bottom:auto!important;z-index:1000000!important;display:flex!important;align-items:center!important;justify-content:center!important;width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;padding:0!important;border:2px solid #facc15!important;border-radius:12px!important;background:#172033!important;color:#fff!important;font-size:27px!important;box-shadow:0 3px 12px #0009!important;cursor:pointer!important}
 #title #adminAbuseOpenBtn{display:none!important}
-#specialGaugeContainer{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;box-sizing:border-box!important;width:100%!important;margin:2px auto 4px!important;order:-1!important;position:relative!important;z-index:2!important}
+#specialGaugeContainer{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;box-sizing:border-box!important;width:min(100%,420px)!important;margin:2px auto 4px!important;order:0!important;position:relative!important;top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;transform:none!important;z-index:2!important}
 #specialGauge{accent-color:#fb456d!important}
 </style>

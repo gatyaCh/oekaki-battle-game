@@ -4855,6 +4855,11 @@ try {
   const savedExtras = JSON.parse(localStorage.getItem("oekakiBattleAttackExtras") || "[]");
   if (Array.isArray(savedExtras)) window.attackExtraKeys = savedExtras;
 } catch (e) {}
+// 古い保存設定に大文字のキーが残っていても、実際のキー入力（小文字）と一致するよう統一する。
+Object.keys(window.controlKeys).forEach(action => {
+  if (typeof window.controlKeys[action] === "string") window.controlKeys[action] = window.controlKeys[action].toLowerCase();
+});
+window.attackExtraKeys = window.attackExtraKeys.map(k => typeof k === "string" && k !== "mouseleft" ? k.toLowerCase() : k);
 const keyLabels = { attack: "攻撃", chest: "宝箱を開けるキー", shield: "シールドのキー", up: "上移動", down: "下移動", left: "左移動", right: "右移動" };
 function keyText(k) {
   if (!k) return "";
@@ -5539,8 +5544,16 @@ document.addEventListener("keyup", e => {
   const k = e.key.toLowerCase();
   keys[k] = false;
   if (halloweenWaveActive) return;
-  if (k === window.controlKeys.attack || window.attackExtraKeys?.includes(k)) {
+  if (k === String(window.controlKeys.attack || "").toLowerCase() || window.attackExtraKeys?.includes(k)) {
     e.preventDefault();
+    releaseAttackCharge();
+  }
+});
+// 別のUI処理がキーイベントを横取りした場合の保険。通常処理で解放済みなら何もしない。
+window.addEventListener("keyup", e => {
+  if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+  const k = e.key.toLowerCase();
+  if (!halloweenWaveActive && (k === String(window.controlKeys.attack || "").toLowerCase() || window.attackExtraKeys?.includes(k)) && charging) {
     releaseAttackCharge();
   }
 });

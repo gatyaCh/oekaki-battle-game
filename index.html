@@ -8133,7 +8133,11 @@ function loop() {
       if(damageText)damageText.textContent="予想ダメージ："+Math.round(20+30*c/150);
     }
   }
-  if (!gameArea.classList.contains("hidden")) update();
+  // 更新処理の例外で描画ループ全体が停止し、背景だけになるのを防ぐ。
+  if (!gameArea.classList.contains("hidden")) {
+    try { update(); }
+    catch (err) { console.error("[OekakiBattle] update error:", err); }
+  }
   // HUDは戦闘処理の早期returnやポーズ中でも毎フレーム最新状態に同期する。
   // 通常マップ・ハロウィンマップ共通で、HP/敵HP/コイン/強化状態を表示する。
   const hudHp = document.getElementById("hp");
@@ -8150,8 +8154,11 @@ function loop() {
   if (hudAtk) hudAtk.textContent = (atkBuff * (kizuku2Active ? 2.0 : 1)).toFixed(1);
   if (hudShield) hudShield.textContent = shieldEquipped ? Math.max(0, shieldRemainingTime).toFixed(1) + "s" : "なし";
   if (hudRevive) hudRevive.textContent = revive ? "所持" : "なし";
-  updateSpecialGauge();
-  draw();
+  try { updateSpecialGauge(); } catch (err) { console.error("[OekakiBattle] special gauge error:", err); }
+  try { draw(); } catch (err) {
+    console.error("[OekakiBattle] draw error:", err);
+    // 描画に失敗したフレームでも次のフレームを予約して、ゲーム全体が停止しないようにする。
+  }
   requestAnimationFrame(loop);
 }
 loop();

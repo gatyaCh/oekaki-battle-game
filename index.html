@@ -5299,6 +5299,10 @@ let wandCooldown = 0;
 let wandSpecialTimer = 0;
 let weaponSpecialBuffUntil = 0;
 let lightningUltimateFleeFrames = 0;
+let lightningUltimateFireFrames = 0;
+let lightningUltimateShotsFired = 0;
+let lightningUltimateCenterX = 0;
+let lightningUltimateCenterY = 0;
 let lightningTimer = 0;
 let slowDebuffTimer = 0;
 // Treasure Chest System
@@ -8086,22 +8090,15 @@ function executeSpecialAttack() {
     return;
   }
   if (weapon === "⚡️") {
-    // サンダーインパクト：中央へ移動し、全方向へジグザグ雷弾を50発。
+    // サンダーインパクト：7秒間で雷弾50発を順番に発射し、その間は敵が逃走を優先。
     p.x = CANVAS_WIDTH / 2;
     p.y = CANVAS_HEIGHT / 2;
-    lightningUltimateFleeFrames = 180;
-    const count = 50;
-    const speed = 6.2;
-    for (let i = 0; i < count; i++) {
-      const angle = Math.PI * 2 * i / count;
-      enemyBullets.push({
-        x: p.x, y: p.y,
-        vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
-        angle, zigzagPhase: i * 0.37, dmg: 5, enemy: false,
-        special: "ultimateLightning", size: 22, life: 120
-      });
-    }
-    msg.textContent = "⚡ 必殺技【サンダーインパクト】！中央から全方向へ雷弾50発！敵は3秒間逃走優先！";
+    lightningUltimateCenterX = p.x;
+    lightningUltimateCenterY = p.y;
+    lightningUltimateFleeFrames = 420;
+    lightningUltimateFireFrames = 420;
+    lightningUltimateShotsFired = 0;
+    msg.textContent = "⚡ 必殺技【サンダーインパクト】！7秒間で雷弾50発！発動中は敵が逃走！";
     return;
   }
   if (weapon === "🏹") {
@@ -11021,7 +11018,8 @@ function startThunderStorm(ratio){thunderCooldownFrames=390;thunderStormFrames=4
 function newWeaponAttack(){if(gameOver||stageClear||isPausedForSpecial||bossSpecialState)return;if(weapon==="🪃"){addBoomerang();return;}if(weapon==="⚡️"){if(thunderCooldownFrames>0){fireSmallLightning();return;}startThunderStorm(Math.max(0,Math.min(1,charge/150)));return;}if(weapon==="🚨"){const reach=74,targets=liveTargets().filter(t=>Math.hypot(t.x-p.x,t.y-p.y)<reach);if(targets.length){targets.forEach(t=>hitNewWeaponTarget(t,typeof getDamage==="function"?getDamage():15));slashTimer=12;return;}if(policeStock>0&&policeTraps.length<6){policeTraps.push({x:p.x,y:p.y,r:25,life:Infinity});policeStock--;msg.textContent="🕳️ トラップ設置！ 残り "+policeStock+" 個";}else msg.textContent=policeStock<=0?"🕳️ トラップ補充中...":"🕳️ トラップは最大6個まで設置中だよ。";}}
 beginAttackCharge=function(){if(!NEW_WEAPONS.includes(weapon))return originalBeginAttackCharge();if(gameOver||stageClear||isPausedForSpecial||window.gameSavePaused||(attackCooldown>0&&weapon!=="⚡️"))return;if(weapon==="⚡️"&&thunderCooldownFrames>0){if(smallLightningCooldownFrames<=0){fireSmallLightning();smallLightningUsedOnPress=true;}else msg.textContent="⚡ 小さな雷のクールタイム中...";return;}charging=true;charge=0;if(weapon==="⚡️")thunderChargeFrames=0;};
 releaseAttackCharge=function(){if(!NEW_WEAPONS.includes(weapon))return originalReleaseAttackCharge();if(weapon==="⚡️"&&thunderCooldownFrames>0){smallLightningUsedOnPress=false;charging=false;charge=0;thunderChargeFrames=0;return;}if(!charging)return;charging=false;newWeaponAttack();attackCooldown=(window.adminNoCooldown?0:0.3);charge=0;thunderChargeFrames=0;};
-function updateNewWeaponSystems(){if(currentScreen!=="game")return;if(lightningUltimateFleeFrames>0)lightningUltimateFleeFrames--;if(thunderCooldownFrames>0)thunderCooldownFrames--;if(smallLightningCooldownFrames>0)smallLightningCooldownFrames--;if(policeStock<6){policeRechargeFrames++;if(policeRechargeFrames>=600){policeStock++;policeRechargeFrames=0;}}else policeRechargeFrames=0;if(weapon==="⚡️"&&charging&&thunderCooldownFrames<=0){thunderChargeFrames=Math.min(360,thunderChargeFrames+1);charge=150*Math.pow(thunderChargeFrames/360,1.55);}
+function updateLightningUltimateShots(){if(lightningUltimateFireFrames<=0)return;lightningUltimateFireFrames--;const target=Math.min(50,Math.floor((420-lightningUltimateFireFrames)*50/420));while(lightningUltimateShotsFired<target){const i=lightningUltimateShotsFired++;const angle=Math.PI*2*i/50;const speed=6.2;enemyBullets.push({x:lightningUltimateCenterX,y:lightningUltimateCenterY,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,angle,zigzagPhase:i*0.37,dmg:5,enemy:false,special:"ultimateLightning",size:22,life:120});}}
+function updateNewWeaponSystems(){if(currentScreen!=="game")return;if(lightningUltimateFleeFrames>0)lightningUltimateFleeFrames--;updateLightningUltimateShots();if(thunderCooldownFrames>0)thunderCooldownFrames--;if(smallLightningCooldownFrames>0)smallLightningCooldownFrames--;if(policeStock<6){policeRechargeFrames++;if(policeRechargeFrames>=600){policeStock++;policeRechargeFrames=0;}}else policeRechargeFrames=0;if(weapon==="⚡️"&&charging&&thunderCooldownFrames<=0){thunderChargeFrames=Math.min(360,thunderChargeFrames+1);charge=150*Math.pow(thunderChargeFrames/360,1.55);}
  if(thunderStormFrames>0){thunderStormFrames--;thunderStrikeFrames++;if((thunderStrikeFrames===1||thunderStrikeFrames%78===1)&&Math.floor((thunderStrikeFrames-1)/78)<thunderStrikeLimit){const target=nearestTarget();thunderShadows.push({x:target?target.x:60+Math.random()*780,y:target?target.y:75+Math.random()*350,target,wait:60});}}
  for(let i=thunderShadows.length-1;i>=0;i--){const sh=thunderShadows[i];if(sh.target&&sh.target.hp>0&&liveTargets().includes(sh.target)){sh.x=sh.target.x;sh.y=sh.target.y;}else{sh.target=nearestTarget(sh.x,sh.y);if(sh.target){sh.x=sh.target.x;sh.y=sh.target.y;}}sh.wait--;if(sh.wait<=0){liveTargets().forEach(t=>{if(Math.hypot(t.x-sh.x,t.y-sh.y)<110)hitNewWeaponTarget(t,20*(1+drawAttackBonus));});thunderShadows.splice(i,1);}}
  for(let i=boomerangs.length-1;i>=0;i--){const b=boomerangs[i];b.life--;if(b.dir==="out"){b.x+=b.vx;b.y+=b.vy;b.travel+=Math.hypot(b.vx,b.vy);liveTargets().forEach(t=>{if(!b.hit.has(t)&&Math.hypot(t.x-b.x,t.y-b.y)<28){hitNewWeaponTarget(t,10*(1+drawAttackBonus));b.hit.add(t);}});if(b.travel>=260)b.dir="return";}else{const dx=p.x-b.x,dy=p.y-b.y,d=Math.hypot(dx,dy)||1;b.x+=dx/d*10.4;b.y+=dy/d*10.4;const t=liveTargets().find(t=>!b.hitBack.has(t)&&Math.hypot(t.x-b.x,t.y-b.y)<28);if(t){hitNewWeaponTarget(t,10*(1+drawAttackBonus));b.hitBack.add(t);}if(d<13)boomerangs.splice(i,1);}if(b.life<=0){const j=boomerangs.indexOf(b);if(j>=0)boomerangs.splice(j,1);}}
@@ -11032,7 +11030,7 @@ function updateNewWeaponSystems(){if(currentScreen!=="game")return;if(lightningU
 }
 const originalUpdate=update;function prepareTrappedTargets(){try{const arr=window.halloweenWaveActive?halloweenEnemies:[enemy,...minions];arr.forEach(t=>{if(t.trappedFrames>0){t.x=t.trapX;t.y=t.trapY;["cooldown","shootTimer","attackTimer","fireTimer","spawnTimer"].forEach(k=>{if(k in t)t[k]=Math.max(Number(t[k])||0,60);});}});if(!window.halloweenWaveActive&&enemy.trappedFrames>0)enemyShootTimer=999999;}catch(e){}}update=function(){prepareTrappedTargets();originalUpdate();updateNewWeaponSystems();};
 const originalDraw=draw;draw=function(){originalDraw();try{ctx.save();boomerangs.forEach(b=>{ctx.font="30px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("🪃",b.x,b.y);});smallLightnings.forEach(b=>{ctx.font="18px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("⚡",b.x,b.y);});thunderShadows.forEach(sh=>{ctx.fillStyle="rgba(20,20,20,.35)";ctx.beginPath();ctx.ellipse(sh.x,sh.y,42,19,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle="rgba(255,255,255,.8)";ctx.lineWidth=2;ctx.stroke();});policeTraps.forEach(tr=>{ctx.font="27px serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("🕳️",tr.x,tr.y);});ctx.restore();}catch(e){}};
-const originalStartCountdown=startCountdown;startCountdown=function(){lightningUltimateFleeFrames=0;boomerangs=[];smallLightnings=[];thunderShadows=[];policeTraps=[];policeStock=6;policeRechargeFrames=0;thunderCooldownFrames=0;thunderStormFrames=0;thunderChargeFrames=0;originalStartCountdown();};
+const originalStartCountdown=startCountdown;startCountdown=function(){lightningUltimateFleeFrames=0;lightningUltimateFireFrames=0;lightningUltimateShotsFired=0;boomerangs=[];smallLightnings=[];thunderShadows=[];policeTraps=[];policeStock=6;policeRechargeFrames=0;thunderCooldownFrames=0;thunderStormFrames=0;thunderChargeFrames=0;originalStartCountdown();};
 const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChooseDevice(mode);refreshWeaponButtons();};
 })();
 

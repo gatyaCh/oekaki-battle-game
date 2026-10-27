@@ -5392,6 +5392,8 @@ function updateSpecialGauge() {
   gauge.title = "ボスへのダメージでチャージ：" + percent + "%";
   const percentEl = document.getElementById("specialGaugePercent");
   if (percentEl) percentEl.textContent = percent + "%";
+  const stockEl = document.getElementById("specialStockText");
+  if (stockEl) stockEl.textContent = String(Math.max(0, Math.floor(Number(specialStock) || 0)));
 }
 
 function addRandomSpecialStock() {
@@ -11083,7 +11085,6 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
         liveMinions().forEach(m=>targetPool.push(m));
         if(!targetPool.length)return;
         const target=targetPool[Math.floor(Math.random()*targetPool.length)];
-        const d=Math.hypot(target.x-origin.x,target.y-origin.y)||1;
         const targetAngle=Math.atan2(target.y-origin.y,target.x-origin.x);
         const delta=Math.atan2(Math.sin(targetAngle-angle),Math.cos(targetAngle-angle));
         const hitTarget=Math.abs(delta)<Math.PI/2?target:targetPool[Math.floor(Math.random()*targetPool.length)];
@@ -11093,6 +11094,19 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
       },delay);
       specialMoveIntervals.push(id);
     }
+  }
+  function runPolice(){
+    const precision=accuracyMultiplier();
+    const targets=[];
+    if(enemy&&enemy.hp>0)targets.push(enemy);
+    liveMinions().forEach(m=>targets.push(m));
+    startProtectedDuration(2600,"🚨 ポリス必殺技！緊急サイレンで全敵を一斉制圧！");
+    targets.forEach(t=>{
+      if(t===enemy){damageEnemy(35*precision);stun=Math.max(stun,156);enemyShootTimer=Math.max(enemyShootTimer,156);}
+      else if(t&&t.hp>0){damageMinion(t,35*precision);if(t.cooldown!==undefined)t.cooldown=Math.max(Number(t.cooldown)||0,156);}
+      if(t)dmgText.push({x:t.x,y:t.y,t:"🚨",life:30});
+    });
+    enemyBullets=Array.isArray(enemyBullets)?enemyBullets.filter(b=>!b.enemy):enemyBullets;
   }
   const originalUpdate = update;
   update = function(){
@@ -11128,7 +11142,7 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
     if(!unlocked()&&!tutorialOverride()){showReleaseMessage();return;}
     if(specialStock<=0&&!tutorialOverride()){msg.textContent="⚠️ 必殺技のストックがありません！";return;}
     const w=String(weapon||"").replace(/\uFE0F/g,"");
-    if(w.includes("🚨")||(!w.includes("⚔")&&!w.includes("🪄")&&!w.includes("🪃")&&!w.includes("⚡"))){
+    if(!w.includes("⚔")&&!w.includes("🪄")&&!w.includes("🪃")&&!w.includes("⚡")&&!w.includes("🚨")){
       originalExecuteSpecialAttack();
       return;
     }
@@ -11143,6 +11157,7 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
     else if(w.includes("🪄"))runWand();
     else if(w.includes("🪃"))runBoomerang();
     else if(w.includes("⚡"))runLightning();
+    else if(w.includes("🚨"))runPolice();
     $("specialStockText").textContent=specialStock;
   };
   document.addEventListener("keydown",e=>{

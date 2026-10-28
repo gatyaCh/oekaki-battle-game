@@ -5524,15 +5524,18 @@ document.addEventListener("keydown", e => {
   if (window.keySettingEditing) {
     e.preventDefault();
     if (e.key !== "Escape") {
-      window.controlKeys[window.keySettingEditing] = e.key.toLowerCase();
+      window.controlKeys[window.keySettingEditing] = e.code === "Space" ? " " : e.key.toLowerCase();
       window.keySettingEditing = null;
       renderKeyRows();
       document.getElementById("keyWaiting").textContent = "変更しました";
     }
     return;
   }
-  const k = e.key.toLowerCase();
+  const k = e.code === "Space" ? " " : e.key.toLowerCase();
   keys[k] = true;
+  // 描画画面・カウントダウン中は攻撃入力を受け付けない。
+  // 押しっぱなしやキー設定の取りこぼしで、開始前に雷攻撃が発動するのを防ぐ。
+  if (currentScreen !== "game") return;
   if (halloweenWaveActive) {
     if (k === window.controlKeys.attack || window.attackExtraKeys?.includes(k) || e.code === "Space") {
       e.preventDefault();
@@ -5564,8 +5567,15 @@ document.addEventListener("keydown", e => {
 });
 document.addEventListener("keyup", e => {
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
-  const k = e.key.toLowerCase();
+  const k = e.code === "Space" ? " " : e.key.toLowerCase();
   keys[k] = false;
+  if (currentScreen !== "game") {
+    charging = false;
+    charge = 0;
+    thunderChargeFrames = 0;
+    smallLightningUsedOnPress = false;
+    return;
+  }
   if (halloweenWaveActive) return;
   if (k === String(window.controlKeys.attack || "").toLowerCase() || window.attackExtraKeys?.includes(k) || e.code === "Space") {
     e.preventDefault();
@@ -5575,8 +5585,15 @@ document.addEventListener("keyup", e => {
 // 別のUI処理がキーイベントを横取りした場合の保険。通常処理で解放済みなら何もしない。
 window.addEventListener("keyup", e => {
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
-  const k = e.key.toLowerCase();
-  if (!halloweenWaveActive && (k === String(window.controlKeys.attack || "").toLowerCase() || window.attackExtraKeys?.includes(k) || e.code === "Space") && charging) {
+  const k = e.code === "Space" ? " " : e.key.toLowerCase();
+  if (currentScreen !== "game") {
+    charging = false;
+    charge = 0;
+    thunderChargeFrames = 0;
+    smallLightningUsedOnPress = false;
+    return;
+  }
+  if (!halloweenWaveActive && (k === String(window.controlKeys.attack || "").toLowerCase() || window.attackExtraKeys?.includes(k)) && charging) {
     releaseAttackCharge();
   }
 });
@@ -11009,8 +11026,8 @@ function addBoomerang(){const dx=mouse.x-p.x,dy=mouse.y-p.y,d=Math.hypot(dx,dy)|
 function fireSmallLightning(){const t=nearestTarget();const dx=t?t.x-p.x:mouse.x-p.x,dy=t?t.y-p.y:mouse.y-p.y,d=Math.hypot(dx,dy)||1;smallLightnings.push({x:p.x,y:p.y,vx:dx/d*5,vy:dy/d*5,target:t,homing:180,life:240,dmg:5*(1+drawAttackBonus)});smallLightningCooldownFrames=72;}
 function startThunderStorm(ratio){thunderCooldownFrames=390;thunderStormFrames=420;thunderStrikeFrames=0;thunderStrikeLimit=ratio>=.9?6:ratio>=.6?5:4;thunderShadows=[];msg.textContent="⚡ サンダーインパクト！7秒間、雷が降る！";}
 function newWeaponAttack(){if(gameOver||stageClear||isPausedForSpecial||bossSpecialState)return;if(weapon==="🪃"){addBoomerang();return;}if(weapon==="⚡️"){if(thunderCooldownFrames>0){fireSmallLightning();return;}startThunderStorm(Math.max(0,Math.min(1,charge/150)));return;}if(weapon==="🚨"){const reach=74,targets=liveTargets().filter(t=>Math.hypot(t.x-p.x,t.y-p.y)<reach);if(targets.length){targets.forEach(t=>hitNewWeaponTarget(t,typeof getDamage==="function"?getDamage():15));slashTimer=12;return;}if(policeStock>0&&policeTraps.length<6){policeTraps.push({x:p.x,y:p.y,r:25,life:Infinity});policeStock--;msg.textContent="🕳️ トラップ設置！ 残り "+policeStock+" 個";}else msg.textContent=policeStock<=0?"🕳️ トラップ補充中...":"🕳️ トラップは最大6個まで設置中だよ。";}}
-beginAttackCharge=function(){if(!NEW_WEAPONS.includes(weapon))return originalBeginAttackCharge();if(gameOver||stageClear||isPausedForSpecial||window.gameSavePaused||(attackCooldown>0&&weapon!=="⚡️"))return;if(weapon==="⚡️"&&thunderCooldownFrames>0){if(smallLightningCooldownFrames<=0){fireSmallLightning();smallLightningUsedOnPress=true;}else msg.textContent="⚡ 小さな雷のクールタイム中...";return;}charging=true;charge=0;if(weapon==="⚡️")thunderChargeFrames=0;};
-releaseAttackCharge=function(){if(!NEW_WEAPONS.includes(weapon))return originalReleaseAttackCharge();if(weapon==="⚡️"&&thunderCooldownFrames>0){smallLightningUsedOnPress=false;charging=false;charge=0;thunderChargeFrames=0;return;}if(!charging)return;charging=false;newWeaponAttack();attackCooldown=(window.adminNoCooldown?0:0.3);charge=0;thunderChargeFrames=0;};
+beginAttackCharge=function(){if(currentScreen!=="game"||!NEW_WEAPONS.includes(weapon)&&currentScreen!=="game")return;if(!NEW_WEAPONS.includes(weapon))return originalBeginAttackCharge();if(gameOver||stageClear||isPausedForSpecial||window.gameSavePaused||(attackCooldown>0&&weapon!=="⚡️"))return;if(weapon==="⚡️"&&thunderCooldownFrames>0){if(smallLightningCooldownFrames<=0){fireSmallLightning();smallLightningUsedOnPress=true;}else msg.textContent="⚡ 小さな雷のクールタイム中...";return;}charging=true;charge=0;if(weapon==="⚡️")thunderChargeFrames=0;};
+releaseAttackCharge=function(){if(currentScreen!=="game"){charging=false;charge=0;thunderChargeFrames=0;smallLightningUsedOnPress=false;return;}if(!NEW_WEAPONS.includes(weapon))return originalReleaseAttackCharge();if(weapon==="⚡️"&&thunderCooldownFrames>0){smallLightningUsedOnPress=false;charging=false;charge=0;thunderChargeFrames=0;return;}if(!charging)return;charging=false;newWeaponAttack();attackCooldown=(window.adminNoCooldown?0:0.3);charge=0;thunderChargeFrames=0;};
 function updateLightningUltimateShots(){if(lightningUltimateFireFrames<=0)return;lightningUltimateFireFrames--;const target=Math.min(50,Math.floor((420-lightningUltimateFireFrames)*50/420));while(lightningUltimateShotsFired<target){const i=lightningUltimateShotsFired++;const angle=Math.PI*2*i/50;const speed=6.2;enemyBullets.push({x:lightningUltimateCenterX,y:lightningUltimateCenterY,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,angle,zigzagPhase:i*0.37,dmg:5,enemy:false,special:"ultimateLightning",size:22,life:120});}}
 function updateNewWeaponSystems(){if(currentScreen!=="game")return;if(lightningUltimateFleeFrames>0)lightningUltimateFleeFrames--;updateLightningUltimateShots();if(thunderCooldownFrames>0)thunderCooldownFrames--;if(smallLightningCooldownFrames>0)smallLightningCooldownFrames--;if(policeStock<6){policeRechargeFrames++;if(policeRechargeFrames>=600){policeStock++;policeRechargeFrames=0;}}else policeRechargeFrames=0;if(weapon==="⚡️"&&charging&&thunderCooldownFrames<=0){thunderChargeFrames=Math.min(360,thunderChargeFrames+1);charge=150*Math.pow(thunderChargeFrames/360,1.55);}
  if(thunderStormFrames>0){thunderStormFrames--;thunderStrikeFrames++;if((thunderStrikeFrames===1||thunderStrikeFrames%78===1)&&Math.floor((thunderStrikeFrames-1)/78)<thunderStrikeLimit){const target=nearestTarget();thunderShadows.push({x:target?target.x:60+Math.random()*780,y:target?target.y:75+Math.random()*350,target,wait:60});}}

@@ -5659,9 +5659,10 @@ function getDamage() {
   const sougoAtkMul = window.sougoBoostActive ? 3 : 1;
   const adminRankMul = adminRankAbility === "damage4" ? 4.0 : 1;
   const weaponSpecialBuffMul = Date.now() < weaponSpecialBuffUntil ? 1.5 : 1;
-  return (10 + charge / 8) * atkBuff * (1 + drawAttackBonus) * 1.03 * kizuku2AtkMul * sougoAtkMul * adminRankMul * halloweenCandyMul * halloweenZombieMul * weaponSpecialBuffMul * (1 + upgradeLevels.atk * 0.04) * (window.adminAbuseActive ? Math.max(1, Number(window.adminAbuseAttackMultiplier) || 1) : 1);
+  return (10 + charge / 8) * atkBuff * (1 + drawAttackBonus) * 1.03 * kizuku2AtkMul * sougoAtkMul * adminRankMul * halloweenCandyMul * halloweenZombieMul * weaponSpecialBuffMul * (1 + upgradeLevels.atk * 0.04);
 }
 function damageEnemy(amount) {
+  if (window.adminAbuseActive) amount *= Math.max(1, Number(window.adminAbuseAttackMultiplier) || 1);
   if (bossSpecialState) return;
   // Stage 8 ボス無敵判定：累計10体の子分が全滅するまでは完全無敵バリア
   if (stage === 8 && stage8TotalSummoned < 10) {
@@ -5697,6 +5698,7 @@ function damageEnemy(amount) {
   }
 }
 function damageMinion(m, amount) {
+  if (window.adminAbuseActive) amount *= Math.max(1, Number(window.adminAbuseAttackMultiplier) || 1);
   m.hp -= amount;
   dmgText.push({ x: m.x, y: m.y, t: "-" + Math.floor(amount), life: 45 });
   if (m.hp <= 0) {
@@ -6887,7 +6889,7 @@ function halloweenAttack() {
   let dx=mouse.x-p.x,dy=mouse.y-p.y;
   if((!Number.isFinite(dx)||!Number.isFinite(dy)||(Math.abs(dx)+Math.abs(dy)<1))&&nearest){dx=nearest.x-p.x;dy=nearest.y-p.y;}
   const d=Math.hypot(dx,dy)||1;
-  const dmg=getDamage()*halloweenBuff.damage*(ghostTimer>0?0.7:1);
+  const dmg=getDamage()*halloweenBuff.damage*(ghostTimer>0?0.7:1)*(window.adminAbuseActive?Math.max(1,Number(window.adminAbuseAttackMultiplier)||1):1);
   const award=(target)=>{if(target.hp<=0&&target.alive){const baseReward=target.isTimedBossMinion?1:target.isBoss?10:target.isMinion?3:2;const reward=baseReward*(window.adminAbuseActive?Math.max(1,Number(window.adminAbuseSoulMultiplier)||1):1);target.hp=0;target.alive=false;halloweenSouls+=reward;triggerTimedMinionHalloweenRoulette(target);msg.textContent=(target.isBoss?"👹 ボス撃破！":target.isMinion?"👾 子分撃破！":"敵を撃破！")+" 💫+"+reward;}};
   if(bulletHellReady){
     bulletHellReady=false;

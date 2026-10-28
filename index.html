@@ -5534,7 +5534,7 @@ document.addEventListener("keydown", e => {
   const k = e.key.toLowerCase();
   keys[k] = true;
   if (halloweenWaveActive) {
-    if (k === window.controlKeys.attack || window.attackExtraKeys?.includes(k)) {
+    if (k === window.controlKeys.attack || window.attackExtraKeys?.includes(k) || e.code === "Space") {
       e.preventDefault();
       if (!e.repeat) halloweenAttack();
     }
@@ -5548,7 +5548,7 @@ document.addEventListener("keydown", e => {
     }
   }
   if (e.repeat) return;
-  if (k === window.controlKeys.attack || window.attackExtraKeys?.includes(k)) {
+  if (k === window.controlKeys.attack || window.attackExtraKeys?.includes(k) || e.code === "Space") {
     e.preventDefault();
     // 🔮 弾幕アイテムを拾っているときは、攻撃キーを押した瞬間に発動。
     // 通常攻撃の「長押し→離す」処理を待たない。
@@ -5567,7 +5567,7 @@ document.addEventListener("keyup", e => {
   const k = e.key.toLowerCase();
   keys[k] = false;
   if (halloweenWaveActive) return;
-  if (k === String(window.controlKeys.attack || "").toLowerCase() || window.attackExtraKeys?.includes(k)) {
+  if (k === String(window.controlKeys.attack || "").toLowerCase() || window.attackExtraKeys?.includes(k) || e.code === "Space") {
     e.preventDefault();
     releaseAttackCharge();
   }
@@ -5576,7 +5576,7 @@ document.addEventListener("keyup", e => {
 window.addEventListener("keyup", e => {
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
   const k = e.key.toLowerCase();
-  if (!halloweenWaveActive && (k === String(window.controlKeys.attack || "").toLowerCase() || window.attackExtraKeys?.includes(k)) && charging) {
+  if (!halloweenWaveActive && (k === String(window.controlKeys.attack || "").toLowerCase() || window.attackExtraKeys?.includes(k) || e.code === "Space") && charging) {
     releaseAttackCharge();
   }
 });
@@ -9533,6 +9533,7 @@ function drawAdminRankBullets(){
 
 
 <div id="halloweenRateOverlay" class="hidden" role="dialog" aria-modal="true"><div id="halloweenRateCard"><h2>🎰 ハロウィン当選確率設定</h2><p>合計を100%にして保存してね。設定はこのブラウザに保存されるよ。</p><div id="halloweenRateInputs"></div><p id="halloweenRateTotal">合計：100%</p><p id="halloweenRateMessage" role="status"></p><button id="halloweenRateSave">保存する</button><button id="halloweenRateReset">初期設定に戻す</button><button id="halloweenRateClose">閉じる</button></div></div>
+<style id="admin-abuse-roulette-dialogue-style">#halloweenRouletteDialogue.speaker-admin2{color:#fff!important;border-color:#38d9ff!important;text-shadow:0 0 5px #38d9ff!important}#halloweenRouletteDialogue.speaker-gacha{color:#63eaff!important;border-color:#ff3434!important;text-shadow:0 0 5px #ff3434!important}#halloweenRouletteDialogue.speaker-hacker{color:#fff!important;border-color:#111!important;text-shadow:0 0 4px #000,0 0 8px #000!important}</style>
 <div id="halloweenRouletteOverlay" class="hidden" role="dialog" aria-modal="true"><div id="halloweenRouletteCard"><h2 style="color:#fdba74">🎃 ハロウィンボックス 🎃</h2><p id="halloweenRouletteStatus">ルーレット抽選中！</p><div id="halloweenRouletteDialogue" aria-live="polite" style="display:none;margin:10px auto 14px;padding:10px 12px;max-width:520px;border:2px solid #fbbf24;border-radius:12px;background:rgba(8,8,20,.88);color:#fff;font-size:16px;line-height:1.5;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;"><b style="display:block;color:#fcd34d;font-size:12px;margin-bottom:4px;">💬 セリフ</b><span id="halloweenRouletteDialogueText"></span></div><div id="halloweenWheel">🎃</div><div id="halloweenRouletteResult">どのアイテムが当たるかな？</div><button id="halloweenUseItemBtn" class="hidden" type="button">このアイテムを使う！</button></div></div>
 <script>
 (function(){
@@ -9569,12 +9570,19 @@ window.openHalloweenRateEditorForMatch=function(){
 const rouletteDialogue=document.getElementById("halloweenRouletteDialogue"),rouletteDialogueText=document.getElementById("halloweenRouletteDialogueText"),battleMessage=document.getElementById("msg");
 function syncRouletteDialogue(){
   if(!rouletteDialogue||!rouletteDialogueText||!battleMessage)return;
-  const line=(battleMessage.textContent||"").trim();
+  const adminDialogue=document.getElementById("adminAbuseDialogue");
+  const adminLine=adminDialogue&&adminDialogue.classList.contains("active")?(adminDialogue.textContent||"").trim():"";
+  const line=adminLine||(battleMessage.textContent||"").trim();
   rouletteDialogueText.textContent=line;
+  rouletteDialogue.classList.toggle("speaker-admin2",!!adminLine&&adminDialogue.classList.contains("speaker-admin2"));
+  rouletteDialogue.classList.toggle("speaker-gacha",!!adminLine&&adminDialogue.classList.contains("speaker-gacha"));
+  rouletteDialogue.classList.toggle("speaker-hacker",!!adminLine&&adminDialogue.classList.contains("speaker-hacker"));
   rouletteDialogue.style.display=line?"block":"none";
 }
-if(battleMessage&&typeof MutationObserver!=="undefined"){
-  new MutationObserver(()=>{if(!overlay.classList.contains("hidden"))syncRouletteDialogue()}).observe(battleMessage,{childList:true,subtree:true,characterData:true});
+if(typeof MutationObserver!=="undefined"){
+  if(battleMessage)new MutationObserver(()=>{if(!overlay.classList.contains("hidden"))syncRouletteDialogue()}).observe(battleMessage,{childList:true,subtree:true,characterData:true});
+  const adminDialogue=document.getElementById("adminAbuseDialogue");
+  if(adminDialogue)new MutationObserver(()=>{if(!overlay.classList.contains("hidden"))syncRouletteDialogue()}).observe(adminDialogue,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:["class"]});
 }
 window.startHalloweenRoulette=function(){if(spinning||currentScreen!=="game")return;syncRouletteDialogue();spinning=true;paused=true;overlay.classList.remove("hidden");useBtn.classList.add("hidden");result.textContent="抽選中…";status.textContent="🎰 ルーレット回転中！";wheel.classList.remove("stopped");chosen=pick();let n=0;const t=setInterval(()=>{wheel.textContent=pool[n++%pool.length].name.split(" ")[0];if(n>=22){clearInterval(t);spinning=false;wheel.classList.add("stopped");wheel.textContent=chosen.name.split(" ")[0];status.textContent="🎉 当選！";result.innerHTML="<b>"+chosen.name+"（"+chosen.rate+"%）</b><br>"+chosen.desc;useBtn.classList.remove("hidden")}},110)};
 document.getElementById("admHalloweenBox")?.addEventListener("click",()=>{if(currentScreen!=="game"){alert("ゲーム中にADMINパネルから召喚してね。");return}if(spinning)return;if(!Array.isArray(boxes))boxes=[];if(boxes.length===0)spawnBox();const slot=boxes.length>0?Math.floor(Math.random()*boxes.length):0;const pos=boxes[slot]||{x:p.x+60,y:p.y};boxes[slot]={x:pos.x,y:pos.y,item:"🎃"};msg.textContent="🎃 ハロウィンボックスを召喚！ 🎁の枠1つを置き換えたよ。";});

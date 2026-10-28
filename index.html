@@ -6907,7 +6907,8 @@ function halloweenAttack() {
   let dx=mouse.x-p.x,dy=mouse.y-p.y;
   if((!Number.isFinite(dx)||!Number.isFinite(dy)||(Math.abs(dx)+Math.abs(dy)<1))&&nearest){dx=nearest.x-p.x;dy=nearest.y-p.y;}
   const d=Math.hypot(dx,dy)||1;
-  const dmg=getDamage()*halloweenBuff.damage*(ghostTimer>0?0.7:1)*(window.adminAbuseActive?Math.max(1,Number(window.adminAbuseAttackMultiplier)||1):1);
+  const abuseAttackMul=window.adminAbuseActive?Math.max(1,Number(window.adminAbuseAttackMultiplier)||1):1;
+  const dmg=getDamage()*halloweenBuff.damage*(ghostTimer>0?0.7:1)*abuseAttackMul;
   const award=(target)=>{if(target.hp<=0&&target.alive){const baseReward=target.isTimedBossMinion?1:target.isBoss?10:target.isMinion?3:2;const reward=baseReward*(window.adminAbuseActive?Math.max(1,Number(window.adminAbuseSoulMultiplier)||1):1);target.hp=0;target.alive=false;halloweenSouls+=reward;triggerTimedMinionHalloweenRoulette(target);msg.textContent=(target.isBoss?"👹 ボス撃破！":target.isMinion?"👾 子分撃破！":"敵を撃破！")+" 💫+"+reward;}};
   if(bulletHellReady){
     bulletHellReady=false;
@@ -6918,7 +6919,7 @@ function halloweenAttack() {
     if(wandCooldown>0){msg.textContent="⏳ 魔法の杖クールタイム中...";return;}
     const roll=Math.random(),homingCount=roll<0.6?1:roll<0.9?2:3,homingIndexes=new Set();
     while(homingIndexes.size<homingCount)homingIndexes.add(Math.floor(Math.random()*20));
-    for(let i=0;i<20;i++){const a=Math.PI*2*i/20;halloweenMagicOrbs.push({x:p.x,y:p.y,vx:Math.cos(a)*3.2,vy:Math.sin(a)*3.2,life:4.5,dmg:11*atkBuff*halloweenBuff.damage*(window.halloweenEffects&&window.halloweenEffects.candy>0?1.5:1)*(kizuku2Active?2:1)*(adminRankAbility==="damage4"?4:1),homing:homingIndexes.has(i),homingSpeed:3.8});}
+    for(let i=0;i<20;i++){const a=Math.PI*2*i/20;halloweenMagicOrbs.push({x:p.x,y:p.y,vx:Math.cos(a)*3.2,vy:Math.sin(a)*3.2,life:4.5,dmg:11*atkBuff*halloweenBuff.damage*(window.halloweenEffects&&window.halloweenEffects.candy>0?1.5:1)*(kizuku2Active?2:1)*(adminRankAbility==="damage4"?4:1)*abuseAttackMul,homing:homingIndexes.has(i),homingSpeed:3.8});}
     wandCooldown=window.adminNoCooldown?0:1.7;msg.textContent="🪄 拡散弾20発！追尾弾："+homingCount+"発";return;
   }
   halloweenCooldown=weapon==="🏹"?18:12;

@@ -6926,7 +6926,7 @@ function halloweenAttack() {
   if(weapon==="⚡️"){
     // ハロウィンマップでも雷武器が無反応にならないよう、全方向へ雷を発射する。
     for(let i=0;i<8;i++){const a=Math.PI*2*i/8;halloweenPlayerBullets.push({x:p.x,y:p.y,vx:Math.cos(a)*7,vy:Math.sin(a)*7,damage:dmg});}
-    halloweenCooldown=window.adminNoCooldown?0:18;
+    halloweenCooldown=window.adminNoCooldown?0:78; // CT 1.3秒（60fps換算）
     msg.textContent="⚡️ 全方向に雷を発射！";
     return;
   }

@@ -3840,10 +3840,18 @@ body.mobile-mode #mapSelect .map-option:nth-child(2){display:none!important;}
   76% { transform: translate(3px,2px) skewX(.7deg); clip-path: polygon(0 0,100% 0,99% 25%,0 22%,0 43%,100% 46%,100% 63%,0 60%,1% 81%,100% 78%,100% 100%,0 100%); }
   100% { transform: translate(0,0) skewX(0deg); clip-path: inset(0 0 0 0); }
 }
+@keyframes adminAbuseZigzagWeak {
+  0% { transform: translate(0,0) skewX(0deg); clip-path: inset(0 0 0 0); }
+  20% { transform: translate(-2px,1px) skewX(-.35deg); clip-path: inset(0 0.5% 0 0); }
+  40% { transform: translate(2px,-1px) skewX(.4deg); clip-path: inset(0.5% 0 0 0.5%); }
+  60% { transform: translate(-1px,0) skewX(-.25deg); clip-path: inset(0 0 0.5% 0); }
+  80% { transform: translate(1px,1px) skewX(.25deg); clip-path: inset(0.5% 0.5% 0 0); }
+  100% { transform: translate(0,0) skewX(0deg); clip-path: inset(0 0 0 0); }
+}
 #game.admin-abuse-zigzag {
   transform-origin: center;
-  animation: adminAbuseZigzag .30s steps(2,end) infinite;
-  filter: contrast(1.04) saturate(1.08);
+  animation: adminAbuseZigzagWeak .42s steps(2,end) infinite;
+  filter: contrast(1.02) saturate(1.04);
 }
 #game.admin-abuse-zigzag-strong {
   transform-origin: center;

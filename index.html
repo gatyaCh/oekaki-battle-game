@@ -5537,7 +5537,7 @@ document.addEventListener("keydown", e => {
   // 押しっぱなしやキー設定の取りこぼしで、開始前に雷攻撃が発動するのを防ぐ。
   if (currentScreen !== "game") return;
   if (halloweenWaveActive) {
-    if (k === window.controlKeys.attack || window.attackExtraKeys?.includes(k) || e.code === "Space") {
+    if (k === String(window.controlKeys.attack || "").toLowerCase() || window.attackExtraKeys?.includes(k)) {
       e.preventDefault();
       if (!e.repeat) halloweenAttack();
     }
@@ -5551,7 +5551,7 @@ document.addEventListener("keydown", e => {
     }
   }
   if (e.repeat) return;
-  if (k === window.controlKeys.attack || window.attackExtraKeys?.includes(k) || e.code === "Space") {
+  if (k === String(window.controlKeys.attack || "").toLowerCase() || window.attackExtraKeys?.includes(k)) {
     e.preventDefault();
     // 🔮 弾幕アイテムを拾っているときは、攻撃キーを押した瞬間に発動。
     // 通常攻撃の「長押し→離す」処理を待たない。
@@ -5577,7 +5577,7 @@ document.addEventListener("keyup", e => {
     return;
   }
   if (halloweenWaveActive) return;
-  if (k === String(window.controlKeys.attack || "").toLowerCase() || window.attackExtraKeys?.includes(k) || e.code === "Space") {
+  if (k === String(window.controlKeys.attack || "").toLowerCase() || window.attackExtraKeys?.includes(k)) {
     e.preventDefault();
     releaseAttackCharge();
   }

@@ -3878,7 +3878,7 @@ body.admin-abuse-dark-transition::after {
 #adminAbuseNewHalloween.active{display:flex}
 #adminAbuseNewHalloween h2{margin:0 0 6px;color:#fdba74;text-shadow:0 2px 5px #000}
 #adminAbuseNewHalloween p{margin:4px;text-align:center}
-#adminAbuseNewHalloween canvas{position:fixed;left:50%;top:76px;transform:translateX(-50%);width:min(72vw,760px);max-width:72vw;height:auto;max-height:calc(100vh - 155px);aspect-ratio:9/5;border:3px solid #fb923c;border-radius:10px;background:#8a3418;touch-action:none}
+#adminAbuseNewHalloween canvas{position:fixed;left:50%;top:76px;transform:translateX(-50%);width:min(94vw,900px);max-width:94vw;height:auto;max-height:calc(100vh - 155px);aspect-ratio:9/5;border:3px solid #fb923c;border-radius:10px;background:#8a3418;touch-action:none;cursor:crosshair}
 #adminAbuseNewHalloween .new-map-hud{font-weight:900;text-align:center}
 </style>
 <style id="admin-abuse-v2-style">#adminAbuseOpenBtn{position:relative;top:auto;right:auto;display:block;margin:16px auto 0;max-width:95%;box-sizing:border-box;line-height:1.5;font-size:22px;padding:8px 12px;border:1px solid #c9a227;border-radius:12px;background:linear-gradient(135deg,#31240a,#5a430e);color:#ffe58a;z-index:21}#adminAbuseOpenBtn:disabled{opacity:.48;filter:grayscale(.8);cursor:not-allowed}#adminAbuseCodeScreen,#adminAbuseConfirmScreen,#adminAbuseEndScreen{position:fixed;inset:0;z-index:2000000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(4,7,18,.96);color:white}#adminAbuseCodeScreen.hidden,#adminAbuseConfirmScreen.hidden,#adminAbuseEndScreen.hidden{display:none!important}.admin-abuse-card{width:min(560px,96vw);padding:26px 20px;background:linear-gradient(160deg,#1b2233,#101522);border:2px solid #b8942e;border-radius:20px;box-shadow:0 12px 48px #000a}.admin-abuse-card h2{color:#ffe17a;margin-bottom:14px}.admin-abuse-card p{margin:10px 0}.admin-abuse-card input{padding:10px;width:min(300px,90%);font-size:18px}#adminAbuseTimer{display:none;position:fixed;top:238px;right:8px;left:auto;bottom:auto;transform:none;z-index:10050;background:#150d24ef;border:2px solid #f43f5e;border-radius:10px;padding:7px 12px;font-weight:900;color:#fff;max-width:46vw;box-sizing:border-box;text-align:center}#adminAbuseScheduleTimer{position:fixed;top:145px;right:8px;left:auto;bottom:auto;transform:none;z-index:10070;background:#150d24ef;border:2px solid #c9a227;border-radius:10px;padding:8px 14px;font-weight:900;color:#ffe58a;white-space:pre-line;text-align:center;box-shadow:0 4px 16px #0008;max-width:46vw;box-sizing:border-box}#adminAbuseTimer.active{display:block}#adminAbuseDialogue{display:none;position:fixed;left:50%;top:13%;transform:translateX(-50%);z-index:1000010;box-sizing:border-box;width:min(96vw,1200px);min-height:54px;padding:14px 22px;text-align:center;font-size:clamp(19px,2.5vw,32px);line-height:1.45;font-weight:900;color:#fff!important;-webkit-text-stroke:1px #111827;paint-order:stroke fill;text-shadow:0 2px 4px #000,0 0 8px #000;background:rgba(8,12,24,.92);border:2px solid #facc15;border-radius:14px;box-shadow:0 6px 22px rgba(0,0,0,.75);overflow-wrap:anywhere;pointer-events:none}#adminAbuseDialogue.active{display:block}#adminAbuseBoostHUD{display:none;position:fixed;right:14px;bottom:14px;z-index:10040;background:rgba(14,18,30,.92);color:#fff;border:1px solid #ffffff44;border-radius:12px;padding:8px 11px;font-weight:700;line-height:1.6;pointer-events:none}#adminAbuseBoostHUD.active{display:block}#adminAbuseBoostHUD b{color:#ffe28a;margin-left:14px}@media(max-width:600px){#adminAbuseDialogue{top:10%;width:94vw;padding:10px 12px;font-size:clamp(17px,4.2vw,23px);line-height:1.4;-webkit-text-stroke:.5px #111827}#adminAbuseTimer{top:226px;right:5px;left:auto;transform:none;font-size:12px;padding:6px 8px}#adminAbuseScheduleTimer{top:142px;right:5px;left:auto;bottom:auto;transform:none;font-size:12px;padding:7px 9px}#bestRankHud{top:52px!important;right:5px!important;left:auto!important;width:160px!important;max-width:44vw!important;padding:6px 7px!important}#bestRankValue{font-size:18px!important}#adminAbuseBoostHUD{right:5px;bottom:5px;font-size:13px}}</style><style id="white-background-from-device-selection">
@@ -11772,11 +11772,13 @@ later(600,()=>{adminAbuseClearZigzag();document.body.classList.remove("admin-abu
  const enemies=[],skulls=[],boxes=[];
  for(let i=0;i<6;i++)skulls.push({x:120+(i%3)*330,y:110+Math.floor(i/3)*270});
  for(let i=0;i<4;i++)boxes.push({x:150+(i%2)*600,y:100+Math.floor(i/2)*300});
- const keys={};
- const keydown=e=>{const k=e.key.toLowerCase();if(["w","a","s","d","arrowup","arrowdown","arrowleft","arrowright"," ","e"].includes(k)){keys[k]=true;if(k===" "||k==="e")e.preventDefault()}};
- const keyup=e=>{keys[e.key.toLowerCase()]=false};
+ const keys={};let attackRequested=false;
+ const keydown=e=>{const k=String(e.key||"").toLowerCase();if(["w","a","s","d","arrowup","arrowdown","arrowleft","arrowright"," ","e"].includes(k)){keys[k]=true;if(k===" "||k==="e"){attackRequested=true;e.preventDefault();}}};
+ const keyup=e=>{keys[String(e.key||"").toLowerCase()]=false};
+ const pointerAttack=e=>{if(!running)return;attackRequested=true;if(e.cancelable)e.preventDefault();};
+ canvas.addEventListener("pointerdown",pointerAttack);
  window.addEventListener("keydown",keydown);window.addEventListener("keyup",keyup);
- function cleanup(){running=false;window.removeEventListener("keydown",keydown);window.removeEventListener("keyup",keyup);root.classList.remove("active");window.adminAbuseNewMapCleanup=null;window.gameSavePaused=true;}window.adminAbuseNewMapCleanup=cleanup;
+ function cleanup(){running=false;window.removeEventListener("keydown",keydown);window.removeEventListener("keyup",keyup);canvas.removeEventListener("pointerdown",pointerAttack);root.classList.remove("active");window.adminAbuseNewMapCleanup=null;window.gameSavePaused=true;}window.adminAbuseNewMapCleanup=cleanup;
  const originalFinish=finish;
  function draw(){
   if(!running||!active)return;
@@ -11787,15 +11789,21 @@ later(600,()=>{adminAbuseClearZigzag();document.body.classList.remove("admin-abu
   boxes.forEach(b=>{ctx.font="34px sans-serif";ctx.fillText("🎃",b.x,b.y)});
   // 開始直後に最初の4体を出し、その後は10秒ごとに最大100体まで追加する。
   const now=Date.now();
-  if(spawned===0){for(let n=0;n<4;n++){const count=++spawned;enemies.push({x:850,y:55+n*125,hp:20,baseHp:20,speed:0.35+count*.003,boost:Math.min(4,1+count*.02),damage:0});}lastSpawn=now;}
-  else if(spawned<100&&now-lastSpawn>=10000){spawned++;lastSpawn=now;enemies.push({x:890,y:50+Math.random()*400,hp:20,baseHp:20,speed:0.35+spawned*.003,boost:Math.min(4,1+spawned*.02),damage:0});}
+  if(spawned===0){for(let n=0;n<4;n++){const count=++spawned;enemies.push({x:850,y:55+n*125,hp:20,baseHp:20,speed:0.7,boost:Math.min(4,1+count*.02),damage:0});}lastSpawn=now;}
+  else if(spawned<100&&now-lastSpawn>=10000){spawned++;lastSpawn=now;enemies.push({x:890,y:50+Math.random()*400,hp:20,baseHp:20,speed:0.7,boost:Math.min(4,1+spawned*.02),damage:0});}
   if(kills>=10&&!hat.active&&hatTimer===0){hat.active=true;hat.x=450;hat.y=250;}
-  if(hat.active){ctx.font="38px sans-serif";ctx.fillText("🎩",hat.x,hat.y);if(Math.hypot(player.x-hat.x,player.y-hat.y)<34){hat.active=false;hatTimer=600;enemies.forEach(e=>{e.hp=e.baseHp;e.boost=1;e.speed=.35});}}
-  if(hatTimer>0){hatTimer--;if(hatTimer===0)enemies.forEach(e=>{e.boost=Math.min(4,1+spawned*.02);e.speed=.35+spawned*.003})}
+  if(hat.active){ctx.font="38px sans-serif";ctx.fillText("🎩",hat.x,hat.y);if(Math.hypot(player.x-hat.x,player.y-hat.y)<34){hat.active=false;hatTimer=600;enemies.forEach(e=>{e.hp=e.baseHp;e.boost=1;e.speed=.7});}}
+  if(hatTimer>0){hatTimer--;if(hatTimer===0)enemies.forEach(e=>{e.boost=Math.min(4,1+spawned*.02);e.speed=.7})}
   if(keys.w||keys.arrowup)player.y-=3;if(keys.s||keys.arrowdown)player.y+=3;if(keys.a||keys.arrowleft)player.x-=3;if(keys.d||keys.arrowright)player.x+=3;
   player.x=Math.max(20,Math.min(880,player.x));player.y=Math.max(20,Math.min(480,player.y));
   if(attackCd>0)attackCd--;
-  if((keys.e||keys[" "])&&attackCd===0){attackCd=18;let target=null,dist=125;enemies.forEach(e=>{const d=Math.hypot(player.x-e.x,player.y-e.y);if(d<dist){dist=d;target=e}});if(target){target.hp-=20;if(target.hp<=0){enemies.splice(enemies.indexOf(target),1);kills++;}}}
+  if((attackRequested||keys.e||keys[" "])&&attackCd===0){
+   attackRequested=false;attackCd=12;
+   let target=null,dist=260;
+   enemies.forEach(e=>{const d=Math.hypot(player.x-e.x,player.y-e.y);if(d<dist){dist=d;target=e}});
+   // 攻撃キーまたはマップのクリック/タップで、近くの敵を確実に攻撃できる。
+   if(target){target.hp-=20;if(target.hp<=0){enemies.splice(enemies.indexOf(target),1);kills++;}}
+  }
   enemies.forEach(e=>{const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1;e.x+=dx/d*e.speed;e.y+=dy/d*e.speed;if(d<22&&frame%30===0)player.hp=Math.max(0,player.hp-1);ctx.font="24px sans-serif";ctx.fillText("👾",e.x,e.y);ctx.fillStyle="#fff";ctx.fillRect(e.x-15,e.y-22,30,4);ctx.fillStyle="#ef4444";ctx.fillRect(e.x-15,e.y-22,30*Math.max(0,e.hp/(e.baseHp*e.boost)),4);ctx.fillStyle="#fff"});
   ctx.font="30px sans-serif";const selectedSkin=typeof window.getSelectedSkinEmoji==="function"?window.getSelectedSkinEmoji():"🙂";ctx.fillText(selectedSkin||"🙂",player.x,player.y);hud.textContent="撃破 "+kills+" / 100　出現 "+spawned+" / 100　❤️ "+player.hp+(hatTimer>0?"　🎩強化リセット中":"");
   if(player.hp<=0){hud.textContent+="　ゲームオーバー（イベントは続行）";player.hp=300;}

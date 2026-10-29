@@ -4069,6 +4069,54 @@ body {
 #specialGaugeContainer{order:0;position:relative;top:auto;left:auto;right:auto;bottom:auto;transform:none;z-index:2}
 #specialGaugeContainer:has(#specialGauge[value]){box-sizing:border-box}
 </style>
+
+<style id="fusion-readable-text-fix">
+/* ヒューズ画面は白背景なので、共通の白文字設定を上書きして可読性を確保 */
+#fusionMainScreen,
+#fusionMainScreen h1,
+#fusionMainScreen h2,
+#fusionMainScreen h3,
+#fusionMainScreen p,
+#fusionMainScreen label,
+#fusionMainScreen .fusion-slot,
+#fusionMainScreen .fusion-slot strong,
+#fusionMainScreen .fusion-slot span,
+#fusionMainScreen #fusionStatus,
+#fusionMainScreen #fusionPointTotal,
+#fusionMainScreen #fusionOddsList,
+#fusionMainScreen #fusionOddsList p,
+#fusionMainScreen #fusionRewardResult {
+  color: #172033 !important;
+}
+#fusionMainScreen .fusion-slot {
+  background: #f8fafc !important;
+  border-color: #64748b !important;
+}
+#fusionMainScreen .fusion-slot button,
+#fusionMainScreen #fusionStartBtn,
+#fusionMainScreen #fusionCloseBtn,
+#fusionMainScreen #fusionRestoreSkinsBtn,
+#fusionMainScreen #fusionOpenResultBtn,
+#fusionMainScreen #fusionClaimRewardBtn {
+  color: #fff !important;
+}
+#fusionMainScreen #fusionCooldown {
+  color: #312e81 !important;
+  background: #f5f3ff !important;
+}
+#fusionMainScreen #fusionRestorePanel,
+#fusionMainScreen #fusionRestorePanel * {
+  color: #064e3b !important;
+}
+#fusionMainScreen button:disabled {
+  opacity: 1 !important;
+  filter: saturate(.75);
+}
+#fusionMainScreen #fusionOpenResultBtn:disabled {
+  background: #64748b !important;
+  color: #fff !important;
+}
+</style>
 </head>
 <body>
 

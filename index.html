@@ -4468,7 +4468,7 @@ body {
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px;max-width:1200px;margin:auto">
     <section style="background:#071e3b;border:3px solid #168cff;border-radius:20px;padding:16px;box-shadow:0 0 18px #087dff">
       <div style="display:flex;align-items:center;gap:14px"><div style="font-size:64px">🤜</div><div><h2 style="margin:0;color:#71bdff">kakeru</h2><b>専用武器：拳</b><div>近接攻撃に特化・連打可能</div></div></div>
-      <hr><h3>武器の性能</h3><p>⚔️ 攻撃力：1発7ダメージ</p><p>📏 攻撃範囲：剣の70%</p><p>⏱️ クールタイム：なし</p>
+      <hr><h3>武器の性能</h3><p>⚔️ 攻撃力：1発6ダメージ</p><p>📏 攻撃範囲：剣の1.5倍（チャージ適用）</p><p>⏱️ クールタイム：なし</p>
       <hr><h3>特殊効果</h3><p>🎒 アイテムを各7個に設定（使用ごとに1個消費）</p><p>🐢 敵の速度は通常どおり</p><p>🛡️ 拳が敵本体に命中すると短時間ひるませ、近くの敵弾も消す</p>
       <button data-pick-special="kakeru" style="width:100%;padding:14px;border:0;border-radius:12px;background:#087dff;color:white;font-size:20px;font-weight:bold;cursor:pointer">これにする！</button>
     </section>
@@ -5848,8 +5848,8 @@ function attack() {
   }
   if (window.adminPanelInteracting || gameOver || stageClear) return;
   if (window.specialCodes?.kakeru) {
-    const fistRange = (72 + charge / 2) * 0.7;
-    const fistDamage = 4 * atkBuff * (1 + drawAttackBonus) * (kizuku2Active ? 2 : 1)
+    const fistRange = (72 + charge / 2) * 1.5;
+    const fistDamage = 6 * atkBuff * (1 + drawAttackBonus) * (kizuku2Active ? 2 : 1)
       * (window.sougoBoostActive ? 3 : 1) * (adminRankAbility === "damage4" ? 4 : 1)
       * ((window.halloweenEffects || {}).candy > 0 ? 1.8 : 1)
       * ((window.halloweenEffects || {}).zombie > 0 ? 2.3 : 1)
@@ -7895,7 +7895,7 @@ function draw() {
   ctx.strokeStyle = "rgba(255,0,0,0.4)"; ctx.beginPath(); ctx.arc(enemy.x, enemy.y, 40, 0, Math.PI * 2); ctx.stroke();
   if (weapon === "🏹") { ctx.strokeStyle = "blue"; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke(); }
   if (weapon === "⚔️") { ctx.strokeStyle = "yellow"; ctx.beginPath(); ctx.arc(p.x, p.y, 52 + charge / 2, 0, Math.PI * 2); ctx.stroke(); }
-  if (window.specialCodes?.kakeru) { ctx.strokeStyle = "#f59e0b"; ctx.beginPath(); ctx.arc(p.x, p.y, (52 + charge / 2) * 0.7, 0, Math.PI * 2); ctx.stroke(); }
+  if (window.specialCodes?.kakeru) { ctx.strokeStyle = "#f59e0b"; ctx.beginPath(); ctx.arc(p.x, p.y, (52 + charge / 2) * 1.5, 0, Math.PI * 2); ctx.stroke(); }
   if (weapon === "🚙") { ctx.strokeStyle = "red"; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke(); }
   if (bulletHellReady) {
     ctx.font = "28px serif";
@@ -8970,8 +8970,8 @@ loop();
       if (!inv.halloween) inv.halloween = {};
       ["❤","💪","🛡️","🗿","👻","🔮","⚡️","tripleGatling"].forEach(id => { inv.normal[id] = 7; });
       ["horse","candy","bat","allies","zombie","potionLarge","potionSmall"].forEach(id => { inv.halloween[id] = 7; });
-      p.max = 250; p.hp = 250;
-      msg.textContent = "🤜 kakeru 発動！専用武器・拳（攻撃4／最大体力250／範囲70%／CTなし）＋初期アイテム各7個！";
+      p.max = 350; p.hp = 350;
+      msg.textContent = "🤜 kakeru 発動！専用武器・拳（攻撃6／最大体力350／剣の範囲1.5倍・チャージ適用／CTなし）＋初期アイテム各7個！";
       return true;
     }
     if (c === "sougo") {
@@ -9005,7 +9005,7 @@ loop();
       '<span>HP20 → 最大HP +20</span><br>' +
       '<span>Lucky Boost → 📦ボックス・🧰宝箱のレア確率UP</span><br>' +
       '<span>ryokutya → 📦ボックスが全ステージ4個（HP20とは別の効果）</span><br>' +
-      '<span>kakeru → 専用武器🤜拳（攻撃7・剣の範囲70%・CTなし・敵の攻撃を妨害）＋アイテム各7個</span><br>' +
+      '<span>kakeru → 専用武器🤜拳（攻撃6・最大HP350・剣の範囲1.5倍・チャージ適用・CTなし・敵の攻撃を妨害）＋アイテム各7個</span><br>' +
       '<span>sougo → 専用武器⚒️ハンマー（範囲3倍・20〜50ダメージ・CT3〜7秒）＋ランダムな攻撃力3倍（3秒間）</span><br>' +
       '<span>？？？ → 🧰宝箱から発見できる3つ目の隠しコード</span><br>' +
       '<span id="specialCodeDiscovered" style="display:none">Special Code → 敵の攻撃力・HP低下</span>' +

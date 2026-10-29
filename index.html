@@ -11769,7 +11769,7 @@ later(600,()=>{adminAbuseClearZigzag();document.body.classList.remove("admin-abu
  root.classList.add("active");
  const ctx=canvas.getContext("2d");if(!ctx)return;
  let player={x:450,y:420,hp:300},kills=0,spawned=0,frame=0,attackCd=0,hatTimer=0,hat={x:450,y:250,active:false},lastSpawn=Date.now(),mapStartedAt=Date.now(),running=true;
- const enemies=[],skulls=[],boxes=[];
+ const enemies=[],skulls=[],boxes=[],projectiles=[],attackEffects=[];
  for(let i=0;i<6;i++)skulls.push({x:120+(i%3)*330,y:110+Math.floor(i/3)*270});
  for(let i=0;i<4;i++)boxes.push({x:150+(i%2)*600,y:100+Math.floor(i/2)*300});
  const keys={};let attackRequested=false;
@@ -11808,8 +11808,25 @@ later(600,()=>{adminAbuseClearZigzag();document.body.classList.remove("admin-abu
    attackRequested=false;attackCd=12;
    let target=null,dist=Infinity;
    enemies.forEach(e=>{const d=Math.hypot(player.x-e.x,player.y-e.y);if(d<dist){dist=d;target=e}});
-   // E / Space / クリックで最寄りの敵を攻撃。距離制限をなくして攻撃不能を防ぐ。
-   if(target){target.hp-=20;if(target.hp<=0){enemies.splice(enemies.indexOf(target),1);kills++;}}
+   // 攻撃を画面上に飛ぶ弾として描き、敵に命中した時点でダメージを与える。
+   if(target){
+    projectiles.push({x:player.x,y:player.y,target,damage:20,speed:12,life:90});
+    attackEffects.push({x:player.x,y:player.y,angle:Math.atan2(target.y-player.y,target.x-player.x),life:10});
+   }else{
+    attackEffects.push({x:player.x,y:player.y,angle:0,life:10});
+   }
+  }
+  // プレイヤーの弾・攻撃エフェクトを描画して移動する。
+  for(let i=projectiles.length-1;i>=0;i--){
+   const p=projectiles[i],target=p.target;
+   if(!enemies.includes(target)||p.life--<=0){projectiles.splice(i,1);continue;}
+   const dx=target.x-p.x,dy=target.y-p.y,d=Math.hypot(dx,dy)||1;
+   p.x+=dx/d*p.speed;p.y+=dy/d*p.speed;
+   ctx.save();ctx.strokeStyle="#fde047";ctx.lineWidth=5;ctx.shadowColor="#fb923c";ctx.shadowBlur=14;ctx.beginPath();ctx.moveTo(p.x-dx/d*18,p.y-dy/d*18);ctx.lineTo(p.x,p.y);ctx.stroke();ctx.fillStyle="#fff7ed";ctx.beginPath();ctx.arc(p.x,p.y,5,0,Math.PI*2);ctx.fill();ctx.restore();
+   if(d<18){target.hp-=p.damage;projectiles.splice(i,1);attackEffects.push({x:target.x,y:target.y,angle:0,life:12});if(target.hp<=0){const ei=enemies.indexOf(target);if(ei>=0){enemies.splice(ei,1);kills++;}}}
+  }
+  for(let i=attackEffects.length-1;i>=0;i--){
+   const fx=attackEffects[i];fx.life--;ctx.save();ctx.translate(fx.x,fx.y);ctx.rotate(fx.angle);ctx.strokeStyle=fx.life>5?"#fff7ed":"#fb923c";ctx.lineWidth=4;ctx.globalAlpha=Math.max(0,fx.life/10);ctx.beginPath();ctx.arc(0,0,18+(10-fx.life)*3,-0.9,0.9);ctx.stroke();ctx.restore();if(fx.life<=0)attackEffects.splice(i,1);
   }
   enemies.forEach(e=>{const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1;e.x+=dx/d*e.speed;e.y+=dy/d*e.speed;if(d<22&&frame%30===0)player.hp=Math.max(0,player.hp-1);ctx.font="24px sans-serif";ctx.fillText("👾",e.x,e.y);ctx.fillStyle="#fff";ctx.fillRect(e.x-15,e.y-22,30,4);ctx.fillStyle="#ef4444";ctx.fillRect(e.x-15,e.y-22,30*Math.max(0,e.hp/(e.baseHp*e.boost)),4);ctx.fillStyle="#fff"});
   ctx.font="30px sans-serif";const selectedSkin=typeof window.getSelectedSkinEmoji==="function"?window.getSelectedSkinEmoji():"🙂";ctx.fillText(selectedSkin||"🙂",player.x,player.y);const remain=Math.max(0,600-Math.floor((Date.now()-mapStartedAt)/1000));const timerText=String(Math.floor(remain/60)).padStart(2,"0")+":"+String(remain%60).padStart(2,"0");hud.textContent="⏱ 残り "+timerText+"　｜　💀 倒した敵："+kills+"体 / 100体　｜　出現："+spawned+" / 100　｜　❤️ "+player.hp+(hatTimer>0?"　🎩強化リセット中":"");

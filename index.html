@@ -5085,6 +5085,7 @@ function redrawCanvas() {
 }
 function drawPoint(e) {
   if (locked) return;
+  if (window.adminAbuseActive) { drawing = false; const m=document.getElementById("msg"); if(m)m.textContent="🚫 ADMIN ABUSE中はキャンバスに描けません。"; return; }
   const r = dc.getBoundingClientRect();
   const x = (e.clientX - r.left) * (dc.width / r.width);
   const y = (e.clientY - r.top) * (dc.height / r.height);
@@ -5108,13 +5109,14 @@ function drawPoint(e) {
     dctx.fill();
   }
 }
-dc.addEventListener("pointerdown", e => { if (locked) return; e.preventDefault(); drawing = true; dc.setPointerCapture?.(e.pointerId); drawPoint(e); }, { passive: false });
-dc.addEventListener("pointermove", e => { if (!drawing || locked) return; e.preventDefault(); drawPoint(e); }, { passive: false });
+dc.addEventListener("pointerdown", e => { if (locked) return; if(window.adminAbuseActive){e.preventDefault();drawing=false;const m=document.getElementById("msg");if(m)m.textContent="🚫 ADMIN ABUSE中はキャンバスに描けません。";return;} e.preventDefault(); drawing = true; dc.setPointerCapture?.(e.pointerId); drawPoint(e); }, { passive: false });
+dc.addEventListener("pointermove", e => { if (!drawing || locked) return; if(window.adminAbuseActive){e.preventDefault();drawing=false;const m=document.getElementById("msg");if(m)m.textContent="🚫 ADMIN ABUSE中はキャンバスに描けません。";return;} e.preventDefault(); drawPoint(e); }, { passive: false });
 function stopDraw(e) { e.preventDefault(); drawing = false; if (e.pointerId != null) dc.releasePointerCapture?.(e.pointerId); }
 dc.addEventListener("pointerup", stopDraw, { passive: false });
 dc.addEventListener("pointercancel", stopDraw, { passive: false });
 function clearCanvas() {
   if (locked) return;
+  if (window.adminAbuseActive) { const m=document.getElementById("msg"); if(m)m.textContent="🚫 ADMIN ABUSE中はキャンバス操作できません。"; return; }
   pts = [];
   redrawCanvas();
   document.getElementById("result").textContent = "";

@@ -7101,11 +7101,12 @@ function moveHalloweenPlayer(dx,dy){
   if(!halloweenPlayerBlocked(p.x,ny))p.y=ny;
 }
 function halloweenUpdate() {
+  // 導入カウントダウンは古い一時停止フラグが残っていても必ず進める。
+  if(halloweenIntroFrame>0){halloweenIntroFrame--;return;}
+  if(halloweenIntroFrame===0){halloweenIntroFrame=-1;halloweenStartBanner=45;return;}
   if (window.gameSavePaused) return;
   const rouletteOverlay=document.getElementById("halloweenRouletteOverlay");
   if(rouletteOverlay&&!rouletteOverlay.classList.contains("hidden"))return;
-  if(halloweenIntroFrame>0){halloweenIntroFrame--;return;}
-  if(halloweenIntroFrame===0){halloweenIntroFrame=-1;halloweenStartBanner=45;return;}
   if(halloweenTransition>0){
     halloweenTransition--;
     if(halloweenTransition===0){halloweenWave++;halloweenSpawnWave();halloweenStartBanner=45;}

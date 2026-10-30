@@ -11883,7 +11883,7 @@ later(600,()=>{adminAbuseClearZigzag();document.body.classList.remove("admin-abu
   const remain=Math.max(0,600-Math.floor((Date.now()-mapStartedAt)/1000));
   const timerText=String(Math.floor(remain/60)).padStart(2,"0")+":"+String(remain%60).padStart(2,"0");
   const timerDisplay=((Date.now()-startAt)/1000)<840?"ERROR":timerText;
-  let hudText="⏱ "+timerDisplay+"　｜　💀 撃破 "+kills+" / 150　｜　👾 出現 "+spawned+" / 150　｜　❤️ "+Math.max(0,player.hp)+;
+  let hudText="⏱ "+timerDisplay+"　｜　💀 撃破 "+kills+" / 150　｜　👾 出現 "+spawned+" / 150　｜　❤️ "+Math.max(0,player.hp);
   if(dead)hudText="💀 GAME OVER　｜　撃破 "+kills+"　｜　生存 "+String(Math.floor((deathAt-mapStartedAt)/60)).padStart(2,"0")+":"+String(Math.floor((deathAt-mapStartedAt)%60)).padStart(2,"0");
   if(kills>=150)hudText="🎉 150体撃破！イベント終了まで続けられるよ";
   if(hud)hud.textContent=hudText;

@@ -11782,6 +11782,12 @@ later(600,()=>{adminAbuseClearZigzag();document.body.classList.remove("admin-abu
  const originalFinish=finish;
  function draw(){
   if(!running||!active)return;
+  // ルーレット表示中は新マップの時間・敵・プレイヤーを一時停止する。
+  const rouletteOverlay=document.getElementById("halloweenRouletteOverlay");
+  if(rouletteOverlay&&!rouletteOverlay.classList.contains("hidden")){
+   requestAnimationFrame(draw);
+   return;
+  }
   frame++;ctx.clearRect(0,0,900,500);ctx.fillStyle="#7c2d12";ctx.fillRect(0,0,900,500);
   ctx.strokeStyle="rgba(255,180,80,.18)";for(let x=0;x<900;x+=45){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,500);ctx.stroke()}for(let y=0;y<500;y+=45){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(900,y);ctx.stroke()}
   ctx.textAlign="center";
@@ -11806,12 +11812,22 @@ later(600,()=>{adminAbuseClearZigzag();document.body.classList.remove("admin-abu
   let nx=player.x,ny=player.y;
   if(keys.w||keys.arrowup)ny-=3;if(keys.s||keys.arrowdown)ny+=3;if(keys.a||keys.arrowleft)nx-=3;if(keys.d||keys.arrowright)nx+=3;
   nx=Math.max(20,Math.min(880,nx));ny=Math.max(20,Math.min(480,ny));
-  // 💀障害物には通り抜けられない当たり判定を付ける。
-  const blocked=(x,y)=>skulls.some(b=>Math.hypot(x-b.x,y-(b.y-10))<39);
-  if(!blocked(nx,player.y))player.x=nx;
-  if(!blocked(player.x,ny))player.y=ny;
-  // 🎃ボックスは接触すると取得して消える。
-  for(let i=boxes.length-1;i>=0;i--){if(Math.hypot(player.x-boxes[i].x,player.y-(boxes[i].y-10))<42){boxes.splice(i,1);player.hp=Math.min(300,player.hp+25);}}
+  // 💀障害物専用の円形当たり判定。プレイヤーの半径も考慮し、軸ごとに判定して壁沿いに移動できるようにする。
+  const playerRadius=15,skullRadius=25;
+  const hitsSkull=(x,y)=>skulls.some(b=>Math.hypot(x-b.x,y-(b.y-12))<playerRadius+skullRadius);
+  if(!hitsSkull(nx,player.y))player.x=nx;
+  if(!hitsSkull(player.x,ny))player.y=ny;
+  // 🎃ボックスは接触した瞬間に一度だけ開封し、既存のハロウィン専用ルーレットを起動する。
+  const touchedBox=boxes.find(b=>!b.opened&&Math.hypot(player.x-b.x,player.y-(b.y-12))<playerRadius+24);
+  if(touchedBox){
+   touchedBox.opened=true;
+   if(typeof window.startHalloweenRoulette==="function"){
+    window.startHalloweenRoulette();
+   }else{
+    touchedBox.opened=false;
+    hud.textContent="⚠️ ハロウィンルーレットを読み込めませんでした";
+   }
+  }
   if(attackCd>0)attackCd--;
   if((attackRequested||keys.e||keys[" "])&&attackCd===0){
    attackRequested=false;attackCd=42;

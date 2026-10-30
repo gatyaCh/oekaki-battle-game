@@ -6983,6 +6983,9 @@ function halloweenSpawnWave() {
   msg.textContent="子分とボスを倒そう！ 🎃ボックスからはハロウィン限定アイテムが出るよ。";
 }
 function halloweenStart() {
+  // 戦闘開始時にセーブ画面等の一時停止状態を必ず解除。導入演出もupdate()で進むようにする。
+  window.gameSavePaused=false;
+  if(typeof paused!=="undefined")paused=false;
   halloweenWaveActive=true;window.halloweenWaveActive=true;halloweenWave=1;halloweenSouls=0;
   halloweenPlayFrames=0;halloweenWave1DamageTaken=0;halloweenBossWavesDefeated=[];
   halloweenBuff={speed:1,damage:1,reduction:1};halloweenLevels={attack:0,defense:0,speed:0};

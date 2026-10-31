@@ -5759,15 +5759,16 @@ function spawnBox() {
   boxes = [];
   const ryokutyaActive = !!(window.specialCodes && window.specialCodes.ryokutya);
   const count = ryokutyaActive ? 4 : Math.max(1, Math.min(10, Math.floor(Number(window.adminBoxCount) || 2)));
+  const halloweenRetired = Date.now() >= new Date("2026-11-01T09:00:00+09:00").getTime();
   const halloweenRoll = Math.random() * 100;
-  // 40%: 🎁のうち1個だけ🎃、25%: 全部🎃、35%: 全部🎁
-  const halloweenMode = halloweenRoll < 25 ? "all" : halloweenRoll < 65 ? "one" : "none";
+  // 2026/11/1 09:00以降は🎃ボックスを終了し、すべて通常の🎁ボックスにする。
+  const halloweenMode = halloweenRetired ? "none" : (halloweenRoll < 25 ? "all" : halloweenRoll < 65 ? "one" : "none");
   const specialSlot = Math.floor(Math.random() * count);
   for (let i = 0; i < count; i++) {
     boxes.push({
       x: 100 + Math.random() * 700,
       y: 80 + Math.random() * 340,
-      item: halloweenMode === "all" || (halloweenMode === "one" && i === specialSlot) ? "🎃" : weightedItem(),
+      item: !halloweenRetired && (halloweenMode === "all" || (halloweenMode === "one" && i === specialSlot)) ? "🎃" : weightedItem(),
     });
   }
 }
@@ -10884,6 +10885,47 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
 
 
+
+<script id="halloween-retirement-schedule">
+(function(){
+  "use strict";
+  const retireAt = new Date("2026-11-01T09:00:00+09:00").getTime();
+  function applyRetirement(){
+    if(Date.now() < retireAt) return;
+    const mapSelect = document.getElementById("mapSelect");
+    const options = mapSelect && mapSelect.querySelector(".map-options");
+    if(options){
+      const cards = options.querySelectorAll(".map-option");
+      if(cards.length > 1){
+        const locked = cards[1];
+        locked.innerHTML = '<h2>？？？</h2><p>？？？</p><span class="map-lock-label">🔒 ロック中</span><button type="button" disabled aria-disabled="true" style="text-decoration:line-through;opacity:.55;cursor:not-allowed">？？？</button>';
+        locked.setAttribute("aria-label","？？？ ロック中");
+      }
+    }
+    const eventButton = document.getElementById("adminAbuseOpenBtn");
+    if(eventButton){
+      eventButton.disabled = true;
+      eventButton.setAttribute("aria-disabled","true");
+      eventButton.textContent = "🌀ADMIN ABUSE🌪️　？？？　？？？";
+      eventButton.style.textDecoration = "line-through";
+      eventButton.style.opacity = ".5";
+      eventButton.style.filter = "grayscale(1)";
+      eventButton.style.cursor = "not-allowed";
+      eventButton.title = "🔒 ロック中";
+    }
+    const announcement = document.getElementById("specialMoveAnnouncement");
+    if(announcement) announcement.textContent = "🌀ADMIN ABUSE🌪️　？？？　？？？";
+    const newMap = document.getElementById("adminAbuseNewHalloween");
+    if(newMap) newMap.style.display = "none";
+    window.halloweenWaveActive = false;
+    window.adminAbusePending = false;
+    window.adminAbuseActive = false;
+  }
+  applyRetirement();
+  window.addEventListener("DOMContentLoaded",applyRetirement,{once:true});
+  setInterval(applyRetirement,1000);
+})();
+</script>
 </body>
 </html>
 

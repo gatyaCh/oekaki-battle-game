@@ -11799,6 +11799,8 @@ later(600,()=>{adminAbuseClearZigzag();document.body.classList.remove("admin-abu
   dead=false;deathAt=0;attackRequested=false;crownSpawned=false;Object.keys(keys).forEach(k=>keys[k]=false);
   countdownUntil=Date.now()+3000;mapStartedAt=countdownUntil;
   if(deathOverlay){deathOverlay.remove();deathOverlay=null;}
+  const staleCountdown=document.getElementById("adminAbuseNewMapCountdownOverlay");
+  if(staleCountdown)staleCountdown.remove();
  }
  function showDeath(){
   if(dead)return;
@@ -11836,8 +11838,10 @@ later(600,()=>{adminAbuseClearZigzag();document.body.classList.remove("admin-abu
    const sec=Math.max(1,Math.ceil((countdownUntil-now)/1000));
    ctx.font="bold 38px sans-serif";ctx.fillStyle="#fff";ctx.fillText(options.fadeIn?"まもなく開始":"リトライ開始まで "+sec,450,250);
    const countOverlay=document.getElementById("adminAbuseNewMapCountdownOverlay");
-   if(countOverlay){countOverlay.textContent="🔄 リトライ開始まで "+sec;if(now>=countdownUntil){countOverlay.remove();}}
+   if(countOverlay)countOverlay.textContent="🔄 リトライ開始まで "+sec;
   }else{
+   const finishedCountdown=document.getElementById("adminAbuseNewMapCountdownOverlay");
+   if(finishedCountdown)finishedCountdown.remove();
    // 初期4〜6体。その後2秒間隔から徐々に短縮し、最大150体。
    if(spawned===0){
     for(let n=0;n<initialSpawnCount;n++){const count=++spawned;enemies.push({x:850,y:35+Math.random()*430,hp:20,baseHp:20,speed:1,boost:Math.min(4,1+count*.02),damage:0});}

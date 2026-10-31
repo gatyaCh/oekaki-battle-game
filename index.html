@@ -11801,13 +11801,14 @@ later(600,()=>{adminAbuseClearZigzag();document.body.classList.remove("admin-abu
   if(deathOverlay){deathOverlay.remove();deathOverlay=null;}
  }
  function showDeath(){
+  if(dead)return;
   dead=true;deathAt=Date.now();attackRequested=false;
   const survived=Math.max(0,Math.floor((deathAt-mapStartedAt)/1000));
   const mm=String(Math.floor(survived/60)).padStart(2,"0"),ss=String(survived%60).padStart(2,"0");
   deathOverlay=makeOverlay("adminAbuseNewMapDeathOverlay",900080,"rgba(12,5,3,.96)");
   deathOverlay.innerHTML='<div style="font-size:clamp(30px,5vw,48px)">💀 GAME OVER</div><div style="font-size:22px">撃破数：'+kills+'体</div><div style="font-size:22px">生存時間：'+mm+':'+ss+'</div><button id="adminAbuseNewMapRetry" type="button" style="font-size:22px;font-weight:900;padding:12px 30px;border-radius:12px;border:2px solid #fdba74;background:#9a3412;color:white;cursor:pointer">🔄 リトライ</button>';
   const retry=deathOverlay.querySelector("#adminAbuseNewMapRetry");
-  retry.addEventListener("click",()=>{resetRun();deathOverlay=makeOverlay("adminAbuseNewMapCountdownOverlay",900080,"rgba(12,5,3,.96)");});
+  retry.addEventListener("click",()=>{if(!dead||!running)return;resetRun();deathOverlay=makeOverlay("adminAbuseNewMapCountdownOverlay",900080,"rgba(12,5,3,.96)");deathOverlay.style.pointerEvents="auto";});
  }
  function draw(){
   if(!running||!active)return;

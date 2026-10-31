@@ -7103,7 +7103,7 @@ function moveHalloweenPlayer(dx,dy){
 function halloweenUpdate() {
   // 導入カウントダウンは古い一時停止フラグが残っていても必ず進める。
   if(halloweenIntroFrame>0){halloweenIntroFrame--;return;}
-  if(halloweenIntroFrame===0){halloweenIntroFrame=-1;halloweenStartBanner=45;return;}
+  if(halloweenIntroFrame===0){halloweenIntroFrame=-1;window.gameSavePaused=false;if(typeof paused!=="undefined")paused=false;halloweenStartBanner=45;return;}
   if (window.gameSavePaused) return;
   const rouletteOverlay=document.getElementById("halloweenRouletteOverlay");
   if(rouletteOverlay&&!rouletteOverlay.classList.contains("hidden"))return;
@@ -7532,7 +7532,8 @@ if(halloweenCanvas)halloweenCanvas.addEventListener("click",e=>{
 });
 
 function update() {
-  if (window.gameSavePaused) return;
+  // ハロウィン導入カウントダウンだけは、一時停止フラグより優先して進める。
+  if (window.gameSavePaused && !(halloweenWaveActive && halloweenIntroFrame >= 0)) return;
   // タイトル・描画・カウントダウン中は、マップの種類に関係なく戦闘処理を停止。
   if (currentScreen !== "game") return;
   if (halloweenWaveActive) { halloweenUpdate(); return; }

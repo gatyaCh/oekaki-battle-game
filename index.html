@@ -11805,10 +11805,11 @@ later(600,()=>{adminAbuseClearZigzag();document.body.classList.remove("admin-abu
   dead=true;deathAt=Date.now();attackRequested=false;
   const survived=Math.max(0,Math.floor((deathAt-mapStartedAt)/1000));
   const mm=String(Math.floor(survived/60)).padStart(2,"0"),ss=String(survived%60).padStart(2,"0");
-  deathOverlay=makeOverlay("adminAbuseNewMapDeathOverlay",900080,"rgba(12,5,3,.96)");
+  deathOverlay=makeOverlay("adminAbuseNewMapDeathOverlay",2147483647,"rgba(12,5,3,.98)");
+  deathOverlay.style.zIndex="2147483647";deathOverlay.style.pointerEvents="auto";deathOverlay.style.position="fixed";deathOverlay.style.inset="0";
   deathOverlay.innerHTML='<div style="font-size:clamp(30px,5vw,48px)">💀 GAME OVER</div><div style="font-size:22px">撃破数：'+kills+'体</div><div style="font-size:22px">生存時間：'+mm+':'+ss+'</div><button id="adminAbuseNewMapRetry" type="button" style="font-size:22px;font-weight:900;padding:12px 30px;border-radius:12px;border:2px solid #fdba74;background:#9a3412;color:white;cursor:pointer">🔄 リトライ</button>';
   const retry=deathOverlay.querySelector("#adminAbuseNewMapRetry");
-  retry.addEventListener("click",()=>{if(!dead||!running)return;resetRun();deathOverlay=makeOverlay("adminAbuseNewMapCountdownOverlay",900080,"rgba(12,5,3,.96)");deathOverlay.style.pointerEvents="auto";});
+  retry.style.position="relative";retry.style.zIndex="2147483647";retry.style.pointerEvents="auto";retry.style.touchAction="manipulation";retry.onclick=(ev)=>{ev.preventDefault();ev.stopPropagation();if(!dead||!running)return;const oldDeath=deathOverlay;dead=false;deathAt=0;attackRequested=false;player={x:450,y:420,hp:300};kills=0;spawned=0;frame=0;attackCd=0;lastSpawn=Date.now();mapStartedAt=Date.now()+3000;initialSpawnCount=4+Math.floor(Math.random()*3);enemies.length=0;projectiles.length=0;attackEffects.length=0;boxes.forEach(b=>{b.cooldownUntil=0;});crownSpawned=false;Object.keys(keys).forEach(k=>keys[k]=false);countdownUntil=Date.now()+3000;if(oldDeath)oldDeath.remove();deathOverlay=null;const stale=document.getElementById("adminAbuseNewMapCountdownOverlay");if(stale)stale.remove();const count=makeOverlay("adminAbuseNewMapCountdownOverlay",2147483646,"rgba(12,5,3,.96)");count.style.pointerEvents="none";count.textContent="🔄 リトライ開始まで 3";};
  }
  function draw(){
   if(!running||!active)return;

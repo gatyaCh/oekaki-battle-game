@@ -3432,6 +3432,17 @@ body:has(#gameArea:not(.hidden)) #specialCodeBox {
   display:none !important;
   pointer-events:none !important;
 }
+/* ポーズ中に開いたスペシャルコード画面は、戦闘画面より前面に表示する */
+body.special-code-open:has(#count:not(.hidden)) #specialCodeBox,
+body.special-code-open:has(#gameArea:not(.hidden)) #specialCodeBox {
+  display:block !important;
+  position:fixed !important;
+  inset:0 !important;
+  z-index:1000010 !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+}
 
 /* V23: スマホ描画キャンバス拡大モード */
 #expandDrawBtn,
@@ -5263,7 +5274,10 @@ function judge() {
 function startCountdown() {
   if (tutorialActive) document.getElementById("tutorialPanel").classList.add("hidden");
   const specialCodeBox = document.getElementById("specialCodeBox");
-  if (specialCodeBox) specialCodeBox.classList.add("hidden");
+  if (specialCodeBox) {
+    if (typeof window.closeSpecialCodeBox === "function") window.closeSpecialCodeBox();
+    else { specialCodeBox.classList.add("hidden"); document.body.classList.remove("special-code-open"); }
+  }
 
   // 画面切り替えはCSSのgridやhidden指定に左右されないよう、
   // ここでは各画面を明示的にON/OFFする。
@@ -9248,6 +9262,7 @@ loop();
 
   function openCodeBox(){
     box.classList.remove("hidden");
+    document.body.classList.add("special-code-open");
     setInputMode(true);
     requestAnimationFrame(() => {
       if(input){
@@ -9259,6 +9274,7 @@ loop();
 
   function closeCodeBox(){
     box.classList.add("hidden");
+    document.body.classList.remove("special-code-open");
     setInputMode(false);
   }
 

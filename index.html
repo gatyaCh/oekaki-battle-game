@@ -10371,14 +10371,14 @@ body.mobile-mode #battlePickupNotice {
   function showPauseMenu(){
     window.gameSavePaused=true;pauseBtn.style.display="none";
     const codeBtn=document.getElementById("gameSpecialCodePauseBtn");if(codeBtn)codeBtn.style.display="none";
-    showOverlay("⏸️ ポーズ中",'<p>ゲームは一時停止中です。</p><div class="game-save-actions"><button id="gameSaveResumeBtn">ゲームに戻る</button><button id="gameSaveStartSaveBtn">💾 セーブする</button><button id="gameSaveOpenFusionBtn">⚗️ ヒューズスキンマシン</button><button id="gameSaveOpenSpecialCodeBtn">🤫 スペシャルコード</button></div>',true);
+    showOverlay("⏸️ ポーズ中",'<p>ゲームは一時停止中です。</p><div class="game-save-actions"><button id="gameSaveResumeBtn">▶️ ゲームに戻る</button><button id="gameSaveOpenInventoryBtn">🗄️ アイテム保管庫</button><button id="gameSaveOpenFusionBtn">⚗️ ヒューズスキンマシン</button><button id="gameSaveOpenSpecialCodeBtn">🤫 スペシャルコード</button><button id="gameSaveStartSaveBtn">💾 セーブする</button><button id="gameSaveReturnDrawBtn">✏️ キャンバスへ戻る</button></div>',true);
   }
   window.returnToBattlePauseMenu=function(){if(window.gameSavePaused)showPauseMenu();};
   window.openBattleSpecialCodeFromPause=function(){
     if(currentScreen!=="game"||!window.gameSavePaused)return;
     overlay.classList.add("hidden");
     const box=document.getElementById("specialCodeBox");const input=document.getElementById("specialCodeInput");
-    if(box){box.style.zIndex="1000010";box.classList.remove("hidden");if(input)input.focus();}
+    if(box){box.classList.remove("hidden");if(typeof window.openSpecialCodeBox==="function")window.openSpecialCodeBox();else{box.style.zIndex="1000010";box.style.display="block";if(input)input.focus();}}
   };
   function confirmSave(){showOverlay("💾 セーブしますか？",'<p>現在の戦闘状態を保存します。</p><div class="game-save-actions"><button id="gameSaveConfirmYes">はい</button><button id="gameSaveConfirmNo">いいえ</button></div>',true);}
   function commitSave(){
@@ -10417,6 +10417,8 @@ body.mobile-mode #battlePickupNotice {
     if(t.id==="gameSaveResumeBtn"){overlay.classList.add("hidden");window.gameSavePaused=false;keys={};charging=false;refreshPauseButton();return;}
     if(t.id==="gameSaveOpenFusionBtn"){overlay.classList.add("hidden");window.gameSavePaused=true;if(window.openFusionMachineFromPause)window.openFusionMachineFromPause();else showPauseMenu();return;}
     if(t.id==="gameSaveOpenSpecialCodeBtn"){window.openBattleSpecialCodeFromPause();return;}
+    if(t.id==="gameSaveOpenInventoryBtn"){overlay.classList.add("hidden");if(window.openBattleInventoryFromPause)window.openBattleInventoryFromPause();else showPauseMenu();return;}
+    if(t.id==="gameSaveReturnDrawBtn"){overlay.classList.add("hidden");window.gameSavePaused=false;const canvasBtn=document.getElementById("gameInventoryOpenBtn");if(canvasBtn)canvasBtn.click();return;}
     if(t.id==="gameSaveStartSaveBtn"){confirmSave();return;}
     if(t.id==="gameSaveConfirmNo"){showPauseMenu();return;}
     if(t.id==="gameSaveConfirmYes"){commitSave();return;}
@@ -10449,9 +10451,8 @@ body.mobile-mode #battlePickupNotice {
 <style id="game-inventory-style">
 #gameInventoryOpenBtn{position:fixed;right:14px;top:calc(46% + 66px);z-index:899900;display:none;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:22px;min-width:62px;min-height:58px;padding:5px 7px;border:1px solid #a7d7ff;border-radius:14px;background:#17324a;color:#fff;box-shadow:0 3px 12px #0008;cursor:pointer}
 #gameInventoryOpenBtn .return-canvas-label{font-size:10px;line-height:1.15;white-space:nowrap}
-#gameInventoryStorageBtn{position:fixed;right:14px;top:calc(46% + 126px);z-index:999999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:22px;min-width:62px;min-height:58px;padding:5px 7px;border:1px solid #86efac;border-radius:14px;background:#14532d;color:#fff;box-shadow:0 3px 12px #0008;cursor:pointer}
-#gameInventoryStorageBtn:hover{background:#166534}
-@media(max-width:600px){#gameInventoryStorageBtn{right:7px;top:calc(43% + 112px);z-index:999999;min-width:46px;min-height:46px;font-size:22px}}
+#gameInventoryStorageBtn,#gameSpecialCodePauseBtn{display:none!important}
+#gameInventoryOpenBtn{display:none!important}
 #gameInventoryOpenBtn:hover{background:#24577b}
 
 #gameInventoryOverlay{position:fixed;inset:0;z-index:1000002;display:flex;align-items:center;justify-content:center;padding:14px;box-sizing:border-box;background:rgba(2,6,23,.9);color:#fff}
@@ -10472,7 +10473,7 @@ body.mobile-mode #battlePickupNotice {
 @media(max-width:600px){#gameInventoryOpenBtn{right:7px;top:calc(43% + 58px);min-width:46px;min-height:46px;font-size:22px}#gameInventoryCard{padding:12px}.game-inventory-row{padding:9px 4px;gap:6px}.game-inventory-row button{padding:8px 9px}}
 </style>
 <button id="gameInventoryOpenBtn" type="button" aria-label="キャンバス画面に戻る" title="キャンバス画面に戻る">✏️<span class="return-canvas-label">キャンバスへ</span></button>
-<button id="gameInventoryStorageBtn" type="button" aria-label="アイテム保管庫を開く" title="アイテム保管庫を開く">🗄️<span class="return-canvas-label">保管庫</span></button><button id="gameSpecialCodePauseBtn" type="button" aria-label="スペシャルコード" title="スペシャルコード">🤫<span class="return-canvas-label">スペシャルコード</span></button>
+
 <div id="gameInventoryOverlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="gameInventoryTitle">
   <section id="gameInventoryCard">
     <h2 id="gameInventoryTitle">🗄️ アイテム保管庫</h2>
@@ -10509,7 +10510,7 @@ body.mobile-mode #battlePickupNotice {
     {id:"potionLarge",name:"🧙 大回復薬",desc:"HPを100回復",sub:true},
     {id:"potionSmall",name:"🧙 小回復薬",desc:"HPを50回復",sub:true}
   ];
-  let tab="normal",pendingUses=[],noticeReturnTab="normal";
+  let tab="normal",pendingUses=[],noticeReturnTab="normal",inventoryOpenedFromPause=false;
   function inventory(){
     if(!window.gameItemInventory)window.gameItemInventory={normal:{},halloween:{}};
     const inv=window.gameItemInventory;
@@ -10569,7 +10570,7 @@ body.mobile-mode #battlePickupNotice {
     }
     footer.innerHTML='<button id="gameInventoryPrevBtn" '+(tab==="normal"?'disabled':'')+'>←</button><button id="gameInventoryNextBtn" '+(tab==="halloween"?'disabled':'')+'>→</button><button id="gameInventoryCloseBtn">閉じる（戦闘再開）</button>';
   }
-  function showInventory(){window.gameSavePaused=true;pendingUses=[];tab="normal";render();overlay.classList.remove("hidden");}window.openGameInventory=showInventory;
+  function showInventory(){window.gameSavePaused=true;pendingUses=[];tab="normal";render();overlay.classList.remove("hidden");}window.openGameInventory=showInventory;window.openBattleInventoryFromPause=function(){if(currentScreen!=="game"||!window.gameSavePaused)return;inventoryOpenedFromPause=true;showInventory();};
   function showUsedNotice(name){
     overlay.classList.remove("hidden");
     title.textContent="✅ 使用しました";
@@ -10632,8 +10633,8 @@ body.mobile-mode #battlePickupNotice {
         const uses=pendingUses.slice();pendingUses=[];
         try{uses.forEach(applyUse)}catch(e){console.error("Inventory item use failed",e);if(typeof msg!=="undefined")msg.textContent="アイテムの使用に失敗しました。";}
         overlay.classList.add("hidden");
-        window.gameSavePaused=false;
-        keys={};charging=false;
+        if(inventoryOpenedFromPause){inventoryOpenedFromPause=false;window.gameSavePaused=true;keys={};charging=false;if(window.returnToBattlePauseMenu)window.returnToBattlePauseMenu();}
+        else{window.gameSavePaused=false;keys={};charging=false;}
       }
     },700);
   }

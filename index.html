@@ -8523,7 +8523,7 @@ loop();
   }
   hush.onclick = openAdminPanel;
   document.getElementById("adminClose").onclick = (e) => { e.stopPropagation(); closeAdminPanel(); };
-  document.getElementById("specialCodeBack").onclick = () => {codeBox.classList.add("hidden");if(window.gameSavePaused&&currentScreen==="game"&&window.returnToBattlePauseMenu)window.returnToBattlePauseMenu();if(window.gameSavePaused&&currentScreen==="game"&&window.returnToBattlePauseMenu)window.returnToBattlePauseMenu();};
+  document.getElementById("specialCodeBack").onclick = () => {codeBox.classList.add("hidden");if(window.gameSavePaused&&currentScreen==="game"&&window.returnToBattlePauseMenu)window.returnToBattlePauseMenu();};
   document.getElementById("specialCodeCheck").onclick = () => {
     const code = codeInput.value.trim().toLowerCase();
 
@@ -8533,7 +8533,7 @@ loop();
       window.halloweenWaveTestRequested = true;
       codeInput.value = "";
       codeMsg.textContent = "";
-      codeBox.classList.add("hidden");if(window.gameSavePaused&&currentScreen==="game"&&window.returnToBattlePauseMenu)window.returnToBattlePauseMenu();
+      codeBox.classList.add("hidden");
       document.getElementById("result").textContent = "🎃 ハロウィンウェーブモード";
       document.getElementById("result").style.color = "#ffb347";
       setScreen("draw");
@@ -10193,9 +10193,9 @@ body.mobile-mode #battlePickupNotice {
 #title{position:relative}
 #gameSaveOpenBtn{position:absolute;top:12px;right:14px;font-size:26px;padding:9px 12px;border:1px solid #64748b;border-radius:12px;background:#1e293b;color:#fff;z-index:20;cursor:pointer}
 #gameSavePauseBtn{position:fixed;right:14px;top:46%;z-index:899900;font-size:25px;min-width:54px;min-height:54px;border:1px solid #cbd5e1;border-radius:14px;background:#172033;color:#fff;box-shadow:0 3px 12px #0008;cursor:pointer;display:none}
-#gameSpecialCodePauseBtn{position:fixed;right:14px;top:calc(46% + 116px);z-index:899900;font-size:20px;min-width:54px;min-height:54px;border:1px solid #a78bfa;border-radius:14px;background:#312e81;color:#fff;box-shadow:0 3px 12px #0008;cursor:pointer;display:none}
+#gameSpecialCodePauseBtn{position:fixed;right:14px;top:calc(46% + 190px);z-index:899900;font-size:20px;min-width:54px;min-height:54px;border:1px solid #a78bfa;border-radius:14px;background:#312e81;color:#fff;box-shadow:0 3px 12px #0008;cursor:pointer;display:none}
 #gameSpecialCodePauseBtn .return-canvas-label{display:block;font-size:10px;line-height:1.1;margin-top:2px}
-@media(max-width:600px){#gameSpecialCodePauseBtn{right:7px;top:calc(43% + 174px);min-width:46px;min-height:46px;font-size:19px}}
+@media(max-width:600px){#gameSpecialCodePauseBtn{right:7px;top:calc(43% + 166px);min-width:46px;min-height:46px;font-size:19px}}
 #gameSaveOverlay{position:fixed;inset:0;z-index:1000000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(2,6,23,.88);color:#fff;box-sizing:border-box}
 #gameSaveOverlay.hidden{display:none!important}
 #gameSaveCard{width:min(560px,96vw);max-height:90vh;overflow:auto;background:#111827;border:1px solid #64748b;border-radius:18px;padding:20px;box-sizing:border-box;text-align:center;box-shadow:0 12px 40px #0009}

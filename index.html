@@ -10418,7 +10418,7 @@ body.mobile-mode #battlePickupNotice {
     if(t.id==="gameSaveOpenFusionBtn"){overlay.classList.add("hidden");window.gameSavePaused=true;if(window.openFusionMachineFromPause)window.openFusionMachineFromPause();else showPauseMenu();return;}
     if(t.id==="gameSaveOpenSpecialCodeBtn"){window.openBattleSpecialCodeFromPause();return;}
     if(t.id==="gameSaveOpenInventoryBtn"){overlay.classList.add("hidden");if(window.openBattleInventoryFromPause)window.openBattleInventoryFromPause();else showPauseMenu();return;}
-    if(t.id==="gameSaveReturnDrawBtn"){overlay.classList.add("hidden");window.gameSavePaused=false;const canvasBtn=document.getElementById("gameInventoryOpenBtn");if(canvasBtn)canvasBtn.click();return;}
+    if(t.id==="gameSaveReturnDrawBtn"){overlay.classList.add("hidden");const codeBox=document.getElementById("specialCodeBox");if(codeBox&&typeof window.closeSpecialCodeBox==="function")window.closeSpecialCodeBox();else if(codeBox)codeBox.classList.add("hidden");const inventoryOverlay=document.getElementById("gameInventoryOverlay");if(inventoryOverlay)inventoryOverlay.classList.add("hidden");window.gameSavePaused=false;keys={};charging=false;if(typeof setScreen==="function")setScreen("draw");else{currentScreen="draw";syncScreenVisibility();}const pause=document.getElementById("gameSavePauseBtn");if(pause)pause.style.display="none";const msgNode=document.getElementById("msg");if(msgNode)msgNode.textContent="✏️ キャンバス画面に戻りました。武器を描き直して戦闘を開始できます。";return;}
     if(t.id==="gameSaveStartSaveBtn"){confirmSave();return;}
     if(t.id==="gameSaveConfirmNo"){showPauseMenu();return;}
     if(t.id==="gameSaveConfirmYes"){commitSave();return;}

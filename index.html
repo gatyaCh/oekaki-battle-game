@@ -10373,8 +10373,16 @@ body.mobile-mode #battlePickupNotice {
   }
   function showPauseMenu(){
     window.gameSavePaused=true;pauseBtn.style.display="none";
-    showOverlay("⏸️ ポーズ中",'<p>ゲームは一時停止中です。</p><div class="game-save-actions"><button id="gameSaveResumeBtn">ゲームに戻る</button><button id="gameSaveStartSaveBtn">💾 セーブする</button></div>',true);
+    const codeBtn=document.getElementById("gameSpecialCodePauseBtn");if(codeBtn)codeBtn.style.display="none";
+    showOverlay("⏸️ ポーズ中",'<p>ゲームは一時停止中です。</p><div class="game-save-actions"><button id="gameSaveResumeBtn">ゲームに戻る</button><button id="gameSaveStartSaveBtn">💾 セーブする</button><button id="gameSaveOpenFusionBtn">⚗️ ヒューズスキンマシン</button><button id="gameSaveOpenSpecialCodeBtn">🤫 スペシャルコード</button></div>',true);
   }
+  window.returnToBattlePauseMenu=function(){if(window.gameSavePaused)showPauseMenu();};
+  window.openBattleSpecialCodeFromPause=function(){
+    if(currentScreen!=="game"||!window.gameSavePaused)return;
+    overlay.classList.add("hidden");
+    const box=document.getElementById("specialCodeBox");const input=document.getElementById("specialCodeInput");
+    if(box){box.style.zIndex="1000010";box.classList.remove("hidden");if(input)input.focus();}
+  };
   function confirmSave(){showOverlay("💾 セーブしますか？",'<p>現在の戦闘状態を保存します。</p><div class="game-save-actions"><button id="gameSaveConfirmYes">はい</button><button id="gameSaveConfirmNo">いいえ</button></div>',true);}
   function commitSave(){
     try{
@@ -10410,6 +10418,8 @@ body.mobile-mode #battlePickupNotice {
   body.addEventListener("click",e=>{
     const t=e.target.closest("button");if(!t)return;
     if(t.id==="gameSaveResumeBtn"){overlay.classList.add("hidden");window.gameSavePaused=false;keys={};charging=false;refreshPauseButton();return;}
+    if(t.id==="gameSaveOpenFusionBtn"){overlay.classList.add("hidden");window.gameSavePaused=true;if(window.openFusionMachineFromPause)window.openFusionMachineFromPause();else showPauseMenu();return;}
+    if(t.id==="gameSaveOpenSpecialCodeBtn"){window.openBattleSpecialCodeFromPause();return;}
     if(t.id==="gameSaveStartSaveBtn"){confirmSave();return;}
     if(t.id==="gameSaveConfirmNo"){showPauseMenu();return;}
     if(t.id==="gameSaveConfirmYes"){commitSave();return;}
@@ -10631,7 +10641,9 @@ body.mobile-mode #battlePickupNotice {
     },700);
   }
   const storageBtn=document.getElementById("gameInventoryStorageBtn");
+  const specialCodePauseBtn=document.getElementById("gameSpecialCodePauseBtn");
   if(storageBtn)storageBtn.addEventListener("click",()=>{if(currentScreen==="game"&&!gameOver&&!stageClear&&!halloweenResultShown)showInventory();});
+  if(specialCodePauseBtn)specialCodePauseBtn.addEventListener("click",()=>{if(currentScreen==="game"&&!gameOver&&!stageClear&&!halloweenResultShown){overlay.classList.add("hidden");const saveOverlay=document.getElementById("gameSaveOverlay");if(saveOverlay)saveOverlay.classList.add("hidden");keys={};charging=false;window.gameSavePaused=false;const pause=document.getElementById("gameSavePauseBtn");if(pause)pause.click();}});
   openBtn.addEventListener("click",()=>{
     if(currentScreen!=="game"||gameOver||stageClear||halloweenResultShown)return;
     const saveOverlay=document.getElementById("gameSaveOverlay");
@@ -10671,6 +10683,7 @@ body.mobile-mode #battlePickupNotice {
       storageBtn.style.display=visible&&inventoryClosed&&saveClosed?"flex":"none";
       storageBtn.style.pointerEvents=visible?"auto":"none";
     }
+    if(specialCodePauseBtn){specialCodePauseBtn.style.display=visible&&inventoryClosed&&saveClosed?"flex":"none";specialCodePauseBtn.style.pointerEvents=visible?"auto":"none";}
   };
   setInterval(styleRefresh,300);
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!overlay.classList.contains("hidden")){e.preventDefault();startCountdown();}});

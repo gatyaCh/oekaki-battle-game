@@ -7847,21 +7847,6 @@ loop();
   document.getElementById("specialCodeCheck").onclick = () => {
     const code = codeInput.value.trim().toLowerCase();
 
-    // 非公開コード：公開コード一覧には表示しない。
-    // Halloween wave test entry
-    if (code === "123456") {
-      window.halloweenWaveTestRequested = true;
-      codeInput.value = "";
-      codeMsg.textContent = "";
-      codeBox.classList.add("hidden");
-      document.getElementById("result").textContent = "🎃 ハロウィンウェーブモード";
-      document.getElementById("result").style.color = "#ffb347";
-      setScreen("draw");
-      redrawCanvas();
-      msg.textContent = "🎃 ハロウィンモード！描画後「バトル開始」で開始。"; const hb=document.getElementById("battleBtn"); if(hb){hb.onclick=(e)=>{e.preventDefault();e.stopPropagation();halloweenStart();};hb.classList.remove("hidden");}
-      return;
-    }
-
     if (code === "admin rank") {
       if (typeof window.openAdminRankSelection === "function") {
         window.openAdminRankSelection();

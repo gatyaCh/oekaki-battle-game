@@ -4106,6 +4106,45 @@ body {
   color: #fff !important;
 }
 </style>
+
+<style id="gaming-neon-background">
+/* ゲーム全画面をネオン系ゲーミング背景に統一 */
+html, body { background:#050824 !important; background-color:#050824 !important; color:#f4f7ff !important; }
+body { isolation:isolate !important; position:relative !important; color:#f4f7ff !important; }
+body::before {
+  content:"" !important; position:fixed !important; inset:0 !important; z-index:-2 !important; pointer-events:none !important;
+  background:
+    radial-gradient(ellipse at 8% 12%, rgba(0,220,255,.22), transparent 30%),
+    radial-gradient(ellipse at 92% 18%, rgba(255,0,190,.18), transparent 29%),
+    radial-gradient(ellipse at 50% 100%, rgba(95,35,255,.28), transparent 45%),
+    repeating-linear-gradient(0deg, rgba(28,100,255,.10) 0 1px, transparent 1px 42px),
+    repeating-linear-gradient(90deg, rgba(28,100,255,.10) 0 1px, transparent 1px 42px),
+    linear-gradient(135deg, #03051b 0%, #07154a 48%, #10052d 100%) !important;
+  background-size:auto,auto,auto,42px 42px,42px 42px,auto !important;
+  animation:neonGameBgPulse 16s ease-in-out infinite alternate !important;
+}
+body::after {
+  content:"" !important; position:fixed !important; inset:0 !important; z-index:-1 !important; pointer-events:none !important;
+  background:
+    linear-gradient(128deg, transparent 0 34%, rgba(0,190,255,.10) 34.2% 34.6%, transparent 34.8% 100%),
+    linear-gradient(128deg, transparent 0 73%, rgba(180,45,255,.12) 73.2% 73.6%, transparent 73.8% 100%),
+    radial-gradient(circle at 12% 82%, rgba(0,210,255,.13), transparent 18%),
+    radial-gradient(circle at 88% 75%, rgba(255,0,190,.12), transparent 20%);
+  animation:neonGameBgDrift 24s ease-in-out infinite alternate !important;
+}
+@keyframes neonGameBgPulse { from {filter:hue-rotate(-8deg) brightness(.88)} to {filter:hue-rotate(12deg) brightness(1.12)} }
+@keyframes neonGameBgDrift {
+  from {background-position:0 0,0 0,0 0,0 0;opacity:.72}
+  to {background-position:5vw -3vh,-4vw 3vh,2vw 0,-2vw 2vh;opacity:1}
+}
+#title,#draw,#count,#gameArea,#mapSelect,#tutorialChoice,#skinPanel,#resultScreen,#resultViewport,.resultPage { color:#f4f7ff !important; }
+#title h1,#title h2,#title h3,#draw h1,#draw h2,#gameArea h1,#gameArea h2,#count h1,#mapSelect h1,#mapSelect h2,#tutorialChoice h1,#resultScreen h1,#resultScreen h2 {
+  color:#fff !important; text-shadow:0 0 8px rgba(0,195,255,.75),0 0 20px rgba(130,70,255,.42) !important;
+}
+#title,#draw,#count,#gameArea,#mapSelect,#tutorialChoice { background:transparent !important; background-color:transparent !important; }
+#game,#drawCanvas,#specialCanvas { position:relative; z-index:1; }
+@media (prefers-reduced-motion:reduce) { body::before,body::after { animation:none !important; } }
+</style>
 </head>
 <body>
 

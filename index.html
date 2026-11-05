@@ -9001,7 +9001,7 @@ if(fx.zombie>0){
     if(!ts.length){fx.zombie=0;stageClear=true;nextStage()}else{const t=ts[0],d=Math.hypot(t.x-p.x,t.y-p.y)||1;moveWithObstacles(p,(t.x-p.x)/d*5,(t.y-p.y)/d*5,p.r);if(d<65){if(t===enemy)damageEnemy(24);else damageMinion(t,24)}}
   }
 }
-if(fx.zombie===0&&fx.zombieUsed&&!stageClear&&!gameOver){fx.zombieUsed=false;if(window.halloweenWaveActive){if(typeof window.recordHalloweenPlayerDeath==="function")window.recordHalloweenPlayerDeath();gameOver=true;msg.textContent="🧟 イモータルゾンビの効果終了！";halloweenShowResult(false)}else showResult(false)}}
+if(fx.zombie===0&&fx.zombieUsed&&!stageClear&&!gameOver){fx.zombieUsed=false;showResult(false)}}
 return origUpdate.apply(this,arguments)};
 })();
 </script>

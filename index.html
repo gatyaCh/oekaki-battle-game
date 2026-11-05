@@ -10960,8 +10960,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     const newMap = document.getElementById("adminAbuseNewHalloween");
     if(newMap) newMap.style.display = "none";
     window.halloweenWaveActive = false;
-    window.adminAbusePending = false;
-    window.adminAbuseActive = false;
+    // 22:25で参加受付は終了するが、開始済みの25分イベントは22:35まで継続する。
+    if (!window.adminAbuseActive) window.adminAbusePending = false;
   }
   applyRetirement();
   window.addEventListener("DOMContentLoaded",applyRetirement,{once:true});
@@ -11693,7 +11693,7 @@ function eventCode(c){c=String(c||"").trim().toLowerCase();if(!["skip","1101","c
 function begin(){if(active)return;hide(confirm);hide(end);active=true;window.adminAbuseActive=true;startAt=Date.now();setBoost({luck:1,attack:1,speed:1,soul:1,points:1});if($("adminAbuseTimer"))$("adminAbuseTimer").classList.add("active");interval=setInterval(tick,250);tick();if(typeof window.useSpecialCode==="function"&&!window.useSpecialCode.__eventCodes){const orig=window.useSpecialCode,wrapped=function(c){return eventCode(c)||orig.apply(this,arguments)};wrapped.__eventCodes=true;window.useSpecialCode=wrapped}
 lines.forEach(([t,line],i)=>later(t,()=>{say(line);const my=token,next=lines[i+1],duration=next?Math.max(2,next[0]-t):8;scheduled.push(setTimeout(()=>{if(active&&token===my&&$("adminAbuseDialogue"))$("adminAbuseDialogue").classList.remove("active")},duration*1000))}));
 later(24,()=>setBoost({luck:2,attack:2,speed:2,soul:2,points:2}));later(144,()=>setBoost({luck:1,attack:1,speed:1,soul:1,points:1}));later(200,()=>invincible(30));later(321,()=>spawnBoxes(2));later(733,()=>spawnBoxes(10));later(943,()=>setBoost({luck:boost.luck*2,attack:boost.attack*2,speed:boost.speed*2,soul:boost.soul*2,points:boost.points*2}));later(983,()=>invincible(30));later(1035,crown);later(1214,()=>setBoost({luck:3,attack:3,speed:3,soul:3,points:3}));later(1277,giveGatling)}
-function start(){hide(confirm);hide(end);window.adminAbusePending=true;window.adminAbuseActive=false;window.halloweenWaveActive=false;window.halloweenWaveTestRequested=false;if(typeof window.chooseDevice==="function")window.chooseDevice("pc")}
+function start(){hide(confirm);hide(end);window.adminAbusePending=true;window.adminAbuseActive=false;window.halloweenWaveActive=false;window.halloweenWaveTestRequested=false;if(typeof window.chooseDevice==="function"){window.chooseDevice("pc");if(typeof window.selectNormalMap==="function")window.selectNormalMap();}else if(typeof window.selectNormalMap==="function"){window.selectNormalMap();}}
 document.addEventListener("click",e=>{const b=e.target&&e.target.closest?e.target.closest("#battleBtn"):null;if(b&&window.adminAbusePending){window.adminAbusePending=false;setTimeout(()=>{if(!active)begin()},0)}},true);
 function updateButton(){const b=$("adminAbuseOpenBtn");if(!b)return;const n=Date.now(),open=n>=from&&n<until,ended=n>=until;b.disabled=!open;b.setAttribute("aria-disabled",String(!open));b.textContent=ended?"🌀ADMIN ABUSE🌪️　？？？　？？？":"🌀ADMIN ABUSE🌪️　11/07　22:10〜22:25";b.title=open?"開催中：クリックして参加":ended?"🔒 開催終了":"🔒 22:10から参加できます";b.style.background=open?"linear-gradient(135deg,#a5f3fc,#67e8f9)":"#e5e7eb";b.style.borderColor=open?"#0891b2":"#6b7280";b.style.color=open?"#164e63":"#374151";b.style.textDecoration=ended?"line-through":"none";b.style.opacity=ended?".5":"1";b.style.cursor=open?"pointer":"not-allowed"}
 updateButton();setInterval(updateButton,1000);if($("adminAbuseScheduleTimer"))$("adminAbuseScheduleTimer").style.display="none";

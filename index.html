@@ -6688,6 +6688,7 @@ function normalEnemyDps() {
   return 5.0;
 }
 function damagePlayer(dmg) {
+  if (Date.now() < (Number(window.adminAbuseEventInvincibleUntil) || 0)) return;
   if (tutorialActive) return; // 練習中はプレイヤーが倒されない
   if (p.invincibility > 0 || shieldActive || ghost || admin.invincible || admin.god) return;
   if (adminRankAbility === "guard" && adminGuardBlocksLeft > 0) {
@@ -11671,321 +11672,34 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
 })();
 </script>
 <style id="admin-abuse-result-lock-style">body.admin-abuse-result-lock #resultTrack{transform:translateX(0)!important}body.admin-abuse-result-lock #resultTrack .resultPage:nth-child(2){display:none!important}body.admin-abuse-result-lock .resultSwipeHint{display:none!important}body.admin-abuse-result-lock #resultToTitle{display:inline-block!important}body.admin-abuse-result-lock #resultBackBtn{display:none!important}</style>
-<script id="admin-abuse-v2-script">(function(){"use strict";const $=id=>document.getElementById(id),confirm=$("adminAbuseConfirmScreen"),end=$("adminAbuseEndScreen");let active=false,startAt=0,interval=null,scheduled=[],dialogueToken=0,boost={luck:1,attack:1,speed:1};function eventWindowOpen(){const now=Date.now(),from=new Date("2026-11-07T22:10:00+09:00").getTime(),until=new Date("2026-11-07T22:25:00+09:00").getTime();return now>=from&&now<until}function updateOpenButton(){const b=$("adminAbuseOpenBtn");const now=Date.now(),from=new Date("2026-11-07T22:10:00+09:00").getTime(),until=new Date("2026-11-07T22:25:00+09:00").getTime(),open=now>=from&&now<until,ended=now>=until;if(b){b.disabled=!open;b.setAttribute("aria-disabled",String(!open));b.textContent=ended?"🌀ADMIN ABUSE🌪️　？？？　？？？":"🌀ADMIN ABUSE🌪️　11/07　22:10〜22:25";b.title=open?"開催中：クリックして参加":ended?"🔒 開催終了":"🔒 22:10から参加できます";b.style.background=open?"linear-gradient(135deg,#a5f3fc,#67e8f9)":"#e5e7eb";b.style.borderColor=open?"#0891b2":"#6b7280";b.style.color=open?"#164e63":"#374151";b.style.boxShadow=open?"0 0 14px rgba(34,211,238,.75),0 4px 12px #0003":"0 3px 10px #0003";b.style.textDecoration=ended?"line-through":"none";b.style.opacity=ended?".5":"1";b.style.filter="none";b.style.cursor=open?"pointer":"not-allowed";}}function updateScheduleTimer(){const el=$("adminAbuseScheduleTimer");if(el){el.style.display="none";el.textContent="";el.setAttribute("aria-hidden","true");}}function show(e){e.classList.remove("hidden")}function hide(e){e.classList.add("hidden")}function say(t){const dialogue=$("adminAbuseDialogue");if(dialogue.parentElement!==document.body)document.body.appendChild(dialogue);dialogueToken++;dialogue.classList.remove("speaker-admin2","speaker-gacha","speaker-hacker");if(t.startsWith("ADMIN2："))dialogue.classList.add("speaker-admin2");else if(t.startsWith("がちゃ："))dialogue.classList.add("speaker-gacha");else if(t.startsWith("？？？：")||t.startsWith("HACKER😎："))dialogue.classList.add("speaker-hacker");dialogue.textContent=t;dialogue.classList.add("active")}function updateEconomyHUD(){const souls=Number(window.adminAbuseSoulMultiplier||1),points=Number(window.adminAbuseRankPointMultiplier||1);$("adminAbuseCoinV2").textContent="×"+(Number.isFinite(souls)?souls:1);$("adminAbusePointsV2").textContent="×"+(Number.isFinite(points)?points:1)}function setBoost(n){boost=Object.assign(boost,n);window.adminAbuseLuckMultiplier=Number(boost.luck)||1;window.adminAbuseAttackMultiplier=Number(boost.attack)||1;window.adminAbuseSpeedMultiplier=Number(boost.speed)||1;window.adminAbuseSoulMultiplier=Number(boost.soul??boost.coin)||1;window.adminAbuseRankPointMultiplier=Number(boost.points)||1;$("adminAbuseLuckV2").textContent="×"+window.adminAbuseLuckMultiplier;$("adminAbuseAttackV2").textContent="×"+window.adminAbuseAttackMultiplier;$("adminAbuseSpeedV2").textContent="×"+window.adminAbuseSpeedMultiplier;$("adminAbuseCoinV2").textContent="×"+window.adminAbuseSoulMultiplier;$("adminAbusePointsV2").textContent="×"+window.adminAbuseRankPointMultiplier;$("adminAbuseBoostHUD").classList.add("active");updateEconomyHUD();if(window.adminAbuseActive){const msgEl=document.getElementById("msg");if(msgEl)msgEl.textContent="🎉 ADMIN ABUSEブースト発動！ 攻撃×"+window.adminAbuseAttackMultiplier+" / 速度×"+window.adminAbuseSpeedMultiplier+" / ソウル×"+window.adminAbuseSoulMultiplier;}}function clear(){document.body.classList.remove("admin-abuse-result-lock");if(typeof adminAbuseClearZigzag==="function")adminAbuseClearZigzag();document.body.classList.remove("admin-abuse-dark-transition");boost={luck:1,attack:1,speed:1};window.adminAbuseActive=false;window.adminAbuseLuckMultiplier=window.adminAbuseAttackMultiplier=window.adminAbuseSpeedMultiplier=1;window.adminAbuseSoulMultiplier=1;window.adminAbuseRankPointMultiplier=1;window.adminAbuseBonusRankPoints=0;window.adminAbuseNextTotemChance=0;$("adminAbuseTimer").classList.remove("active");$("adminAbuseBoostHUD").classList.remove("active");$("adminAbuseDialogue").classList.remove("active");$("adminAbuseDialogue").textContent="";$("adminAbuseLuckV2").textContent=$("adminAbuseAttackV2").textContent=$("adminAbuseSpeedV2").textContent="×1"}function finish(){active=false;clearInterval(interval);scheduled.forEach(clearTimeout);scheduled=[];if(typeof window.adminAbuseNewMapCleanup==="function")window.adminAbuseNewMapCleanup();clear();hide(confirm);show(end)}function tick(){let left=Math.max(0,1200-Math.floor((Date.now()-startAt)/1000));$("adminAbuseTimer").textContent="👑 ADMIN ABUSE　"+String(Math.floor(left/60)).padStart(2,"0")+":"+String(left%60).padStart(2,"0");if(!left)finish()}function later(sec,fn){const elapsed=Math.max(0,(Date.now()-startAt)/1000);const delay=Math.max(0,(Number(sec)-elapsed)*1000);if(delay===0){if(active)fn();return;}scheduled.push(setTimeout(()=>{if(active)fn()},delay))}function laterAfter(sec,fn){scheduled.push(setTimeout(()=>{if(active)fn()},Math.max(0,Number(sec)||0)*1000))}function beginTimeline(){if(active){$("adminAbuseTimer").classList.add("active");const existingDialogue=$("adminAbuseDialogue");if(existingDialogue&&existingDialogue.textContent.trim())existingDialogue.classList.add("active");return;}hide(confirm);hide(end);active=true;window.adminAbuseActive=true;startAt=Date.now();const persistentTimer=$("adminAbuseTimer"),persistentDialogue=$("adminAbuseDialogue");[persistentTimer,persistentDialogue].forEach(el=>{if(el&&el.parentElement!==document.body)document.body.appendChild(el);});const earlyZigzagCanvas=document.getElementById("game");if(earlyZigzagCanvas)earlyZigzagCanvas.classList.remove("admin-abuse-zigzag","admin-abuse-zigzag-strong");document.body.classList.remove("admin-abuse-dark-transition");$("adminAbuseTimer").classList.add("active");setBoost({luck:1,attack:1,speed:1});$("adminAbuseDialogue").classList.remove("active");interval=setInterval(()=>{tick();updateEconomyHUD()},250);updateEconomyHUD();tick();
-let adminAbuseOriginalSkinGetter=null;
-function adminAbuseSetTemporarySkin(icon){
-  if(typeof window.getSelectedSkinEmoji!=="function")return;
-  if(!adminAbuseOriginalSkinGetter)adminAbuseOriginalSkinGetter=window.getSelectedSkinEmoji;
-  window.getSelectedSkinEmoji=()=>icon;
-}
-function adminAbuseRestoreSkin(){
-  if(adminAbuseOriginalSkinGetter)window.getSelectedSkinEmoji=adminAbuseOriginalSkinGetter;
-}
-function adminAbuseSpawnBoxes(count,item){
-  if(!Array.isArray(boxes))return;
-  for(let i=0;i<count;i++)boxes.push({x:100+Math.random()*700,y:80+Math.random()*340,item});
-}
-function adminAbuseDamageEnemiesBy30Percent(){
-  if(typeof enemy!=="undefined"&&enemy&&Number.isFinite(enemy.hp)&&enemy.hp>0)enemy.hp=Math.max(0,enemy.hp*0.7);
-  if(Array.isArray(minions))minions.forEach(m=>{if(m&&Number.isFinite(m.hp)&&m.hp>0)m.hp=Math.max(0,m.hp*0.7)});
-  if(typeof halloweenEnemies!=="undefined"&&Array.isArray(halloweenEnemies))halloweenEnemies.forEach(e=>{if(e&&e.alive&&Number.isFinite(e.hp)&&e.hp>0)e.hp=Math.max(0,e.hp*0.7)});
-}
-function adminAbuseClearMinions(){
-  if(Array.isArray(minions))minions.forEach(m=>{if(m)m.hp=0});
-  if(typeof halloweenEnemies!=="undefined"&&Array.isArray(halloweenEnemies))halloweenEnemies.forEach(e=>{if(e&&e.alive&&e.isMinion){e.hp=0;e.alive=false}});
-}
-const events=[
-[0,7,"がちゃ：ハッピーハロウィーーーーン！！"],
-[10,17,"がちゃ：今日はハロウィンマップの最終日ということで"],
-[17,24,"がちゃ：今日のADMIN ABUSEはハロウィンマップでの開催です！！"],
-[25,32,"がちゃ：早速…"],
-[30,37,"がちゃ：全ブースト２倍を３分間！！"],
-[40,47,"がちゃ：これで敵をなぎ倒せ！！"],
-[50,57,"がちゃ：てか、今日ハロウィンマップ調子悪いな"],
-[58,65,"がちゃ：まぁ、プレイに支障をきたしてないからこのまま続行だ！！"],
-[67,74,"がちゃ：みんなハロウィンマップやったことあるか？"],
-[75,82,"がちゃ：ないだと！？"],
-[80,87,"がちゃ：ゆるせんなぁーー！！ 😠"],
-[88,95,"がちゃ：ハロウィンマップの特徴は…"],
-[95,102,"がちゃ：まぁ簡単に言うとスコアアタックだな！！"],
-[106,113,"がちゃ：敵を倒してソウル💫をゲット！！"],
-[116,123,"がちゃ：ソウル💫はコインの代わりと思ってくれ！！"],
-[123,130,"がちゃ：ハロウィンマップでは🎃ボックスが３個出現するぞ！！"],
-[130,137,"がちゃ：なに？足りないって？"],
-[137,144,"がちゃ：仕方ない…"],
-[145,152,"がちゃ：🎃ボックスを追加で５個召喚！！"],
-[154,161,"がちゃ：これで満足か！"],
-[160,167,"がちゃ：コインの代わりにソウル💫のブーストつけるかな🤔"],
-[167,174,"がちゃ：今のやつ消えたらでいっか"],
-[175,182,"がちゃ：試合が終わってもすぐリトライしてね！！"],
-[180,187,"がちゃ：前回のADMIN ABUSEはどうだった？"],
-[187,194,"がちゃ：バグ多かったよね"],
-[195,202,"がちゃ：頑張って修正します！！"],
-[205,212,"ADMIN2：ハロウィンマップの不具合についてなんですけど…"],
-[210,217,"がちゃ：おっけいわかった今から行く"],
-[215,222,"がちゃ：みんなは敵を倒しててね！！"],
-[240,247,"がちゃ：ただいま！！"],
-[248,255,"がちゃ：特に何にもなかった？"],
-[256,263,"がちゃ：？？？←これとか来てなかった？"],
-[260,267,"がちゃ：なんもないならいいや！！"],
-[270,277,"がちゃ：今週のアプデについて少し弁明させて！！"],
-[280,287,"がちゃ：まず、必殺技の仕様変更について、、、"],
-[287,294,"がちゃ：ゲームが動かなくなったり、必殺技ができなくなったりしているが…"],
-[295,302,"がちゃ：あれはこっちの完全ミス！！"],
-[303,310,"がちゃ：これが始まったころには頑張って直すが…"],
-[310,317,"がちゃ：治ってない可能性がある！！"],
-[317,324,"がちゃ：なんで不確定かって？"],
-[325,332,"がちゃ：このセリフを考えてるのが水曜日だからな"],
-[333,340,"がちゃ：一旦ADMIN2に任せるわ！"],
-[340,347,"ADMIN2：はい！ここからは私、ADMIN2が説明します！"],
-[348,355,"ADMIN2：まずは今週のアップデートについてです。"],
-[356,363,"ADMIN2：今回の変更で、いろいろな機能を調整しています。"],
-[364,371,"ADMIN2：ただ、まだ正常に動作しない部分が残っている可能性があります。"],
-[372,379,"ADMIN2：見つかった不具合は、順番に確認して修正していきます。"],
-[380,387,"ADMIN2：みなさんも、何かおかしいところがあったら教えてください！"],
-[388,395,"ADMIN2：さて、ハロウィンマップについてですが……"],
-[396,403,"ADMIN2：このマップは今日が最終日となっています。"],
-[404,411,"ADMIN2：せっかくなので、最後まで楽しんでいってくださいね！"],
-[412,419,"ADMIN2：ところで、さっきから少し気になることがあるんですが……"],
-[420,427,"ADMIN2：気のせいでしょうか？画面が一瞬だけ揺れたような……"],
-[428,435,"ADMIN2：いえ、今のは何でもありません！"],
-[436,443,"ADMIN2：説明を続けますね。えーっと……"],
-[444,451,"ADMIN2：あれ？今、何を話していたんでしたっけ……？"],
-[452,459,"ADMIN2：……まあ、いいでしょう。次の話に移ります。"],
-[460,467,"ADMIN2：……今、また画面が揺れませんでしたか？"],
-[468,475,"ADMIN2：ちょっと待ってください。私の見間違いではないですよね？"],
-[476,483,"ADMIN2：なんだか、さっきより揺れが大きくなっているような……"],
-[484,491,"ADMIN2：いや、でもゲーム自体は動いていますし……"],
-[492,499,"ADMIN2：……あれ？背景、こんな感じでしたっけ？"],
-[500,507,"ADMIN2：ちょっと待って。本当に何かおかしいです。"],
-[507,514,"ADMIN2：画面の揺れが止まりません……！"],
-[514,521,"ADMIN2：これ、私だけでは対処できないかもしれません。"],
-[521,528,"ADMIN2：がちゃさん！がちゃさん、いますか！？"],
-[528,535,"ADMIN2：がちゃさん、ちょっと来てください！！"],
-[530,537,"がちゃ：なに？そんなにあわてて"],
-[538,545,"ADMIN2：これ見てください！"],
-[544,551,"がちゃ：なんだこれ…"],
-[550,557,"？？？：今̘̗̂̆̐か̶̠͖̳̏͒ら̱͛̍こ̷̳͕の̵͕ゲ̨̫̉͐ͩー̰ͨͤ̿ム̜͖͔̉̍を͕͌壊̞す̵͇̻̰"],
-[557,564,"がちゃ：なに言ってんだ…"],
-[565,572,"ADMIN2：がちゃさん！これを見てください！！"],
-[573,580,"がちゃ：これはやばい！！"],
-[580,587,"がちゃ：今すぐ抑えろ！！"],
-[587,594,"ADMIN2：無理です！もうコードが書き換えられてます！"],
-[594,601,"がちゃ：ここまでか…"],
-[605,612,"がちゃ：…って、どうなってるんだ？"],
-[614,621,"ADMIN2：なんですかこれ"],
-[621,628,"？？？：ここからは私の独壇場だ！！！"],
-[628,635,"がちゃ：なんだｔ…"],
-[636,643,"？？？：自己紹介がまだだったな…"],
-[642,649,"HACKER😎：俺はHACKER"],
-[650,657,"HACKER😎：そのまんまだな"],
-[657,664,"HACKER😎：このゲームは俺が乗っ取った！！"],
-[664,671,"HACKER😎：これはスコアアタックモードだ"],
-[671,678,"HACKER😎：これは敵が無限にでてきて死ぬまで戦い続けるものだ"],
-[678,685,"HACKER😎：なに？つまんないだと？？"],
-[684,691,"HACKER😎：ならこうしてやる！！"],
-[692,699,"HACKER😎：敵を＋5体召喚！！"],
-[700,707,"HACKER😎：なぁんてな"],
-[705,712,"HACKER😎：敵は全部幻影だ"],
-[713,720,"HACKER😎：敵を倒すにつれて敵はどんどん進化する"],
-[720,727,"HACKER😎：倒すのも倒さないのもどちらでもよい…"],
-[727,734,"HACKER😎：このゲームは俺のものだ！！"],
-[734,741,"HACKER😎：…ん？なんだこの👑は"],
-[747,754,"HACKER😎：なんだこれは！！敵のHPがだんだん減っていくじゃないか！"],
-[754,761,"？？？：この俺がこんなところでやられるわけないだろう…"],
-[760,767,"HACKER😎：まじか"],
-[767,774,"がちゃ：管理者の大復活だ！！"],
-[774,781,"HACKER😎：なにが管理者の大復活だ！だこのマップは俺のものだぞ"],
-[781,788,"HACKER😎：俺が権限を握ってるんだぞ！！"],
-[790,797,"がちゃ：それはどうかな…🤨"],
-[797,804,"がちゃ：本物の管理者が管理者権限を取り戻した！！"],
-[804,811,"HACKER😎：なぜだ！！なぜ俺の管理者権限を取れたんだ！"],
-[810,817,"がちゃ：そんなの…"],
-[817,824,"がちゃ：ほんとに取れたと思ったのか？"],
-[824,831,"HACKER😎：…は？"],
-[829,836,"がちゃ：ADMIN2！いまだ！"],
-[836,843,"ADMIN2：はい！！"],
-[840,847,"ADMIN：本物のADMINたちがHACKER😎を追い出した！！"],
-[847,854,"がちゃ：やっと取り返したか…"],
-[853,860,"ADMIN2：なんとかなりましたね"],
-[860,867,"がちゃ：ADMIN ABUSEはこっちでなんとかするからそっちはセキュリティーを頼む"],
-[867,874,"ADMIN2：はい！"],
-[872,879,"がちゃ：ごめん！みんなへんなことになっちゃって"],
-[880,887,"がちゃ：どうせならこのマップで残りのADMIN ABUSEするか"],
-[887,894,"がちゃ：で、これはどんなマップなんだ？"],
-[894,901,"がちゃ：なるほどね〜"],
-[900,907,"がちゃ：みんなを苦しめるものしかないかもなぁ…"],
-[907,914,"がちゃ：一旦これを召喚するからこれ倒して敵のHP少なくしてね！！"],
-[921,928,"がちゃ：OK完了だ！！"],
-[928,935,"がちゃ：次はこれかな！"],
-[935,942,"がちゃ：プレイヤーの防御力を3倍！！"],
-[942,949,"がちゃ：これはさすがに30秒だけかな💦"],
-[949,956,"がちゃ：このマップどう？おもしろそう？"],
-[956,963,"がちゃ：現場のゆっくり緑茶さ〜ん！！"],
-[963,970,"がちゃ：え？面白いだって？"],
-[970,977,"がちゃ：んなバカなことあるわけないだｒ…"],
-[977,984,"ゆっくり緑茶：えー敵を倒す観点で言うと楽しいかも…？"],
-[984,991,"がちゃ：あ！そんなことはどうでも良くて"],
-[991,998,"がちゃ：次のADMIN ABUSEについて話すよ！"],
-[1000,1007,"がちゃ：次のADMIN ABUSEは通常マップで行います！！"],
-[1007,1014,"がちゃ：今のところ次のADMIN ABUSEまでに面白い機能を追加できればと思ってる！！"],
-[1021,1028,"がちゃ：そんときは新しいものも追加予定！！"],
-[1035,1042,"がちゃ：ハロウィンマップと🎃ボックスは明日の朝９時まで出てくるようになってる！！"],
-[1042,1049,"がちゃ：それ以降は出てこないものだとおもってくれ！！"],
-[1049,1056,"がちゃ：次の新マップはなにかって？？"],
-[1056,1063,"がちゃ：🤫"],
-[1063,1070,"がちゃ：ヒントは🚙"],
-[1070,1077,"がちゃ：みんな今日はありがとう！！"],
-[1077,1084,"がちゃ：明日はADMIN ABUSEなしの方向で行きます！！"],
-[1084,1091,"がちゃ：じゃあ次のADMIN ABUSEで！！"]
-];
-events.forEach(([from,to,line])=>{later(from,()=>{say(line);const token=dialogueToken;laterAfter(to-from,()=>{if(active&&dialogueToken===token&&currentScreen!=="draw")$("adminAbuseDialogue").classList.remove("active")})})});
-later(30,()=>setBoost({luck:2,attack:2,speed:2,soul:2,points:2}));later(210,()=>setBoost({luck:1,attack:1,speed:1,soul:1,points:1}));
-let adminAbuseZigzagInterval=null,adminAbuseZigzagEndTimeout=null;
-function adminAbuseSetZigzag(mode){const gameCanvas=document.getElementById("game"),resultScreen=document.getElementById("resultScreen");[gameCanvas,resultScreen].forEach(el=>{if(!el)return;el.classList.remove("admin-abuse-zigzag","admin-abuse-zigzag-strong");if(mode)el.classList.add(mode)});}
-function adminAbuseClearZigzag(){if(adminAbuseZigzagInterval){clearInterval(adminAbuseZigzagInterval);adminAbuseZigzagInterval=null;}if(adminAbuseZigzagEndTimeout){clearTimeout(adminAbuseZigzagEndTimeout);adminAbuseZigzagEndTimeout=null;}adminAbuseSetZigzag(null);}
-later(0,()=>{const earlyEnd=50;const pulse=()=>{const elapsed=(Date.now()-startAt)/1000;if(!active||elapsed+2>earlyEnd)return;adminAbuseSetZigzag("admin-abuse-zigzag");if(adminAbuseZigzagEndTimeout)clearTimeout(adminAbuseZigzagEndTimeout);adminAbuseZigzagEndTimeout=setTimeout(()=>{if(active&&((Date.now()-startAt)/1000)<earlyEnd)adminAbuseSetZigzag(null);adminAbuseZigzagEndTimeout=null;},2000);};pulse();adminAbuseZigzagInterval=setInterval(()=>{const elapsed=(Date.now()-startAt)/1000;if(!active||elapsed+2>earlyEnd){clearInterval(adminAbuseZigzagInterval);adminAbuseZigzagInterval=null;return;}pulse();},7000);later(50,()=>{if(adminAbuseZigzagInterval){clearInterval(adminAbuseZigzagInterval);adminAbuseZigzagInterval=null;}if(adminAbuseZigzagEndTimeout){clearTimeout(adminAbuseZigzagEndTimeout);adminAbuseZigzagEndTimeout=null;}adminAbuseSetZigzag(null);});});
-later(544,()=>{adminAbuseSetZigzag("admin-abuse-zigzag");adminAbuseZigzagEndTimeout=setTimeout(()=>{if(active&&((Date.now()-startAt)/1000)<591)adminAbuseSetZigzag(null);adminAbuseZigzagEndTimeout=null;},2000);adminAbuseZigzagInterval=setInterval(()=>{const elapsed=(Date.now()-startAt)/1000;if(!active||elapsed>=591){if(adminAbuseZigzagInterval){clearInterval(adminAbuseZigzagInterval);adminAbuseZigzagInterval=null;}return;}adminAbuseSetZigzag("admin-abuse-zigzag");if(adminAbuseZigzagEndTimeout)clearTimeout(adminAbuseZigzagEndTimeout);adminAbuseZigzagEndTimeout=setTimeout(()=>{if(active&&((Date.now()-startAt)/1000)<591)adminAbuseSetZigzag(null);adminAbuseZigzagEndTimeout=null;},2000);},7000);});
-later(591,()=>{window.gameSavePaused=true;keys={};charging=false;if(adminAbuseZigzagInterval){clearInterval(adminAbuseZigzagInterval);adminAbuseZigzagInterval=null;}if(adminAbuseZigzagEndTimeout){clearTimeout(adminAbuseZigzagEndTimeout);adminAbuseZigzagEndTimeout=null;}adminAbuseSetZigzag("admin-abuse-zigzag");document.body.classList.add("admin-abuse-dark-transition")});
-later(600,()=>{adminAbuseClearZigzag();document.body.classList.remove("admin-abuse-dark-transition");startAdminAbuseNewHalloweenMap({fadeIn:true})});
- later(145,()=>adminAbuseSpawnBoxes(5,"🎃"));
-}function startAdminAbuseNewHalloweenMap(options={}){
- const root=$("adminAbuseNewHalloween"),canvas=$("adminAbuseNewMapCanvas"),hud=$("adminAbuseNewMapHud");
- if(!root||!canvas)return;
- window.gameSavePaused=true;
- window.adminAbuseActive=true;
- root.classList.add("active");
- const ctx=canvas.getContext("2d");if(!ctx)return;
- let player={x:450,y:420,hp:300},kills=0,spawned=0,frame=0,attackCd=0,lastSpawn=Date.now(),mapStartedAt=Date.now()+(options.fadeIn?5000:0),running=true,initialSpawnCount=4+Math.floor(Math.random()*3);
- let countdownUntil=Date.now()+(options.fadeIn?5000:0),dead=false,deathAt=0,deathOverlay=null,transitionOverlay=null;
- const enemies=[],skulls=[],boxes=[],projectiles=[],attackEffects=[];let crownSpawned=false;
- for(let i=0;i<6;i++)skulls.push({x:120+(i%3)*330,y:110+Math.floor(i/3)*270});
- for(let i=0;i<4;i++)boxes.push({x:150+(i%2)*600,y:100+Math.floor(i/2)*300,cooldownUntil:0});
- const keys={};let attackRequested=false;
- const makeOverlay=(id,z,bg)=>{let el=document.getElementById(id);if(!el){el=document.createElement("div");el.id=id;el.style.cssText="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:"+z+";background:"+bg+";color:#fff7ed;font:900 clamp(24px,4vw,42px) sans-serif;text-align:center;padding:20px;box-sizing:border-box";document.body.appendChild(el);}return el;};
- if(options.fadeIn){
-  transitionOverlay=makeOverlay("adminAbuseNewMapFadeOverlay",900060,"#000");
-  transitionOverlay.textContent="🎃 新ハロウィンマップ";
-  transitionOverlay.style.opacity="1";transitionOverlay.style.transition="opacity 5s linear";
-  requestAnimationFrame(()=>{if(transitionOverlay)transitionOverlay.style.opacity="0";});
-  setTimeout(()=>{if(transitionOverlay){transitionOverlay.remove();transitionOverlay=null;}},5100);
- }
- const keydown=e=>{const k=String(e.key||"").toLowerCase();if(["w","a","s","d","arrowup","arrowdown","arrowleft","arrowright"," ","e"].includes(k)){keys[k]=true;if(k===" "||k==="e"){if(Date.now()<countdownUntil||dead)return;attackRequested=true;e.preventDefault();}}};
- const keyup=e=>{keys[String(e.key||"").toLowerCase()]=false};
- const pointerAttack=e=>{if(!running||dead||Date.now()<countdownUntil)return;attackRequested=true;if(e.cancelable)e.preventDefault();};
- canvas.addEventListener("pointerdown",pointerAttack);
- window.addEventListener("keydown",keydown);window.addEventListener("keyup",keyup);
- function cleanup(){running=false;window.removeEventListener("keydown",keydown);window.removeEventListener("keyup",keyup);canvas.removeEventListener("pointerdown",pointerAttack);root.classList.remove("active");window.adminAbuseNewMapCleanup=null;window.gameSavePaused=true;if(deathOverlay)deathOverlay.remove();if(transitionOverlay)transitionOverlay.remove();}window.adminAbuseNewMapCleanup=cleanup;
- function resetRun(){
-  player={x:450,y:420,hp:300};kills=0;spawned=0;frame=0;attackCd=0;hat={x:450,y:250,active:false};lastSpawn=Date.now();mapStartedAt=Date.now();initialSpawnCount=4+Math.floor(Math.random()*3);
-  enemies.length=0;projectiles.length=0;attackEffects.length=0;boxes.forEach(b=>{b.cooldownUntil=0;});
-  dead=false;deathAt=0;attackRequested=false;crownSpawned=false;Object.keys(keys).forEach(k=>keys[k]=false);
-  countdownUntil=Date.now()+3000;mapStartedAt=countdownUntil;
-  if(deathOverlay){deathOverlay.remove();deathOverlay=null;}
-  const staleCountdown=document.getElementById("adminAbuseNewMapCountdownOverlay");
-  if(staleCountdown)staleCountdown.remove();
- }
- function showDeath(){
-  if(dead)return;
-  dead=true;deathAt=Date.now();attackRequested=false;
-  const survived=Math.max(0,Math.floor((deathAt-mapStartedAt)/1000));
-  const mm=String(Math.floor(survived/60)).padStart(2,"0"),ss=String(survived%60).padStart(2,"0");
-  deathOverlay=makeOverlay("adminAbuseNewMapDeathOverlay",2147483647,"rgba(12,5,3,.98)");
-  deathOverlay.style.zIndex="2147483647";deathOverlay.style.pointerEvents="auto";deathOverlay.style.position="fixed";deathOverlay.style.inset="0";
-  deathOverlay.innerHTML='<div style="font-size:clamp(30px,5vw,48px)">💀 GAME OVER</div><div style="font-size:22px">撃破数：'+kills+'体</div><div style="font-size:22px">生存時間：'+mm+':'+ss+'</div><button id="adminAbuseNewMapRetry" type="button" style="font-size:22px;font-weight:900;padding:12px 30px;border-radius:12px;border:2px solid #fdba74;background:#9a3412;color:white;cursor:pointer">🔄 リトライ</button>';
-  const retry=deathOverlay.querySelector("#adminAbuseNewMapRetry");
-  retry.style.position="relative";retry.style.zIndex="2147483647";retry.style.pointerEvents="auto";retry.style.touchAction="manipulation";retry.onclick=(ev)=>{ev.preventDefault();ev.stopPropagation();if(!dead||!running)return;const oldDeath=deathOverlay;dead=false;deathAt=0;attackRequested=false;player={x:450,y:420,hp:300};kills=0;spawned=0;frame=0;attackCd=0;lastSpawn=Date.now();mapStartedAt=Date.now()+3000;initialSpawnCount=4+Math.floor(Math.random()*3);enemies.length=0;projectiles.length=0;attackEffects.length=0;boxes.forEach(b=>{b.cooldownUntil=0;});crownSpawned=false;Object.keys(keys).forEach(k=>keys[k]=false);countdownUntil=Date.now()+3000;if(oldDeath)oldDeath.remove();deathOverlay=null;const stale=document.getElementById("adminAbuseNewMapCountdownOverlay");if(stale)stale.remove();const count=makeOverlay("adminAbuseNewMapCountdownOverlay",2147483646,"rgba(12,5,3,.96)");count.style.pointerEvents="none";count.textContent="🔄 リトライ開始まで 3";};
-  // 死亡画面を少し表示した後、自動で3秒カウントダウン付きリトライを開始。
-  setTimeout(()=>{if(!dead||!running)return;resetRun();const count=makeOverlay("adminAbuseNewMapCountdownOverlay",2147483646,"rgba(12,5,3,.96)");count.style.pointerEvents="none";count.textContent="🔄 リトライ開始まで 3";},1500);
- }
- function draw(){
-  if(!running||!active)return;
-  const rouletteOverlay=document.getElementById("halloweenRouletteOverlay");
-  if(rouletteOverlay&&!rouletteOverlay.classList.contains("hidden")){requestAnimationFrame(draw);return;}
-  const now=Date.now();
-  const waiting=now<countdownUntil;
-  frame++;
-  ctx.clearRect(0,0,900,500);ctx.fillStyle="#7c2d12";ctx.fillRect(0,0,900,500);
-  ctx.strokeStyle="rgba(255,180,80,.18)";for(let x=0;x<900;x+=45){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,500);ctx.stroke()}for(let y=0;y<500;y+=45){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(900,y);ctx.stroke()}
-  ctx.textAlign="center";
-  skulls.forEach(b=>{ctx.font="30px sans-serif";ctx.fillText("💀",b.x,b.y)});
-  boxes.forEach(b=>{
-   const cooling=now<b.cooldownUntil;
-   ctx.save();if(cooling){ctx.filter="grayscale(1)";ctx.globalAlpha=.72;}
-   ctx.font="34px sans-serif";ctx.fillText("🎃",b.x,b.y);ctx.restore();
-   if(cooling){const left=Math.max(0,Math.ceil((b.cooldownUntil-now)/1000));ctx.font="bold 17px sans-serif";ctx.fillStyle="#fff";ctx.fillText(String(left),b.x,b.y+22);}
-  });
-  if(dead){
-   ctx.font="bold 28px sans-serif";ctx.fillStyle="#fff";ctx.fillText("💀 GAME OVER",450,250);
-  }else if(waiting){
-   const sec=Math.max(1,Math.ceil((countdownUntil-now)/1000));
-   ctx.font="bold 38px sans-serif";ctx.fillStyle="#fff";ctx.fillText(options.fadeIn?"まもなく開始":"リトライ開始まで "+sec,450,250);
-   const countOverlay=document.getElementById("adminAbuseNewMapCountdownOverlay");
-   if(countOverlay)countOverlay.textContent="🔄 リトライ開始まで "+sec;
-  }else{
-   const finishedCountdown=document.getElementById("adminAbuseNewMapCountdownOverlay");
-   if(finishedCountdown)finishedCountdown.remove();
-   // 初期4〜6体。その後2秒間隔から徐々に短縮し、最大150体。
-   if(spawned===0){
-    for(let n=0;n<initialSpawnCount;n++){const count=++spawned;enemies.push({x:850,y:35+Math.random()*430,hp:20,baseHp:20,speed:1,boost:Math.min(4,1+count*.02),damage:0});}
-    lastSpawn=now;
-   }else if(spawned<150){
-    const progress=Math.max(0,Math.min(1,(spawned-initialSpawnCount)/(60-initialSpawnCount)));
-    const spawnInterval=2000-(1500*progress);
-    if(now-lastSpawn>=spawnInterval){spawned++;lastSpawn=now;enemies.push({x:890,y:30+Math.random()*440,hp:20,baseHp:20,speed:1,boost:Math.min(4,1+spawned*.02),damage:0});}
-   }
-   // 734秒のセリフに合わせて王冠ボスを召喚。出現時に現在いる敵を30体だけ消す。
-   if(!crownSpawned&&(Date.now()-startAt)/1000>=734){
-    crownSpawned=true;
-    let removed=0;
-    while(removed<30&&enemies.length){const idx=enemies.findIndex(e=>!e.isCrown);if(idx<0)break;enemies.splice(idx,1);removed++;}
-    enemies.push({x:450,y:150,hp:1000,baseHp:1000,speed:1,boost:1,damage:0,isCrown:true});
-   }
-      let nx=player.x,ny=player.y;
-   if(keys.w||keys.arrowup)ny-=3;if(keys.s||keys.arrowdown)ny+=3;if(keys.a||keys.arrowleft)nx-=3;if(keys.d||keys.arrowright)nx+=3;
-   nx=Math.max(20,Math.min(880,nx));ny=Math.max(20,Math.min(480,ny));
-   const playerRadius=15,skullRadius=25;
-   const hitsSkull=(x,y)=>skulls.some(b=>Math.hypot(x-b.x,y-(b.y-12))<playerRadius+skullRadius);
-   if(!hitsSkull(nx,player.y))player.x=nx;if(!hitsSkull(player.x,ny))player.y=ny;
-   // 取得済みボックスは10秒クールダウン後に再使用可能。
-   const touchedBox=boxes.find(b=>now>=b.cooldownUntil&&Math.hypot(player.x-b.x,player.y-(b.y-12))<playerRadius+24);
-   if(touchedBox){
-    touchedBox.cooldownUntil=now+10000;
-    if(typeof window.startHalloweenRoulette==="function")window.startHalloweenRoulette();
-    else{touchedBox.cooldownUntil=0;if(hud)hud.textContent="⚠️ ハロウィンルーレットを読み込めませんでした";}
-   }
-   if(attackCd>0)attackCd--;
-   if((attackRequested||keys.e||keys[" "])&&attackCd===0){
-    attackRequested=false;attackCd=42;
-    let target=null,dist=Infinity;enemies.forEach(e=>{const d=Math.hypot(player.x-e.x,player.y-e.y);if(d<dist){dist=d;target=e;}});
-    if(target){projectiles.push({x:player.x,y:player.y,target,damage:target.isCrown?50:15,speed:12,life:90});attackEffects.push({x:player.x,y:player.y,angle:Math.atan2(target.y-player.y,target.x-player.x),life:10});}
-    else attackEffects.push({x:player.x,y:player.y,angle:0,life:10});
-   }
-   for(let i=projectiles.length-1;i>=0;i--){
-    const p=projectiles[i],target=p.target;
-    if(!enemies.includes(target)||p.life--<=0){projectiles.splice(i,1);continue;}
-    const dx=target.x-p.x,dy=target.y-p.y,d=Math.hypot(dx,dy)||1;p.x+=dx/d*p.speed;p.y+=dy/d*p.speed;
-    ctx.save();ctx.strokeStyle="#fde047";ctx.lineWidth=5;ctx.shadowColor="#fb923c";ctx.shadowBlur=14;ctx.beginPath();ctx.moveTo(p.x-dx/d*18,p.y-dy/d*18);ctx.lineTo(p.x,p.y);ctx.stroke();ctx.fillStyle="#fff7ed";ctx.beginPath();ctx.arc(p.x,p.y,5,0,Math.PI*2);ctx.fill();ctx.restore();
-    if(d<18){target.hp-=p.damage;projectiles.splice(i,1);attackEffects.push({x:target.x,y:target.y,angle:0,life:12});if(target.hp<=0){const ei=enemies.indexOf(target);if(ei>=0){enemies.splice(ei,1);kills++;}}}
-   }
-   for(let i=attackEffects.length-1;i>=0;i--){const fx=attackEffects[i];fx.life--;ctx.save();ctx.translate(fx.x,fx.y);ctx.rotate(fx.angle);ctx.strokeStyle=fx.life>5?"#fff7ed":"#fb923c";ctx.lineWidth=4;ctx.globalAlpha=Math.max(0,fx.life/10);ctx.beginPath();ctx.arc(0,0,18+(10-fx.life)*3,-.9,.9);ctx.stroke();ctx.restore();if(fx.life<=0)attackEffects.splice(i,1);}
-   enemies.forEach(e=>{const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1;e.x+=dx/d*e.speed;e.y+=dy/d*e.speed;if(d<22&&frame%30===0)player.hp=Math.max(0,player.hp-1);ctx.font=e.isCrown?"42px sans-serif":"24px sans-serif";ctx.fillText(e.isCrown?"👑":"👾",e.x,e.y);ctx.fillStyle="#fff";ctx.fillRect(e.x-(e.isCrown?25:15),e.y-22,e.isCrown?50:30,4);ctx.fillStyle=e.isCrown?"#facc15":"#ef4444";ctx.fillRect(e.x-(e.isCrown?25:15),e.y-22,(e.isCrown?50:30)*Math.max(0,e.hp/(e.baseHp*e.boost)),4);ctx.fillStyle="#fff";});
-   if(player.hp<=0)showDeath();
-  }
-  ctx.font="30px sans-serif";const selectedSkin=typeof window.getSelectedSkinEmoji==="function"?window.getSelectedSkinEmoji():"🙂";ctx.fillText(selectedSkin||"🙂",player.x,player.y);
-  const remain=Math.max(0,600-Math.floor((Date.now()-mapStartedAt)/1000));
-  const timerText=String(Math.floor(remain/60)).padStart(2,"0")+":"+String(remain%60).padStart(2,"0");
-  const timerDisplay=((Date.now()-startAt)/1000)<840?"ERROR":timerText;
-  let hudText="⏱ "+timerDisplay+"　｜　💀 撃破 "+kills+" / 150　｜　👾 出現 "+spawned+" / 150　｜　❤️ "+Math.max(0,player.hp);
-  if(dead)hudText="💀 GAME OVER　｜　撃破 "+kills+"　｜　生存 "+String(Math.floor((deathAt-mapStartedAt)/60)).padStart(2,"0")+":"+String(Math.floor((deathAt-mapStartedAt)%60)).padStart(2,"0");
-  if(kills>=150)hudText="🎉 150体撃破！イベント終了まで続けられるよ";
-  if(hud)hud.textContent=hudText;
-  if((Date.now()-startAt)/1000>=1200){cleanup();return;}
-  requestAnimationFrame(draw);
- }
- draw();
-}function start(){hide(confirm);hide(end);window.adminAbusePending=true;window.adminAbuseActive=false;window.halloweenWaveActive=true;window.halloweenWaveTestRequested=true;if(typeof window.chooseDevice==="function")window.chooseDevice("pc");if(typeof window.selectHalloweenMap==="function")window.selectHalloweenMap();}
-document.addEventListener("click",e=>{const btn=e.target&&e.target.closest?e.target.closest("#battleBtn"):null;if(btn&&window.adminAbusePending){window.adminAbusePending=false;setTimeout(()=>{if(!active)beginTimeline()},0)}},true);updateOpenButton();updateScheduleTimer();setInterval(()=>{updateOpenButton();updateScheduleTimer()},250);$("adminAbuseOpenBtn")?.addEventListener("click",()=>show(confirm));$("adminAbuseYesV2").addEventListener("click",start);$("adminAbuseNoV2").addEventListener("click",()=>hide(confirm));$("adminAbuseEndOkV2").addEventListener("click",()=>location.reload());const originalShowResult=window.showResult;if(typeof originalShowResult==="function"){window.showResult=function(cleared){const result=originalShowResult.apply(this,arguments);if(active){document.body.classList.add("admin-abuse-result-lock");const retry=$("resultToTitle"),back=$("resultBackBtn");if(retry){retry.textContent="🔄 リトライ";retry.onclick=e=>{if(e)e.preventDefault();if(typeof window.retryFromGameOver==="function")window.retryFromGameOver()}}if(back)back.classList.add("hidden");}return result;};}/* 攻撃力ブーストは各攻撃処理（通常攻撃・ハロウィン攻撃）側で適用する。getDamage全体を包むと二重・四重適用になるため、ここではラップしない。 */window.addEventListener("beforeunload",()=>{clearInterval(interval);scheduled.forEach(clearTimeout)})})();</script>
+<script id="admin-abuse-v2-script">(function(){
+"use strict";
+const $=id=>document.getElementById(id),confirm=$("adminAbuseConfirmScreen"),end=$("adminAbuseEndScreen");
+let active=false,startAt=0,interval=null,scheduled=[],token=0,boost={luck:1,attack:1,speed:1,soul:1,points:1},skinGetter=null;
+const from=Date.parse("2026-11-07T22:10:00+09:00"),until=Date.parse("2026-11-07T22:25:00+09:00"),lines=[[0,"がちゃ：今日もやってきたぞーー！！"],[8,"今日はヒューズスキンマシン公開記念日イベント！！"],[16,"最初から派手に行くぞ！！"],[24,"全ブースト適用！！"],[40,"じゃあさっそくやってみる？？"],[47,"「なんか右側が整理されてない？」と思ったそこの君！！"],[53,"ストップボタンにまとめてみたぞ！！"],[60,"どう？結構使いやすい？"],[67,"そこを押してみて！！"],[72,"おいおい、キャンパスに戻るを押すとか一言も言ってないぞ！！"],[79,"そこにあるヒューズマシンって書いてあるやつあるだろ？"],[84,"それを押してみろ！！"],[90,"どうだ！！まぁまぁ良くないか？"],[97,"スキンを自由に選んでマシンに入れるだけだ！"],[104,"ゲットできるのはほとんどがヒューズマシン限定だぞ！！"],[111,"まぁ、レアになるど確率は低いけどな"],[118,"あとでみんなに実際にみせてみようか"],[130,"じゃあ今後のことを話していくよーー！"],[137,"今は新マップの開発を進めてる"],[144,"来週には公開できると嬉しいかな"],[150,"進捗状況は40%てとこだな"],[157,"これを考えてるのが木曜だから"],[165,"このイベント中は多分99%になってるんじゃな？？"],[173,"ねー！土曜日のがちゃさん！"],[180,"どう？ブースト効果きれた？"],[187,"おっけー"],[200,"30秒間無敵発動！！"],[207,"どう？これ結構いいやつじゃない？"],[214,"今日は長めの25分間行います！！"],[221,"理由はまぁ、"],[228,"ヒューズマシンを楽しんでもらいたいからだけどね"],[235,"え？あくまでの時間が待てないって？"],[243,"しかたないなぁ"],[250,"新しいスペシャルコード　skip"],[257,"これでマシンスキップができるよ！！"],[265,"これは時間制限付きね！！"],[273,"明日のこの時間まで！！"],[280,"今日あと２個か１個はコード配布するよ！！"],[300,"てか、ハロウィンマップなくなったねー"],[307,"あれは期間限定だから来年まで復活はないんだよねー"],[314,"まぁこれはあるけどね😏"],[321,"🎃ボックスを2個召喚！！"],[328,"これぐらいだったら召喚できるよ"],[335,"また後で召喚するね〜"],[342,"じゃあ一旦ADMIN2にまかせるわ"],[342,"ADMIN2：はい！ここからは私が進行します！！"],[350,"がちゃさん、少し休憩していてくださいね！"],[358,"みなさん、イベントを楽しんでいますか？"],[366,"ヒューズスキンマシンはもう試しましたか？"],[374,"まだの人はぜひ使ってみてください！"],[382,"いろんなスキンを組み合わせてみるのも面白いですよ！"],[390,"ここでちょっとしたお知らせです！"],[398,"今回のイベントでは特別な効果が発動しています！"],[406,"いつもとは違う戦いを楽しんでくださいね！"],[414,"おや？敵がたくさん集まってきましたね！"],[422,"これはなかなか賑やかになってきました！"],[430,"みなさん、準備はいいですか？"],[438,"もっと盛り上げていきましょう！！"],[446,"今のうちにたくさん戦ってみてください！"],[454,"いいですね！その調子です！"],[462,"おお！かなり盛り上がっていますね！"],[470,"がちゃさん、そちらの様子はどうですか？"],[478,"……あれ？返事がありませんね"],[486,"まだ休憩中みたいですね！"],[494,"それでは、私からみなさんに質問です！"],[502,"お気に入りのスキンは何ですか？"],[510,"やっぱり限定スキンは気になりますよね！"],[518,"ヒューズスキンマシンには、まだまだ可能性があります！"],[526,"これからの追加要素にも期待してください！"],[534,"どんなスキンが登場するのか楽しみですね！"],[542,"みなさん、まだまだ楽しんでいきましょう！"],[550,"ここでちょっとしたサプライズです！！"],[558,"何が起こるかはお楽しみ！"],[566,"準備はいいですか？"],[574,"それでは、いきますよ！！"],[582,"みなさん、戦闘を楽しんでください！！"],[590,"おお！すごい盛り上がりですね！！"],[598,"いい感じです！そのままいきましょう！"],[606,"この勢いは止まりませんね！"],[614,"がちゃさん、そろそろ戻ってきませんか？"],[622,"もしかして、まだ休憩しているんですか？"],[630,"では、もう少し私が進行しますね！"],[638,"みなさん、最後まで楽しんでください！"],[646,"まだまだ面白いことが起こるかもしれませんよ！"],[654,"何が起こるか、楽しみにしていてくださいね！"],[662,"おや？なんだか向こうが騒がしいですね……"],[670,"あっ！がちゃさんが戻ってきたみたいです！"],[678,"お待ちしていましたよ！！"],[686,"それでは、進行をお返ししましょう！"],[694,"がちゃさん、お願いします！"],[700,"それでは、ここからはがちゃさんにお任せします！！"],[710,"がちゃ：ただいまー！！"],[717,"ちょっとねすぎた"],[725,"ZZZ…"],[733,"😪がちゃが寝ぼけて🎃ボックスを10個召喚した😪"],[750,"はっ！！"],[757,"え！！なんでこんなにあるの！？"],[764,"しかも俺が召喚したの？？"],[770,"まぁまぁいっか"],[777,"じゃあそろそろ二個目のスペシャルコード行くよーー"],[783,"1101　これね"],[790,"なんでこの数字かって？"],[797,"俺の誕生日だからだよ🤬"],[804,"まぁこれでスキップできたことでしょう！！"],[810,"次は新マップについて話していくよーー！"],[817,"新マップの名前は🏎️カーレースマップ🏎️"],[824,"そのなの通りレースマップだ！"],[830,"今のところ次のイベントが12月に新規作成する予定だから"],[837,"合計３つのマップがプレイ可能になるんじゃないかと予想しているよ"],[845,"まぁそこはまた考えるとして"],[852,"公開日って言ったけ？"],[859,"正確な公開日をいうと来週のADMIN ABUSEでできたらうれしいなって感じ"],[865,"ADMIN ABUSEまでに間に合わなかったらその次の週のどっかで公開します！"],[873,"今の制作状況はレース場・カートの色・敵の量など"],[880,"だいぶ完成は近いよ"],[887,"今までのマップはボックスが合ったと思うんだけど今回はなしの方向でいきます"],[895,"だけど特殊能力カードは追加予定！！"],[902,"なにそれーと思う人に説明！"],[909,"今から言うのはまだ確定ではないからね！"],[915,"道に落ちているカードを拾うと画面に三枚のカードがでてきて"],[923,"そこにはブーストやいろんな能力を選べるよ！！"],[930,"カーレースマップにはアイテム保管庫がないから"],[937,"選んだら攻撃キーを押すと発動できるようにする感じ！"],[943,"どう？面白そう？"],[950,"正直お絵かきバトルなのにお絵かき要素がまったくないからそこをね"],[957,"お絵かきバトルならお絵かき要素をのこしていきたいよね"],[970,"だいぶ敵倒して飽きてきたんじゃない？"],[977,"一旦ここらで休憩はさんどく？"],[983,"30秒間無敵！！"],[990,"じゃあここらへんで緑茶さんにアンケート！"],[997,"クリスマスが近づいたらヒューズマシンもクリスマス仕様にする？"],[1010,"ほうほう…"],[1015,"おっけーわかった"],[1022,"まぁみんなにクリスマスプレゼントは考えてあるよ"],[1028,"そろそろ最後らへんまで来たかな？"],[1035,"なつかしの👑を落としとくね"],[1050,"あっ！またミスしてるよー…"],[1057,"一旦落ち着いてくる　ADMIN2少しの間よろしく！"],[1057,"ADMIN2：はい！また私が進行しますね！！"],[1065,"がちゃさん、ゆっくり休んできてください！"],[1073,"……ところで、みなさんのスキンが変わりましたね？"],[1081,"これは懐かしい感じがしますね！"],[1089,"王冠スキン、なかなか目立ちますね！！"],[1097,"みなさん、似合っていますよ！"],[1105,"せっかくなので、この姿で楽しんでいってください！"],[1113,"さて、ここで少しお知らせです！"],[1121,"カーレースマップの開発も進んでいるようですね！"],[1129,"どんなコースになるのか楽しみです！"],[1137,"特殊能力カードも面白そうですね！"],[1145,"ただし、まだ決まっていない部分もあるそうです"],[1153,"これからの開発に期待しましょう！！"],[1161,"おや？がちゃさんから何か連絡が来ました"],[1169,"どうやら、まだ休憩しているみたいですね"],[1177,"それでは、みなさん！"],[1185,"引き続きイベントを楽しんでください！！"],[1193,"がちゃさん、そろそろ戻ってきてくださいね！"],[1200,"それでは、進行をお返しします！！"],[1207,"ADMIN2：のこり３分かな？そのくらい？"],[1214,"じゃあ最後は全ブースト３倍をイベント終了まで！！"],[1221,"このゲームのマップはブレインロット系のマップで言うイベント枠なんだ"],[1228,"だから頻繁に更新するし、おんなじのになることもある！"],[1235,"そのたびに新しいミニゲーム的なのを考えていたら頭がパンクしちゃう"],[1242,"だから更新は基本２ヶ月に1回だけ！"],[1249,"でも、クリスマスみたいなイベントのときは例外ね"],[1256,"あとイベント作りたい意欲があったらイベントを更新していきます"],[1263,"てか、みんな🎁から0.3%ででるオートガトリング使ったことある？"],[1270,"ないだって！なら〜"],[1277,"アイテム保管庫にオートガトリングを２個配布！！"],[1283,"みんな使えてる？"],[1290,"なら良かった！！"],[1300,"もうラストスパートだねー"],[1307,"今日のADMIN ABUSEはどうだった？"],[1314,"次回のADMIN ABUSEでカーレースマップが使えるように頑張るよ！！"],[1321,"最後にもう一個やっちゃうか！"],[1335,"carracing　スキン🏎️をゲットできるぞ！！"],[1342,"今日はこれでおしまいかな"],[1349,"みんな今日は遊んでくれてありがとう！"],[1356,"がちゃ：最後にクリスマスイベントの予告してから終わるね！"],[1363,"🎁→？"],[1380,"これだけかな、今言えることは！"],[1387,"そろそろ新しいランクを追加してもいいかな？"],[1393,"ランクGATYAに行ったらがちゃスキンをゲットできるぞ！"],[1400,"GATYAランクは相当難しいからなぁ〜🤔"],[1407,"ゲットできたら超ラッキー！"],[1414,"ADMIN RANKに行ったことある人いる？"],[1421,"行ったら特別なコードがもらえるかも？🤫"],[1428,"そこは頑張ってくれ！"],[1435,"今回はここまで！"],[1442,"じゃあまた来週のADMIN ABUSEで！！"]];
+function hide(e){e&&e.classList.add("hidden")}function show(e){e&&e.classList.remove("hidden")}
+function say(t){const d=$("adminAbuseDialogue");if(!d)return;if(d.parentElement!==document.body)document.body.appendChild(d);token++;d.classList.remove("speaker-admin2","speaker-gacha");if(t.startsWith("ADMIN2："))d.classList.add("speaker-admin2");if(t.startsWith("がちゃ："))d.classList.add("speaker-gacha");d.textContent=t;d.classList.add("active")}
+function setBoost(v){boost=Object.assign(boost,v);["luck","attack","speed","soul","points"].forEach(k=>boost[k]=Number(boost[k])||1);window.adminAbuseLuckMultiplier=boost.luck;window.adminAbuseAttackMultiplier=boost.attack;window.adminAbuseSpeedMultiplier=boost.speed;window.adminAbuseSoulMultiplier=boost.soul;window.adminAbuseRankPointMultiplier=boost.points;const ids={luck:"adminAbuseLuckV2",attack:"adminAbuseAttackV2",speed:"adminAbuseSpeedV2",soul:"adminAbuseCoinV2",points:"adminAbusePointsV2"};Object.entries(ids).forEach(([k,id])=>{if($(id))$(id).textContent="×"+boost[k]});if($("adminAbuseBoostHUD"))$("adminAbuseBoostHUD").classList.add("active")}
+function later(t,fn){scheduled.push(setTimeout(()=>{if(active)fn()},Math.max(0,(t-(Date.now()-startAt)/1000)*1000)))}
+function spawnBoxes(n){if(!Array.isArray(boxes))return;for(let i=0;i<n;i++)boxes.push({x:100+Math.random()*700,y:80+Math.random()*340,item:"🎃"})}
+function invincible(sec){window.adminAbuseEventInvincibleUntil=Date.now()+sec*1000}
+function giveGatling(){const inv=window.gameItemInventory||(window.gameItemInventory={normal:{},halloween:{}});inv.normal=inv.normal||{};inv.normal.tripleGatling=(Number(inv.normal.tripleGatling)||0)+2;const m=$("msg");if(m)m.textContent="🔫 オートガトリングを2個、アイテム保管庫に追加！"}
+function crown(){if(typeof window.getSelectedSkinEmoji==="function"){skinGetter=skinGetter||window.getSelectedSkinEmoji;window.getSelectedSkinEmoji=()=>"👑"}}
+function restoreCrown(){if(skinGetter){window.getSelectedSkinEmoji=skinGetter;skinGetter=null}}
+function finish(){active=false;clearInterval(interval);scheduled.forEach(clearTimeout);scheduled=[];restoreCrown();window.adminAbuseActive=false;window.adminAbuseEventInvincibleUntil=0;window.adminAbuseLuckMultiplier=window.adminAbuseAttackMultiplier=window.adminAbuseSpeedMultiplier=window.adminAbuseSoulMultiplier=window.adminAbuseRankPointMultiplier=1;if($("adminAbuseBoostHUD"))$("adminAbuseBoostHUD").classList.remove("active");if($("adminAbuseTimer"))$("adminAbuseTimer").classList.remove("active");if($("adminAbuseDialogue"))$("adminAbuseDialogue").classList.remove("active");document.body.classList.remove("admin-abuse-result-lock");hide(confirm);show(end)}
+function tick(){const left=Math.max(0,1500-Math.floor((Date.now()-startAt)/1000));if($("adminAbuseTimer"))$("adminAbuseTimer").textContent="👑 ADMIN ABUSE　"+String(Math.floor(left/60)).padStart(2,"0")+":"+String(left%60).padStart(2,"0");if(!left)finish()}
+function eventCode(c){c=String(c||"").trim().toLowerCase();if(!["skip","1101","carracing"].includes(c))return false;if(Date.now()>Date.parse("2026-11-08T22:00:00+09:00")){if($("msg"))$("msg").textContent="⌛ このイベントコードの有効期限は終了しました";return true}try{localStorage.setItem("adminAbuseCode_"+c,"true")}catch(e){}if(c==="carracing"){try{localStorage.setItem("adminAbuseRacingSkinUnlocked","true")}catch(e){}window.adminAbuseRacingSkinUnlocked=true;if(typeof window.unlockGameSkin==="function")window.unlockGameSkin("racing");if($("msg"))$("msg").textContent="🏎️ カーレーススキン解放コードを受け付けました"}else if($("msg"))$("msg").textContent="⏩ ヒューズスキップコードを受け付けました。マシン処理中に使えるよ";return true}
+function begin(){if(active)return;hide(confirm);hide(end);active=true;window.adminAbuseActive=true;startAt=Date.now();setBoost({luck:1,attack:1,speed:1,soul:1,points:1});if($("adminAbuseTimer"))$("adminAbuseTimer").classList.add("active");interval=setInterval(tick,250);tick();if(typeof window.useSpecialCode==="function"&&!window.useSpecialCode.__eventCodes){const orig=window.useSpecialCode,wrapped=function(c){return eventCode(c)||orig.apply(this,arguments)};wrapped.__eventCodes=true;window.useSpecialCode=wrapped}
+lines.forEach(([t,line],i)=>later(t,()=>{say(line);const my=token,next=lines[i+1],duration=next?Math.max(2,next[0]-t):8;scheduled.push(setTimeout(()=>{if(active&&token===my&&$("adminAbuseDialogue"))$("adminAbuseDialogue").classList.remove("active")},duration*1000))}));
+later(24,()=>setBoost({luck:2,attack:2,speed:2,soul:2,points:2}));later(144,()=>setBoost({luck:1,attack:1,speed:1,soul:1,points:1}));later(200,()=>invincible(30));later(321,()=>spawnBoxes(2));later(733,()=>spawnBoxes(10));later(943,()=>setBoost({luck:boost.luck*2,attack:boost.attack*2,speed:boost.speed*2,soul:boost.soul*2,points:boost.points*2}));later(983,()=>invincible(30));later(1035,crown);later(1214,()=>setBoost({luck:3,attack:3,speed:3,soul:3,points:3}));later(1277,giveGatling)}
+function start(){hide(confirm);hide(end);window.adminAbusePending=true;window.adminAbuseActive=false;window.halloweenWaveActive=false;window.halloweenWaveTestRequested=false;if(typeof window.chooseDevice==="function")window.chooseDevice("pc")}
+document.addEventListener("click",e=>{const b=e.target&&e.target.closest?e.target.closest("#battleBtn"):null;if(b&&window.adminAbusePending){window.adminAbusePending=false;setTimeout(()=>{if(!active)begin()},0)}},true);
+function updateButton(){const b=$("adminAbuseOpenBtn");if(!b)return;const n=Date.now(),open=n>=from&&n<until,ended=n>=until;b.disabled=!open;b.setAttribute("aria-disabled",String(!open));b.textContent=ended?"🌀ADMIN ABUSE🌪️　？？？　？？？":"🌀ADMIN ABUSE🌪️　11/07　22:10〜22:25";b.title=open?"開催中：クリックして参加":ended?"🔒 開催終了":"🔒 22:10から参加できます";b.style.background=open?"linear-gradient(135deg,#a5f3fc,#67e8f9)":"#e5e7eb";b.style.borderColor=open?"#0891b2":"#6b7280";b.style.color=open?"#164e63":"#374151";b.style.textDecoration=ended?"line-through":"none";b.style.opacity=ended?".5":"1";b.style.cursor=open?"pointer":"not-allowed"}
+updateButton();setInterval(updateButton,1000);if($("adminAbuseScheduleTimer"))$("adminAbuseScheduleTimer").style.display="none";
+$("adminAbuseOpenBtn")?.addEventListener("click",()=>{if(Date.now()>=from&&Date.now()<until)show(confirm)});$("adminAbuseYesV2")?.addEventListener("click",start);$("adminAbuseNoV2")?.addEventListener("click",()=>hide(confirm));$("adminAbuseEndOkV2")?.addEventListener("click",()=>location.reload());
+const originalShow=window.showResult;if(typeof originalShow==="function")window.showResult=function(){const r=originalShow.apply(this,arguments);if(active){document.body.classList.add("admin-abuse-result-lock");const retry=$("resultToTitle"),back=$("resultBackBtn");if(retry){retry.textContent="🔄 リトライ";retry.onclick=e=>{e?.preventDefault();if(typeof window.retryFromGameOver==="function")window.retryFromGameOver()}}if(back)back.classList.add("hidden")}return r};
+window.addEventListener("beforeunload",()=>{clearInterval(interval);scheduled.forEach(clearTimeout)});
+})();</script>
 
 <style id="final-ui-fixes">
 #gameSaveOpenBtn{position:fixed!important;top:12px!important;right:12px!important;left:auto!important;bottom:auto!important;z-index:1000000!important;display:flex!important;align-items:center!important;justify-content:center!important;width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;padding:0!important;border:2px solid #facc15!important;border-radius:12px!important;background:#172033!important;color:#fff!important;font-size:27px!important;box-shadow:0 3px 12px #0009!important;cursor:pointer!important}

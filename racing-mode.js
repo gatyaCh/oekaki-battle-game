@@ -11,11 +11,61 @@ function selection(){$("rSelected").textContent="カートの色："+({"#ef4444"
 function choose(){running=false;paused=false;$("rChooseTitle").textContent="🏁 ステージ"+stage+" 準備";$("rChooseDesc").textContent="CPU "+counts[stage-1]+"台とレース！このステージはいつも同じコースだよ。";$("rNext").style.display=stage===5?"none":"inline-block";show($("rChoose"))}
 function makeTrack(){track=[];const total=dist[stage-1];/* 設計図の「長い直線＋大きな折り返し」を参考にした別形状の固定コース */const knots=[{t:0,x:-145},{t:.10,x:-145},{t:.19,x:-115},{t:.28,x:-35},{t:.36,x:105},{t:.44,x:185},{t:.53,x:185},{t:.61,x:145},{t:.69,x:45},{t:.77,x:-95},{t:.85,x:-175},{t:.92,x:-175},{t:1,x:-70}];for(let i=0;i<=700;i++){const u=i/700;let j=0;while(j<knots.length-2&&u>knots[j+1].t)j++;const a=knots[j],b=knots[j+1],v=clamp((u-a.t)/(b.t-a.t),0,1),ease=v*v*(3-2*v),px=a.x+(b.x-a.x)*ease;track.push({x:px,y:-total*u})}}
 function point(d){let f=clamp(d/dist[stage-1],0,1)*700,i=Math.floor(f),a=track[i]||track[700],b=track[Math.min(700,i+1)]||a;return{x:a.x+(b.x-a.x)*(f-i),y:a.y+(b.y-a.y)*(f-i)}}
-function startStage(){keys={};makeTrack();elapsed=0;last=0;player={d:0,lane:0,speed:0};let lanes=[-2,-1,0,1,2].sort(()=>Math.random()-.5);const playerGridLane=lanes.pop();player.lane=playerGridLane*48;cpus=[];for(let i=0;i<counts[stage-1];i++)cpus.push({d:0,lane:lanes[i],speed:0,base:ai[stage-1]*180*(.94+Math.random()*.12),color:rainbow[Math.random()*7|0],id:i});if(stage===5)cpus[0].base=ai[4]*180;countdown=stage===1?5:3;countStart=performance.now();show($("rCount"));cancelAnimationFrame(raf);raf=requestAnimationFrame(loop)}
+function startStage(){keys={};makeTrack();elapsed=0;last=0;player={d:0,lane:0,speed:0};let lanes=[-2,-1,0,1,2].sort(()=>Math.random()-.5);const playerGridLane=lanes.pop();player.lane=playerGridLane*48;cpus=[];for(let i=0;i<counts[stage-1];i++)cpus.push({d:0,lane:lanes[i],speed:0,base:ai[stage-1]*180*(.94+Math.random()*.12),color:rainbow[Math.random()*7|0],id:i,hitCooldown:0});if(stage===5)cpus[0].base=ai[4]*180;countdown=stage===1?5:3;countStart=performance.now();show($("rCount"));cancelAnimationFrame(raf);raf=requestAnimationFrame(loop)}
 function pause(){if(!running)return;paused=true;show($("rPauseModal"))}function resume(){paused=false;hide($("rPauseModal"));last=performance.now()}
 function exit(){keys={};running=false;paused=false;cancelAnimationFrame(raf);hide(root);hide($("rCount"));hide($("rChoose"));hide($("rResult"));hide($("rPauseModal"));if(typeof setScreen==="function")setScreen("mapSelect")}
 function loop(now){raf=requestAnimationFrame(loop);if(root.style.display==="none")return;if(countdown>0){let n=(stage===1?5:3)-Math.floor((now-countStart)/1000);if(n>0)$("rCountText").textContent=n;else{$("rCountText").textContent="GO!";if(now-countStart>=(stage===1?5:3)*1000+650){countdown=0;hide($("rCount"));running=true;last=now}}draw();return}if(!running||paused){draw();return}let dt=Math.min(.05,(now-last)/1000||0);last=now;elapsed+=dt;update(dt);draw();hud();if(player.d>=dist[stage-1])finish()}
-function update(dt){const f=keys.w||keys.arrowup,b=keys.s||keys.arrowdown,l=keys.a||keys.arrowleft,r=keys.d||keys.arrowright;/* メーターの数値を現実のkm/hとして扱う */const maxSpeed=600;const baseAccel=player.speed<90?63:player.speed<180?39:21;/* 400km/h表示に近づくほど加速をなめらかに弱める */const speedRatio=clamp(player.speed/maxSpeed,0,1);const accel=baseAccel*(1-.9*speedRatio*speedRatio);player.speed=clamp(player.speed+(f?accel:b?-55:-9)*dt,0,maxSpeed);/* 左右はコース中心からの横ずれ量。カメラは横追従しない */const steer=Number(r)-Number(l);player.lane=clamp(player.lane+steer*190*dt,-260,260);/* 路面幅292px。車幅を考慮して中心が±130pxを超えたら場外 */const outside=Math.max(0,Math.abs(player.lane)-130);if(outside>0){player.speed=Math.max(0,player.speed-dt*(18+outside*.22));}player.d+=(player.speed/3.6)*5*dt;cpus.forEach(c=>{const cpuProgress=clamp(c.d/dist[stage-1],0,1);c.speed=clamp(c.base*(.9+.45*cpuProgress),0,300);c.d+=(c.speed/3.6)*5*dt;c.lane=clamp(c.lane+Math.sin(elapsed*.8+c.id*2)*.04,-2.35,2.35)});const playerX=point(player.d).x+player.lane;for(const c of cpus){const cpuX=point(c.d).x+c.lane*48;if(Math.abs(c.d-player.d)<9&&Math.abs(cpuX-playerX)<34){player.lane=clamp(player.lane+Math.sign(playerX-cpuX||1)*18,-260,260);player.speed=Math.max(0,player.speed-2)}}for(let i=0;i<cpus.length;i++)for(let j=i+1;j<cpus.length;j++){const a=cpus[i],b=cpus[j],ax=point(a.d).x+a.lane*48,bx=point(b.d).x+b.lane*48;if(Math.abs(a.d-b.d)<9&&Math.abs(ax-bx)<34){a.lane-=.15;b.lane+=.15}}}
+function update(dt){
+const f=keys.w||keys.arrowup,b=keys.s||keys.arrowdown,l=keys.a||keys.arrowleft,r=keys.d||keys.arrowright;
+/* プレイヤーの加速 */
+const maxSpeed=600,baseAccel=player.speed<90?63:player.speed<180?39:21;
+const speedRatio=clamp(player.speed/maxSpeed,0,1),accel=baseAccel*(1-.9*speedRatio*speedRatio);
+player.speed=clamp(player.speed+(f?accel:b?-55:-9)*dt,0,maxSpeed);
+/* 左右移動。コース外では強く減速 */
+const steer=Number(r)-Number(l);
+player.lane=clamp(player.lane+steer*190*dt,-260,260);
+const playerOutside=Math.max(0,Math.abs(player.lane)-130);
+if(playerOutside>0)player.speed=Math.max(0,player.speed-dt*(55+playerOutside*.45));
+const previousPlayerD=player.d;
+player.d+=(player.speed/3.6)*5*dt;
+/* CPUは停止状態から徐々に加速し、プレイヤー側へ進路を変える */
+cpus.forEach(c=>{
+  c.hitCooldown=Math.max(0,(c.hitCooldown||0)-dt);
+  const cpuProgress=clamp(c.d/dist[stage-1],0,1);
+  const targetSpeed=clamp(c.base*(.9+.45*cpuProgress),0,300);
+  c.speed=Math.min(targetSpeed,c.speed+65*dt);
+  const targetLane=clamp(player.lane/48,-3.1,3.1);
+  const laneDelta=clamp(targetLane-c.lane,-1.35*dt,1.35*dt);
+  c.lane=clamp(c.lane+laneDelta+Math.sin(elapsed*.8+c.id*2)*.008,-3.5,3.5);
+  const outside=Math.max(0,Math.abs(c.lane)-2.55);
+  if(outside>0)c.speed=Math.max(0,c.speed-dt*(70+outside*45));
+  c.d+=(c.speed/3.6)*5*dt;
+});
+/* CPUがプレイヤーに接近して接触したら、双方が減速して押し合う */
+const playerX=point(player.d).x+player.lane;
+for(const c of cpus){
+  const cpuX=point(c.d).x+c.lane*48;
+  const relativeTravel=Math.abs(player.speed-c.speed)/3.6*5*dt;
+  const contactRange=14+relativeTravel;
+  if(c.hitCooldown<=0&&Math.abs(c.d-player.d)<contactRange&&Math.abs(cpuX-playerX)<38){
+    const push=playerX<=cpuX?-1:1;
+    player.lane=clamp(player.lane+push*24,-260,260);
+    c.lane=clamp(c.lane-push*.55,-3.5,3.5);
+    player.speed=Math.max(0,player.speed- Math.max(35,player.speed*.22));
+    c.speed=Math.max(0,c.speed-Math.max(25,c.speed*.16));
+    c.hitCooldown=.65;
+  }
+}
+/* CPU同士にも当たり判定 */
+for(let i=0;i<cpus.length;i++)for(let j=i+1;j<cpus.length;j++){
+  const a=cpus[i],b=cpus[j],ax=point(a.d).x+a.lane*48,bx=point(b.d).x+b.lane*48;
+  const range=14+Math.abs(a.speed-b.speed)/3.6*5*dt;
+  if(Math.abs(a.d-b.d)<range&&Math.abs(ax-bx)<38){
+    a.speed=Math.max(0,a.speed-22);b.speed=Math.max(0,b.speed-22);
+    a.lane=clamp(a.lane-.22,-3.5,3.5);b.lane=clamp(b.lane+.22,-3.5,3.5);
+  }
+}
+}
 function road(c,cx,cy,sc,from,to){let pts=track.map(p=>({x:cx+p.x*sc,y:cy+(p.y+player.d)*sc}));if(pts.length<2)return;c.lineCap="butt";c.lineJoin="round";c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.strokeStyle="#e5e7eb";c.lineWidth=330*sc;c.stroke();c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.strokeStyle="#475569";c.lineWidth=292*sc;c.stroke();for(const side of [-1,1]){let edge=[];for(let i=0;i<pts.length;i++){let prev=pts[Math.max(0,i-1)],next=pts[Math.min(pts.length-1,i+1)],dx=next.x-prev.x,dy=next.y-prev.y,len=Math.hypot(dx,dy)||1;edge.push({x:pts[i].x-(dy/len)*side*145*sc,y:pts[i].y+(dx/len)*side*145*sc})}c.beginPath();edge.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.setLineDash([18*sc,13*sc]);c.lineDashOffset=0;c.strokeStyle="#ef4444";c.lineWidth=13*sc;c.stroke();c.setLineDash([8*sc,23*sc]);c.lineDashOffset=0;c.strokeStyle="#f8fafc";c.lineWidth=13*sc;c.stroke()}c.setLineDash([]);c.lineDashOffset=0}
 function kartDraw(c,x,y,col,active){c.save();c.translate(x,y);const z=active?1.35:1;c.scale(z,z);c.fillStyle="#020617";[[-15,-19],[8,-19],[-15,8],[8,8]].forEach(p=>c.fillRect(p[0],p[1],8,14));c.fillStyle=col;c.strokeStyle=active?"#ffffff":"#0f172a";c.lineWidth=active?4:2;c.beginPath();c.moveTo(-11,-23);c.lineTo(11,-23);c.lineTo(13,15);c.lineTo(8,23);c.lineTo(-8,23);c.lineTo(-13,15);c.closePath();c.fill();c.stroke();c.fillStyle="#0f172a";c.fillRect(-8,-9,16,12);c.fillStyle="#ffffff";c.fillRect(-5,-20,10,3);if(active){c.strokeStyle="#facc15";c.lineWidth=3;c.beginPath();c.arc(0,0,28,0,Math.PI*2);c.stroke();c.font="bold 14px sans-serif";c.textAlign="center";c.fillStyle="#ffffff";c.fillText("YOU",0,-34)}c.restore()}
 function draw(){if(!ctx)return;const w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);ctx.fillStyle="#166534";ctx.fillRect(0,0,w,h);const p=point(player.d),sc=.95,cx=w/2,cy=h*.75;road(ctx,cx,cy,sc,0,dist[stage-1]);cpus.forEach(c=>{const q=point(c.d);kartDraw(ctx,cx+(q.x+c.lane*48)*sc,cy+(q.y+player.d)*sc,c.color,false)});const overlay=$("racingPlayerOverlay");if(overlay&&root.style.display!=="none"){const rr=root.getBoundingClientRect(),cr=canvas.getBoundingClientRect();overlay.style.display="block";overlay.style.left=(cr.left-rr.left+cr.width/2+(p.x+player.lane)*sc*(cr.width/w))+"px";overlay.style.top=(cr.top-rr.top+cr.height*.75)+"px";overlay.style.setProperty("--kart-color",kart)}mini()}

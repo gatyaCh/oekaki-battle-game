@@ -7029,7 +7029,7 @@ function update() {
     if (now >= (window.kakeruNextAttackAt || 0)) {
       charge = 0;
       attack();
-      window.kakeruNextAttackAt = now + 50;
+      window.kakeruNextAttackAt = now + 100;
     }
   } else if (charging && attackCooldown <= 0) {
     if (charge < 100) charge += 1;

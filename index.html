@@ -5698,15 +5698,12 @@ function spawnBox() {
   boxes = [];
   const ryokutyaActive = !!(window.specialCodes && window.specialCodes.ryokutya);
   const count = ryokutyaActive ? 4 : Math.max(1, Math.min(10, Math.floor(Number(window.adminBoxCount) || 2)));
-  const halloweenRoll = Math.random() * 100;
-  // 🎃ボックスはマップ終了後も通常マップで継続して出現する。
-  const halloweenMode = halloweenRoll < 25 ? "all" : halloweenRoll < 65 ? "one" : "none";
-  const specialSlot = Math.floor(Math.random() * count);
+  // 通常マップの自動スポーンでは🎃を抽選しない。通常アイテムだけを出現させる。
   for (let i = 0; i < count; i++) {
     boxes.push({
       x: 100 + Math.random() * 700,
       y: 80 + Math.random() * 340,
-      item: (halloweenMode === "all" || (halloweenMode === "one" && i === specialSlot)) ? "🎃" : weightedItem(),
+      item: weightedItem(),
     });
   }
 }

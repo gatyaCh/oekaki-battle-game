@@ -10156,6 +10156,21 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 })();
 </script>
 <script src="racing-mode.js?v=20261107k18"></script>
+
+<style id="admin-abuse-special-code-dialogue-fix">
+/* ADMIN ABUSE中にスペシャルコードを開いてもセリフを隠さない */
+body.special-code-open #adminAbuseDialogue.active{
+  display:block!important;
+  position:fixed!important;
+  top:max(8px,4vh)!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+  z-index:1000020!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:none!important;
+}
+</style>
 </body>
 </html>
 

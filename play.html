@@ -29,10 +29,69 @@
     .qr-card button:hover { transform:translateY(-2px); box-shadow:0 0 20px rgba(75,210,255,.48); }
     @media(max-width:600px) { body { padding:20px 12px 36px; } .qr-row { gap:16px; } .qr-card { width:100%; } }
     @media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; transition:none !important; } }
-  </style>
+  
+    /* Play page appearance themes */
+    body[data-theme="white"] { color:#20242c; background:radial-gradient(ellipse at 18% 12%,#e7f4f1,transparent 40%),radial-gradient(ellipse at 82% 18%,#f3eafa,transparent 42%),linear-gradient(135deg,#fff 0%,#f4f2e9 55%,#fff 100%); }
+    body[data-theme="white"]::before { opacity:.16; background-image:linear-gradient(#cbd5d1 1px,transparent 1px),linear-gradient(90deg,#cbd5d1 1px,transparent 1px); }
+    body[data-theme="white"] h1, body[data-theme="white"] h2 { color:#20242c; text-shadow:none; }
+    body[data-theme="white"] a { color:#1769aa; }
+    body[data-theme="white"] hr { background:linear-gradient(90deg,transparent,#aab7c4,transparent); box-shadow:none; }
+    body[data-theme="white"] .qr-card { background:rgba(255,255,255,.92); border-color:#cbd5e1; box-shadow:0 5px 18px rgba(20,35,50,.08); }
+    body[data-theme="white"] .qr-card a { color:#1769aa; }
+    body[data-theme="red"] { color:#fff5f5; background:radial-gradient(ellipse at 15% 10%,rgba(255,75,75,.32),transparent 40%),radial-gradient(ellipse at 85% 80%,rgba(150,0,30,.35),transparent 45%),linear-gradient(135deg,#24070d,#5b101b 52%,#17060b); }
+    body[data-theme="red"]::before { opacity:.18; background-image:linear-gradient(rgba(255,160,160,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(255,160,160,.18) 1px,transparent 1px); }
+    body[data-theme="red"] h1, body[data-theme="red"] h2 { color:#fff; text-shadow:0 0 12px rgba(255,75,75,.55); }
+    body[data-theme="red"] a { color:#ffb0b0; }
+    body[data-theme="red"] hr { background:linear-gradient(90deg,transparent,#ff5555,#ffb0b0,transparent); }
+    body[data-theme="red"] .qr-card { background:linear-gradient(155deg,rgba(75,15,25,.94),rgba(35,8,18,.94)); border-color:#b94b5b; }
+    body[data-theme="blue"] { color:#eff8ff; background:radial-gradient(ellipse at 12% 12%,rgba(0,190,255,.28),transparent 40%),radial-gradient(ellipse at 85% 75%,rgba(60,90,255,.3),transparent 45%),linear-gradient(135deg,#06152b,#102e5a 52%,#071126); }
+    body[data-theme="blue"]::before { opacity:.2; background-image:linear-gradient(rgba(120,210,255,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(120,210,255,.18) 1px,transparent 1px); }
+    body[data-theme="blue"] h1, body[data-theme="blue"] h2 { color:#fff; text-shadow:0 0 13px rgba(0,190,255,.5); }
+    body[data-theme="blue"] a { color:#8de5ff; }
+    body[data-theme="blue"] hr { background:linear-gradient(90deg,transparent,#31cfff,#678cff,transparent); }
+    body[data-theme="blue"] .qr-card { background:linear-gradient(155deg,rgba(12,45,85,.94),rgba(10,25,58,.94)); border-color:#368fc8; }
+    body[data-theme="black"] { color:#f3f4f6; background:radial-gradient(ellipse at 50% 0%,#292929,transparent 48%),linear-gradient(135deg,#050505,#171717 55%,#080808); }
+    body[data-theme="black"]::before { opacity:.1; background-image:linear-gradient(#777 1px,transparent 1px),linear-gradient(90deg,#777 1px,transparent 1px); }
+    body[data-theme="black"] h1, body[data-theme="black"] h2 { color:#fff; text-shadow:0 0 10px rgba(255,255,255,.2); }
+    body[data-theme="black"] a { color:#d1d5db; }
+    body[data-theme="black"] hr { background:linear-gradient(90deg,transparent,#777,transparent); }
+    body[data-theme="black"] .qr-card { background:linear-gradient(155deg,rgba(38,38,38,.96),rgba(15,15,15,.96)); border-color:#555; }
+    body[data-theme="halloween"] { color:#fff4e8; background:radial-gradient(ellipse at 15% 15%,rgba(255,125,0,.3),transparent 40%),radial-gradient(ellipse at 85% 80%,rgba(130,40,190,.32),transparent 44%),linear-gradient(135deg,#1b0c24,#3b1745 52%,#160d20); }
+    body[data-theme="halloween"]::before { opacity:.18; background-image:linear-gradient(rgba(255,155,55,.2) 1px,transparent 1px),linear-gradient(90deg,rgba(255,155,55,.2) 1px,transparent 1px); }
+    body[data-theme="halloween"] h1, body[data-theme="halloween"] h2 { color:#fff1d8; text-shadow:0 0 12px rgba(255,125,0,.65); }
+    body[data-theme="halloween"] a { color:#ffc078; }
+    body[data-theme="halloween"] hr { background:linear-gradient(90deg,transparent,#ff8a00,#a855f7,transparent); }
+    body[data-theme="halloween"] .qr-card { background:linear-gradient(155deg,rgba(70,30,75,.95),rgba(35,16,48,.95)); border-color:#c07836; }
+    body[data-theme="neon"] { color:#f5f7ff; background:radial-gradient(ellipse at 12% 12%,rgba(0,255,245,.25),transparent 38%),radial-gradient(ellipse at 88% 18%,rgba(255,0,190,.23),transparent 40%),radial-gradient(ellipse at 50% 100%,rgba(120,60,255,.2),transparent 45%),linear-gradient(135deg,#070817,#14102e 52%,#080817); }
+    body[data-theme="neon"]::before { opacity:.25; background-image:linear-gradient(rgba(0,255,245,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(255,0,190,.16) 1px,transparent 1px); }
+    body[data-theme="neon"] h1, body[data-theme="neon"] h2 { color:#fff; text-shadow:0 0 10px #00eaff,0 0 22px #bd42ff; }
+    body[data-theme="neon"] a { color:#83f5ff; }
+    body[data-theme="neon"] hr { background:linear-gradient(90deg,transparent,#00f0ff,#b84dff,#ff4bd8,transparent); box-shadow:0 0 14px rgba(0,240,255,.45); }
+    body[data-theme="neon"] .qr-card { background:linear-gradient(155deg,rgba(20,25,65,.92),rgba(42,15,60,.92)); border-color:#36e9ff; box-shadow:0 0 20px rgba(0,220,255,.18),inset 0 0 22px rgba(170,70,255,.1); }
+    .appearance-settings { width:min(560px,94vw); margin:0 auto 18px; padding:12px 16px; border:1px solid rgba(120,150,180,.65); border-radius:12px; background:rgba(255,255,255,.88); color:#20242c; box-shadow:0 4px 16px rgba(0,0,0,.12); }
+    body:not([data-theme="white"]) .appearance-settings { background:rgba(12,18,35,.88); color:#fff; border-color:rgba(120,210,255,.45); }
+    .appearance-settings summary { cursor:pointer; font-weight:bold; }
+    .appearance-options { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; padding-top:12px; }
+    .appearance-options button { cursor:pointer; border:1px solid #8b9bad; border-radius:999px; padding:8px 13px; background:#eef2f7; color:#172033; font-weight:bold; }
+    .appearance-options button[aria-pressed="true"] { outline:3px solid #39bdf8; outline-offset:2px; }
+    body:not([data-theme="white"]) .appearance-options button { background:#202b43; color:#fff; border-color:#6b8eb8; }
+    .appearance-options button:hover { filter:brightness(1.12); }
+</style>
 </head>
-<body>
+<body data-theme="white">
   <h1>🎨 お絵かきバトルVer1.00</h1>
+  <details class="appearance-settings" id="appearanceSettings">
+    <summary>⚙️ 背景・色の設定</summary>
+    <div class="appearance-options" role="group" aria-label="背景テーマ">
+      <button type="button" data-theme-choice="white" aria-pressed="true">⚪ 白（初期設定）</button>
+      <button type="button" data-theme-choice="red" aria-pressed="false">🔴 赤</button>
+      <button type="button" data-theme-choice="blue" aria-pressed="false">🔵 青</button>
+      <button type="button" data-theme-choice="black" aria-pressed="false">⚫ 黒</button>
+      <button type="button" data-theme-choice="halloween" aria-pressed="false">🎃 ハロウィン仕様</button>
+      <button type="button" data-theme-choice="neon" aria-pressed="false">✨ ネオン仕様</button>
+    </div>
+    <p style="margin:10px 0 0;font-size:13px">選んだ背景はこのブラウザに保存され、次回も引き継がれます。QRコードは読み取りやすい白黒表示のままです。</p>
+  </details>
   <p>🎮 ここからゲームを遊べます！</p>
   <p><a href="./index.html">🎮 ゲームをプレイ！</a></p>
   <hr>
@@ -78,7 +137,7 @@
   </section>
 </div>
 <script>
-(()=>{const m=document.getElementById("playUpdateDetailsModal"),o=document.getElementById("playUpdateDetailsBtn"),x=document.getElementById("playUpdateDetailsCloseBtn");if(!m||!o||!x)return;const hide=()=>{m.style.display="none"};o.addEventListener("click",()=>{m.style.display="flex"});x.addEventListener("click",hide);m.addEventListener("click",e=>{if(e.target===m)hide()});document.addEventListener("keydown",e=>{if(e.key==="Escape")hide()})})();
+(()=>{const allowed=["white","red","blue","black","halloween","neon"];const buttons=[...document.querySelectorAll("[data-theme-choice]")];function applyTheme(theme){if(!allowed.includes(theme))theme="white";document.body.dataset.theme=theme;buttons.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.themeChoice===theme)));try{localStorage.setItem("playPageTheme",theme)}catch(e){}}let saved="white";try{saved=localStorage.getItem("playPageTheme")||"white"}catch(e){}applyTheme(saved);buttons.forEach(b=>b.addEventListener("click",()=>applyTheme(b.dataset.themeChoice)));const m=document.getElementById("playUpdateDetailsModal"),o=document.getElementById("playUpdateDetailsBtn"),x=document.getElementById("playUpdateDetailsCloseBtn");if(m&&o&&x){const hide=()=>{m.style.display="none"};o.addEventListener("click",()=>{m.style.display="flex"});x.addEventListener("click",hide);m.addEventListener("click",e=>{if(e.target===m)hide()});document.addEventListener("keydown",e=>{if(e.key==="Escape")hide()})}})();
 </script>
 </body>
 </html>

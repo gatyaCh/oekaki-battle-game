@@ -203,8 +203,14 @@
   let viewMonth=new Date(Math.max(minMonth.getTime(),Math.min(maxMonth.getTime(),new Date(now.getFullYear(),now.getMonth(),1).getTime())));
   let selectedDate=null;
 
-  function isAdminAbuseDate(date){
-    return date.getFullYear()===2026 && date.getMonth()===10 && date.getDay()===6;
+  function getUpdateEvent(date){
+    if(date.getFullYear()===2026 && date.getMonth()===10 && date.getDay()===6){
+      return {mark:"👑", title:"ADMIN ABUSE", description:"ADMIN ABUSEの予定です。"};
+    }
+    if(date.getFullYear()===2026 && date.getMonth()===10 && date.getDate()===8){
+      return {mark:"👑🔄", title:"ADMIN ABUSE再放送", description:"昨日のADMIN ABUSEの内容"};
+    }
+    return null;
   }
   function showDate(date){
     selectedDate=new Date(date.getFullYear(),date.getMonth(),date.getDate());
@@ -212,8 +218,9 @@
     const m=selectedDate.getMonth()+1;
     const d=selectedDate.getDate();
     const weekday=["日","月","火","水","木","金","土"][selectedDate.getDay()];
-    if(isAdminAbuseDate(selectedDate)){
-      detail.innerHTML="<h3>"+y+"年"+m+"月"+d+"日（"+weekday+"） 👑 ADMIN ABUSE</h3><p>ADMIN ABUSEの予定です。</p>";
+    const event=getUpdateEvent(selectedDate);
+    if(event){
+      detail.innerHTML="<h3>"+y+"年"+m+"月"+d+"日（"+weekday+"） "+event.mark+" "+event.title+"</h3><p>"+event.description+"</p>";
     }else{
       detail.innerHTML="<h3>"+y+"年"+m+"月"+d+"日（"+weekday+"）</h3><p>未定</p>";
     }
@@ -241,7 +248,8 @@
     }
     for(let day=1;day<=lastDate;day++){
       const date=new Date(year,month,day);
-      const hasEvent=isAdminAbuseDate(date);
+      const event=getUpdateEvent(date);
+      const hasEvent=!!event;
       const btn=document.createElement("button");
       btn.type="button";
       btn.className="calendar-day"+(hasEvent?" has-event":"");
@@ -254,7 +262,7 @@
       if(hasEvent){
         const mark=document.createElement("span");
         mark.className="crown-mark";
-        mark.textContent="👑";
+        mark.textContent=event.mark;
         btn.appendChild(mark);
       }
       btn.addEventListener("click",()=>showDate(date));

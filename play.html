@@ -76,6 +76,35 @@
     .appearance-options button[aria-pressed="true"] { outline:3px solid #39bdf8; outline-offset:2px; }
     body:not([data-theme="white"]) .appearance-options button { background:#202b43; color:#fff; border-color:#6b8eb8; }
     .appearance-options button:hover { filter:brightness(1.12); }
+
+    /* Annual update calendar */
+    .update-calendar-card { display:flex; flex-direction:column; align-items:center; justify-content:center; }
+    .update-calendar-icon { font-size:clamp(76px,13vw,112px); line-height:1.1; margin:4px 0 10px; filter:drop-shadow(0 5px 12px rgba(0,0,0,.22)); }
+    .update-calendar-card h2 { margin:4px 0 8px; }
+    .open-update-calendar { cursor:pointer; width:100%; margin-top:8px; padding:13px 16px; border:1px solid #7dd3fc; border-radius:10px; background:linear-gradient(110deg,#075985,#4f46a5); color:#fff; font-size:16px; font-weight:800; box-shadow:0 5px 16px rgba(14,165,233,.22); }
+    .open-update-calendar:hover { filter:brightness(1.13); transform:translateY(-1px); }
+    .update-calendar-modal { position:fixed; inset:0; z-index:999999; padding:14px; background:rgba(0,0,0,.82); align-items:center; justify-content:center; }
+    .update-calendar-dialog { width:min(720px,96vw); max-height:92vh; overflow:auto; padding:clamp(14px,3vw,24px); border:1px solid #64748b; border-radius:18px; background:#111827; color:#f8fafc; text-align:left; box-shadow:0 20px 70px rgba(0,0,0,.5); }
+    .update-calendar-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+    .update-calendar-heading h2 { margin:0 0 5px; color:#fff; text-shadow:none; }
+    .update-calendar-heading p { margin:0 0 12px; color:#cbd5e1; font-size:13px; }
+    .calendar-close,.calendar-month-navigation button { cursor:pointer; border:1px solid #64748b; border-radius:9px; background:#273449; color:#fff; font-size:22px; font-weight:bold; min-width:42px; min-height:40px; }
+    .calendar-month-navigation { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:8px 0 14px; }
+    .calendar-month-navigation h3 { margin:0; color:#fff; font-size:22px; text-align:center; }
+    .calendar-month-navigation button:disabled { opacity:.35; cursor:not-allowed; }
+    .update-calendar-weekdays,.update-calendar-days { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:5px; }
+    .update-calendar-weekdays { margin-bottom:6px; text-align:center; color:#bae6fd; font-weight:800; }
+    .update-calendar-days .calendar-empty { min-height:68px; }
+    .calendar-day { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; min-width:0; min-height:68px; padding:5px 2px; border:1px solid #475569; border-radius:9px; background:#1e293b; color:#fff; cursor:pointer; font-size:15px; }
+    .calendar-day:hover { border-color:#7dd3fc; background:#334155; }
+    .calendar-day[aria-pressed="true"] { outline:3px solid #38bdf8; outline-offset:1px; background:#164e63; }
+    .calendar-day .crown-mark { font-size:17px; line-height:1; }
+    .calendar-day.has-event { border-color:#eab308; background:linear-gradient(145deg,#422006,#292524); }
+    .update-calendar-detail { margin-top:16px; padding:14px; border:1px solid #475569; border-radius:12px; background:#1e293b; }
+    .update-calendar-detail h3 { margin:0 0 7px; color:#fff; font-size:18px; }
+    .update-calendar-detail p { margin:0; line-height:1.65; color:#e2e8f0; }
+    .update-calendar-note { margin:10px 0 0; color:#cbd5e1; font-size:12px; }
+    @media(max-width:420px) { .update-calendar-weekdays,.update-calendar-days { gap:3px; } .calendar-day { min-height:55px; font-size:13px; } .update-calendar-days .calendar-empty { min-height:55px; } .calendar-day .crown-mark { font-size:15px; } }
 </style>
 </head>
 <body data-theme="white">
@@ -111,33 +140,152 @@
       <p><a href="https://www.youtube.com/@%E3%81%8C%E3%81%A1%E3%82%83tyanneru%E6%B4%BB%E5%8B%95%E4%BC%91%E6%AD%A2%E4%B8%AD" target="_blank" rel="noopener noreferrer">がちゃチャンネル
       このゲームを作った主です!</a></p>
     </section>
-    <section class="qr-card">
-      <h2>🗓️ アップデート情報
-      　※あくまでも予定です</h2>
-      <p>11/06〜11/10のアップデート予定</p>
-      <div style="text-align:left;background:#333;border:1px solid #555;border-radius:8px;padding:12px;margin-top:10px;line-height:1.6">
-        <p><strong>11/07</strong>　🌀ADMIN ABUSE🌪️</p>
-        <p><strong>11/08</strong>　ADMIN ABUSE再放送</p>
-        <p><strong>11/09</strong>　未定</p>
-        <p><strong>11/10</strong>　未定</p>
-        <p><strong>11/11</strong>　未定</p>
-      </div>
-      <button id="playUpdateDetailsBtn" type="button" style="margin-top:12px;background:#475569;border:1px solid #94a3b8;color:#fff;border-radius:8px;padding:10px 16px;font-size:15px;font-weight:bold;cursor:pointer">📖 詳細を見る</button>
+    <section class="qr-card update-calendar-card">
+      <div class="update-calendar-icon" aria-hidden="true">📅</div>
+      <h2>アップデートカレンダー</h2>
+      <p>これからのアップデート予定をチェック！</p>
+      <button id="playUpdateDetailsBtn" type="button" class="open-update-calendar">アップデート情報を見る</button>
     </section>
   </div>
-<div id="playUpdateDetailsModal" role="dialog" aria-modal="true" aria-labelledby="playUpdateDetailsTitle" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.82);padding:16px;box-sizing:border-box;align-items:center;justify-content:center">
-  <section style="width:min(600px,95vw);max-height:85vh;overflow:auto;background:#1f2937;color:#fff;border:1px solid #64748b;border-radius:14px;padding:20px;text-align:left;box-sizing:border-box">
-    <h2 id="playUpdateDetailsTitle" style="text-align:center;margin-bottom:14px">📢 アップデート詳細</h2>
-    <article style="background:#303846;border-radius:9px;padding:12px;margin-bottom:10px"><h3>🗓️ 11月07日（金）🌀ADMIN ABUSE🌪️</h3><p style="margin-top:6px;line-height:1.6">ヒューズマシン解放記念イベント</p></article>
-    <article style="background:#303846;border-radius:9px;padding:12px;margin-bottom:10px"><h3>🗓️ 11月08日（土）ADMIN ABUSE再放送</h3><p style="margin-top:6px;line-height:1.6">昨日のイベントとおんなじ内容</p></article>
-    <article style="background:#303846;border-radius:9px;padding:12px;margin-bottom:10px"><h3>🗓️ 11月09日（日）未定</h3><p style="margin-top:6px;line-height:1.6">未定</p></article>
-    <article style="background:#303846;border-radius:9px;padding:12px;margin-bottom:10px"><h3>🗓️ 11月10日（月）未定</h3><p style="margin-top:6px;line-height:1.6">未定</p></article>
-    <article style="background:#303846;border-radius:9px;padding:12px;margin-bottom:10px"><h3>🗓️ 11月11日（火）未定</h3><p style="margin-top:6px;line-height:1.6">未定</p></article>
-    <button id="playUpdateDetailsCloseBtn" type="button" style="display:block;margin:0 auto;background:#2563eb;color:#fff;border:0;border-radius:8px;padding:10px 24px;font-size:16px;font-weight:bold">閉じる</button>
+<div id="playUpdateDetailsModal" class="update-calendar-modal" role="dialog" aria-modal="true" aria-labelledby="playUpdateDetailsTitle" style="display:none">
+  <section class="update-calendar-dialog">
+    <div class="update-calendar-heading">
+      <div>
+        <h2 id="playUpdateDetailsTitle">📅 アップデートカレンダー</h2>
+        <p>日付を押すと、その日の予定を確認できます。</p>
+      </div>
+      <button id="playUpdateDetailsCloseBtn" type="button" class="calendar-close" aria-label="閉じる">✕</button>
+    </div>
+    <div class="calendar-month-navigation">
+      <button id="updateCalendarPrev" type="button" aria-label="前の月">‹</button>
+      <h3 id="updateCalendarMonthLabel"></h3>
+      <button id="updateCalendarNext" type="button" aria-label="次の月">›</button>
+    </div>
+    <div class="update-calendar-weekdays" aria-hidden="true">
+      <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span>
+    </div>
+    <div id="updateCalendarDays" class="update-calendar-days"></div>
+    <article id="updateCalendarDetail" class="update-calendar-detail" aria-live="polite">
+      <h3>日付を選択してください</h3>
+      <p>カレンダーの日付を押すと、詳しい情報がここに表示されます。</p>
+    </article>
+    <p class="update-calendar-note">👑マークの日はADMIN ABUSEの予定です。予定がない日は「未定」と表示されます。</p>
   </section>
 </div>
 <script>
-(()=>{const allowed=["white","red","blue","black","halloween","neon"];const buttons=[...document.querySelectorAll("[data-theme-choice]")];function applyTheme(theme){if(!allowed.includes(theme))theme="white";document.body.dataset.theme=theme;buttons.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.themeChoice===theme)));try{localStorage.setItem("playPageTheme",theme)}catch(e){}}let saved="white";try{saved=localStorage.getItem("playPageTheme")||"white"}catch(e){}applyTheme(saved);buttons.forEach(b=>b.addEventListener("click",()=>applyTheme(b.dataset.themeChoice)));const m=document.getElementById("playUpdateDetailsModal"),o=document.getElementById("playUpdateDetailsBtn"),x=document.getElementById("playUpdateDetailsCloseBtn");if(m&&o&&x){const hide=()=>{m.style.display="none"};o.addEventListener("click",()=>{m.style.display="flex"});x.addEventListener("click",hide);m.addEventListener("click",e=>{if(e.target===m)hide()});document.addEventListener("keydown",e=>{if(e.key==="Escape")hide()})}})();
+(()=>{
+  const allowed=["white","red","blue","black","halloween","neon"];
+  const buttons=[...document.querySelectorAll("[data-theme-choice]")];
+  function applyTheme(theme){
+    if(!allowed.includes(theme)) theme="white";
+    document.body.dataset.theme=theme;
+    buttons.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.themeChoice===theme)));
+    try{localStorage.setItem("playPageTheme",theme)}catch(e){}
+  }
+  let saved="white";
+  try{saved=localStorage.getItem("playPageTheme")||"white"}catch(e){}
+  applyTheme(saved);
+  buttons.forEach(b=>b.addEventListener("click",()=>applyTheme(b.dataset.themeChoice)));
+
+  const modal=document.getElementById("playUpdateDetailsModal");
+  const openBtn=document.getElementById("playUpdateDetailsBtn");
+  const closeBtn=document.getElementById("playUpdateDetailsCloseBtn");
+  const prevBtn=document.getElementById("updateCalendarPrev");
+  const nextBtn=document.getElementById("updateCalendarNext");
+  const monthLabel=document.getElementById("updateCalendarMonthLabel");
+  const daysBox=document.getElementById("updateCalendarDays");
+  const detail=document.getElementById("updateCalendarDetail");
+  if(!modal||!openBtn||!closeBtn||!prevBtn||!nextBtn||!monthLabel||!daysBox||!detail) return;
+
+  const minMonth=new Date(2026,10,1);
+  const maxMonth=new Date(2027,10,1);
+  const now=new Date();
+  let viewMonth=new Date(Math.max(minMonth.getTime(),Math.min(maxMonth.getTime(),new Date(now.getFullYear(),now.getMonth(),1).getTime())));
+  let selectedDate=null;
+
+  function isAdminAbuseDate(date){
+    return date.getFullYear()===2026 && date.getMonth()===10 && date.getDay()===6;
+  }
+  function showDate(date){
+    selectedDate=new Date(date.getFullYear(),date.getMonth(),date.getDate());
+    const y=selectedDate.getFullYear();
+    const m=selectedDate.getMonth()+1;
+    const d=selectedDate.getDate();
+    const weekday=["日","月","火","水","木","金","土"][selectedDate.getDay()];
+    if(isAdminAbuseDate(selectedDate)){
+      detail.innerHTML="<h3>"+y+"年"+m+"月"+d+"日（"+weekday+"） 👑 ADMIN ABUSE</h3><p>ADMIN ABUSEの予定です。</p>";
+    }else{
+      detail.innerHTML="<h3>"+y+"年"+m+"月"+d+"日（"+weekday+"）</h3><p>未定</p>";
+    }
+    daysBox.querySelectorAll(".calendar-day").forEach(btn=>{
+      btn.setAttribute("aria-pressed",String(btn.dataset.date===dateKey(selectedDate)));
+    });
+  }
+  function dateKey(date){
+    return date.getFullYear()+"-"+String(date.getMonth()+1).padStart(2,"0")+"-"+String(date.getDate()).padStart(2,"0");
+  }
+  function renderCalendar(){
+    const year=viewMonth.getFullYear();
+    const month=viewMonth.getMonth();
+    monthLabel.textContent=year+"年"+(month+1)+"月";
+    prevBtn.disabled=viewMonth.getTime()<=minMonth.getTime();
+    nextBtn.disabled=viewMonth.getTime()>=maxMonth.getTime();
+    daysBox.innerHTML="";
+    const firstDay=new Date(year,month,1).getDay();
+    const lastDate=new Date(year,month+1,0).getDate();
+    for(let i=0;i<firstDay;i++){
+      const blank=document.createElement("div");
+      blank.className="calendar-empty";
+      blank.setAttribute("aria-hidden","true");
+      daysBox.appendChild(blank);
+    }
+    for(let day=1;day<=lastDate;day++){
+      const date=new Date(year,month,day);
+      const hasEvent=isAdminAbuseDate(date);
+      const btn=document.createElement("button");
+      btn.type="button";
+      btn.className="calendar-day"+(hasEvent?" has-event":"");
+      btn.dataset.date=dateKey(date);
+      btn.setAttribute("aria-pressed",String(selectedDate&&dateKey(selectedDate)===dateKey(date)));
+      btn.setAttribute("aria-label",year+"年"+(month+1)+"月"+day+"日"+(hasEvent+""));
+      const number=document.createElement("span");
+      number.textContent=String(day);
+      btn.appendChild(number);
+      if(hasEvent){
+        const mark=document.createElement("span");
+        mark.className="crown-mark";
+        mark.textContent="👑";
+        btn.appendChild(mark);
+      }
+      btn.addEventListener("click",()=>showDate(date));
+      daysBox.appendChild(btn);
+    }
+  }
+  function openCalendar(){
+    modal.style.display="flex";
+    renderCalendar();
+    detail.innerHTML="<h3>日付を選択してください</h3><p>カレンダーの日付を押すと、詳しい情報がここに表示されます。</p>";
+    selectedDate=null;
+    renderCalendar();
+  }
+  function hideCalendar(){modal.style.display="none"}
+  prevBtn.addEventListener("click",()=>{
+    if(viewMonth.getTime()>minMonth.getTime()){
+      viewMonth=new Date(viewMonth.getFullYear(),viewMonth.getMonth()-1,1);
+      renderCalendar();
+    }
+  });
+  nextBtn.addEventListener("click",()=>{
+    if(viewMonth.getTime()<maxMonth.getTime()){
+      viewMonth=new Date(viewMonth.getFullYear(),viewMonth.getMonth()+1,1);
+      renderCalendar();
+    }
+  });
+  openBtn.addEventListener("click",openCalendar);
+  closeBtn.addEventListener("click",hideCalendar);
+  modal.addEventListener("click",e=>{if(e.target===modal)hideCalendar()});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&modal.style.display==="flex")hideCalendar()});
+})();
 </script>
 </body>
 </html>

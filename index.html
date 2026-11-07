@@ -5742,7 +5742,7 @@ function damageEnemy(amount) {
   if (enemy.hp <= 0 && actual > 0 && !bossDefeatAwardedForStage) {
     bossDefeatAwardedForStage = true;
     bossesDefeated++;
-    coins += 25;
+    coins += (window.adminAbuseApplySoulMultiplier ? window.adminAbuseApplySoulMultiplier(25) : 25);
     showBattlePickupNotice("💰 コインGET！ +25 G");
   }
 }
@@ -5755,7 +5755,7 @@ function damageMinion(m, amount) {
     const adminPointMul = window.adminAbuseActive ? Math.max(1, Number(window.adminAbuseRankPointMultiplier) || 1) : 1;
     if (stage !== 4) minionPointTotal += 2 * adminPointMul;
     else if (stage4PointEligibleKills < 6) { stage4PointEligibleKills++; minionPointTotal += 2 * adminPointMul; }
-    coins += 5;
+    coins += (window.adminAbuseApplySoulMultiplier ? window.adminAbuseApplySoulMultiplier(5) : 5);
     showBattlePickupNotice("💰 コインGET！ +5 G");
     if (m.type === "jellyfish") {
       slowDebuffTimer = 3.0;
@@ -6627,9 +6627,9 @@ function openTreasureChestReward() {
   } else {
     rewardCoin = 70; rarityName = "📦 通常";
   }
-  coins += rewardCoin;
+  coins += (window.adminAbuseApplySoulMultiplier ? window.adminAbuseApplySoulMultiplier(rewardCoin) : rewardCoin);
   if (adminRankAbility === "bonus") {
-    coins += 60;
+    coins += (window.adminAbuseApplySoulMultiplier ? window.adminAbuseApplySoulMultiplier(60) : 60);
     msg.textContent = `📦 ADMINボーナス！ 追加で60 G！ 合計 ${rewardCoin + 60} G獲得！`;
   }
   treasureChestsOpened++;
@@ -8333,7 +8333,7 @@ loop();
       showSpecialFound();
       return;
     }
-    coins += rewardCoin;
+    coins += (window.adminAbuseApplySoulMultiplier ? window.adminAbuseApplySoulMultiplier(rewardCoin) : rewardCoin);
     msg.textContent=`🧰 宝箱開封！ [${rarityName}] ${rewardCoin} G 獲得！`;
   };
 
@@ -10879,7 +10879,11 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
 <script id="admin-abuse-v2-script">(function(){
 "use strict";
 const $=id=>document.getElementById(id),confirm=$("adminAbuseConfirmScreen"),end=$("adminAbuseEndScreen");
-let active=false,startAt=0,interval=null,scheduled=[],token=0,boost={luck:1,attack:1,speed:1,soul:1,points:1},skinGetter=null;
+let active=false,startAt=0,interval=null,scheduled=[],token=0,boost={luck:1,attack:1,speed:1,soul:1,points:1},skinGetter=null,skinDrawer=null;
+const releasedCodes=new Set();
+window.adminAbuseApplySoulMultiplier=amount=>Math.round((Number(amount)||0)*(window.adminAbuseActive?Math.max(1,Number(window.adminAbuseSoulMultiplier)||1):1));
+function releaseCode(code){releasedCodes.add(code);try{localStorage.setItem("adminAbuseCodeReleased_"+code,"true")}catch(e){}}
+function isCodeReleased(code){if(releasedCodes.has(code))return true;try{return localStorage.getItem("adminAbuseCodeReleased_"+code)==="true"}catch(e){return false}}
 const from=Date.parse("2026-11-07T22:10:00+09:00"),until=Date.parse("2026-11-07T22:30:00+09:00"),lines=[[0,"がちゃ：今日もやってきたぞーー！！"],[8,"今日はヒューズスキンマシン公開記念日イベント！！"],[16,"最初から派手に行くぞ！！"],[24,"全ブースト適用！！"],[40,"じゃあさっそくやってみる？？"],[47,"「なんか右側が整理されてない？」と思ったそこの君！！"],[53,"ストップボタンにまとめてみたぞ！！"],[60,"どう？結構使いやすい？"],[67,"そこを押してみて！！"],[72,"おいおい、キャンパスに戻るを押すとか一言も言ってないぞ！！"],[79,"そこにあるヒューズマシンって書いてあるやつあるだろ？"],[84,"それを押してみろ！！"],[90,"どうだ！！まぁまぁ良くないか？"],[97,"スキンを自由に選んでマシンに入れるだけだ！"],[104,"ゲットできるのはほとんどがヒューズマシン限定だぞ！！"],[111,"まぁ、レアになるど確率は低いけどな"],[118,"あとでみんなに実際にみせてみようか"],[130,"じゃあ今後のことを話していくよーー！"],[137,"今は新マップの開発を進めてる"],[144,"来週には公開できると嬉しいかな"],[150,"進捗状況は40%てとこだな"],[157,"これを考えてるのが木曜だから"],[165,"このイベント中は多分99%になってるんじゃな？？"],[173,"ねー！土曜日のがちゃさん！"],[180,"どう？ブースト効果きれた？"],[187,"おっけー"],[200,"30秒間無敵発動！！"],[207,"どう？これ結構いいやつじゃない？"],[214,"今日は長めの25分間行います！！"],[221,"理由はまぁ、"],[228,"ヒューズマシンを楽しんでもらいたいからだけどね"],[235,"え？あくまでの時間が待てないって？"],[243,"しかたないなぁ"],[250,"新しいスペシャルコード　skip"],[257,"これでマシンスキップができるよ！！"],[265,"これは時間制限付きね！！"],[273,"明日のこの時間まで！！"],[280,"今日あと２個か１個はコード配布するよ！！"],[300,"てか、ハロウィンマップなくなったねー"],[307,"あれは期間限定だから来年まで復活はないんだよねー"],[314,"まぁこれはあるけどね😏"],[321,"🎃ボックスを2個召喚！！"],[328,"これぐらいだったら召喚できるよ"],[335,"また後で召喚するね〜"],[342,"じゃあ一旦ADMIN2にまかせるわ"],[342,"ADMIN2：はい！ここからは私が進行します！！"],[350,"がちゃさん、少し休憩していてくださいね！"],[358,"みなさん、イベントを楽しんでいますか？"],[366,"ヒューズスキンマシンはもう試しましたか？"],[374,"まだの人はぜひ使ってみてください！"],[382,"いろんなスキンを組み合わせてみるのも面白いですよ！"],[390,"ここでちょっとしたお知らせです！"],[398,"今回のイベントでは特別な効果が発動しています！"],[406,"いつもとは違う戦いを楽しんでくださいね！"],[414,"おや？敵がたくさん集まってきましたね！"],[422,"これはなかなか賑やかになってきました！"],[430,"みなさん、準備はいいですか？"],[438,"もっと盛り上げていきましょう！！"],[446,"今のうちにたくさん戦ってみてください！"],[454,"いいですね！その調子です！"],[462,"おお！かなり盛り上がっていますね！"],[470,"がちゃさん、そちらの様子はどうですか？"],[478,"……あれ？返事がありませんね"],[486,"まだ休憩中みたいですね！"],[494,"それでは、私からみなさんに質問です！"],[502,"お気に入りのスキンは何ですか？"],[510,"やっぱり限定スキンは気になりますよね！"],[518,"ヒューズスキンマシンには、まだまだ可能性があります！"],[526,"これからの追加要素にも期待してください！"],[534,"どんなスキンが登場するのか楽しみですね！"],[542,"みなさん、まだまだ楽しんでいきましょう！"],[550,"ここでちょっとしたサプライズです！！"],[558,"何が起こるかはお楽しみ！"],[566,"準備はいいですか？"],[574,"それでは、いきますよ！！"],[582,"みなさん、戦闘を楽しんでください！！"],[590,"おお！すごい盛り上がりですね！！"],[598,"いい感じです！そのままいきましょう！"],[606,"この勢いは止まりませんね！"],[614,"がちゃさん、そろそろ戻ってきませんか？"],[622,"もしかして、まだ休憩しているんですか？"],[630,"では、もう少し私が進行しますね！"],[638,"みなさん、最後まで楽しんでください！"],[646,"まだまだ面白いことが起こるかもしれませんよ！"],[654,"何が起こるか、楽しみにしていてくださいね！"],[662,"おや？なんだか向こうが騒がしいですね……"],[670,"あっ！がちゃさんが戻ってきたみたいです！"],[678,"お待ちしていましたよ！！"],[686,"それでは、進行をお返ししましょう！"],[694,"がちゃさん、お願いします！"],[700,"それでは、ここからはがちゃさんにお任せします！！"],[710,"がちゃ：ただいまー！！"],[717,"ちょっとねすぎた"],[725,"ZZZ…"],[733,"😪がちゃが寝ぼけて🎃ボックスを10個召喚した😪"],[750,"はっ！！"],[757,"え！！なんでこんなにあるの！？"],[764,"しかも俺が召喚したの？？"],[770,"まぁまぁいっか"],[777,"じゃあそろそろ二個目のスペシャルコード行くよーー"],[783,"1101　これね"],[790,"なんでこの数字かって？"],[797,"俺の誕生日だからだよ🤬"],[804,"まぁこれでスキップできたことでしょう！！"],[810,"次は新マップについて話していくよーー！"],[817,"新マップの名前は🏎️カーレースマップ🏎️"],[824,"そのなの通りレースマップだ！"],[830,"今のところ次のイベントが12月に新規作成する予定だから"],[837,"合計３つのマップがプレイ可能になるんじゃないかと予想しているよ"],[845,"まぁそこはまた考えるとして"],[852,"公開日って言ったけ？"],[859,"正確な公開日をいうと来週のADMIN ABUSEでできたらうれしいなって感じ"],[865,"ADMIN ABUSEまでに間に合わなかったらその次の週のどっかで公開します！"],[873,"今の制作状況はレース場・カートの色・敵の量など"],[880,"だいぶ完成は近いよ"],[887,"今までのマップはボックスが合ったと思うんだけど今回はなしの方向でいきます"],[895,"だけど特殊能力カードは追加予定！！"],[902,"なにそれーと思う人に説明！"],[909,"今から言うのはまだ確定ではないからね！"],[915,"道に落ちているカードを拾うと画面に三枚のカードがでてきて"],[923,"そこにはブーストやいろんな能力を選べるよ！！"],[930,"カーレースマップにはアイテム保管庫がないから"],[937,"選んだら攻撃キーを押すと発動できるようにする感じ！"],[943,"どう？面白そう？"],[950,"正直お絵かきバトルなのにお絵かき要素がまったくないからそこをね"],[957,"お絵かきバトルならお絵かき要素をのこしていきたいよね"],[970,"だいぶ敵倒して飽きてきたんじゃない？"],[977,"一旦ここらで休憩はさんどく？"],[983,"30秒間無敵！！"],[990,"じゃあここらへんで緑茶さんにアンケート！"],[997,"クリスマスが近づいたらヒューズマシンもクリスマス仕様にする？"],[1010,"ほうほう…"],[1015,"おっけーわかった"],[1022,"まぁみんなにクリスマスプレゼントは考えてあるよ"],[1028,"そろそろ最後らへんまで来たかな？"],[1035,"なつかしの👑を落としとくね"],[1050,"あっ！またミスしてるよー…"],[1057,"一旦落ち着いてくる　ADMIN2少しの間よろしく！"],[1057,"ADMIN2：はい！また私が進行しますね！！"],[1065,"がちゃさん、ゆっくり休んできてください！"],[1073,"……ところで、みなさんのスキンが変わりましたね？"],[1081,"これは懐かしい感じがしますね！"],[1089,"王冠スキン、なかなか目立ちますね！！"],[1097,"みなさん、似合っていますよ！"],[1105,"せっかくなので、この姿で楽しんでいってください！"],[1113,"さて、ここで少しお知らせです！"],[1121,"カーレースマップの開発も進んでいるようですね！"],[1129,"どんなコースになるのか楽しみです！"],[1137,"特殊能力カードも面白そうですね！"],[1145,"ただし、まだ決まっていない部分もあるそうです"],[1153,"これからの開発に期待しましょう！！"],[1161,"おや？がちゃさんから何か連絡が来ました"],[1169,"どうやら、まだ休憩しているみたいですね"],[1177,"それでは、みなさん！"],[1185,"引き続きイベントを楽しんでください！！"],[1193,"がちゃさん、そろそろ戻ってきてくださいね！"],[1200,"それでは、進行をお返しします！！"],[1207,"ADMIN2：のこり３分かな？そのくらい？"],[1214,"じゃあ最後は全ブースト３倍をイベント終了まで！！"],[1221,"このゲームのマップはブレインロット系のマップで言うイベント枠なんだ"],[1228,"だから頻繁に更新するし、おんなじのになることもある！"],[1235,"そのたびに新しいミニゲーム的なのを考えていたら頭がパンクしちゃう"],[1242,"だから更新は基本２ヶ月に1回だけ！"],[1249,"でも、クリスマスみたいなイベントのときは例外ね"],[1256,"あとイベント作りたい意欲があったらイベントを更新していきます"],[1263,"てか、みんな🎁から0.3%ででるオートガトリング使ったことある？"],[1270,"ないだって！なら〜"],[1277,"アイテム保管庫にオートガトリングを２個配布！！"],[1283,"みんな使えてる？"],[1290,"なら良かった！！"],[1300,"もうラストスパートだねー"],[1307,"今日のADMIN ABUSEはどうだった？"],[1314,"次回のADMIN ABUSEでカーレースマップが使えるように頑張るよ！！"],[1321,"最後にもう一個やっちゃうか！"],[1335,"carracing　スキン🏎️をゲットできるぞ！！"],[1342,"今日はこれでおしまいかな"],[1349,"みんな今日は遊んでくれてありがとう！"],[1356,"がちゃ：最後にクリスマスイベントの予告してから終わるね！"],[1363,"🎁→？"],[1380,"これだけかな、今言えることは！"],[1387,"そろそろ新しいランクを追加してもいいかな？"],[1393,"ランクGATYAに行ったらがちゃスキンをゲットできるぞ！"],[1400,"GATYAランクは相当難しいからなぁ〜🤔"],[1407,"ゲットできたら超ラッキー！"],[1414,"ADMIN RANKに行ったことある人いる？"],[1421,"行ったら特別なコードがもらえるかも？🤫"],[1428,"そこは頑張ってくれ！"],[1435,"今回はここまで！"],[1442,"じゃあまた来週のADMIN ABUSEで！！"]];
 function hide(e){e&&e.classList.add("hidden")}function show(e){e&&e.classList.remove("hidden")}
 function say(t,sec){const d=$("adminAbuseDialogue");if(!d)return;if(d.parentElement!==document.body)document.body.appendChild(d);token++;d.classList.remove("speaker-admin2","speaker-gacha");const admin2=(sec>=342&&sec<=700)||(sec>=1057&&sec<=1335)||String(t).startsWith("ADMIN2：");d.classList.add(admin2?"speaker-admin2":"speaker-gacha");d.textContent=t;d.classList.add("active")}
@@ -10888,14 +10892,79 @@ function later(t,fn){scheduled.push(setTimeout(()=>{if(active)fn()},Math.max(0,(
 function spawnBoxes(n){if(!Array.isArray(boxes))return;for(let i=0;i<n;i++)boxes.push({x:100+Math.random()*700,y:80+Math.random()*340,item:"🎃"})}
 function invincible(sec){window.adminAbuseEventInvincibleUntil=Date.now()+sec*1000}
 function giveGatling(){const inv=window.gameItemInventory||(window.gameItemInventory={normal:{},halloween:{}});inv.normal=inv.normal||{};inv.normal.tripleGatling=(Number(inv.normal.tripleGatling)||0)+2;const m=$("msg");if(m)m.textContent="🔫 オートガトリングを2個、アイテム保管庫に追加！"}
-function crown(){if(typeof window.getSelectedSkinEmoji==="function"){skinGetter=skinGetter||window.getSelectedSkinEmoji;window.getSelectedSkinEmoji=()=>"👑"}}
-function restoreCrown(){if(skinGetter){window.getSelectedSkinEmoji=skinGetter;skinGetter=null}}
+function crown(){
+  if(typeof window.getSelectedSkinEmoji==="function"){
+    if(!skinGetter)skinGetter=window.getSelectedSkinEmoji;
+    window.getSelectedSkinEmoji=()=>"👑";
+  }
+  if(typeof window.drawSelectedSkin==="function"){
+    if(!skinDrawer)skinDrawer=window.drawSelectedSkin;
+    window.drawSelectedSkin=()=>false;
+  }
+}
+function restoreCrown(){
+  if(skinGetter){window.getSelectedSkinEmoji=skinGetter;skinGetter=null}
+  if(skinDrawer){window.drawSelectedSkin=skinDrawer;skinDrawer=null}
+}
 function finish(){active=false;clearInterval(interval);scheduled.forEach(clearTimeout);scheduled=[];restoreCrown();window.adminAbuseActive=false;window.adminAbuseEventInvincibleUntil=0;window.adminAbuseLuckMultiplier=window.adminAbuseAttackMultiplier=window.adminAbuseSpeedMultiplier=window.adminAbuseSoulMultiplier=window.adminAbuseRankPointMultiplier=1;if($("adminAbuseBoostHUD"))$("adminAbuseBoostHUD").classList.remove("active");if($("adminAbuseTimer"))$("adminAbuseTimer").classList.remove("active");if($("adminAbuseDialogue"))$("adminAbuseDialogue").classList.remove("active");document.body.classList.remove("admin-abuse-result-lock");hide(confirm);show(end)}
 function tick(){const left=Math.max(0,1500-Math.floor((Date.now()-startAt)/1000));if($("adminAbuseTimer"))$("adminAbuseTimer").textContent="👑 ADMIN ABUSE　"+String(Math.floor(left/60)).padStart(2,"0")+":"+String(left%60).padStart(2,"0");if(!left)finish()}
-function eventCode(c){c=String(c||"").trim().toLowerCase();if(!["skip","1101","carracing"].includes(c))return false;if(Date.now()>Date.parse("2026-11-08T22:00:00+09:00")){if($("msg"))$("msg").textContent="⌛ このイベントコードの有効期限は終了しました";return true}try{localStorage.setItem("adminAbuseCode_"+c,"true")}catch(e){}if(c==="carracing"){try{localStorage.setItem("adminAbuseRacingSkinUnlocked","true")}catch(e){}window.adminAbuseRacingSkinUnlocked=true;if(typeof window.unlockGameSkin==="function")window.unlockGameSkin("carracing");if($("msg"))$("msg").textContent="🏎️ カーレーススキン解放コードを受け付けました"}else{const skipButton=$("admFusionSkip");if(skipButton)skipButton.click();if($("msg"))$("msg").textContent="⏩ ヒューズスキップコードを受け付けました。ヒューズ処理中ならスキップを実行します"}return true}
-function begin(){if(active)return;hide(confirm);hide(end);active=true;window.adminAbuseActive=true;startAt=Date.now();setBoost({luck:1,attack:1,speed:1,soul:1,points:1});if($("adminAbuseTimer"))$("adminAbuseTimer").classList.add("active");interval=setInterval(tick,250);tick();if(typeof window.useSpecialCode==="function"&&!window.useSpecialCode.__eventCodes){const orig=window.useSpecialCode,wrapped=function(c){return eventCode(c)||orig.apply(this,arguments)};wrapped.__eventCodes=true;window.useSpecialCode=wrapped}
-lines.forEach(([t,line],i)=>later(t,()=>{say(line,t);const my=token,next=lines[i+1],duration=next?Math.max(2,next[0]-t):8;scheduled.push(setTimeout(()=>{if(active&&token===my&&$("adminAbuseDialogue"))$("adminAbuseDialogue").classList.remove("active")},duration*1000))}));
-later(24,()=>setBoost({luck:2,attack:2,speed:2,soul:2,points:2}));later(144,()=>setBoost({luck:1,attack:1,speed:1,soul:1,points:1}));later(200,()=>invincible(30));later(321,()=>spawnBoxes(2));later(733,()=>spawnBoxes(10));later(943,()=>setBoost({luck:boost.luck*2,attack:boost.attack*2,speed:boost.speed*2,soul:boost.soul*2,points:boost.points*2}));later(983,()=>invincible(30));later(1035,crown);later(1214,()=>setBoost({luck:3,attack:3,speed:3,soul:3,points:3}));later(1277,giveGatling)}
+function eventCode(c){
+  c=String(c||"").trim().toLowerCase();
+  if(!["skip","1101","carracing"].includes(c))return false;
+  if(Date.now()>Date.parse("2026-11-08T22:00:00+09:00")){if($("msg"))$("msg").textContent="⌛ このイベントコードの有効期限は終了しました";return true}
+  if(!isCodeReleased(c)){
+    if($("msg"))$("msg").textContent="🔒 このコードはまだ公開されていません。イベントの発表を待ってね！";
+    return true;
+  }
+  try{localStorage.setItem("adminAbuseCode_"+c,"true")}catch(e){}
+  if(c==="carracing"){
+    try{localStorage.setItem("adminAbuseRacingSkinUnlocked","true")}catch(e){}
+    window.adminAbuseRacingSkinUnlocked=true;
+    if(typeof window.unlockGameSkin==="function")window.unlockGameSkin("carracing");
+    if($("msg"))$("msg").textContent="🏎️ カーレーススキンを解放しました！";
+  }else{
+    const skipButton=$("admFusionSkip");
+    if(skipButton)skipButton.click();
+    if($("msg"))$("msg").textContent="⏩ ヒューズスキップコードを受け付けました。ヒューズ処理中ならスキップを実行します";
+  }
+  return true;
+}
+function begin(){
+  if(active)return;
+  hide(confirm);hide(end);active=true;window.adminAbuseActive=true;startAt=Date.now();
+  releasedCodes.clear();
+  ["skip","1101","carracing"].forEach(code=>{try{localStorage.removeItem("adminAbuseCodeReleased_"+code)}catch(e){}});
+  setBoost({luck:1,attack:1,speed:1,soul:1,points:1});
+  if($("adminAbuseTimer"))$("adminAbuseTimer").classList.add("active");
+  interval=setInterval(tick,250);tick();
+  if(typeof window.useSpecialCode==="function"&&!window.useSpecialCode.__eventCodes){
+    const orig=window.useSpecialCode,wrapped=function(c){return eventCode(c)||orig.apply(this,arguments)};
+    wrapped.__eventCodes=true;window.useSpecialCode=wrapped;
+  }
+  const originalDamagePlayer=damagePlayer;
+  damagePlayer=function(dmg){
+    if(Date.now()<Number(window.adminAbuseEventInvincibleUntil||0))return;
+    return originalDamagePlayer.apply(this,arguments);
+  };
+  lines.forEach(([t,line],i)=>later(t,()=>{
+    say(line,t);
+    const my=token,next=lines[i+1],duration=next?Math.max(2,next[0]-t):8;
+    scheduled.push(setTimeout(()=>{if(active&&token===my&&$("adminAbuseDialogue"))$("adminAbuseDialogue").classList.remove("active")},duration*1000));
+  }));
+  later(24,()=>setBoost({luck:2,attack:2,speed:2,soul:2,points:2}));
+  later(144,()=>setBoost({luck:1,attack:1,speed:1,soul:1,points:1}));
+  later(200,()=>invincible(30));
+  later(250,()=>releaseCode("skip"));
+  later(321,()=>spawnBoxes(2));
+  later(733,()=>spawnBoxes(10));
+  later(783,()=>releaseCode("1101"));
+  later(943,()=>setBoost({luck:boost.luck*2,attack:boost.attack*2,speed:boost.speed*2,soul:boost.soul*2,points:boost.points*2}));
+  later(983,()=>invincible(30));
+  later(1035,crown);
+  later(1214,()=>setBoost({luck:3,attack:3,speed:3,soul:3,points:3}));
+  later(1277,giveGatling);
+  later(1335,()=>releaseCode("carracing"));
+}
 function start(){hide(confirm);hide(end);window.adminAbusePending=true;window.adminAbuseActive=false;window.halloweenWaveActive=false;window.halloweenWaveTestRequested=false;if(typeof window.chooseDevice==="function"){window.chooseDevice("pc");if(typeof window.selectNormalMap==="function")window.selectNormalMap();}else if(typeof window.selectNormalMap==="function"){window.selectNormalMap();}}
 document.addEventListener("click",e=>{const b=e.target&&e.target.closest?e.target.closest("#battleBtn"):null;if(b&&window.adminAbusePending){window.adminAbusePending=false;setTimeout(()=>{if(!active)begin()},0)}},true);
 function updateButton(){

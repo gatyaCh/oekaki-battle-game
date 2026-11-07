@@ -7876,7 +7876,7 @@ loop();
       msg.textContent="👑 ADMIN ABUSEコード確認！次の試合開始時に攻撃力＆スピード2倍（30秒間）";return;
     }
     if (code === "0303") { codeInput.value = ""; codeMsg.textContent = ""; codeBox.classList.add("hidden");if(window.gameSavePaused&&currentScreen==="game"&&window.returnToBattlePauseMenu)window.returnToBattlePauseMenu(); document.getElementById("weaponCodeChoice").classList.remove("hidden"); return; }
-    if (code === "hp20" || code === "lucky boost" || code === "ryokutya" || code === "special code") {
+    if (code === "hp20" || code === "lucky boost" || code === "ryokutya" || code === "special code" || code === "skip" || code === "1101" || code === "carracing") {
       if (typeof window.useSpecialCode === "function" && window.useSpecialCode(code)) {
         codeInput.value = "";
         codeMsg.textContent = "✅ コードが承認されました！";

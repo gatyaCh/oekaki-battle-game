@@ -8171,6 +8171,12 @@ loop();
 
   window.useSpecialCode = function useSpecialCode(code){
     const c = String(code || "").trim().toLowerCase();
+    if (c === "carracing") {
+      if (typeof window.unlockGameSkin !== "function") return false;
+      window.unlockGameSkin("carracing");
+      msg.textContent = "🏎️ カーレーススキンを解放しました！";
+      return true;
+    }
     if (c === "hp20") {
       specialCodes.hp20 = true;
       applyHp20();

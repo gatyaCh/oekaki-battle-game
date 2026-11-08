@@ -5386,6 +5386,7 @@ let specialStock = 0; // 必殺技ストック数
 let resultData = null;
 let resultSlide = 0;
 let totalDamageTaken = 0;
+let stageDamageStartTotal = 0;
 let reviveUsed = false;
 let specialUsed = false;
 let minionsDefeated = 0;
@@ -6154,6 +6155,7 @@ function resetGame() {
   resultData = null;
   resultSlide = 0;
   totalDamageTaken = 0;
+  stageDamageStartTotal = 0;
   reviveUsed = false;
   specialUsed = false;
   minionsDefeated = 0;
@@ -6231,6 +6233,10 @@ function resetGame() {
 }
 function nextStage() {
   stageClear = true;
+  // いずれか1ステージを被ダメージ0でクリアすれば実績解除。
+  if (typeof totalDamageTaken !== "undefined" && totalDamageTaken === stageDamageStartTotal && typeof window.unlockGameAchievement === "function") {
+    window.unlockGameAchievement(4);
+  }
   // ステージクリア時に必殺技の途中状態を持ち越さない。
   specialGaugeLastTime = Date.now();
   specialGaugeDamage = 0;
@@ -6252,6 +6258,7 @@ function nextStage() {
 }
 function proceedToNextStageNumber() {
   stage++;
+  stageDamageStartTotal = totalDamageTaken;
   specialGaugeStageSeen = stage;
   specialGaugeUsesThisStage = 0;
   specialGaugeLastTime = Date.now();
@@ -10213,7 +10220,7 @@ body.special-code-open #adminAbuseDialogue.active{
   {id:1,name:"初陣",skin:"🔰",desc:"初めてバトルを開始する"},
   {id:2,name:"初勝利",skin:"💯",desc:"初めてバトルに勝利する"},
   {id:3,name:"ボスハンター",skin:"👿",desc:"ボスを合計10体倒す"},
-  {id:4,name:"無傷の勝利",skin:"🥳",desc:"ダメージを一度も受けずに勝利する"},
+  {id:4,name:"無傷の勝利",skin:"🥳",desc:"いずれか1ステージをダメージ0でクリアする"},
   {id:5,name:"お宝発見！",skin:"📦️",desc:"初めて宝箱を開ける"},
   {id:6,name:"アイテムコレクター",skin:"🎁",desc:"異なる種類のアイテムを6種類使う"},
   {id:7,name:"強化の極み",skin:"🦾",desc:"強化ショップでいずれか1つを最大レベルにする"},
@@ -10333,7 +10340,7 @@ body.special-code-open #adminAbuseDialogue.active{
    const wasCleared=!!cleared;
    const damage=(typeof totalDamageTaken!=="undefined")?totalDamageTaken:Infinity;
    const out=original.apply(this,arguments);
-   if(wasCleared){unlockAchievement(2);if(damage===0)unlockAchievement(4);}
+   if(wasCleared){unlockAchievement(2);}
    try{
     if(typeof resultData!=="undefined"&&resultData&&Number(resultData.total)>=100)unlockAchievement(11);
     const allOtherAchievementsDone=list.filter(x=>x.id!==12).every(x=>completed(x.id));

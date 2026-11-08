@@ -10239,7 +10239,7 @@ body.special-code-open #adminAbuseDialogue.active{
  function event(name,value){
   if(name==="itemUsed"){
    const v=String(value);if(!state.usedItems.includes(v))state.usedItems.push(v);
-   save();if(state.usedItems.length>=6)unlockAchievement(6);
+   save();if(completed(6)&&typeof window.isGameSkinConsumed==='function'&&window.isGameSkinConsumed('achievement_06')){state.reunlockUsedItems=Array.isArray(state.reunlockUsedItems)?state.reunlockUsedItems:[];if(!state.reunlockUsedItems.includes(v))state.reunlockUsedItems.push(v);if(state.reunlockUsedItems.length>=6){state.reunlockUsedItems=[];unlockAchievement(6);}save();}else if(state.usedItems.length>=6)unlockAchievement(6);
   }
  }
  window.recordGameAchievementEvent=event;
@@ -10308,7 +10308,7 @@ body.special-code-open #adminAbuseDialogue.active{
    const before=(typeof enemy!=="undefined"&&enemy)?enemy.hp:Infinity;
    const out=original.apply(this,arguments);
    const after=(typeof enemy!=="undefined"&&enemy)?enemy.hp:Infinity;
-   if(before>0&&after<=0){state.bossKills=(Number(state.bossKills)||0)+1;save();if(state.bossKills>=10)unlockAchievement(3);}
+   if(before>0&&after<=0){state.bossKills=(Number(state.bossKills)||0)+1;save();if(state.bossKills>=10&&state.bossKills%10===0)unlockAchievement(3);}
    return out;
   };
  }

@@ -9111,6 +9111,7 @@ return origUpdate.apply(this,arguments)};
  function unlock(id){data.consumed=Array.isArray(data.consumed)?data.consumed:[];if(data.consumed.includes(id)){data.consumedProgress=data.consumedProgress||{};data.consumedProgress[id]=(Number(data.consumedProgress[id])||0)+1;if(data.consumedProgress[id]<2){save();return;}data.consumed=data.consumed.filter(x=>x!==id);delete data.consumedProgress[id];try{const fk='oekakiBattleFusionV1',fd=JSON.parse(localStorage.getItem(fk)||'{}')||{};fd.fused=(Array.isArray(fd.fused)?fd.fused:[]).filter(x=>x!==id);localStorage.setItem(fk,JSON.stringify(fd));}catch(e){}}if(!isUnlocked(id)){data.unlocked.push(id);save();render();checkMoonUnlock();const sk=skins.find(x=>x.id===id);const message='🎉 '+(sk?sk.name:'スキン')+'スキンを解放！';const m=document.getElementById('skinMessage');if(m)m.textContent=message;let toast=document.getElementById('skinUnlockToast');if(!toast){toast=document.createElement('div');toast.id='skinUnlockToast';toast.setAttribute('role','status');toast.style.cssText='position:fixed;right:16px;top:16px;left:auto;transform:translateX(120%);z-index:999999;background:linear-gradient(110deg,rgba(28,32,38,.98),rgba(45,49,56,.98));color:#fff;padding:12px 18px;border:2px solid #d6b45b;border-radius:7px;box-shadow:0 5px 18px #000b;font-size:clamp(14px,2.5vw,18px);font-weight:800;text-align:left;max-width:min(360px,calc(100vw - 24px));min-width:min(260px,calc(100vw - 24px));';if(!document.getElementById('skinAchievementToastStyle')){const style=document.createElement('style');style.id='skinAchievementToastStyle';style.textContent='@keyframes skinAchievementSlideIn{0%{transform:translateX(120%);opacity:0}70%{transform:translateX(-6px);opacity:1}100%{transform:translateX(0);opacity:1}}@keyframes skinAchievementSlideOut{0%{transform:translateX(0);opacity:1}100%{transform:translateX(120%);opacity:0}}';document.head.appendChild(style);}toast.style.animation='skinAchievementSlideIn .42s cubic-bezier(.2,.8,.2,1) both';document.body.appendChild(toast);}toast.textContent=message;toast.style.display='block';if(toast._hideTimer)clearTimeout(toast._hideTimer);toast._hideTimer=setTimeout(()=>{toast.style.animation='skinAchievementSlideOut .28s ease-in both';setTimeout(()=>{toast.style.display='none';},280);},3000);if(typeof window.gameAudioSfx==='function')window.gameAudioSfx('clear');else if(typeof window.playSound==='function')window.playSound('clear');}}
  const limitedSkinIdsForMoon=['halloween_pumpkin','halloween_cat','halloween_spider','halloween_witch','halloween_vampire','halloween_oni','halloween_coffin','halloween_gravestone','halloween_immortal_zombie'];
  function checkMoonUnlock(){if(limitedSkinIdsForMoon.every(isUnlocked)&&!isUnlocked('limited2_moon'))unlock('limited2_moon');}
+ window.grantFusionGameSkin=(id)=>{const sk=skins.find(x=>x.id===id);if(!sk)return false;data.consumed=(Array.isArray(data.consumed)?data.consumed:[]).filter(x=>x!==id);if(data.consumedProgress)delete data.consumedProgress[id];if(!data.unlocked.includes(id))data.unlocked.push(id);save();render();checkMoonUnlock();const m=document.getElementById('skinMessage');if(m)m.textContent='🎉 '+sk.name+'スキンを獲得しました！';return true;};
  window.unlockGameSkin=unlock;
  window.adminUnlockAllGameSkins=()=>{const key='oekakiBattleAdminGrantedAllSkinsV1';let granted=[];try{granted=JSON.parse(localStorage.getItem(key)||'[]');if(!Array.isArray(granted))granted=[];}catch(e){granted=[];}const newlyGranted=skins.map(sk=>sk.id).filter(id=>!isUnconfiguredLimited2Skin(id)&&!data.unlocked.includes(id));granted=[...new Set([...granted,...newlyGranted])];try{localStorage.setItem(key,JSON.stringify(granted));}catch(e){}data.unlocked=[...new Set([...data.unlocked,...skins.map(sk=>sk.id).filter(id=>!isUnconfiguredLimited2Skin(id))])];save();render();const m=document.getElementById('skinMessage');if(m)m.textContent='👑 管理者操作：登録済みスキンをすべて解放しました！';return skins.length;};
  window.adminDisableAllSkinUnlocks=()=>{const key='oekakiBattleAdminGrantedAllSkinsV1';let granted=[];try{granted=JSON.parse(localStorage.getItem(key)||'[]');if(!Array.isArray(granted))granted=[];}catch(e){granted=[];}if(!granted.length)return 0;data.unlocked=data.unlocked.filter(id=>!granted.includes(id));if(!data.unlocked.includes(data.selected)){data.selected=data.unlocked.includes('white')?'white':(data.unlocked[0]||'white');}try{localStorage.removeItem(key);}catch(e){}save();render();const m=document.getElementById('skinMessage');if(m)m.textContent='🔒 管理者効果OFF：管理者による全スキン解放を解除しました。元から所持していたスキンは残ります。';return granted.length;};
@@ -9203,21 +9204,12 @@ return origUpdate.apply(this,arguments)};
     $('fusionStatus').textContent='報酬スキンの情報が見つかりません。受け取りデータは保持しています。';
     return;
   }
-  // ヒューズ報酬は素材消費後の再解放とは別扱い。受け取り時点で確実に所持状態へ戻す。
-  let skinData={};
-  try{skinData=JSON.parse(localStorage.getItem('oekakiBattleSkinsV1')||'{}')||{};}catch(e){skinData={};}
-  if(!Array.isArray(skinData.unlocked))skinData.unlocked=[];
-  skinData.consumed=(Array.isArray(skinData.consumed)?skinData.consumed:[]).filter(id=>id!==reward.id);
-  if(skinData.consumedProgress)delete skinData.consumedProgress[reward.id];
-  skinData.unlocked=[...new Set([...skinData.unlocked,reward.id])];
-  try{localStorage.setItem('oekakiBattleSkinsV1',JSON.stringify(skinData));}catch(e){
-    $('fusionStatus').textContent='保存に失敗したため、報酬はまだ受け取れていません。空き容量などを確認して再度お試しください。';
+  if(typeof window.grantFusionGameSkin!=='function'||!window.grantFusionGameSkin(reward.id)){
+    $('fusionStatus').textContent='報酬スキンを登録できませんでした。受け取りデータは保持しています。';
     return;
   }
   saveData.fused=(saveData.fused||[]).filter(id=>id!==reward.id);
   saveData.restoreOdds=(saveData.restoreOdds||[]).filter(id=>id!==reward.id);
-  if(typeof window.adminReunlockGameSkin==='function')window.adminReunlockGameSkin(reward.id);
-  else if(typeof window.unlockGameSkin==='function')window.unlockGameSkin(reward.id);
   saveData.processing=null;
   saveData.rewardResult=null;
   save();

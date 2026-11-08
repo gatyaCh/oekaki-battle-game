@@ -10944,7 +10944,10 @@ function eventCode(c){
     if($("msg"))$("msg").textContent="🔄 リトライスキンを解放しました！";
   }else if(c==="kabocha"){
     window.dayTwoPumpkinBoxesEnabled=true;
-    if($("msg"))$("msg").textContent="🎃 KABOCHAコード発動！次のステージから毎ステージ🎃ボックスを3個召喚します！";
+    if(Array.isArray(boxes)){
+      for(let i=0;i<3;i++)boxes.push({x:100+Math.random()*700,y:80+Math.random()*340,item:"🎃"});
+    }
+    if($("msg"))$("msg").textContent="🎃 KABOCHAコード発動！今のステージと今後の全ステージで🎃ボックスを3個ずつ召喚します！";
   }
   return true;
 }

@@ -10257,34 +10257,65 @@ body.special-code-open #adminAbuseDialogue.active{
  window.unlockGameAchievement=unlockAchievement;
  function renderAchievements(){
   const panel=document.getElementById("achievementPanel");if(!panel)return;
-  const count=state.completed.length;
-  const progress=panel.querySelector("#achievementProgress");if(progress)progress.textContent="解除済み："+count+" / 12";
+  const count=list.filter(item=>completed(item.id)).length;
+  const progress=panel.querySelector("#achievementProgress");
+  if(progress)progress.textContent="獲得トロフィー："+count+" / "+list.length+"　｜　達成率："+Math.round(count/list.length*100)+"%";
   const rows=panel.querySelector("#achievementList");if(!rows)return;rows.innerHTML="";
   list.forEach(item=>{
-   const done=completed(item.id),allOtherDone=item.id===12&&list.filter(x=>x.id!==12).every(x=>completed(x.id)),row=document.createElement("div");row.className="achievement-row"+(done?" achievement-done":"");
-   const icon=document.createElement("div");icon.className="achievement-row-icon";icon.textContent=done?item.skin:"🔒";
-   const content=document.createElement("div");content.className="achievement-row-content";
-   const title=document.createElement("strong");title.textContent=(item.hidden&&!done)?"？？？":item.name;
-   const desc=document.createElement("span");desc.textContent=(item.hidden&&!done)?(allOtherDone?"何も使わずに……？":"条件は秘密。"):item.desc;
-   content.append(title,desc);
-   const status=document.createElement("b");status.className="achievement-row-status";status.textContent=done?"解除済み":"未解除";
-   row.append(icon,content,status);rows.appendChild(row);
+   const done=completed(item.id);
+   const allOtherDone=item.id===12&&list.filter(x=>x.id!==12).every(x=>completed(x.id));
+   const secret=item.hidden&&!done;
+   const card=document.createElement("button");
+   card.type="button";
+   card.className="achievement-trophy"+(done?" is-earned":" is-locked");
+   card.setAttribute("aria-pressed","false");
+   const icon=document.createElement("span");icon.className="achievement-trophy-icon";
+   icon.textContent=done?item.skin:"？";
+   const name=document.createElement("span");name.className="achievement-trophy-name";
+   name.textContent=done?item.name:"？？？";
+   const stateLabel=document.createElement("span");stateLabel.className="achievement-trophy-state";
+   stateLabel.textContent=done?"獲得済み":"未獲得";
+   card.append(icon,name,stateLabel);
+   const hiddenCondition=secret?(allOtherDone?"何も使わずにハロウィンマップをクリアする":"条件は秘密。ほかの実績を集めるとヒントが見えるかも……"):(item.desc);
+   card.title=done?(item.name+"："+item.desc):("解放条件："+hiddenCondition);
+   card.addEventListener("click",()=>{
+    rows.querySelectorAll(".achievement-trophy").forEach(el=>el.setAttribute("aria-pressed","false"));
+    card.setAttribute("aria-pressed","true");
+    const detail=panel.querySelector("#achievementDetail");
+    if(detail){
+     detail.innerHTML="";
+     const heading=document.createElement("h3");
+     heading.textContent=done?("🏆 "+item.name):"🔒 未獲得の実績";
+     const description=document.createElement("p");
+     description.textContent=done?("報酬："+item.skin+"　｜　"+item.desc):("解放条件："+hiddenCondition);
+     detail.append(heading,description);
+    }
+   });
+   rows.appendChild(card);
   });
  }
  function ensurePanel(){
   if(document.getElementById("achievementPanel"))return;
   const style=document.createElement("style");style.id="achievement-panel-style";style.textContent=
-   "#achievementPanel{position:fixed;inset:0;z-index:1000001;background:rgba(5,10,20,.96);color:#fff;overflow:auto;padding:clamp(16px,4vw,40px);display:flex;flex-direction:column;align-items:center}"+
-   "#achievementPanel.hidden{display:none!important}#achievementPanel h2{margin:8px 0;color:#facc15;font-size:clamp(24px,4vw,34px)}"+
-   "#achievementProgress{color:#cbd5e1;margin:0 0 16px}#achievementList{width:min(760px,100%);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}"+
-   ".achievement-row{display:flex;align-items:center;gap:10px;padding:12px;background:#1e293b;border:1px solid #475569;border-radius:12px;min-width:0}"+
-   "#achievementList .achievement-row:nth-child(13){grid-column:1/-1;width:min(380px,100%);justify-self:center}"+
-   ".achievement-row.achievement-done{border-color:#eab308;background:#292719}.achievement-row-icon{font-size:28px;flex-shrink:0;width:38px;text-align:center}"+
-   ".achievement-row-content{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}.achievement-row-content strong{font-size:14px}.achievement-row-content span{font-size:12px;color:#cbd5e1;line-height:1.4}"+
-   ".achievement-row-status{font-size:11px;white-space:nowrap;color:#fde68a}#achievementCloseBtn{margin:18px auto 0;min-width:180px;padding:12px;font-size:16px}@media(max-width:600px){#achievementList{grid-template-columns:1fr}.achievement-row{padding:10px}}";
+   "#achievementPanel{position:fixed;inset:0;z-index:1000001;background:radial-gradient(ellipse at 50% 0%,#334155 0%,#111827 55%,#050914 100%);color:#fff;overflow:auto;padding:clamp(16px,4vw,40px);display:flex;flex-direction:column;align-items:center}"+
+   "#achievementPanel.hidden{display:none!important}#achievementPanel h2{margin:8px 0;color:#facc15;font-size:clamp(26px,4vw,36px);text-shadow:0 3px 14px #f59e0b55}"+
+   "#achievementProgress{color:#e2e8f0;margin:0 0 20px;font-weight:800;text-align:center}#achievementList{width:min(820px,100%);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}"+
+   ".achievement-trophy{min-width:0;min-height:142px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:12px 7px;border:1px solid #64748b;border-radius:15px;background:linear-gradient(160deg,#263449,#111827);color:#fff;cursor:pointer;box-shadow:0 7px 18px #0005;transition:transform .16s,border-color .16s,filter .16s}"+
+   ".achievement-trophy:hover,.achievement-trophy:focus-visible{transform:translateY(-4px);filter:brightness(1.18);outline:2px solid #facc15;outline-offset:2px}"+
+   ".achievement-trophy.is-earned{border:2px solid #eab308;background:linear-gradient(160deg,#51431c,#252015);box-shadow:0 0 18px #eab30830,0 7px 18px #0005}"+
+   ".achievement-trophy.is-locked{border-style:dashed;background:linear-gradient(160deg,#293241,#151b27);color:#cbd5e1}"+
+   ".achievement-trophy[aria-pressed=true]{outline:3px solid #facc15;outline-offset:2px}"+
+   ".achievement-trophy-icon{font-size:clamp(32px,5vw,48px);line-height:1.2;filter:drop-shadow(0 3px 5px #0008)}"+
+   ".achievement-trophy-name{font-size:13px;font-weight:900;text-align:center;overflow-wrap:anywhere}"+
+   ".achievement-trophy-state{font-size:11px;color:#fde68a;font-weight:800}.achievement-trophy.is-locked .achievement-trophy-state{color:#cbd5e1}"+
+   "#achievementDetail{width:min(820px,100%);min-height:94px;margin-top:18px;padding:14px 18px;border:1px solid #64748b;border-radius:13px;background:#0b1220;text-align:center;box-shadow:inset 0 0 20px #0005}"+
+   "#achievementDetail h3{margin:0 0 7px;color:#fde68a;font-size:18px}#achievementDetail p{margin:0;color:#e2e8f0;line-height:1.6}"+
+   "#achievementCloseBtn{margin:20px auto 0;min-width:180px;padding:12px 20px;font-size:16px;border:1px solid #94a3b8;border-radius:10px;background:#334155;color:#fff;font-weight:800;cursor:pointer}"+
+   "@media(max-width:650px){#achievementList{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.achievement-trophy{min-height:116px;padding:9px 4px}.achievement-trophy-name{font-size:11px}#achievementDetail{padding:12px}}"+
+   "@media(max-width:390px){#achievementList{grid-template-columns:repeat(2,minmax(0,1fr))}}";
   document.head.appendChild(style);
   const panel=document.createElement("div");panel.id="achievementPanel";panel.className="hidden";panel.setAttribute("role","dialog");panel.setAttribute("aria-modal","true");panel.setAttribute("aria-labelledby","achievementTitle");
-  panel.innerHTML='<h2 id="achievementTitle">🏆 実績一覧</h2><p id="achievementProgress">解除済み：0 / 13</p><div id="achievementList"></div><button id="achievementCloseBtn" type="button">閉じる</button>';
+  panel.innerHTML='<h2 id="achievementTitle">🏆 トロフィー展示室</h2><p id="achievementProgress">獲得トロフィー：0 / 12</p><div id="achievementList"></div><section id="achievementDetail" aria-live="polite"><h3>トロフィーを選択してください</h3><p>獲得済みのトロフィーや「？」を押すと詳細を確認できます。</p></section><button id="achievementCloseBtn" type="button">展示室を閉じる</button>';
   document.body.appendChild(panel);panel.querySelector("#achievementCloseBtn").addEventListener("click",()=>panel.classList.add("hidden"));
   panel.addEventListener("click",e=>{if(e.target===panel)panel.classList.add("hidden");});
  }

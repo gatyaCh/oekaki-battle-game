@@ -3583,7 +3583,10 @@ html body #rankPointBtn {
   right: max(100px, calc(env(safe-area-inset-right) + 100px)) !important;
   left: auto !important;
   bottom: auto !important;
-  z-index: 10020 !important;
+  z-index: 950000 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 /* ADMIN操作中は攻撃入力を受け付けない */
 
@@ -4772,6 +4775,8 @@ function startTutorialFromDraw(){ beginTutorialBattle(); }
 function beginTutorialBattle(){
   document.getElementById("tutorialChoice").classList.add("hidden");
   tutorialActive=true; tutorialPhase="battle"; tutorialStep=0; tutorialSpecialUsed=false;
+  if(typeof setRankPointTableForMap==="function")setRankPointTableForMap();
+  const tutorialRankBtn=document.getElementById("rankPointBtn");if(tutorialRankBtn){tutorialRankBtn.style.display="block";tutorialRankBtn.style.visibility="visible";tutorialRankBtn.style.opacity="1";}
   stage=1; specialGaugeStageSeen=1; specialGaugeUsesThisStage=0; specialGaugeLastTime=Date.now(); specialGaugeDamage=0; specialGaugeMaxed=false; gameOver=false; stageClear=false; fullClear=false; isPausedForSpecial=false;
   setStageObstacles(1);
   p.x=100;p.y=250;p.hp=150;p.max=150;p.invincibility=999999;

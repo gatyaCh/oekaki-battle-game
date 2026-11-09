@@ -3553,6 +3553,15 @@ body.mobile-mode.draw-canvas-expanded #draw:not(.hidden) #drawCanvas{
 #tutorialSkinDemo{margin-top:10px;padding:10px;background:#101827;border:1px solid #60738f;border-radius:10px}.tutorial-skin-demo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.tutorial-skin-demo-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;background:#263449;border:1px solid #64748b;border-radius:7px;min-width:0}.tutorial-skin-demo-item span{font-size:25px;line-height:1.2}.tutorial-skin-demo-item b{font-size:12px}.tutorial-skin-demo-item small{font-size:10px;color:#cbd5e1;text-align:center}.tutorial-skin-locked span{color:#fde68a;font-weight:bold}.tutorial-skin-demo-note{margin-top:7px;font-size:11px;color:#cbd5e1;line-height:1.4}
 .tutorial-panel-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:12px}
 #tutorialReplayBtn{background:#2563eb!important}
+#tutorialFeatureOverlay{position:fixed;inset:0;z-index:960020;background:rgba(2,6,23,.94);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
+#tutorialFeatureOverlay.hidden{display:none!important}
+#tutorialFeatureCard{width:min(760px,96vw);max-height:90vh;overflow:auto;background:#f8fafc;color:#172033;border:3px solid #60a5fa;border-radius:18px;padding:22px;box-shadow:0 16px 50px #0009}
+#tutorialFeatureCard h2{text-align:center;margin:0 0 14px;color:#1d4ed8}
+.tutorial-feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.tutorial-feature-item{padding:12px;border:1px solid #cbd5e1;border-radius:12px;background:#eaf1fb}
+.tutorial-feature-item b{display:block;margin-bottom:5px}
+#tutorialFeatureClose{display:block;margin:16px auto 0;background:#334155;color:#fff;padding:10px 24px;border-radius:9px;font-weight:bold}
+
 .tutorial-target-arrow{position:fixed;z-index:940010;pointer-events:none;font-size:clamp(42px,7vw,68px);line-height:1;color:#ffdf35;text-shadow:0 3px 0 #b42318,0 0 10px #ff4d4d,0 0 22px rgba(255,220,50,.95);filter:drop-shadow(0 3px 2px rgba(0,0,0,.9));animation:tutorialArrowBounce .55s ease-in-out infinite alternate}
 @keyframes tutorialArrowBounce{from{transform:translateY(0)}to{transform:translateY(9px)}}
 
@@ -4128,9 +4137,17 @@ body {
     <div id="tutorialSkinDemo" class="hidden" aria-label="スキン選択のお手本"><div class="tutorial-skin-demo-grid"><div class="tutorial-skin-demo-item"><span>⚪️</span><b>ホワイト</b><small>最初から</small></div><div class="tutorial-skin-demo-item"><span>🔵</span><b>ブルー</b><small>最初から</small></div><div class="tutorial-skin-demo-item"><span>⚫️</span><b>ブラック</b><small>最初から</small></div><div class="tutorial-skin-demo-item tutorial-skin-locked"><span>？</span><b>ゴールド</b><small>Stage 4クリア</small></div><div class="tutorial-skin-demo-item tutorial-skin-locked"><span>？</span><b>マジック</b><small>Aランク達成</small></div><div class="tutorial-skin-demo-item tutorial-skin-locked"><span>？</span><b>ゲーマー</b><small>全ステージクリア</small></div></div><p class="tutorial-skin-demo-note">お手本：解放済みはアイコンが見えるよ。未解放は「？」で表示され、選ぶと解放条件を確認できるよ。</p></div>
     <div class="tutorial-panel-actions">
       <button id="tutorialSpecialBtn" class="hidden" onclick="tutorialOpenSpecial()">必殺技の画面を開く</button>
+      <button id="tutorialFeatureBtn" class="hidden" onclick="openTutorialFeature()">専用画面を見る</button>
       <button id="tutorialNextBtn" class="tutorial-primary" onclick="tutorialNext()">次へ ▶</button>
     </div>
   </div>
+</div>
+<div id="tutorialFeatureOverlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="tutorialFeatureTitle">
+  <section id="tutorialFeatureCard">
+    <h2 id="tutorialFeatureTitle">📘 機能の説明</h2>
+    <div id="tutorialFeatureContent"></div>
+    <button id="tutorialFeatureClose" type="button" onclick="closeTutorialFeature()">チュートリアルに戻る</button>
+  </section>
 </div>
 
 <div id="title">
@@ -4670,7 +4687,10 @@ const tutorialShopSteps = [
   {title:"⑬ ✨ 自己強化ショップのお手本",text:"ステージクリア後の自己強化ショップでは、攻撃力・移動速度・防御力・ポイント倍率・回復・必殺技チャージ・最大HPを強化できるよ。",hint:()=>"お手本：各カードの「Lv」と価格を見て、コインを使う順番を考えよう。強化は次のステージにも引き継がれるよ。",practice:false},
   {title:"⑭ 📈 強化レベルと価格",text:"強化にはレベルと購入価格があるよ。回復は1レベルごとに回復量が＋10、最大HPは1レベルごとに＋10。強化はゲーム中有効で、次のゲームには持ち越されないよ。",hint:()=>"レベルが上がるほど、次の強化価格も変わるよ。",practice:false},
   {title:"⑮ 🎰 ロシアンルーレット",text:"ショップでは30コインでルーレットに挑戦できるよ。当たりは20%、ハズレは80%。当たると自己強化ショップの価格が20% OFFになるよ！",hint:()=>"お手本：ルーレット画面で「ルーレットを回す」を押すと抽選されるよ。割引は重複しないよ。",practice:false},
-  {title:"⑯ 📦 宝箱のコイン報酬",text:"宝箱のコイン報酬は通常70、レア160、超レア310、ウルトラレア510コイン。レア度によって報酬が変わるよ。",hint:()=>"ショップ関連の説明はここまで。次はキャンバス画面の紹介だよ。",practice:false}
+  {title:"⑯ 📦 宝箱のコイン報酬",text:"宝箱のコイン報酬は通常70、レア160、超レア310、ウルトラレア510コイン。レア度によって報酬が変わるよ。",hint:()=>"次はゲーム内の便利な機能を紹介するよ。",practice:false},
+  {title:"⑰ ⚗️ ヒューズマシン",text:"スキンを3つ素材にして、新しいスキンを獲得できる機能だよ。専用画面で素材のポイントや排出確率、待ち時間を確認できるよ。",hint:()=>"「専用画面を見る」を押して、ヒューズマシンの使い方を確認しよう。",practice:false,feature:"fusion"},
+  {title:"⑱ 🏆 トロフィー展示室",text:"ゲーム中の条件を達成すると実績が解除され、トロフィー展示室に記録されるよ。未獲得の実績も、条件を確認できるよ。",hint:()=>"「専用画面を見る」を押して、トロフィー展示室の見方を確認しよう。",practice:false,feature:"achievements"},
+  {title:"⑲ ⏸️ ストップボタン（ポーズ）",text:"バトル中に画面右側の⏸️ボタンを押すと、ゲームが一時停止してメニューが開くよ。メニューからできることを確認しよう。",hint:()=>"「専用画面を見る」を押すと、ストップボタンを押したときのメニューを確認できるよ。",practice:false,feature:"pause"}
 ];
 
 function clearTutorialTargetHighlight(){
@@ -4722,6 +4742,7 @@ function renderTutorialStep(){
   const skinDemo=document.getElementById("tutorialSkinDemo");if(skinDemo)skinDemo.classList.toggle("hidden",!item.skinDemo);
   document.getElementById("tutorialNextBtn").textContent=(tutorialPhase==="battle"&&tutorialStep===tutorialBattleSteps.length-1)?"キャンバスへ ▶":(tutorialPhase==="canvas"&&tutorialStep===tutorialCanvasSteps.length-1)?"ショップへ ▶":(tutorialPhase==="shop"&&tutorialStep===tutorialShopSteps.length-1)?"チュートリアル終了 ✓":"次へ ▶";
   document.getElementById("tutorialSpecialBtn").classList.toggle("hidden",!(tutorialPhase==="battle"&&tutorialStep===4));
+  const featureBtn=document.getElementById("tutorialFeatureBtn");if(featureBtn){featureBtn.classList.toggle("hidden",!(tutorialPhase==="shop"&&!!item.feature));featureBtn.textContent=item.feature==="fusion"?"⚗️ ヒューズマシンを見る":item.feature==="achievements"?"🏆 展示室を見る":"⏸️ ポーズメニューを見る";}
 }
 function startTutorialDelay(){
   const choice=document.getElementById("tutorialChoice");
@@ -4743,6 +4764,7 @@ function skipTutorial(){
   tutorialActive=false;
   clearTutorialTargetHighlight();
   document.getElementById("tutorialPanel").classList.add("hidden");
+  document.getElementById("tutorialFeatureOverlay")?.classList.add("hidden");
   setScreen("draw");
   redrawCanvas();
 }
@@ -4805,6 +4827,27 @@ function closeTutorialShopPreview(){
   ["shopModal","upgradeShopModal","shopRouletteModal"].forEach(id=>document.getElementById(id)?.classList.add("hidden"));
   tutorialShopPreviewOpen="";
 }
+function openTutorialFeature(){
+  if(!tutorialActive||tutorialPhase!=="shop")return;
+  const item=tutorialShopSteps[tutorialStep];if(!item||!item.feature)return;
+  const overlay=document.getElementById("tutorialFeatureOverlay"),title=document.getElementById("tutorialFeatureTitle"),content=document.getElementById("tutorialFeatureContent");
+  if(!overlay||!title||!content)return;
+  if(item.feature==="fusion"){
+    title.textContent="⚗️ ヒューズマシン";
+    content.innerHTML='<p>所持しているスキンから素材を<strong>3つ</strong>選んで、新しいスキンを抽選する機能だよ。</p><div class="tutorial-feature-grid"><div class="tutorial-feature-item"><b>① 素材を選ぶ</b>同じスキンは重複して選べないよ。素材の合計ポイントが抽選確率に影響するよ。</div><div class="tutorial-feature-item"><b>② ヒューズ開始</b>選んだ3つのスキンは素材として消費されるよ。開始前に選択を確認してね。</div><div class="tutorial-feature-item"><b>③ 10分待つ</b>開始から10分後に「結果を開ける」が使えるようになるよ。</div><div class="tutorial-feature-item"><b>④ 報酬を受け取る</b>結果を開いたあと「受け取る」を押すと、報酬スキンが解放されるよ。</div></div><p><strong>ポイント：</strong>🥚🌲🦦は30pt、🐼🐻🍳🌀は60pt、🌪️は80pt。排出確率はマシン画面で確認できるよ。</p>';
+  }else if(item.feature==="achievements"){
+    title.textContent="🏆 トロフィー展示室";
+    content.innerHTML='<p>実績を達成するとトロフィーを獲得できるよ。展示室では獲得状況と達成率を確認できるよ。</p><div class="tutorial-feature-grid"><div class="tutorial-feature-item"><b>🏆 獲得済み</b>獲得したトロフィーのアイコンと名前が表示されるよ。</div><div class="tutorial-feature-item"><b>❔ 未獲得</b>「？」を選ぶと、解除条件を確認できるよ。</div><div class="tutorial-feature-item"><b>📊 進行状況</b>獲得数と達成率で、あとどれくらい実績が残っているか分かるよ。</div></div><p>実績はゲーム内の条件を達成すると自動で記録されるよ。条件を確認して、いろいろな遊び方に挑戦してみよう！</p>';
+  }else if(item.feature==="pause"){
+    title.textContent="⏸️ ストップボタンのメニュー";
+    content.innerHTML='<p>バトル中に画面右側の<strong>⏸️</strong>を押すと、ゲームが一時停止して次のメニューが表示されるよ。</p><div class="tutorial-feature-grid"><div class="tutorial-feature-item"><b>▶️ ゲームに戻る</b>一時停止を解除して、バトルを再開するよ。</div><div class="tutorial-feature-item"><b>🗄️ アイテム保管庫</b>保管しているアイテムを確認・利用する画面を開くよ。</div><div class="tutorial-feature-item"><b>⚗️ ヒューズスキンマシン</b>バトルを止めたまま、ヒューズマシンを開けるよ。</div><div class="tutorial-feature-item"><b>🤫 スペシャルコード</b>コード入力画面を開くよ。</div><div class="tutorial-feature-item"><b>💾 セーブする</b>現在の戦闘状態を保存できるよ。</div><div class="tutorial-feature-item"><b>✏️ キャンバスへ戻る</b>バトルを終了して、キャンバス画面へ戻るよ。</div></div><p>メニューを閉じて再開するまで、バトルは一時停止したままだよ。</p>';
+  }
+  document.getElementById("tutorialPanel").classList.add("hidden");overlay.classList.remove("hidden");
+}
+function closeTutorialFeature(){
+  const overlay=document.getElementById("tutorialFeatureOverlay");if(overlay)overlay.classList.add("hidden");
+  if(tutorialActive)document.getElementById("tutorialPanel").classList.remove("hidden");
+}
 function tutorialNext(){
   if(!tutorialActive)return;
   if(tutorialPhase==="battle"&&tutorialStep===tutorialBattleSteps.length-1){
@@ -4834,6 +4877,7 @@ function tutorialNext(){
       tutorialActive=false;
       clearTutorialTargetHighlight();
       document.getElementById("tutorialPanel").classList.add("hidden");
+      document.getElementById("tutorialFeatureOverlay")?.classList.add("hidden");
       document.getElementById("tutorialReplayBtn").classList.remove("hidden");
       setScreen("draw");redrawCanvas();
       return;

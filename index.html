@@ -3818,12 +3818,12 @@ html body #draw:not(.hidden) #gearBtn {
 <style>
 #mapSelect{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;background:linear-gradient(145deg,#10251d,#172554);color:#fff;text-align:center}
 .map-select-card{width:min(760px,100%);padding:24px;border:1px solid #64748b;border-radius:20px;background:rgba(15,23,42,.94);box-shadow:0 16px 48px #0006}
-.map-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"secret secret" "normal story" "fusion fusion";gap:16px;margin-top:22px}
+.map-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"secret secret" "normal story";gap:16px;margin-top:22px}
 .map-option{padding:18px;border-radius:14px;background:#1e293b;border:1px solid #64748b}
 .map-secret-option{grid-area:secret;max-width:calc(50% - 8px);width:100%;justify-self:start}
 .map-normal-option{grid-area:normal}
 .map-story-option{grid-area:story;opacity:.82}
-.map-fusion-option{grid-area:fusion;max-width:calc(50% - 8px);width:100%;justify-self:start}
+
 .map-story-option button:disabled,.map-secret-option button:disabled{cursor:not-allowed;opacity:.65}
 .map-option button{display:block;width:100%;margin:10px auto 0;padding:10px;border-radius:9px;cursor:pointer}
 .map-option .map-tutorial-button{background:#334155;color:#fff}
@@ -3832,7 +3832,7 @@ html body #draw:not(.hidden) #gearBtn {
 #mapTutorialConfirm{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:#0009;padding:16px}
 .map-confirm-card{width:min(360px,100%);padding:24px;text-align:center;color:#fff;background:#172033;border:1px solid #64748b;border-radius:16px}
 .map-confirm-card button{margin:8px;padding:10px 24px}
-@media(max-width:600px){.map-options{grid-template-columns:1fr;grid-template-areas:"secret" "normal" "story" "fusion"}.map-secret-option,.map-fusion-option{max-width:none;width:auto}#mapSelect{padding:12px}.map-select-card{padding:16px}}
+@media(max-width:600px){.map-options{grid-template-columns:1fr;grid-template-areas:"secret" "normal" "story"}.map-secret-option{max-width:none;width:auto}#mapSelect{padding:12px}.map-select-card{padding:16px}}
 </style>
 <style id="admin-abuse-zigzag-fix">
 @keyframes adminAbuseZigzag {
@@ -10250,15 +10250,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   const retireAt = new Date("2026-11-07T22:25:00+09:00").getTime();
   function applyRetirement(){
     if(Date.now() < retireAt) return;
-    const mapSelect = document.getElementById("mapSelect");
-    const options = mapSelect && mapSelect.querySelector(".map-options");
-    if(options && !document.getElementById("fusionMapOption")){
-      const machine = document.createElement("div");
-      machine.className = "map-option map-fusion-option";
-      machine.id = "fusionMapOption";
-      machine.innerHTML = '<h2>⚗️ ヒューズスキンマシン</h2><p>スキンを組み合わせて新しいスキンを手に入れよう！</p><span class="map-lock-label" style="color:#86efac">🔓 解放済み</span><button type="button" onclick="openFusionMachineFromMap()">ヒューズスキンマシンを開く</button>';
-      options.appendChild(machine);
-    }
 
     // 22:30で参加受付は終了するが、開始済みの25分イベントは開始時刻から25分間継続する。
     if (!window.adminAbuseActive) window.adminAbusePending = false;

@@ -10585,6 +10585,36 @@ body.special-code-open #adminAbuseDialogue.active{
 .story-intro-scene.scene-encounter.city-intro{background-image:radial-gradient(ellipse at 50% 50%,#58677b 0,transparent 35%),linear-gradient(180deg,#202b43 0 48%,#30394a 49% 100%)}
 @media(max-width:600px){.story-intro-scene.scene-grassland:before{opacity:.4}.story-intro-scene.scene-citywide:before{inset:28% 0 0}}
 </style>
+<style id="story-broadcast-layout-fix">
+/* ニュース画面のLIVE見出しが画面全体に広がらないように固定 */
+.story-intro-scene.scene-broadcast:before{
+ content:"LIVE　緊急ニュース"!important;
+ position:absolute!important;
+ inset:10% auto auto 5%!important;
+ display:inline-block!important;
+ width:max-content!important;
+ max-width:90%!important;
+ height:auto!important;
+ padding:7px 14px!important;
+ background:#c62828!important;
+ color:#fff!important;
+ font-size:clamp(15px,2.5vw,23px)!important;
+ line-height:1.35!important;
+ white-space:nowrap!important;
+ box-sizing:border-box!important;
+ z-index:2!important;
+}
+.story-intro-scene.scene-broadcast:after{
+ content:"🌑　　　🌑　　　🌑"!important;
+ position:absolute!important;
+ inset:48% 0 auto!important;
+ width:100%!important;
+ height:auto!important;
+ text-align:center!important;
+ background:transparent!important;
+ z-index:1!important;
+}
+</style>
 <script id="story-battle-runtime">
 (function(){
  const $=id=>document.getElementById(id);

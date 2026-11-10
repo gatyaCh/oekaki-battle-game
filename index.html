@@ -3833,6 +3833,48 @@ html body #draw:not(.hidden) #gearBtn {
 .map-confirm-card{width:min(360px,100%);padding:24px;text-align:center;color:#fff;background:#172033;border:1px solid #64748b;border-radius:16px}
 .map-confirm-card button{margin:8px;padding:10px 24px}
 @media(max-width:600px){.map-options{grid-template-columns:1fr;grid-template-areas:"secret" "normal" "story"}.map-secret-option{max-width:none;width:auto}#mapSelect{padding:12px}.map-select-card{padding:16px}}
+
+/* Story mode: world and stage selection */
+.story-screen{position:fixed;inset:0;z-index:15000;overflow:auto;padding:24px 14px;background:radial-gradient(ellipse at top,#243b67,#090f20 72%);color:#fff;text-align:center}
+.story-panel{width:min(900px,100%);margin:3vh auto;padding:24px;border:1px solid #64748b;border-radius:20px;background:rgba(10,18,38,.96);box-shadow:0 18px 60px #0009}
+.story-world-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:22px 0}
+.story-world-card{padding:18px;border:1px solid #52627c;border-radius:14px;background:linear-gradient(145deg,#1e293b,#111827);text-align:left}
+.story-world-card.available{border-color:#60a5fa;box-shadow:0 0 18px #2563eb44}
+.story-world-card button,.story-action{width:100%;margin-top:12px;padding:11px;border:0;border-radius:9px;background:#2563eb;color:white;font-weight:700;cursor:pointer}
+.story-world-card button:disabled{background:#475569;cursor:not-allowed}
+.story-stage-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:22px 0}
+.story-stage-card{padding:14px 6px;border:1px solid #475569;border-radius:12px;background:#1e293b}
+.story-stage-card.unlocked{border-color:#60a5fa;background:#172f52}
+.story-stage-card.cleared{border-color:#22c55e;background:#123524}
+.story-stage-card button{width:100%;margin-top:8px;padding:8px 4px;border:0;border-radius:7px;background:#2563eb;color:#fff;cursor:pointer}
+.story-stage-card button:disabled{background:#475569;cursor:not-allowed}
+.story-back{background:#475569!important}
+#storyEpisodeScreen{z-index:15010;background:#050816}
+.story-scene{position:relative;overflow:hidden;width:min(760px,100%);height:clamp(220px,42vh,360px);margin:18px auto;border:1px solid #64748b;border-radius:16px;background:radial-gradient(ellipse at 50% 100%,#263b66 0,#101a35 48%,#030712 100%)}
+.story-stars{position:absolute;inset:0;background-image:radial-gradient(#fff 1px,transparent 1.5px),radial-gradient(#93c5fd 1px,transparent 1.5px);background-size:53px 53px,89px 89px;background-position:0 0,20px 30px;opacity:.65;animation:storyStarDrift 24s linear infinite}
+.story-planet{position:absolute;width:clamp(74px,14vw,120px);height:clamp(74px,14vw,120px);border-radius:50%;box-shadow:inset -18px -12px 25px #0009,0 0 30px #60a5fa55}
+.story-planet-a{left:12%;top:24%;background:radial-gradient(circle at 32% 30%,#a5f3fc,#2563eb 58%,#172554)}
+.story-planet-b{right:12%;top:30%;background:radial-gradient(circle at 32% 30%,#fde68a,#d97706 58%,#78350f);animation:storyPlanetCrash 9s ease-in-out infinite alternate}
+.story-meteor{position:absolute;width:5px;height:75px;right:23%;top:-90px;background:linear-gradient(transparent,#fff,#f97316);transform:rotate(42deg);animation:storyMeteorFall 2.6s ease-in infinite}
+.story-scene.news .story-planet-a{transform:translateX(24px)}
+.story-scene.news .story-planet-b{transform:translateX(-24px)}
+.story-scene.earth .story-meteor{animation-duration:1.1s}
+.story-scene.collision .story-planet-a{animation:storyPlanetLeft 2s ease-in forwards}
+.story-scene.collision .story-planet-b{animation:storyPlanetRight 2s ease-in forwards}
+.story-scene .scene-caption{position:absolute;left:10px;right:10px;bottom:12px;padding:8px;border-radius:8px;background:#020617bb;color:#e2e8f0;font-weight:700}
+.story-dialogue{width:min(760px,100%);min-height:112px;margin:0 auto;padding:18px;text-align:left;border:1px solid #60a5fa;border-radius:14px;background:#111c33;color:#fff}
+.story-dialogue-name{color:#93c5fd;font-size:13px;font-weight:800;margin-bottom:7px}
+.story-dialogue-text{font-size:clamp(16px,2.5vw,21px);line-height:1.65;min-height:56px}
+.story-dialogue-controls{width:min(760px,100%);margin:10px auto;display:flex;justify-content:space-between;gap:10px}
+.story-dialogue-controls button{padding:10px 18px;border:0;border-radius:9px;background:#2563eb;color:white;font-weight:700;cursor:pointer}
+.story-dialogue-controls button:disabled{opacity:.45;cursor:not-allowed}
+@keyframes storyStarDrift{to{background-position:53px 53px,109px 83px}}
+@keyframes storyPlanetCrash{to{transform:translateX(-35px)}}
+@keyframes storyPlanetLeft{to{transform:translateX(80px)}}
+@keyframes storyPlanetRight{to{transform:translateX(-80px)}}
+@keyframes storyMeteorFall{to{top:110%;right:70%;opacity:0}}
+@media(max-width:600px){.story-screen{padding:10px}.story-panel{padding:16px}.story-stage-grid{gap:5px}.story-stage-card{padding:10px 3px;font-size:12px}.story-dialogue{padding:13px}}
+
 </style>
 <style id="admin-abuse-zigzag-fix">
 @keyframes adminAbuseZigzag {
@@ -4176,11 +4218,53 @@ body {
         <button onclick="selectNormalMap()">通常マップで遊ぶ</button>
         <button class="map-tutorial-button" onclick="askMapTutorial('normal')">📘 チュートリアル</button>
       </div>
-      <div class="map-option map-story-option" id="storyModeOption"><h2>📖 ストーリーモード</h2><p>謎解き・戦闘・探索の新しい冒険</p><span class="map-lock-label">🚧 準備中</span><button type="button" id="storyModeOpen" disabled>近日公開</button></div>
+      <div class="map-option map-story-option" id="storyModeOption"><h2>📖 ストーリーモード</h2><p>謎解き・戦闘・探索の新しい冒険</p><span class="map-lock-label">🌌 第1ワールド制作中</span><button type="button" id="storyModeOpen" onclick="openStoryWorlds()">ストーリーを見る</button></div>
     </div>
   </div>
 </div>
 <div id="mapTutorialConfirm" class="hidden" role="dialog" aria-modal="true"><div class="map-confirm-card"><h2>📘 チュートリアル</h2><p>チュートリアルを見ますか？</p><button onclick="confirmMapTutorial(true)">はい</button><button onclick="confirmMapTutorial(false)">いいえ</button></div></div>
+
+<div id="storyWorldScreen" class="story-screen hidden" aria-label="ストーリーワールド選択">
+  <div class="story-panel">
+    <h1>🌌 ストーリーモード</h1>
+    <p>ぶつかり始めた世界を巡り、その謎を解き明かそう。</p>
+    <div class="story-world-grid">
+      <div class="story-world-card available"><h2>🌍 第1ワールド</h2><h3>惑星衝突の謎</h3><p>全5ステージ</p><button type="button" onclick="openStoryStages()">ワールドに入る</button></div>
+      <div class="story-world-card"><h2>🌿 第2ワールド</h2><p>？？？</p><button type="button" disabled>未解放</button></div>
+      <div class="story-world-card"><h2>⚙️ 第3ワールド</h2><p>？？？</p><button type="button" disabled>未解放</button></div>
+      <div class="story-world-card"><h2>🌊 第4ワールド</h2><p>？？？</p><button type="button" disabled>未解放</button></div>
+      <div class="story-world-card"><h2>🌑 第5ワールド</h2><p>？？？</p><button type="button" disabled>未解放</button></div>
+    </div>
+    <button type="button" class="story-action story-back" onclick="closeStoryScreens()">マップ選択に戻る</button>
+  </div>
+</div>
+<div id="storyStageScreen" class="story-screen hidden" aria-label="第1ワールドのステージ選択">
+  <div class="story-panel">
+    <h1>🌍 第1ワールド：惑星衝突の謎</h1>
+    <p>惑星の異変を調査する主人公を待ち受けるものとは……。</p>
+    <div class="story-stage-grid" id="storyStageGrid"></div>
+    <p id="storyProgressText" aria-live="polite"></p>
+    <button type="button" class="story-action story-back" onclick="openStoryWorlds()">ワールド選択に戻る</button>
+  </div>
+</div>
+<div id="storyEpisodeScreen" class="story-screen hidden" aria-label="1-1 異変の始まり">
+  <div class="story-panel">
+    <h1>1-1「異変の始まり」</h1>
+    <div class="story-scene" id="storyScene">
+      <div class="story-stars"></div><div class="story-planet story-planet-a"></div><div class="story-planet story-planet-b"></div><div class="story-meteor"></div>
+      <div class="scene-caption" id="storySceneCaption">宇宙観測ステーション</div>
+    </div>
+    <div class="story-dialogue">
+      <div class="story-dialogue-name" id="storyDialogueName">ナレーション</div>
+      <div class="story-dialogue-text" id="storyDialogueText"></div>
+    </div>
+    <div class="story-dialogue-controls">
+      <button type="button" class="story-back" onclick="exitStoryEpisode()">中断する</button>
+      <button type="button" id="storyNextLineBtn" onclick="advanceStoryLine()">次へ ▶</button>
+    </div>
+  </div>
+</div>
+
 <div id="draw" class="hidden">
   <h2>狙う武器を選択して描こう！</h2>
   <button id="gearBtn" title="キー設定">⚙️</button>
@@ -4938,6 +5022,52 @@ function setRankPointTableForMap(){const overlay=document.getElementById("rankPo
 function selectNormalMap(){window.halloweenWaveActive=false;window.halloweenWaveTestRequested=false;setRankPointTableForMap();setScreen("draw");redrawCanvas();}
 function askMapTutorial(map){pendingMapTutorial=map;document.getElementById("mapTutorialConfirm").classList.remove("hidden");}
 function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").classList.add("hidden");if(!yes){setScreen("mapSelect");return;}if(pendingMapTutorial==="normal")setScreen("tutorialChoice");}
+
+/* Story mode - World 1 opening episode */
+(function(){
+  const $story=id=>document.getElementById(id);
+  const storyLines=[
+    {name:"ナレーション",text:"主人公は、宇宙にある惑星を観察・研究する仕事をしていた。",scene:"宇宙観測ステーション",mode:""},
+    {name:"主人公",text:"観測データは正常……。今日もいつも通りの観察になりそうだ。",scene:"観測中の惑星",mode:""},
+    {name:"主人公",text:"……ん？ あの惑星、軌道がずれている？",scene:"惑星に起きた異変",mode:""},
+    {name:"ナレーション",text:"画面の向こうで、離れていた惑星同士が少しずつ近づき始めた。",scene:"近づく2つの惑星",mode:"collision"},
+    {name:"主人公",text:"そんなはずない！ 惑星同士が……ぶつかろうとしている！？",scene:"惑星衝突の兆候",mode:"collision"},
+    {name:"ニュース",text:"臨時ニュースです。現在、地球各地に複数の隕石が落下しているとの情報が入っています。",scene:"地球に落下する隕石",mode:"news"},
+    {name:"主人公",text:"地球にも隕石が？ 惑星の異変と関係があるのか……。",scene:"地球の異変",mode:"earth"},
+    {name:"主人公",text:"観測室で見ているだけじゃ何もわからない。現地へ行って確かめよう！",scene:"調査へ出発",mode:"earth"}
+  ];
+  let storyLineIndex=0;
+  function hideStory(id){const el=$story(id);if(el)el.classList.add("hidden");}
+  function showStory(id){const el=$story(id);if(el)el.classList.remove("hidden");}
+  window.openStoryWorlds=function(){hideStory("storyStageScreen");hideStory("storyEpisodeScreen");showStory("storyWorldScreen");};
+  window.openStoryStages=function(){hideStory("storyWorldScreen");hideStory("storyEpisodeScreen");renderStoryStages();showStory("storyStageScreen");};
+  window.closeStoryScreens=function(){hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");const map=$story("mapSelect");if(map)map.classList.remove("hidden");};
+  function getStoryProgress(){try{return Math.max(1,Math.min(5,Number(localStorage.getItem("storyWorld1Unlocked")||1)));}catch(e){return 1;}}
+  function getStoryCleared(){try{return localStorage.getItem("storyWorld1Stage1Cleared")==="1";}catch(e){return false;}}
+  function renderStoryStages(){
+    const grid=$story("storyStageGrid");if(!grid)return;grid.innerHTML="";
+    const unlocked=getStoryProgress(),cleared=getStoryCleared();
+    for(let i=1;i<=5;i++){
+      const available=i===1,done=i===1&&cleared;
+      const card=document.createElement("div");card.className="story-stage-card"+(done?" cleared":available?" unlocked":"");
+      const title=document.createElement("strong");title.textContent="1-"+i;card.appendChild(title);
+      const status=document.createElement("div");status.style.fontSize="12px";status.style.marginTop="5px";status.textContent=done?"✅ クリア":available?"プレイ可能":"🔒 未解放";card.appendChild(status);
+      const btn=document.createElement("button");btn.type="button";btn.textContent=i===1?(done?"もう一度見る":"プレイ"):"制作中";btn.disabled=i!==1; if(i===1)btn.addEventListener("click",startStoryEpisode);card.appendChild(btn);grid.appendChild(card);
+    }
+    const progress=$story("storyProgressText");if(progress)progress.textContent=cleared?"1-1クリア！次のステージは制作中です。":"まずは1-1「異変の始まり」をプレイしよう。";
+  }
+  function startStoryEpisode(){storyLineIndex=0;hideStory("storyStageScreen");showStory("storyEpisodeScreen");renderStoryLine();}
+  window.advanceStoryLine=function(){if(storyLineIndex<storyLines.length-1){storyLineIndex++;renderStoryLine();return;}try{localStorage.setItem("storyWorld1Stage1Cleared","1");localStorage.setItem("storyWorld1Unlocked","2");}catch(e){}hideStory("storyEpisodeScreen");renderStoryStages();showStory("storyStageScreen");};
+  window.exitStoryEpisode=function(){hideStory("storyEpisodeScreen");renderStoryStages();showStory("storyStageScreen");};
+  function renderStoryLine(){
+    const line=storyLines[storyLineIndex];if(!line)return;
+    const name=$story("storyDialogueName"),text=$story("storyDialogueText"),scene=$story("storyScene"),caption=$story("storySceneCaption"),next=$story("storyNextLineBtn");
+    if(name)name.textContent=line.name;if(text)text.textContent=line.text;if(caption)caption.textContent=line.scene;
+    if(scene)scene.className="story-scene "+(line.mode||"");
+    if(next)next.textContent=storyLineIndex===storyLines.length-1?"1-1をクリア ▶":"次へ ▶";
+  }
+})();
+
 function goDraw() {
   setScreen('draw');
   redrawCanvas();

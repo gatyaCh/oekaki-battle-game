@@ -10813,6 +10813,28 @@ body.special-code-open #adminAbuseDialogue.active{
 })();
 </script>
 
+<style id="story-12-pure-grassland-fix">
+/* 1-2は街のシルエットを一切使わず、草原だけの背景に固定 */
+#storyIntroScene.story-intro-scene.scene-grassland {
+  background-color:#78b9e8!important;
+  background-image:
+    radial-gradient(ellipse at 18% 23%,rgba(255,255,255,.72) 0 3%,transparent 19%),
+    radial-gradient(ellipse at 78% 18%,rgba(255,255,255,.48) 0 2%,transparent 15%),
+    linear-gradient(180deg,transparent 0 48%,#a8d67a 49% 62%,#80bd55 63% 76%,#4d873b 77% 100%)!important;
+  background-size:cover!important;
+  background-position:center!important;
+}
+#storyIntroScene.story-intro-scene.scene-grassland::before,
+#storyIntroScene.story-intro-scene.scene-grassland::after {
+  content:none!important;
+  display:none!important;
+  background:none!important;
+  box-shadow:none!important;
+}
+#storyIntroScene.story-intro-scene.scene-grassland .story-intro-stars {
+  opacity:0!important;
+}
+</style>
 </body>
 </html>
 

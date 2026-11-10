@@ -3778,6 +3778,39 @@ progress {
 @media (prefers-reduced-motion: reduce) {
   button { transition: none; }
 }
+
+/* Story battle cinematic + action feedback */
+.story-intro{position:fixed;inset:0;z-index:15040;display:flex;align-items:center;justify-content:center;padding:18px;background:radial-gradient(ellipse at center,#182b3e 0%,#050a13 78%);color:#fff}
+.story-intro.hidden{display:none!important}.story-intro-card{width:min(760px,96vw);padding:18px;border:1px solid #64748b;border-radius:18px;background:#111c2d;box-shadow:0 18px 70px #000b;text-align:center}
+.story-intro-scene{height:clamp(190px,34vh,300px);position:relative;overflow:hidden;border-radius:12px;background:linear-gradient(#08152d 0 65%,#416b3c 65% 100%)}
+.story-intro-stars{position:absolute;inset:0;background-image:radial-gradient(#fff 1px,transparent 1.5px);background-size:37px 31px;opacity:.65}
+.story-intro-meteor{position:absolute;left:70%;top:-30%;font-size:58px;filter:drop-shadow(0 0 14px #ff9b39);transform:rotate(25deg)}
+.story-intro-scene.impact .story-intro-meteor{animation:storyMeteorDrop .9s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes storyMeteorDrop{to{left:42%;top:54%;transform:rotate(25deg) scale(1.5)}}
+.story-intro-scene.impact:after{content:"";position:absolute;inset:0;background:#fff;animation:storyImpactFlash .55s ease-out}
+@keyframes storyImpactFlash{0%{opacity:.95}100%{opacity:0}}
+.story-intro-black{position:absolute;left:50%;bottom:18%;font-size:0;opacity:0}
+.story-intro-scene.emerge .story-intro-black{font-size:74px;opacity:1;animation:storyBlackRise 1s ease-out}
+@keyframes storyBlackRise{0%{transform:translate(-50%,70px) scale(.2);filter:blur(12px)}100%{transform:translate(-50%,0) scale(1);filter:blur(0)}}
+.story-intro-dialogue{margin:14px 0 8px;min-height:76px;padding:13px;border-radius:10px;background:#24344b;text-align:left;line-height:1.7}
+.story-intro-name{font-weight:900;color:#93c5fd;margin-bottom:4px}
+.story-intro-controls{display:flex;justify-content:space-between;gap:10px}.story-intro-controls button{padding:11px 18px}
+.story-fx{position:absolute;z-index:8;left:50%;top:42%;transform:translate(-50%,-50%);font-size:clamp(24px,5vw,42px);font-weight:1000;color:#fff;text-shadow:0 3px 8px #000,0 0 14px #fff;pointer-events:none;white-space:nowrap;animation:storyFxPop .95s ease-out forwards}
+@keyframes storyFxPop{0%{opacity:0;transform:translate(-50%,20px) scale(.65)}18%{opacity:1;transform:translate(-50%,0) scale(1.12)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-48px) scale(.95)}}
+.story-battle-actor.anim-attack{animation:storyActorAttack .38s ease}
+.story-battle-actor.anim-hit{animation:storyActorHit .35s ease}
+.story-battle-actor.anim-heal{animation:storyActorHeal .65s ease}
+.story-battle-actor.anim-defend{animation:storyActorDefend .55s ease}
+.story-battle-actor.anim-dodge{animation:storyActorDodge .45s ease}
+@keyframes storyActorAttack{50%{transform:translateX(25px) scale(1.15)}}
+@keyframes storyActorHit{25%{transform:translateX(-8px);filter:brightness(2)}}
+@keyframes storyActorHeal{50%{transform:translateY(-12px);filter:drop-shadow(0 0 14px #4ade80)}}
+@keyframes storyActorDefend{50%{filter:drop-shadow(0 0 16px #60a5fa);transform:scale(1.08)}}
+@keyframes storyActorDodge{50%{transform:translateX(25px);opacity:.45}}
+.story-battle-actor .actor-status{font-size:11px;font-weight:900;color:#fff;background:#172033eF;padding:3px 6px;border-radius:7px;min-height:18px}
+.story-battle-log{white-space:pre-line;max-height:112px;overflow:auto}
+@media(max-width:600px){.story-intro-card{padding:10px}.story-intro-dialogue{font-size:14px;min-height:84px}.story-intro-controls button{padding:9px 12px}}
+
 </style>
 
 <style id="gear-scroll-visibility-fix">
@@ -4299,6 +4332,15 @@ body {
 </div>
 
 <div id="storyBattleScreen" class="story-screen hidden" aria-label="ストーリーモード戦闘">
+
+ <div id="storyIntro" class="story-intro hidden" role="dialog" aria-modal="true" aria-label="1-2 オープニング">
+  <div class="story-intro-card">
+   <h2>1-2「黒い何か」</h2>
+   <div id="storyIntroScene" class="story-intro-scene"><div class="story-intro-stars"></div><div class="story-intro-meteor">☄️</div><div class="story-intro-black">🌑</div></div>
+   <div class="story-intro-dialogue"><div id="storyIntroName" class="story-intro-name">ナレーション</div><div id="storyIntroText">草原を冒険していると……。</div></div>
+   <div class="story-intro-controls"><button type="button" id="storyIntroSkip">スキップ</button><button type="button" id="storyIntroNext">次へ ▶</button></div>
+  </div>
+ </div>
  <div class="story-battle-panel">
   <div class="story-battle-top"><div><h1 id="storyBattleTitle">1-2「黒い何か」</h1><p id="storyBattleSubtitle">草原に現れた黒い敵を倒そう</p></div><div class="story-battle-hp"><strong>プレイヤー HP <span id="storyPlayerHpText">300 / 300</span></strong><div class="story-battle-hpbar"><div id="storyPlayerHpBar" class="story-battle-hpfill" style="width:100%"></div></div></div></div>
   <div id="storyBattleArena" class="story-battle-arena grass"><div class="story-battle-arena-hint" id="storyBattleHint">敵を選んで攻撃しよう</div><div class="story-battle-actor player"><div class="actor-emoji">🧑‍🚀</div><div class="actor-name">主人公</div></div><div id="storyBattleEnemies" style="position:relative;z-index:2;display:flex;align-items:flex-end;justify-content:space-around;gap:8px;width:70%;height:100%"></div></div>
@@ -10469,72 +10511,118 @@ body.special-code-open #adminAbuseDialogue.active{
  "1-4":{title:"1-4「広がる黒い影」",subtitle:"黒い影に覆われた街で敵を食い止めよう",scene:"town",enemies:[["黒い敵①",150,10],["黒い敵②",150,10],["大型の黒い敵",400,40]]}
  };
  const prompts={attack:"お題：剣を描こう！",dodge:"お題：翼を描こう！",defend:"お題：盾を描こう！",heal:"お題：回復の薬を描こう！"};
- let stage="",hp=300,enemies=[],target=0,action="",strokes=[],drawing=false,last=null;
+ const introLines=[
+ ["ナレーション","主人公が草原を冒険していると、突然、空がまぶしく光り始めた。",""],
+ ["主人公","えっ……あれは隕石！？こっちに落ちてくる！","impact"],
+ ["ナレーション","大きな音とともに、隕石が目の前に落下した。","impact"],
+ ["主人公","これは調査する価値がありそうだ。研究のために持ち帰ろう。",""],
+ ["ナレーション","主人公が隕石に近づいた、そのとき……。",""],
+ ["主人公","な、何か出てくる……！？","emerge"],
+ ["ナレーション","隕石の中から、正体不明の黒い何かが姿を現した！","emerge"],
+ ["主人公","いったい何なんだ……！応戦するしかない！","emerge"]
+ ];
+ let stage="",hp=300,enemies=[],target=0,action="",strokes=[],drawing=false,last=null,introIndex=0,playerGuard=0,playerDodge=0,turnBusy=false;
  const c=$("storyDrawCanvas"),g=c?.getContext("2d");
  function log(t){$("storyBattleLog").textContent=t}
+ function fx(text,kind){const arena=$("storyBattleArena");let el=document.createElement("div");el.className="story-fx";el.textContent=text;arena.appendChild(el);setTimeout(()=>el.remove(),1000);const player=arena.querySelector(".story-battle-actor.player");if(player&&kind){player.classList.remove("anim-"+kind);void player.offsetWidth;player.classList.add("anim-"+kind);setTimeout(()=>player.classList.remove("anim-"+kind),700)}}
+ function enemyFx(i,text,kind){const el=$("storyBattleEnemies").children[i];if(!el)return;const tag=document.createElement("div");tag.className="story-fx";tag.textContent=text;el.appendChild(tag);el.classList.remove("anim-"+kind);void el.offsetWidth;el.classList.add("anim-"+kind);setTimeout(()=>{tag.remove();el.classList.remove("anim-"+kind)},1000)}
  function render(){
   $("storyPlayerHpText").textContent=hp+" / 300";$("storyPlayerHpBar").style.width=(hp/300*100)+"%";
   const root=$("storyBattleEnemies");root.innerHTML="";
   enemies.forEach((e,i)=>{const d=document.createElement("div");d.className="story-battle-actor"+(e.hp<=0?" dead":i===target?" target":"");
-   d.innerHTML='<div class="actor-emoji">'+(stage==="1-4"&&i===2?"👹":"🌑")+'</div><div class="actor-name"></div><div class="actor-hp"><span></span></div><small></small>';
-   d.querySelector(".actor-name").textContent=e.name;d.querySelector(".actor-hp span").style.width=Math.max(0,e.hp/e.max*100)+"%";d.querySelector("small").textContent="HP "+Math.max(0,e.hp)+"/"+e.max;
+   d.innerHTML='<div class="actor-emoji">'+(stage==="1-4"&&i===2?"👹":"🌑")+'</div><div class="actor-name"></div><div class="actor-hp"><span></span></div><small></small><div class="actor-status"></div>';
+   d.querySelector(".actor-name").textContent=e.name;d.querySelector(".actor-hp span").style.width=Math.max(0,e.hp/e.max*100)+"%";d.querySelector("small").textContent="HP "+Math.max(0,e.hp)+"/"+e.max;d.querySelector(".actor-status").textContent=e.hp>0?(e.guard?"🛡️ 防御中":e.dodge?"💨 回避態勢":""):"";
    if(e.hp>0)d.onclick=()=>{target=i;render()};root.appendChild(d);
   });
-  document.querySelectorAll(".story-battle-commands button").forEach(b=>b.disabled=hp<=0||enemies.every(e=>e.hp<=0)||$("storyDrawPanel").classList.contains("active"));
+  document.querySelectorAll(".story-battle-commands button").forEach(b=>b.disabled=hp<=0||enemies.every(e=>e.hp<=0)||$("storyDrawPanel").classList.contains("active")||turnBusy);
  }
- window.startStoryBattle=function(id){
-  if(!cfg[id])return;
-  stage=id;hp=300;target=0;enemies=cfg[id].enemies.map(e=>({name:e[0],hp:e[1],max:e[1],attack:e[2]}));
-  $("storyBattleTitle").textContent=cfg[id].title;$("storyBattleSubtitle").textContent=cfg[id].subtitle;
-  $("storyBattleArena").className="story-battle-arena "+cfg[id].scene;
-  $("storyDrawPanel").classList.remove("active");$("storyBattleResult").textContent="";
+ function beginBattle(){
+  $("storyIntro").classList.add("hidden");$("storyBattleTitle").textContent=cfg[stage].title;$("storyBattleSubtitle").textContent=cfg[stage].subtitle;
+  $("storyBattleArena").className="story-battle-arena "+cfg[stage].scene;$("storyDrawPanel").classList.remove("active");$("storyBattleResult").textContent="";
+  log("戦闘開始！敵を選んで行動しよう。");render();
+ }
+ function showIntroLine(){
+  const line=introLines[introIndex];$("storyIntroName").textContent=line[0];$("storyIntroText").textContent=line[1];
+  const scene=$("storyIntroScene");scene.classList.remove("impact","emerge");if(line[2]){void scene.offsetWidth;scene.classList.add(line[2])}
+  $("storyIntroNext").textContent=introIndex===introLines.length-1?"⚔️ 戦闘開始！":"次へ ▶";
+ }
+ function advanceIntro(){if(introIndex<introLines.length-1){introIndex++;showIntroLine()}else beginBattle()}
+ function start(id){
+  if(!cfg[id])return;stage=id;hp=300;target=0;playerGuard=0;playerDodge=0;turnBusy=false;
+  enemies=cfg[id].enemies.map(e=>({name:e[0],hp:e[1],max:e[1],attack:e[2],guard:0,dodge:0}));
   $("storyBattleScreen").classList.remove("hidden");$("storyStageScreen").classList.add("hidden");
-  log("戦闘開始！敵を選んで攻撃しよう。");render();
- };
+  if(id==="1-2"){introIndex=0;$("storyIntro").classList.remove("hidden");showIntroLine()}else beginBattle();
+ }
+ window.startStoryBattle=start;
  function clearCanvas(){g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);g.strokeStyle="#172033";g.lineWidth=7;g.lineCap="round";g.lineJoin="round";strokes=[]}
  function pos(e){const r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*c.width/r.width,y:(e.clientY-r.top)*c.height/r.height}}
  c.addEventListener("pointerdown",e=>{if(!$("storyDrawPanel").classList.contains("active"))return;e.preventDefault();drawing=true;last=pos(e);strokes.push([last]);c.setPointerCapture(e.pointerId)});
  c.addEventListener("pointermove",e=>{if(!drawing)return;e.preventDefault();const p=pos(e);g.beginPath();g.moveTo(last.x,last.y);g.lineTo(p.x,p.y);g.stroke();strokes[strokes.length-1].push(p);last=p});
  ["pointerup","pointercancel"].forEach(x=>c.addEventListener(x,()=>{drawing=false;last=null}));
  document.querySelectorAll(".story-battle-commands button").forEach(b=>b.addEventListener("click",()=>{
+  if(turnBusy||hp<=0||enemies.every(e=>e.hp<=0))return;
   action=b.dataset.action;$("storyDrawPrompt").textContent=prompts[action];$("storyDrawResult").textContent="";$("storyDrawPanel").classList.add("active");clearCanvas();render();$("storyDrawPanel").scrollIntoView({behavior:"smooth",block:"nearest"});
  }));
  $("storyDrawClear").onclick=clearCanvas;
  $("storyDrawCancel").onclick=()=>{$("storyDrawPanel").classList.remove("active");render()};
- function enemyTurn(dodge,cut){
-  const total=enemies.filter(e=>e.hp>0).reduce((n,e)=>n+e.attack,0);
-  if(Math.random()*100<dodge)return "敵全員の攻撃を回避！";
-  const damage=Math.max(1,Math.ceil(total*(1-cut/100)));hp=Math.max(0,hp-damage);
-  return "敵全員から"+total+"攻撃、"+damage+"ダメージを受けた。";
+ function enemyTurn(){
+  const messages=[];
+  for(let i=0;i<enemies.length;i++){
+   const e=enemies[i];if(e.hp<=0)continue;
+   e.guard=0;e.dodge=0;
+   const roll=Math.random();
+   if(e.hp<=e.max*.65&&roll<.24){
+    const amount=Math.min(21,e.max-e.hp);e.hp+=amount;enemyFx(i,"💚 +"+amount,"heal");messages.push(e.name+"は回復！HPが"+amount+"回復した。");
+   }else if(roll<.43){
+    e.guard=28;enemyFx(i,"🛡️ 防御！","defend");messages.push(e.name+"は防御態勢！次の攻撃を28%軽減する。");
+   }else if(roll<.58){
+    e.dodge=35;enemyFx(i,"💨 回避準備！","dodge");messages.push(e.name+"は回避態勢！次の攻撃を35%で回避する。");
+   }else{
+    if(playerDodge>0&&Math.random()*100<playerDodge){fx("💨 回避成功！","dodge");messages.push(e.name+"の攻撃を回避した！");}
+    else{
+     let damage=e.attack;if(playerGuard>0)damage=Math.ceil(damage*(1-playerGuard/100));
+     hp=Math.max(0,hp-damage);fx("💥 -"+damage+" HP","hit");messages.push(e.name+"が攻撃！"+damage+"ダメージ。");
+    }
+   }
+  }
+  playerGuard=0;playerDodge=0;return messages;
  }
  function finish(){
   render();
   if(enemies.every(e=>e.hp<=0)){
    log("勝利！ "+stage+"クリア！");$("storyBattleResult").textContent="🎉 ステージクリア！";
    try{localStorage.setItem(stage==="1-2"?"story12Cleared":"story14Cleared","1")}catch(e){}
-   return;
+   return true;
   }
-  if(hp<=0){log("HPが0になった。ステージをやり直そう。");$("storyBattleResult").textContent="敗北";return}
+  if(hp<=0){log("HPが0になった。ステージをやり直そう。");$("storyBattleResult").textContent="敗北";return true}
+  return false;
  }
  $("storyDrawJudge").onclick=()=>{
-  const points=strokes.flat(),count=strokes.length;
-  if(!points.length){$("storyDrawResult").textContent="先に絵を描いてね！";return}
+  if(turnBusy)return;
+  const points=strokes.flat(),count=strokes.length;if(!points.length){$("storyDrawResult").textContent="先に絵を描いてね！";return}
   const xs=points.map(p=>p.x),ys=points.map(p=>p.y);
   const area=Math.min(1,((Math.max(...xs)-Math.min(...xs))*(Math.max(...ys)-Math.min(...ys)))/(c.width*c.height*.34));
   const score=Math.min(100,Math.round(area*35+Math.min(1,points.length/85)*35+Math.min(1,count/5)*30));
   const grade=score>=82?"S":score>=65?"A":score>=45?"B":score>=22?"C":"D";
-  let msg="";
+  let msg="【あなたの行動】";
   if(action==="attack"){
    const e=enemies[target]&&enemies[target].hp>0?enemies[target]:enemies.find(e=>e.hp>0);
-   if(e){const bonus=Math.round(score*.3),dmg=25+bonus;e.hp=Math.max(0,e.hp-dmg);msg=e.name+"に"+dmg+"ダメージ（基本25＋ボーナス"+bonus+"）。";}
-   msg+=enemyTurn(0,0);
-  }else if(action==="dodge"){const chance=Math.min(100,50+Math.round(score*.5));msg="回避率"+chance+"%。"+enemyTurn(chance,0)}
-  else if(action==="defend"){const cut=Math.min(70,40+Math.round(score*.3));msg="ダメージを"+cut+"%カット。"+enemyTurn(0,cut)}
-  else{const amount=Math.min(70,30+Math.round(score*.4)),before=hp;hp=Math.min(300,hp+amount);msg=(hp-before)+"回復。"+enemyTurn(0,0)}
-  $("storyDrawResult").textContent=grade+"評価（"+score+"点）";$("storyBattleResult").textContent=msg;
-  $("storyDrawPanel").classList.remove("active");log(msg);finish();
+   if(e){const bonus=Math.round(score*.3),base=25+bonus;
+    if(e.dodge>0&&Math.random()*100<e.dodge){msg+="\n"+e.name+"は攻撃を回避した！";enemyFx(target,"💨 回避！","dodge")}
+    else{const damage=Math.max(1,Math.ceil(base*(1-(e.guard||0)/100)));e.hp=Math.max(0,e.hp-damage);msg+="\n"+e.name+"に"+damage+"ダメージ！"+(e.guard?"（防御で軽減）":"");enemyFx(target,"⚔️ -"+damage,"hit")}
+    e.guard=0;e.dodge=0;fx("⚔️ 攻撃！","attack");
+   }
+  }else if(action==="dodge"){playerDodge=Math.min(100,50+Math.round(score*.5));fx("💨 回避態勢！","dodge");msg+="\n回避率"+playerDodge+"%で敵の攻撃に備える！"}
+  else if(action==="defend"){playerGuard=Math.min(70,40+Math.round(score*.3));fx("🛡️ 防御！","defend");msg+="\n次の敵の攻撃を"+playerGuard+"%軽減！"}
+  else{const amount=Math.min(70,30+Math.round(score*.4)),before=hp;hp=Math.min(300,hp+amount);const actual=hp-before;fx("💚 +"+actual+" 回復！","heal");msg+="\nHPが"+actual+"回復した！"}
+  $("storyDrawResult").textContent=grade+"評価（"+score+"点）";
+  $("storyDrawPanel").classList.remove("active");turnBusy=true;render();
+  if(finish()){turnBusy=false;return}
+  const enemyMessages=enemyTurn();msg+="\n\n【敵の行動】\n"+(enemyMessages.join("\n")||"敵は行動できない。");
+  log(msg);$("storyBattleResult").textContent=msg;render();turnBusy=false;finish();
  };
- $("storyBattleExit").onclick=()=>{ $("storyBattleScreen").classList.add("hidden");$("storyStageScreen").classList.remove("hidden");if(window.openStoryStages)window.openStoryStages()};
+ $("storyIntroNext").onclick=advanceIntro;$("storyIntroSkip").onclick=beginBattle;
+ $("storyBattleExit").onclick=()=>{$("storyBattleScreen").classList.add("hidden");$("storyIntro").classList.add("hidden");$("storyStageScreen").classList.remove("hidden");if(window.openStoryStages)window.openStoryStages()};
 })();
 </script>
 

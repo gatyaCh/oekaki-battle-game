@@ -10707,7 +10707,7 @@ body.special-code-open #adminAbuseDialogue.active{
   const scene=$("storyIntroScene");
   const sceneGroup=line[3]||(stage==="1-4"?"citywide":"grassland");
   scene.className="story-intro-scene scene-"+sceneGroup;
-  if(stage==="1-4")scene.classList.add("city-intro");
+  if(stage==="1-4"&&["citywide","approach","encounter"].includes(sceneGroup))scene.classList.add("city-intro");
   if(line[2]){void scene.offsetWidth;scene.classList.add(line[2])}
   $("storyIntroNext").textContent=introIndex===introLines.length-1?"⚔️ 戦闘開始！":"次へ ▶";
  }

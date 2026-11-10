@@ -10606,11 +10606,25 @@ body.special-code-open #adminAbuseDialogue.active{
   const grade=score>=82?"S":score>=65?"A":score>=45?"B":score>=22?"C":"D";
   let msg="【あなたの行動】";
   if(action==="attack"){
-   const e=enemies[target]&&enemies[target].hp>0?enemies[target]:enemies.find(e=>e.hp>0);
-   if(e){const bonus=Math.round(score*.3),base=25+bonus;
-    if(e.dodge>0&&Math.random()*100<e.dodge){msg+="\n"+e.name+"は攻撃を回避した！";enemyFx(target,"💨 回避！","dodge")}
-    else{const damage=Math.max(1,Math.ceil(base*(1-(e.guard||0)/100)));e.hp=Math.max(0,e.hp-damage);msg+="\n"+e.name+"に"+damage+"ダメージ！"+(e.guard?"（防御で軽減）":"");enemyFx(target,"⚔️ -"+damage,"hit")}
-    e.guard=0;e.dodge=0;fx("⚔️ 攻撃！","attack");
+   const alive=enemies.map((e,i)=>({e,i})).filter(x=>x.e.hp>0);
+   if(alive.length){
+    const totalPower=25+Math.round(score*.3);
+    const share=Math.floor(totalPower/alive.length),remainder=totalPower%alive.length;
+    msg+="\n攻撃力"+totalPower+"を敵"+alive.length+"体に分配！";
+    alive.forEach(({e,i},n)=>{
+     const allocated=share+(n<remainder?1:0);
+     if(e.dodge>0&&Math.random()*100<e.dodge){
+      msg+="\n"+e.name+"は攻撃を回避！";
+      enemyFx(i,"💨 回避！","dodge");
+     }else{
+      const damage=Math.max(1,Math.ceil(allocated*(1-(e.guard||0)/100)));
+      e.hp=Math.max(0,e.hp-damage);
+      msg+="\n"+e.name+"に"+damage+"ダメージ！"+(e.guard?"（防御で軽減）":"");
+      enemyFx(i,"⚔️ -"+damage,"hit");
+     }
+     e.guard=0;e.dodge=0;
+    });
+    fx("⚔️ 全体攻撃！","attack");
    }
   }else if(action==="dodge"){playerDodge=Math.min(100,50+Math.round(score*.5));fx("💨 回避態勢！","dodge");msg+="\n回避率"+playerDodge+"%で敵の攻撃に備える！"}
   else if(action==="defend"){playerGuard=Math.min(70,40+Math.round(score*.3));fx("🛡️ 防御！","defend");msg+="\n次の敵の攻撃を"+playerGuard+"%軽減！"}

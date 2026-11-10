@@ -10503,7 +10503,14 @@ body.special-code-open #adminAbuseDialogue.active{
 }
 </style>
 
-<style id="story-14-cinematic-style">
+<style id="story-14-cinematic-reliability">
+.story-intro{z-index:2147483000!important}
+.story-intro-scene.city-intro:before{animation:storyCityRise .9s cubic-bezier(.2,.8,.2,1) both}
+@keyframes storyCityRise{0%{transform:translateY(65%);opacity:.15}100%{transform:translateY(0);opacity:1}}
+.story-intro-scene.city-intro.reveal:after{animation:storyShadowSpread 1.35s ease-out both,storyShadowPulse 1.8s ease-in-out 1.35s infinite alternate}
+@keyframes storyShadowPulse{from{filter:brightness(.7);transform:translate(-50%,-50%) scale(.92)}to{filter:brightness(1.5);transform:translate(-50%,-50%) scale(1.08)}}
+.story-intro-scene.city-intro.reveal .story-intro-black{z-index:3}
+</style><style id="story-14-cinematic-style">
 .story-intro-scene.city-intro{background:linear-gradient(#202b43 0 58%,#33394a 58% 100%)}
 .story-intro-scene.city-intro:before{content:"";position:absolute;left:0;right:0;bottom:0;height:58%;background:linear-gradient(90deg,#111827 0 9%,transparent 9% 13%,#1f2937 13% 24%,transparent 24% 29%,#111827 29% 43%,transparent 43% 48%,#263449 48% 61%,transparent 61% 67%,#111827 67% 81%,transparent 81% 86%,#202b3d 86% 100%);clip-path:polygon(0 24%,8% 24%,8% 0,17% 0,17% 34%,28% 34%,28% 8%,39% 8%,39% 28%,50% 28%,50% 0,62% 0,62% 35%,73% 35%,73% 12%,84% 12%,84% 0,100% 0,100% 100%,0 100%)}
 .story-intro-scene.city-intro .story-intro-meteor{display:none}
@@ -10561,7 +10568,7 @@ body.special-code-open #adminAbuseDialogue.active{
   document.querySelectorAll(".story-battle-commands button").forEach(b=>b.disabled=hp<=0||enemies.every(e=>e.hp<=0)||$("storyDrawPanel").classList.contains("active")||turnBusy);
  }
  function beginBattle(){
-  $("storyIntro").classList.add("hidden");$("storyBattleTitle").textContent=cfg[stage].title;$("storyBattleSubtitle").textContent=cfg[stage].subtitle;
+  $("storyIntro").classList.add("hidden");$("storyIntro").style.display="none";$("storyBattleTitle").textContent=cfg[stage].title;$("storyBattleSubtitle").textContent=cfg[stage].subtitle;
   $("storyBattleArena").className="story-battle-arena "+cfg[stage].scene;$("storyDrawPanel").classList.remove("active");$("storyBattleResult").textContent="";
   log("戦闘開始！敵を選んで行動しよう。");render();
  }
@@ -10579,8 +10586,10 @@ body.special-code-open #adminAbuseDialogue.active{
   $("storyBattleScreen").classList.remove("hidden");$("storyStageScreen").classList.add("hidden");
   if(id==="1-2"||id==="1-4"){
    introLines=introLinesByStage[id];introIndex=0;
-   $("storyIntro").classList.remove("hidden");
-   $("storyIntro").querySelector("h2").textContent=cfg[id].title;
+   const intro=$("storyIntro");
+   if(intro.parentElement!==document.body)document.body.appendChild(intro);
+   intro.classList.remove("hidden");intro.style.display="flex";intro.style.visibility="visible";
+   intro.querySelector("h2").textContent=cfg[id].title;
    $("storyIntro").setAttribute("aria-label",cfg[id].title+" オープニング");
    showIntroLine();
   }else beginBattle();

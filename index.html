@@ -4218,12 +4218,22 @@ body {
         <button onclick="selectNormalMap()">通常マップで遊ぶ</button>
         <button class="map-tutorial-button" onclick="askMapTutorial('normal')">📘 チュートリアル</button>
       </div>
-      <div class="map-option map-story-option" id="storyModeOption"><h2>📖 ストーリーモード</h2><p>謎解き・戦闘・探索の新しい冒険</p><span class="map-lock-label">🌌 第1ワールド制作中</span><button type="button" id="storyModeOpen" onclick="openStoryWorlds()">ストーリーを見る</button></div>
+      <div class="map-option map-story-option" id="storyModeOption"><h2>📖 ストーリーモード</h2><p>謎解き・戦闘・探索の新しい冒険</p><span class="map-lock-label">🌌 第1ワールド制作中</span><button type="button" id="storyModeOpen" onclick="openStoryCodeGate()">テストコードを入力</button></div>
     </div>
   </div>
 </div>
 <div id="mapTutorialConfirm" class="hidden" role="dialog" aria-modal="true"><div class="map-confirm-card"><h2>📘 チュートリアル</h2><p>チュートリアルを見ますか？</p><button onclick="confirmMapTutorial(true)">はい</button><button onclick="confirmMapTutorial(false)">いいえ</button></div></div>
 
+<div id="storyCodeGate" class="story-screen hidden" role="dialog" aria-modal="true" aria-label="ストーリーモード認証">
+  <div class="story-panel" style="max-width:430px">
+    <h2>🔐 ストーリーモード認証</h2>
+    <p>テストコードを入力してください。</p>
+    <input id="storyTestCodeInput" type="password" autocomplete="off" spellcheck="false" placeholder="テストコード" style="box-sizing:border-box;width:100%;padding:13px;border-radius:9px;border:1px solid #64748b;background:#0f172a;color:white;font-size:18px">
+    <p id="storyTestCodeMessage" role="status" aria-live="polite" style="min-height:24px;color:#fca5a5"></p>
+    <button type="button" class="story-action" onclick="submitStoryTestCode()">認証する</button>
+    <button type="button" class="story-action story-back" onclick="closeStoryCodeGate()">戻る</button>
+  </div>
+</div>
 <div id="storyWorldScreen" class="story-screen hidden" aria-label="ストーリーワールド選択">
   <div class="story-panel">
     <h1>🌌 ストーリーモード</h1>
@@ -5039,6 +5049,10 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   let storyLineIndex=0;
   function hideStory(id){const el=$story(id);if(el)el.classList.add("hidden");}
   function showStory(id){const el=$story(id);if(el)el.classList.remove("hidden");}
+  const STORY_TEST_CODE="Story";
+  window.openStoryCodeGate=function(){hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");const map=$story("mapSelect");if(map)map.classList.add("hidden");const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(input)input.value="";if(message)message.textContent="";showStory("storyCodeGate");if(input)input.focus();};
+  window.closeStoryCodeGate=function(){hideStory("storyCodeGate");const map=$story("mapSelect");if(map)map.classList.remove("hidden");};
+  window.submitStoryTestCode=function(){const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(!input||!message)return;if(input.value!==STORY_TEST_CODE){message.textContent="❌ コードが違います。";input.select();return;}hideStory("storyCodeGate");input.value="";openStoryWorlds();};
   window.openStoryWorlds=function(){hideStory("storyStageScreen");hideStory("storyEpisodeScreen");showStory("storyWorldScreen");};
   window.openStoryStages=function(){hideStory("storyWorldScreen");hideStory("storyEpisodeScreen");renderStoryStages();showStory("storyStageScreen");};
   window.closeStoryScreens=function(){hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");const map=$story("mapSelect");if(map)map.classList.remove("hidden");};

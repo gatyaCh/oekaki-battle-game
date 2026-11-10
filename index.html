@@ -3835,6 +3835,29 @@ html body #draw:not(.hidden) #gearBtn {
 @media(max-width:600px){.map-options{grid-template-columns:1fr;grid-template-areas:"secret" "normal" "story"}.map-secret-option{max-width:none;width:auto}#mapSelect{padding:12px}.map-select-card{padding:16px}}
 
 /* Story mode: world and stage selection */
+
+#storyBattleScreen{z-index:15020;background:#07111b;padding:10px 10px 0;overflow:auto}
+.story-battle-panel{width:min(980px,100%);min-height:calc(100vh - 20px);margin:0 auto;padding:14px 14px 0;border:1px solid #64748b;border-radius:18px;background:#101827;color:#fff;display:flex;flex-direction:column;gap:10px}
+.story-battle-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.story-battle-hp{font-size:13px;text-align:left;min-width:150px;flex:1}.story-battle-hpbar{height:10px;background:#334155;border-radius:20px;overflow:hidden;margin-top:4px}.story-battle-hpfill{height:100%;background:#22c55e;transition:width .2s}
+.story-battle-arena{position:relative;min-height:clamp(240px,42vh,390px);border-radius:14px;overflow:hidden;border:2px solid #64748b;display:flex;align-items:flex-end;justify-content:space-around;padding:18px 10px 20px;gap:8px}
+.story-battle-arena.grass{background:linear-gradient(#8bd4f4 0 40%,#a7d67a 40% 57%,#5a9b45 57% 100%)}
+.story-battle-arena.grass:before{content:"";position:absolute;inset:38% 0 0;background:repeating-linear-gradient(170deg,transparent 0 30px,#ffffff18 31px 33px),radial-gradient(ellipse at 15% 25%,#d5ed9a 0 10%,transparent 11%),radial-gradient(ellipse at 80% 45%,#397b39 0 12%,transparent 13%)}
+.story-battle-arena.town{background:linear-gradient(#91c9e8 0 43%,#777b82 43% 57%,#4b515b 57% 100%)}
+.story-battle-arena.town:before{content:"";position:absolute;inset:12% 0 42%;background:linear-gradient(90deg,#7d8796 0 14%,transparent 14% 19%,#b5a18b 19% 34%,transparent 34% 40%,#69798b 40% 59%,transparent 59% 65%,#a18d7a 65% 83%,transparent 83%);clip-path:polygon(0 18%,12% 0,24% 18%,24% 100%,38% 100%,38% 25%,51% 4%,65% 25%,65% 100%,80% 100%,80% 14%,91% 0,100% 14%,100% 100%,0 100%)}
+.story-battle-arena:after{content:"";position:absolute;left:0;right:0;bottom:0;height:27%;background:linear-gradient(90deg,transparent 0 15%,#ffffff16 15% 16%,transparent 16% 48%,#ffffff16 48% 49%,transparent 49% 80%,#ffffff16 80% 81%,transparent 81%),linear-gradient(0deg,#0002,#0000)}
+.story-battle-actor{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;min-width:70px;max-width:30%;color:#111;text-shadow:0 1px 2px #fff8}
+.story-battle-actor .actor-emoji{font-size:clamp(34px,7vw,62px);filter:drop-shadow(0 4px 2px #0005)}.story-battle-actor .actor-name{font-weight:900;font-size:12px;background:#ffffffd9;border-radius:6px;padding:3px 6px}.story-battle-actor .actor-hp{width:72px;height:7px;border-radius:10px;background:#334155;overflow:hidden}.story-battle-actor .actor-hp span{display:block;height:100%;background:#22c55e}.story-battle-actor.target{outline:3px solid #facc15;outline-offset:4px;border-radius:10px;cursor:pointer}.story-battle-actor.dead{opacity:.28;filter:grayscale(1)}
+.story-battle-arena-hint{position:absolute;z-index:2;top:8px;left:8px;right:8px;text-align:center;color:#102033;font-weight:900;text-shadow:0 1px 4px #fff;background:#ffffffa8;border-radius:8px;padding:5px;font-size:13px}
+.story-battle-log{min-height:42px;padding:8px 10px;border-radius:9px;background:#1e293b;color:#e2e8f0;text-align:left;font-size:13px;line-height:1.45}
+.story-draw-panel{display:none;background:#0b1220;border:1px solid #64748b;border-radius:12px;padding:10px;text-align:center}.story-draw-panel.active{display:block}
+#storyDrawCanvas{display:block;width:min(100%,520px);height:auto;aspect-ratio:2/1;margin:8px auto;background:#fff;border:2px solid #cbd5e1;border-radius:8px;touch-action:none}
+.story-battle-command-wrap{position:sticky;bottom:0;z-index:5;margin:0 -14px;padding:10px 12px max(12px,env(safe-area-inset-bottom));background:linear-gradient(180deg,#111827e8,#080f1cf7);border-top:1px solid #475569;border-radius:0 0 16px 16px}
+.story-battle-commands{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.story-battle-commands button{margin:0;padding:12px 5px;border:1px solid #64748b;border-radius:10px;background:#263449;color:#fff;font-weight:900;font-size:clamp(13px,2vw,17px)}
+.story-battle-commands button[data-action="attack"]{background:#7f1d1d}.story-battle-commands button[data-action="dodge"]{background:#075985}.story-battle-commands button[data-action="defend"]{background:#334155}.story-battle-commands button[data-action="heal"]{background:#166534}.story-battle-commands button:disabled{opacity:.4}
+.story-battle-result{min-height:20px;color:#fde68a;font-weight:800;font-size:13px;margin-top:7px}.story-battle-secondary{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.story-battle-secondary button{background:#475569}.story-battle-grade{font-size:18px;font-weight:900;color:#fde68a}
+@media(max-width:600px){#storyBattleScreen{padding:5px 5px 0}.story-battle-panel{padding:9px 9px 0;min-height:calc(100vh - 5px)}.story-battle-arena{min-height:245px;padding:14px 4px 18px}.story-battle-actor{min-width:52px}.story-battle-actor .actor-name{font-size:10px;padding:2px 3px}.story-battle-actor .actor-hp{width:54px}.story-battle-command-wrap{margin:0 -9px;padding:8px 7px max(9px,env(safe-area-inset-bottom))}.story-battle-commands{gap:5px}.story-battle-commands button{padding:11px 2px;font-size:12px}.story-battle-log{font-size:12px}}
+
 .story-screen{position:fixed;inset:0;z-index:15000;overflow:auto;padding:24px 14px;background:radial-gradient(ellipse at top,#243b67,#090f20 72%);color:#fff;text-align:center}
 .story-panel{width:min(900px,100%);margin:3vh auto;padding:24px;border:1px solid #64748b;border-radius:20px;background:rgba(10,18,38,.96);box-shadow:0 18px 60px #0009}
 .story-world-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:22px 0}
@@ -4273,6 +4296,16 @@ body {
       <button type="button" id="storyNextLineBtn" onclick="advanceStoryLine()">次へ ▶</button>
     </div>
   </div>
+</div>
+
+<div id="storyBattleScreen" class="story-screen hidden" aria-label="ストーリーモード戦闘">
+ <div class="story-battle-panel">
+  <div class="story-battle-top"><div><h1 id="storyBattleTitle">1-2「黒い何か」</h1><p id="storyBattleSubtitle">草原に現れた黒い敵を倒そう</p></div><div class="story-battle-hp"><strong>プレイヤー HP <span id="storyPlayerHpText">300 / 300</span></strong><div class="story-battle-hpbar"><div id="storyPlayerHpBar" class="story-battle-hpfill" style="width:100%"></div></div></div></div>
+  <div id="storyBattleArena" class="story-battle-arena grass"><div class="story-battle-arena-hint" id="storyBattleHint">敵を選んで攻撃しよう</div><div class="story-battle-actor player"><div class="actor-emoji">🧑‍🚀</div><div class="actor-name">主人公</div></div><div id="storyBattleEnemies" style="position:relative;z-index:2;display:flex;align-items:flex-end;justify-content:space-around;gap:8px;width:70%;height:100%"></div></div>
+  <div class="story-battle-log" id="storyBattleLog" aria-live="polite">戦闘開始！画面下のコマンドから行動を選ぼう。</div>
+  <div class="story-draw-panel" id="storyDrawPanel"><strong id="storyDrawPrompt">お題：剣を描こう！</strong><p id="storyDrawHelp" style="font-size:12px;color:#cbd5e1;margin-top:3px">お題に合わせて描いて「判定する」を押そう。</p><canvas id="storyDrawCanvas" width="520" height="260"></canvas><div class="story-battle-secondary"><button type="button" id="storyDrawClear">消す</button><button type="button" id="storyDrawCancel">戻る</button><button type="button" id="storyDrawJudge">判定する</button></div><div id="storyDrawResult" class="story-battle-result" aria-live="polite"></div></div>
+  <div class="story-battle-command-wrap"><div class="story-battle-commands"><button type="button" data-action="attack">⚔️ 攻撃</button><button type="button" data-action="dodge">💨 回避</button><button type="button" data-action="defend">🛡️ 防御</button><button type="button" data-action="heal">💚 回復</button></div><div class="story-battle-result" id="storyBattleResult"></div><div class="story-battle-secondary"><button type="button" id="storyBattleExit">ステージ選択へ戻る</button></div></div>
+ </div>
 </div>
 
 <div id="draw" class="hidden">
@@ -5061,14 +5094,22 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   function renderStoryStages(){
     const grid=$story("storyStageGrid");if(!grid)return;grid.innerHTML="";
     const unlocked=getStoryProgress(),cleared=getStoryCleared();
-    for(let i=1;i<=5;i++){
-      const available=i===1,done=i===1&&cleared;
-      const card=document.createElement("div");card.className="story-stage-card"+(done?" cleared":available?" unlocked":"");
-      const title=document.createElement("strong");title.textContent="1-"+i;card.appendChild(title);
-      const status=document.createElement("div");status.style.fontSize="12px";status.style.marginTop="5px";status.textContent=done?"✅ クリア":available?"プレイ可能":"🔒 未解放";card.appendChild(status);
-      const btn=document.createElement("button");btn.type="button";btn.textContent=i===1?(done?"もう一度見る":"プレイ"):"制作中";btn.disabled=i!==1; if(i===1)btn.addEventListener("click",startStoryEpisode);card.appendChild(btn);grid.appendChild(card);
-    }
-    const progress=$story("storyProgressText");if(progress)progress.textContent=cleared?"1-1クリア！次のステージは制作中です。":"まずは1-1「異変の始まり」をプレイしよう。";
+     const titles={1:"異変の始まり",2:"黒い何か",3:"隕石の正体",4:"広がる黒い影",5:"惑星のものではない"};
+     for(let i=1;i<=5;i++){
+       let done=false;try{done=(i===1&&cleared)||(i===2&&localStorage.getItem("story12Cleared")==="1")||(i===4&&localStorage.getItem("story14Cleared")==="1");}catch(e){}
+       const available=i===1||(i===2&&cleared);
+       const card=document.createElement("div");card.className="story-stage-card"+(done?" cleared":available?" unlocked":"");
+       const title=document.createElement("strong");title.textContent="1-"+i;card.appendChild(title);
+       const name=document.createElement("div");name.style.fontSize="12px";name.style.marginTop="4px";name.textContent=titles[i];card.appendChild(name);
+       const status=document.createElement("div");status.style.fontSize="12px";status.style.marginTop="5px";status.textContent=done?"✅ クリア":available?"プレイ可能":i===4?"🔒 1-3クリアで正式解放":"🔒 未解放";card.appendChild(status);
+       const btn=document.createElement("button");btn.type="button";
+       if(i===1){btn.textContent=done?"もう一度見る":"プレイ";btn.addEventListener("click",startStoryEpisode);}
+       else if(i===2){btn.textContent=done?"もう一度戦う":"プレイ";btn.disabled=!available;btn.addEventListener("click",()=>window.startStoryBattle("1-2"));}
+       else if(i===4){btn.textContent="開発テスト";btn.addEventListener("click",()=>window.startStoryBattle("1-4"));}
+       else {btn.textContent="制作中";btn.disabled=true;}
+       card.appendChild(btn);grid.appendChild(card);
+     }
+     const progress=$story("storyProgressText");if(progress)progress.textContent=cleared?"1-1クリア！1-2がプレイ可能です。1-4は開発テストとしてプレイできます。":"まずは1-1「異変の始まり」をプレイしよう。";
   }
   function startStoryEpisode(){storyLineIndex=0;hideStory("storyStageScreen");showStory("storyEpisodeScreen");renderStoryLine();}
   window.advanceStoryLine=function(){if(storyLineIndex<storyLines.length-1){storyLineIndex++;renderStoryLine();return;}try{localStorage.setItem("storyWorld1Stage1Cleared","1");localStorage.setItem("storyWorld1Unlocked","2");}catch(e){}hideStory("storyEpisodeScreen");renderStoryStages();showStory("storyStageScreen");};

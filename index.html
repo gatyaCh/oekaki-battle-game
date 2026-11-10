@@ -10545,6 +10545,46 @@ body.special-code-open #adminAbuseDialogue.active{
 .story-intro-scene.scene-encounter.city-intro:before{background:radial-gradient(ellipse at 50% 58%,transparent 0 8%,#02040b 75%)}
 @media(max-width:600px){.story-intro-scene.scene-research:before{letter-spacing:0}.story-intro-scene.scene-approach:after{font-size:38px}}
 </style>
+<style id="story-full-background-art">
+/* セリフのまとまりごとに、背景全体を別の風景へ切り替える */
+.story-intro-scene{background-size:cover;background-position:center;transition:background-image .45s ease,filter .45s ease}
+.story-intro-scene.scene-grassland{
+ background-image:
+  radial-gradient(ellipse at 18% 25%,#fff8 0 2%,transparent 18%),
+  linear-gradient(155deg,transparent 0 48%,#6f9d43 49% 59%,transparent 60%),
+  linear-gradient(25deg,transparent 0 48%,#a3cf69 49% 60%,transparent 61%),
+  linear-gradient(180deg,#75b8e9 0 48%,#b6dcf2 49% 55%,#83bd51 56% 72%,#477c36 73% 100%)}
+.story-intro-scene.scene-grassland:before{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(90deg,#315f31 0 8%,transparent 8% 13%,#3c7135 13% 18%,transparent 18% 24%,#315f31 24% 32%,transparent 32% 39%,#3b7135 39% 47%,transparent 47% 54%,#315f31 54% 62%,transparent 62% 69%,#3b7135 69% 78%,transparent 78% 84%,#315f31 84% 100%);clip-path:polygon(0 42%,8% 42%,8% 25%,16% 25%,16% 48%,25% 48%,25% 18%,34% 18%,34% 44%,44% 44%,44% 10%,53% 10%,53% 40%,64% 40%,64% 20%,73% 20%,73% 47%,84% 47%,84% 14%,93% 14%,93% 38%,100% 38%,100% 100%,0 100%);opacity:.65}
+.story-intro-scene.scene-research{
+ background-image:
+  radial-gradient(ellipse at 50% 45%,#6eb8d955,transparent 38%),
+  linear-gradient(90deg,transparent 0 8%,#6a8497 8% 10%,transparent 10% 90%,#6a8497 90% 92%,transparent 92%),
+  repeating-linear-gradient(90deg,transparent 0 18%,#344b60 18% 19%,transparent 19% 36%),
+  linear-gradient(180deg,#192e43 0 14%,#526b80 14% 18%,#263e54 18% 76%,#142638 76% 100%)}
+.story-intro-scene.scene-research:after{height:3px;top:22%;background:#b6e8ff;box-shadow:0 0 22px 5px #60b8e8}
+.story-intro-scene.scene-broadcast{
+ background-image:
+  linear-gradient(90deg,#080d18b8,#26364d22 50%,#080d18b8),
+  repeating-linear-gradient(0deg,transparent 0 24px,#ffffff0a 25px 26px),
+  radial-gradient(ellipse at 50% 48%,#52677e 0,#1b2a3d 55%,#080d17 100%)}
+.story-intro-scene.scene-citywide{
+ background-image:
+  radial-gradient(ellipse at 50% 12%,#d6e5f055,transparent 55%),
+  linear-gradient(180deg,#687f99 0 38%,#394a5c 39% 100%)}
+.story-intro-scene.scene-citywide:before{inset:20% 0 0;background:linear-gradient(90deg,#1d2b3b 0 8%,#35475a 8% 12%,#172638 12% 24%,#405166 24% 29%,#1a293a 29% 43%,#35465a 43% 48%,#172536 48% 63%,#3b4d61 63% 68%,#1c2a3b 68% 83%,#3d5064 83% 88%,#172536 88% 100%);clip-path:polygon(0 35%,9% 35%,9% 5%,19% 5%,19% 29%,29% 29%,29% 0,41% 0,41% 36%,53% 36%,53% 12%,64% 12%,64% 31%,76% 31%,76% 0,89% 0,89% 38%,100% 38%,100% 100%,0 100%);box-shadow:inset 0 0 35px #0008}
+.story-intro-scene.scene-approach{
+ background-image:
+  linear-gradient(90deg,#17283a 0 8%,transparent 8% 92%,#17283a 92% 100%),
+  linear-gradient(180deg,#9ab3c7 0 42%,#647789 43% 47%,#303d4c 48% 100%)}
+.story-intro-scene.scene-approach:before{left:24%;right:24%;height:65%;background:repeating-linear-gradient(180deg,#485767 0 3px,transparent 3px 22px),linear-gradient(90deg,#202d3c,#647386 50%,#202d3c);clip-path:polygon(44% 0,56% 0,100% 100%,0 100%)}
+.story-intro-scene.scene-encounter{
+ background-image:
+  radial-gradient(ellipse at 50% 58%,#687486 0,transparent 28%),
+  linear-gradient(180deg,#28394d 0 43%,#46505d 44% 49%,#111827 50% 100%)}
+.story-intro-scene.scene-encounter:before{background:linear-gradient(90deg,#111827 0 13%,transparent 13% 18%,#1e293b 18% 32%,transparent 32% 38%,#111827 38% 58%,transparent 58% 64%,#1e293b 64% 82%,transparent 82% 87%,#111827 87% 100%);clip-path:polygon(0 25%,12% 25%,12% 0,26% 0,26% 32%,40% 32%,40% 8%,56% 8%,56% 29%,70% 29%,70% 0,86% 0,86% 24%,100% 24%,100% 100%,0 100%);opacity:.72}
+.story-intro-scene.scene-encounter.city-intro{background-image:radial-gradient(ellipse at 50% 50%,#58677b 0,transparent 35%),linear-gradient(180deg,#202b43 0 48%,#30394a 49% 100%)}
+@media(max-width:600px){.story-intro-scene.scene-grassland:before{opacity:.4}.story-intro-scene.scene-citywide:before{inset:28% 0 0}}
+</style>
 <script id="story-battle-runtime">
 (function(){
  const $=id=>document.getElementById(id);

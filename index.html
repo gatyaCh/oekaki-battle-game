@@ -10460,6 +10460,84 @@ body.special-code-open #adminAbuseDialogue.active{
   pointer-events:none!important;
 }
 </style>
+
+<script id="story-battle-runtime">
+(function(){
+ const $=id=>document.getElementById(id);
+ const cfg={
+ "1-2":{title:"1-2「黒い何か」",subtitle:"草原に落ちた隕石から現れた黒い敵",scene:"grass",enemies:[["黒い敵①",100,7],["黒い敵②",100,7],["黒い敵③",100,7]]},
+ "1-4":{title:"1-4「広がる黒い影」",subtitle:"黒い影に覆われた街で敵を食い止めよう",scene:"town",enemies:[["黒い敵①",150,10],["黒い敵②",150,10],["大型の黒い敵",400,40]]}
+ };
+ const prompts={attack:"お題：剣を描こう！",dodge:"お題：翼を描こう！",defend:"お題：盾を描こう！",heal:"お題：回復の薬を描こう！"};
+ let stage="",hp=300,enemies=[],target=0,action="",strokes=[],drawing=false,last=null;
+ const c=$("storyDrawCanvas"),g=c?.getContext("2d");
+ function log(t){$("storyBattleLog").textContent=t}
+ function render(){
+  $("storyPlayerHpText").textContent=hp+" / 300";$("storyPlayerHpBar").style.width=(hp/300*100)+"%";
+  const root=$("storyBattleEnemies");root.innerHTML="";
+  enemies.forEach((e,i)=>{const d=document.createElement("div");d.className="story-battle-actor"+(e.hp<=0?" dead":i===target?" target":"");
+   d.innerHTML='<div class="actor-emoji">'+(stage==="1-4"&&i===2?"👹":"🌑")+'</div><div class="actor-name"></div><div class="actor-hp"><span></span></div><small></small>';
+   d.querySelector(".actor-name").textContent=e.name;d.querySelector(".actor-hp span").style.width=Math.max(0,e.hp/e.max*100)+"%";d.querySelector("small").textContent="HP "+Math.max(0,e.hp)+"/"+e.max;
+   if(e.hp>0)d.onclick=()=>{target=i;render()};root.appendChild(d);
+  });
+  document.querySelectorAll(".story-battle-commands button").forEach(b=>b.disabled=hp<=0||enemies.every(e=>e.hp<=0)||$("storyDrawPanel").classList.contains("active"));
+ }
+ window.startStoryBattle=function(id){
+  if(!cfg[id])return;
+  stage=id;hp=300;target=0;enemies=cfg[id].enemies.map(e=>({name:e[0],hp:e[1],max:e[1],attack:e[2]}));
+  $("storyBattleTitle").textContent=cfg[id].title;$("storyBattleSubtitle").textContent=cfg[id].subtitle;
+  $("storyBattleArena").className="story-battle-arena "+cfg[id].scene;
+  $("storyDrawPanel").classList.remove("active");$("storyBattleResult").textContent="";
+  $("storyBattleScreen").classList.remove("hidden");$("storyStageScreen").classList.add("hidden");
+  log("戦闘開始！敵を選んで攻撃しよう。");render();
+ };
+ function clearCanvas(){g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);g.strokeStyle="#172033";g.lineWidth=7;g.lineCap="round";g.lineJoin="round";strokes=[]}
+ function pos(e){const r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*c.width/r.width,y:(e.clientY-r.top)*c.height/r.height}}
+ c.addEventListener("pointerdown",e=>{if(!$("storyDrawPanel").classList.contains("active"))return;e.preventDefault();drawing=true;last=pos(e);strokes.push([last]);c.setPointerCapture(e.pointerId)});
+ c.addEventListener("pointermove",e=>{if(!drawing)return;e.preventDefault();const p=pos(e);g.beginPath();g.moveTo(last.x,last.y);g.lineTo(p.x,p.y);g.stroke();strokes[strokes.length-1].push(p);last=p});
+ ["pointerup","pointercancel"].forEach(x=>c.addEventListener(x,()=>{drawing=false;last=null}));
+ document.querySelectorAll(".story-battle-commands button").forEach(b=>b.addEventListener("click",()=>{
+  action=b.dataset.action;$("storyDrawPrompt").textContent=prompts[action];$("storyDrawResult").textContent="";$("storyDrawPanel").classList.add("active");clearCanvas();render();$("storyDrawPanel").scrollIntoView({behavior:"smooth",block:"nearest"});
+ }));
+ $("storyDrawClear").onclick=clearCanvas;
+ $("storyDrawCancel").onclick=()=>{$("storyDrawPanel").classList.remove("active");render()};
+ function enemyTurn(dodge,cut){
+  const total=enemies.filter(e=>e.hp>0).reduce((n,e)=>n+e.attack,0);
+  if(Math.random()*100<dodge)return "敵全員の攻撃を回避！";
+  const damage=Math.max(1,Math.ceil(total*(1-cut/100)));hp=Math.max(0,hp-damage);
+  return "敵全員から"+total+"攻撃、"+damage+"ダメージを受けた。";
+ }
+ function finish(){
+  render();
+  if(enemies.every(e=>e.hp<=0)){
+   log("勝利！ "+stage+"クリア！");$("storyBattleResult").textContent="🎉 ステージクリア！";
+   try{localStorage.setItem(stage==="1-2"?"story12Cleared":"story14Cleared","1")}catch(e){}
+   return;
+  }
+  if(hp<=0){log("HPが0になった。ステージをやり直そう。");$("storyBattleResult").textContent="敗北";return}
+ }
+ $("storyDrawJudge").onclick=()=>{
+  const points=strokes.flat(),count=strokes.length;
+  if(!points.length){$("storyDrawResult").textContent="先に絵を描いてね！";return}
+  const xs=points.map(p=>p.x),ys=points.map(p=>p.y);
+  const area=Math.min(1,((Math.max(...xs)-Math.min(...xs))*(Math.max(...ys)-Math.min(...ys)))/(c.width*c.height*.34));
+  const score=Math.min(100,Math.round(area*35+Math.min(1,points.length/85)*35+Math.min(1,count/5)*30));
+  const grade=score>=82?"S":score>=65?"A":score>=45?"B":score>=22?"C":"D";
+  let msg="";
+  if(action==="attack"){
+   const e=enemies[target]&&enemies[target].hp>0?enemies[target]:enemies.find(e=>e.hp>0);
+   if(e){const bonus=Math.round(score*.3),dmg=25+bonus;e.hp=Math.max(0,e.hp-dmg);msg=e.name+"に"+dmg+"ダメージ（基本25＋ボーナス"+bonus+"）。";}
+   msg+=enemyTurn(0,0);
+  }else if(action==="dodge"){const chance=Math.min(100,50+Math.round(score*.5));msg="回避率"+chance+"%。"+enemyTurn(chance,0)}
+  else if(action==="defend"){const cut=Math.min(70,40+Math.round(score*.3));msg="ダメージを"+cut+"%カット。"+enemyTurn(0,cut)}
+  else{const amount=Math.min(70,30+Math.round(score*.4)),before=hp;hp=Math.min(300,hp+amount);msg=(hp-before)+"回復。"+enemyTurn(0,0)}
+  $("storyDrawResult").textContent=grade+"評価（"+score+"点）";$("storyBattleResult").textContent=msg;
+  $("storyDrawPanel").classList.remove("active");log(msg);finish();
+ };
+ $("storyBattleExit").onclick=()=>{ $("storyBattleScreen").classList.add("hidden");$("storyStageScreen").classList.remove("hidden");if(window.openStoryStages)window.openStoryStages()};
+})();
+</script>
+
 </body>
 </html>
 

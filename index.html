@@ -10503,7 +10503,15 @@ body.special-code-open #adminAbuseDialogue.active{
 }
 </style>
 
-<script id="story-battle-runtime">
+<style id="story-14-cinematic-style">
+.story-intro-scene.city-intro{background:linear-gradient(#202b43 0 58%,#33394a 58% 100%)}
+.story-intro-scene.city-intro:before{content:"";position:absolute;left:0;right:0;bottom:0;height:58%;background:linear-gradient(90deg,#111827 0 9%,transparent 9% 13%,#1f2937 13% 24%,transparent 24% 29%,#111827 29% 43%,transparent 43% 48%,#263449 48% 61%,transparent 61% 67%,#111827 67% 81%,transparent 81% 86%,#202b3d 86% 100%);clip-path:polygon(0 24%,8% 24%,8% 0,17% 0,17% 34%,28% 34%,28% 8%,39% 8%,39% 28%,50% 28%,50% 0,62% 0,62% 35%,73% 35%,73% 12%,84% 12%,84% 0,100% 0,100% 100%,0 100%)}
+.story-intro-scene.city-intro .story-intro-meteor{display:none}
+.story-intro-scene.city-intro .story-intro-stars{opacity:.18}
+.story-intro-scene.city-intro.reveal .story-intro-black{font-size:88px;opacity:1;animation:storyBlackRise 1s ease-out}
+.story-intro-scene.city-intro.reveal:after{content:"🌑　🌑　🌑";position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);width:100%;font-size:clamp(32px,7vw,64px);letter-spacing:10px;text-align:center;color:#050505;text-shadow:0 0 18px #000,0 0 28px #9ca3af;animation:storyShadowSpread 1.1s ease-out forwards}
+@keyframes storyShadowSpread{0%{opacity:0;letter-spacing:-18px;filter:blur(12px)}35%{opacity:1}100%{opacity:.95;letter-spacing:10px;filter:blur(0)}}
+</style><script id="story-battle-runtime">
 (function(){
  const $=id=>document.getElementById(id);
  const cfg={
@@ -10511,16 +10519,32 @@ body.special-code-open #adminAbuseDialogue.active{
  "1-4":{title:"1-4「広がる黒い影」",subtitle:"黒い影に覆われた街で敵を食い止めよう",scene:"town",enemies:[["黒い敵①",150,10],["黒い敵②",150,10],["大型の黒い敵",400,40]]}
  };
  const prompts={attack:"お題：剣を描こう！",dodge:"お題：翼を描こう！",defend:"お題：盾を描こう！",heal:"お題：回復の薬を描こう！"};
- const introLines=[
- ["ナレーション","主人公が草原を冒険していると、突然、空がまぶしく光り始めた。",""],
- ["主人公","えっ……あれは隕石！？こっちに落ちてくる！","impact"],
- ["ナレーション","大きな音とともに、隕石が目の前に落下した。","impact"],
- ["主人公","これは調査する価値がありそうだ。研究のために持ち帰ろう。",""],
- ["ナレーション","主人公が隕石に近づいた、そのとき……。",""],
- ["主人公","な、何か出てくる……！？","emerge"],
- ["ナレーション","隕石の中から、正体不明の黒い何かが姿を現した！","emerge"],
- ["主人公","いったい何なんだ……！応戦するしかない！","emerge"]
- ];
+ const introLinesByStage={
+ "1-2":[
+  ["ナレーション","主人公が草原を冒険していると、突然、空がまぶしく光り始めた。",""],
+  ["主人公","えっ……あれは隕石！？こっちに落ちてくる！","impact"],
+  ["ナレーション","大きな音とともに、隕石が目の前に落下した。","impact"],
+  ["主人公","これは調査する価値がありそうだ。研究のために持ち帰ろう。",""],
+  ["ナレーション","主人公が隕石に近づいた、そのとき……。",""],
+  ["主人公","な、何か出てくる……！？","emerge"],
+  ["ナレーション","隕石の中から、正体不明の黒い何かが姿を現した！","emerge"],
+  ["主人公","いったい何なんだ……！応戦するしかない！","emerge"]
+ ],
+ "1-4":[
+  ["ナレーション","調査を続けた主人公は、ついに隕石から見つかった謎の物質の正体を突き止めた。",""],
+  ["主人公","この物質は、惑星の一部に含まれていた未知の成分だったんだ……！",""],
+  ["ナレーション","さらに、黒い謎の生物はこの物質に反応して現れるらしいことも、少しずつわかってきた。",""],
+  ["主人公","でも、どうして生物が現れるのかはまだわからない……。もっと調べないと。",""],
+  ["ニュース","緊急ニュースです！世界各地で、正体不明の黒い存在が大量に出現しています！",""],
+  ["ナレーション","黒い何かは街にも広がり、人々が次々と避難を始めていた。",""],
+  ["主人公","大変だ！人々を助けに行かないと！",""],
+  ["ナレーション","主人公が人々のもとへ向かおうとした、そのとき……。",""],
+  ["主人公","……前に何かいる！","reveal"],
+  ["ナレーション","目の前に、巨大な黒い影が立ちはだかった！","reveal"],
+  ["主人公","ここを通してもらう！みんなを助けるために、突破するんだ！","reveal"]
+ ]
+ };
+ let introLines=[];
  let stage="",hp=300,enemies=[],target=0,action="",strokes=[],drawing=false,last=null,introIndex=0,playerGuard=0,playerDodge=0,turnBusy=false;
  const c=$("storyDrawCanvas"),g=c?.getContext("2d");
  function log(t){$("storyBattleLog").textContent=t}
@@ -10543,7 +10567,9 @@ body.special-code-open #adminAbuseDialogue.active{
  }
  function showIntroLine(){
   const line=introLines[introIndex];$("storyIntroName").textContent=line[0];$("storyIntroText").textContent=line[1];
-  const scene=$("storyIntroScene");scene.classList.remove("impact","emerge");if(line[2]){void scene.offsetWidth;scene.classList.add(line[2])}
+  const scene=$("storyIntroScene");scene.classList.remove("impact","emerge","reveal","city-intro");
+  if(stage==="1-4")scene.classList.add("city-intro");
+  if(line[2]){void scene.offsetWidth;scene.classList.add(line[2])}
   $("storyIntroNext").textContent=introIndex===introLines.length-1?"⚔️ 戦闘開始！":"次へ ▶";
  }
  function advanceIntro(){if(introIndex<introLines.length-1){introIndex++;showIntroLine()}else beginBattle()}
@@ -10551,7 +10577,13 @@ body.special-code-open #adminAbuseDialogue.active{
   if(!cfg[id])return;stage=id;hp=300;target=0;playerGuard=0;playerDodge=0;turnBusy=false;
   enemies=cfg[id].enemies.map(e=>({name:e[0],hp:e[1],max:e[1],attack:e[2],guard:0,dodge:0}));
   $("storyBattleScreen").classList.remove("hidden");$("storyStageScreen").classList.add("hidden");
-  if(id==="1-2"){introIndex=0;$("storyIntro").classList.remove("hidden");showIntroLine()}else beginBattle();
+  if(id==="1-2"||id==="1-4"){
+   introLines=introLinesByStage[id];introIndex=0;
+   $("storyIntro").classList.remove("hidden");
+   $("storyIntro").querySelector("h2").textContent=cfg[id].title;
+   $("storyIntro").setAttribute("aria-label",cfg[id].title+" オープニング");
+   showIntroLine();
+  }else beginBattle();
  }
  window.startStoryBattle=start;
  function clearCanvas(){g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);g.strokeStyle="#172033";g.lineWidth=7;g.lineCap="round";g.lineJoin="round";strokes=[]}

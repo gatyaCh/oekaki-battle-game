@@ -10989,10 +10989,13 @@ body.special-code-open #adminAbuseDialogue.active{
 #story15Screen .s15-muted{color:#b6d9ed}#story15Screen .s15-board{display:grid;gap:7px;width:min(92vw,540px);aspect-ratio:1;margin:16px auto;padding:10px;border:2px solid #4bdfff;border-radius:14px;background:#0a1c31;box-shadow:inset 0 0 25px #3ccfff22}
 #story15Screen .s15-tile{position:relative;min-width:0;min-height:0;border:1px solid #426b88;border-radius:9px;background:linear-gradient(145deg,#193b59,#0c1d31);padding:0;display:block;overflow:hidden;touch-action:manipulation}
 #story15Screen .s15-tile .core{position:absolute;left:50%;top:50%;width:19%;height:19%;transform:translate(-50%,-50%);border-radius:50%;background:#4a7898;box-shadow:0 0 8px #49cfff}
-#story15Screen .s15-arm{position:absolute;left:50%;top:50%;width:12%;height:49%;border-radius:8px;background:#31516b;transform:translate(-50%,-100%);transform-origin:50% 100%}
-#story15Screen .s15-arm.r{transform:translate(0,-50%) rotate(90deg);transform-origin:0 50%}
-#story15Screen .s15-arm.d{transform:translate(-50%,0) rotate(180deg);transform-origin:50% 0}
-#story15Screen .s15-arm.l{transform:translate(-100%,-50%) rotate(-90deg);transform-origin:100% 50%}
+#story15Screen .s15-rods{position:absolute;inset:0;transform:rotate(0deg);transition:transform .2s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+#story15Screen .s15-tile.turning .s15-rods{transform:rotate(90deg)}
+#story15Screen .s15-arm{position:absolute;border-radius:8px;background:#31516b}
+#story15Screen .s15-arm.u{left:44%;top:1%;width:12%;height:49%}
+#story15Screen .s15-arm.r{left:50%;top:44%;width:49%;height:12%}
+#story15Screen .s15-arm.d{left:44%;top:50%;width:12%;height:49%}
+#story15Screen .s15-arm.l{left:1%;top:44%;width:49%;height:12%}
 #story15Screen .s15-arm.on{background:linear-gradient(#eaffff,#36cfff);box-shadow:0 0 8px #38dfff,0 0 16px #35eaff;filter:brightness(1.35)}
 #story15Screen .s15-tile.source{border-color:#64f5bc;background:#14543f}#story15Screen .s15-tile.sink{border-color:#c28cff;background:#4c286c}
 #story15Screen .s15-tile.source .core{background:#64f5bc}#story15Screen .s15-tile.sink .core{background:#d9a4ff}
@@ -11180,7 +11183,7 @@ const B={U:1,R:2,D:4,L:8};
 function dir(a,b){if(b.r<a.r)return B.U;if(b.c>a.c)return B.R;if(b.r>a.r)return B.D;return B.L}
 function rot(m){return((m<<1)&15)|(m>>3)}
 function around(r,c,n){return[{r:r-1,c,d:B.U,o:B.D},{r,c:c+1,d:B.R,o:B.L},{r:r+1,c,d:B.D,o:B.U},{r,c:c-1,d:B.L,o:B.R}].filter(x=>x.r>=0&&x.r<n&&x.c>=0&&x.c<n)}
-function arms(m,powered=0){return["U","R","D","L"].map((x,i)=>{const bit=[1,2,4,8][i];if(!(m&bit))return "";return '<i class="s15-arm '+x.toLowerCase()+(powered&bit?" on":"")+'"></i>'}).join("")}
+function arms(m,powered=0){return '<span class="s15-rods">'+["U","R","D","L"].map((x,i)=>{const bit=[1,2,4,8][i];if(!(m&bit))return "";return '<i class="s15-arm '+x.toLowerCase()+(powered&bit?" on":"")+'"></i>'}).join("")+'</span>'}
 function makeBoard(){
  const n=round+3;board=Array.from({length:n*n},()=>({mask:0,kind:"",locked:false}));
  const route=[];for(let c=0;c<n;c++)route.push({r:0,c});for(let r=1;r<n;r++)route.push({r,c:n-1});
@@ -11208,7 +11211,7 @@ function renderBoard(){
 function connected(){
  const n=round+3,end=n*n-1,seen=new Set([0]),q=[0];while(q.length){const k=q.shift(),r=Math.floor(k/n),c=k%n;for(const z of around(r,c,n)){if(!(board[k].mask&z.d))continue;const j=z.r*n+z.c;if(seen.has(j)||!(board[j].mask&z.o))continue;if(j===end)return true;seen.add(j);q.push(j)}}return false;
 }
-$("s15Board").addEventListener("click",e=>{const t=e.target.closest(".s15-tile");if(!t||solved)return;const i=Number(t.dataset.index),x=board[i];if(!x||x.locked)return;x.mask=rot(x.mask);renderBoard();if(connected()){solved=true;$("s15Board").classList.add("s15-power-flow");$("s15PuzzleStatus").innerHTML='<span class="s15-success">⚡ 電気がマシンまで流れた！ 修理成功！</span>';$("s15Next").disabled=false;$("s15Next").textContent=round===2?"分析を開始する ▶":"次の回路へ ▶";$("s15Scene").classList.add("repaired")}else $("s15PuzzleStatus").textContent="光っている棒をたどって、次のマスへ電気をつなごう。"});
+$("s15Board").addEventListener("click",e=>{const t=e.target.closest(".s15-tile");if(!t||solved||t.classList.contains("turning"))return;const i=Number(t.dataset.index),x=board[i];if(!x||x.locked)return;t.classList.add("turning");setTimeout(()=>{x.mask=rot(x.mask);renderBoard();if(connected()){solved=true;$("s15Board").classList.add("s15-power-flow");$("s15PuzzleStatus").innerHTML='<span class="s15-success">⚡ 電気がマシンまで流れた！ 修理成功！</span>';$("s15Next").disabled=false;$("s15Next").textContent=round===2?"分析を開始する ▶":"次の回路へ ▶";$("s15Scene").classList.add("repaired")}else $("s15PuzzleStatus").textContent="光っている棒をたどって、次のマスへ電気をつなごう。"},200)});
 function next(){
  if(phase===1||phase===2){const d=scenes[phase];if(lineIndex<d.lines.length-1){lineIndex++;renderDialogue()}else if(phase===1){phase=2;lineIndex=0;renderDialogue()}else enterPuzzle();return}
  if(phase===3){if(!board.length){makeBoard();return}if(!solved)return;if(round<2){round++;makeBoard();return}phase=4;lineIndex=0;$("s15PuzzleArea").classList.add("s15-hidden");renderDialogue();return}

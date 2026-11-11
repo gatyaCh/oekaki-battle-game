@@ -4633,8 +4633,8 @@ body {
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px;max-width:1200px;margin:auto">
     <section style="background:#071e3b;border:3px solid #168cff;border-radius:20px;padding:16px;box-shadow:0 0 18px #087dff">
       <div style="display:flex;align-items:center;gap:14px"><div style="font-size:64px">🤜</div><div><h2 style="margin:0;color:#71bdff">kakeru</h2><b>専用武器：拳</b><div>近接攻撃に特化・連打可能</div></div></div>
-      <hr><h3>武器の性能</h3><p>⚔️ 攻撃力：1発4ダメージ</p><p>📏 攻撃範囲：剣の1.5倍（チャージ適用）</p><p>⏱️ クールタイム：0.15秒</p><p>💫 スタン時間：0.2秒</p>
-      <hr><h3>特殊効果</h3><p>🎒 アイテムを各7個に設定（使用ごとに1個消費）</p><p>🐢 敵の速度は通常どおり</p><p>🛡️ 拳が敵本体に命中すると短時間ひるませ、近くの敵弾も消す</p>
+      <hr><h3>武器の性能</h3><p>⚔️ 攻撃力：1発4ダメージ</p><p>📏 攻撃範囲：剣の1.5倍（チャージ適用）</p><p>⏱️ クールタイム：0.15秒</p><p>🐢 拳が命中した敵：移動速度0.6倍</p><p>💨 命中した敵が撃つ弾：弾速0.4倍</p>
+      <hr><h3>特殊効果</h3><p>🎒 アイテムを各7個に設定（使用ごとに1個消費）</p><p>🐢 拳が命中した敵は移動速度0.6倍</p><p>💨 命中した敵が撃つ弾は弾速0.4倍</p><p>🛡️ 拳が敵本体に命中すると近くの敵弾を消す</p>
       <button data-pick-special="kakeru" style="width:100%;padding:14px;border:0;border-radius:12px;background:#087dff;color:white;font-size:20px;font-weight:bold;cursor:pointer">これにする！</button>
     </section>
     <section style="background:#1b103b;border:3px solid #a855f7;border-radius:20px;padding:16px;box-shadow:0 0 18px #8b35ff">
@@ -6097,17 +6097,19 @@ function attack() {
     slashTimer = 8;
     let hitMainEnemy = false;
     minions.forEach(m => {
-      if (Math.hypot(p.x - m.x, p.y - m.y) < fistRange) damageMinion(m, fistDamage);
+      if (Math.hypot(p.x - m.x, p.y - m.y) < fistRange) {
+        damageMinion(m, fistDamage);
+        m.kakeruSlowTimer = Math.max(m.kakeruSlowTimer || 0, 0.22);
+      }
     });
-    if (Math.hypot(p.x - enemy.x, p.y - enemy.y) < fistRange) { damageEnemy(fistDamage); hitMainEnemy = true; }
+    if (Math.hypot(p.x - enemy.x, p.y - enemy.y) < fistRange) { damageEnemy(fistDamage); hitMainEnemy = true; enemy.kakeruSlowTimer = Math.max(enemy.kakeruSlowTimer || 0, 0.22); }
     if (hitMainEnemy) {
-      stun = Math.max(stun, 12);
       for (let i = enemyBullets.length - 1; i >= 0; i--) {
         const b = enemyBullets[i];
         if (b.enemy && Math.hypot(p.x - b.x, p.y - b.y) < fistRange + 18) enemyBullets.splice(i, 1);
       }
     }
-    msg.textContent = "🤜 拳！ " + Math.round(fistDamage) + "ダメージ / スタン0.2秒 / CT0.15秒";
+    msg.textContent = "🤜 拳！ " + Math.round(fistDamage) + "ダメージ / 移動速度0.6倍・弾速0.4倍 / CT0.15秒";
     return;
   }
   if (window.specialCodes?.sougo) {
@@ -7198,6 +7200,9 @@ function update() {
   if (wandCooldown > 0) wandCooldown = Math.max(0, wandCooldown - dt);
   if (p.invincibility > 0) p.invincibility -= dt;
   if (slowDebuffTimer > 0) slowDebuffTimer -= dt;
+  if (enemy.kakeruSlowTimer > 0) enemy.kakeruSlowTimer = Math.max(0, enemy.kakeruSlowTimer - dt);
+  minions.forEach(m => { if (m.kakeruSlowTimer > 0) m.kakeruSlowTimer = Math.max(0, m.kakeruSlowTimer - dt); });
+  const kakeruEnemySpeedMul = enemy.kakeruSlowTimer > 0 ? 0.6 : 1;
   let currentEnemyBaseSpeed = getBossBaseSpeed(stage);
   // Key Handler for Shield Activation
   const shieldKey = window.controlKeys.shield;
@@ -7345,26 +7350,26 @@ function update() {
   // Stage 8 ボス移動制限（前半無敵時は動かない、子分10体全滅後の後半タイマン覚醒で移動開始）
   const canBossMove = (stage !== 8) || (stage === 8 && stage8TotalSummoned >= 10 && minions.length === 0);
   if (lightningUltimateFleeFrames > 0 && enemy.hp > 0 && !bossSpecialState && !admin.enemyStopped && !(enemy.specialStunFrames > 0)) {
-    moveAwayFromPlayer(enemy, currentEnemyBaseSpeed * 1.8);
+    moveAwayFromPlayer(enemy, currentEnemyBaseSpeed * 1.8 * kakeruEnemySpeedMul);
   } else if (!bossSpecialState && wandSpecialTimer <= 0 && !admin.enemyStopped && stun <= 0 && !(enemy.specialStunFrames > 0) && rushDownTimer <= 0 && lightningTimer <= 0 && !isBlackholeActive && canBossMove) {
-    moveSmartAI(enemy, currentEnemyBaseSpeed, 0.5);
+    moveSmartAI(enemy, currentEnemyBaseSpeed * kakeruEnemySpeedMul, 0.5);
     if (Math.hypot(p.x - enemy.x, p.y - enemy.y) < 45) damagePlayer(normalEnemyDps() * dt * 60);
   }
   // Minion AI & Actions
   for (let i = minions.length - 1; i >= 0; i--) {
     let m = minions[i];
     if (lightningUltimateFleeFrames > 0 && m.hp > 0 && !bossSpecialState && !admin.enemyStopped && !(m.specialStunFrames > 0)) {
-      moveAwayFromPlayer(m, (m.type === "magma" ? 3.0 : 1.8) * (stage >= 5 ? 0.9 : 1) * 1.8);
+      moveAwayFromPlayer(m, (m.type === "magma" ? 3.0 : 1.8) * (stage >= 5 ? 0.9 : 1) * 1.8 * (m.kakeruSlowTimer > 0 ? 0.6 : 1));
     } else if (!bossSpecialState && wandSpecialTimer <= 0 && !admin.enemyStopped && stun <= 0 && !(m.specialStunFrames > 0) && lightningTimer <= 0 && !isBlackholeActive) {
       let mSpeed = m.type === "magma" ? 3.0 : 1.8;
       if (stage >= 5) mSpeed *= 0.9;
-      moveSmartAI(m, mSpeed, 0.4);
+      moveSmartAI(m, mSpeed * (m.kakeruSlowTimer > 0 ? 0.6 : 1), 0.4);
       if (Math.hypot(p.x - m.x, p.y - m.y) < 38) damagePlayer(normalEnemyDps() * dt * 30);
       if (m.type === "wind" || m.type === "shield_minion" || m.type === "normal") {
         m.shootTimer--;
         if (m.shootTimer <= 0) {
           let mdx = p.x - m.x, mdy = p.y - m.y, md = Math.hypot(mdx, mdy) || 1;
-          enemyBullets.push({ x: m.x, y: m.y, vx: mdx / md * 4.5, vy: mdy / md * 4.5, dmg: m.atk, enemy: true });
+          enemyBullets.push({ x: m.x, y: m.y, vx: mdx / md * 4.5, vy: mdy / md * 4.5, dmg: m.atk, enemy: true, sourceEnemy: m });
           m.shootTimer = 100 + Math.random() * 40;
         }
       }
@@ -7412,14 +7417,14 @@ function update() {
       enemyShootTimer = 0;
       let edx = p.x - enemy.x, edy = p.y - enemy.y, ed = Math.hypot(edx, edy) || 1;
       let bulletDmg = stage === 2 ? 15 : stage === 4 ? 25 : stage === 5 ? 20 : stage === 6 ? 30 : 35;
-      enemyBullets.push({ x: enemy.x, y: enemy.y, vx: edx / ed * 5, vy: edy / ed * 5, dmg: bulletDmg, enemy: true });
+      enemyBullets.push({ x: enemy.x, y: enemy.y, vx: edx / ed * 5, vy: edy / ed * 5, dmg: bulletDmg, enemy: true, sourceEnemy: enemy });
     }
   }
   if (lightningUltimateFleeFrames <= 0 && !(enemy.specialStunFrames > 0) && !bossSpecialState && wandSpecialTimer <= 0 && !ghost && [3, 4, 7, 8].includes(stage) && !admin.enemyStopped && rushDownTimer <= 0 && lightningTimer <= 0 && canBossMove) {
     if (enemyRushing > 0) {
       enemyRushing--;
       let edx = p.x - enemy.x, edy = p.y - enemy.y, ed = Math.hypot(edx, edy) || 1;
-      moveWithObstacles(enemy, (edx / ed) * 12 * enemySpeedMul, (edy / ed) * 12 * enemySpeedMul, enemy.r);
+      moveWithObstacles(enemy, (edx / ed) * 12 * enemySpeedMul * kakeruEnemySpeedMul, (edy / ed) * 12 * enemySpeedMul * kakeruEnemySpeedMul, enemy.r);
       let rushDmg = stage === 3 ? 40 : stage === 4 ? 45 : stage === 7 ? 55 : 65;
       if (ed < 50) damagePlayer(rushDmg * dt * 20);
     } else {
@@ -7448,7 +7453,8 @@ function update() {
       b.y += b.vy + Math.cos(b.angle) * side;
       b.life--;
     } else {
-      b.x += b.vx; b.y += b.vy;
+      const kakeruBulletSpeedMul = b.enemy && b.sourceEnemy && b.sourceEnemy.kakeruSlowTimer > 0 ? 0.4 : 1;
+      b.x += b.vx * kakeruBulletSpeedMul; b.y += b.vy * kakeruBulletSpeedMul;
     }
     if (!b.enemy) {
       let hitMinion = false;

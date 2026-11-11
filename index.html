@@ -7453,7 +7453,8 @@ function update() {
       b.y += b.vy + Math.cos(b.angle) * side;
       b.life--;
     } else {
-      const kakeruBulletSpeedMul = b.enemy && b.sourceEnemy && b.sourceEnemy.kakeruSlowTimer > 0 ? 0.4 : 1;
+      const kakeruBulletSource = b.sourceEnemy || (b.enemy ? enemy : null);
+      const kakeruBulletSpeedMul = b.enemy && kakeruBulletSource && kakeruBulletSource.kakeruSlowTimer > 0 ? 0.4 : 1;
       b.x += b.vx * kakeruBulletSpeedMul; b.y += b.vy * kakeruBulletSpeedMul;
     }
     if (!b.enemy) {

@@ -11132,7 +11132,7 @@ const B={U:1,R:2,D:4,L:8};
 function dir(a,b){if(b.r<a.r)return B.U;if(b.c>a.c)return B.R;if(b.r>a.r)return B.D;return B.L}
 function rot(m){return((m<<1)&15)|(m>>3)}
 function around(r,c,n){return[{r:r-1,c,d:B.U,o:B.D},{r,c:c+1,d:B.R,o:B.L},{r:r+1,c,d:B.D,o:B.U},{r,c:c-1,d:B.L,o:B.R}].filter(x=>x.r>=0&&x.r<n&&x.c>=0&&x.c<n)}
-function arms(m,powered=0){return["U","R","D","L"].map((x,i)=>'<i class="s15-arm '+x.toLowerCase()+(powered&[1,2,4,8][i]?" on":"")+'"></i>').join("")}
+function arms(m,powered=0){return["U","R","D","L"].map((x,i)=>{const bit=[1,2,4,8][i];if(!(m&bit))return "";return '<i class="s15-arm '+x.toLowerCase()+(powered&bit?" on":"")+'"></i>'}).join("")}
 function makeBoard(){
  const n=round+3;board=Array.from({length:n*n},()=>({mask:0,kind:"",locked:false}));
  const route=[];for(let c=0;c<n;c++)route.push({r:0,c});for(let r=1;r<n;r++)route.push({r,c:n-1});

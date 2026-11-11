@@ -3629,6 +3629,35 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
   body:not(.mobile-mode) #guideText { max-width:1000px; margin:8px auto 0; padding:8px 12px; border-radius:8px; background:rgba(51,65,85,.65); color:#cbd5e1; font-size:13px; }
 }
 
+
+/* World 1 free-roam exploration field */
+.story-explore-screen{position:fixed;inset:0;z-index:15008;overflow:hidden;background:#17251f;color:#fff;font-family:inherit}
+.story-explore-top{position:absolute;z-index:5;top:0;left:0;right:0;min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px;background:#101923ed;border-bottom:1px solid #64748b}
+.story-explore-top button{padding:8px 12px}
+.story-explore-top strong{font-size:15px}
+.story-explore-top span{font-size:12px;color:#cbd5e1}
+.story-explore-viewport{position:absolute;inset:48px 0 0;overflow:auto;scrollbar-width:none;overscroll-behavior:contain}
+.story-explore-viewport::-webkit-scrollbar{display:none}
+.story-explore-world{position:relative;width:2200px;height:1500px;overflow:hidden;background:linear-gradient(90deg,#64748b 0 28%,#a3a78b 28% 43%,#76a85b 43% 100%)}
+.story-explore-zone{position:absolute;top:20px;padding:8px 18px;border-radius:20px;background:#0f172acc;color:#fff;font-size:24px;font-weight:900;letter-spacing:4px}
+.story-explore-city{left:180px}.story-explore-suburbs{left:790px}.story-explore-grass{left:1530px}
+.story-explore-road{position:absolute;background:#555b60;border:5px solid #d6d3c1;box-shadow:0 0 0 2px #333}
+.story-explore-road-main{left:-80px;top:690px;width:2400px;height:150px;transform:rotate(-7deg)}
+.story-explore-road-branch{left:510px;top:250px;width:125px;height:760px;transform:rotate(8deg)}
+.story-explore-building{position:absolute;z-index:2;display:flex;align-items:center;justify-content:center;text-align:center;border:4px solid #334155;border-radius:12px;background:linear-gradient(145deg,#dbeafe,#64748b);box-shadow:0 8px 18px #0006;color:#102033;font-weight:900}
+.story-explore-lab{left:300px;top:570px;width:190px;height:125px;font-size:21px;background:linear-gradient(145deg,#dbeafe,#60a5fa);border-color:#1e40af}
+.story-explore-house{width:105px;height:85px;font-size:44px}
+.story-explore-tree{position:absolute;z-index:2;font-size:48px;filter:drop-shadow(0 5px 3px #0005)}
+.story-explore-stage{position:absolute;z-index:3;padding:12px 16px;border:2px solid #fde68a;border-radius:12px;background:#172554eF;color:#fff;font-weight:900;box-shadow:0 5px 15px #0007;white-space:nowrap}
+.story-explore-locked{border-color:#94a3b8;background:#334155eF}
+.story-explore-player{position:absolute;z-index:4;left:420px;top:760px;width:54px;height:54px;display:grid;place-items:center;border:3px solid #fff;border-radius:50%;background:#2563eb;font-size:34px;box-shadow:0 0 0 4px #1d4ed888,0 5px 12px #0008;transform:translate(-50%,-50%);pointer-events:none}
+.story-explore-hint{position:absolute;z-index:5;left:50%;bottom:14px;transform:translateX(-50%);max-width:min(650px,80vw);padding:9px 14px;border:1px solid #64748b;border-radius:12px;background:#0f172aeF;text-align:center;font-size:13px}
+.story-explore-pad{position:absolute;z-index:6;right:18px;bottom:72px;display:grid;gap:5px;touch-action:none}
+.story-explore-pad>button{justify-self:center}
+.story-explore-pad div{display:flex;gap:5px}
+.story-explore-pad button{width:48px;height:44px;border:1px solid #cbd5e1;border-radius:10px;background:#1e293beF;color:#fff;font-size:18px;touch-action:none}
+@media(max-width:600px){.story-explore-top{padding:7px 8px}.story-explore-top strong{font-size:12px}.story-explore-top span{display:none}.story-explore-hint{left:8px;right:8px;bottom:8px;max-width:none;transform:none;font-size:11px}.story-explore-pad{right:12px;bottom:70px}}
+
 </style>
 
 
@@ -4310,10 +4339,48 @@ body {
     <p>惑星の異変を調査する主人公を待ち受けるものとは……。</p>
     <div class="story-stage-grid" id="storyStageGrid"></div>
     <p id="storyProgressText" aria-live="polite"></p>
+    <button type="button" class="story-action" onclick="openStoryExplore()">🧭 探索フィールドへ</button>
     <button type="button" class="story-action story-back" onclick="openStoryWorlds()">ワールド選択に戻る</button>
   </div>
 </div>
 <div id="storyWorld2StageScreen" class="story-screen hidden" aria-label="第2ワールドのステージ選択"><div class="story-panel"><h1>🌌 第2ワールド：崩壊した浮遊都市</h1><p>結晶に覆われた島々を探索し、謎の敵に立ち向かおう。</p><div class="story-stage-grid" id="storyWorld2StageGrid"></div><p>2-2〜2-5をプレイできます。</p><button type="button" class="story-action story-back" onclick="openStoryWorlds()">ワールド選択に戻る</button></div></div>
+
+<div id="storyExploreScreen" class="story-explore-screen hidden" aria-label="ワールド1探索フィールド">
+  <div class="story-explore-top">
+    <button type="button" onclick="closeStoryExplore()">← ステージ選択へ</button>
+    <strong>🌍 ワールド1探索フィールド</strong>
+    <span>WASD / 矢印キーで移動</span>
+  </div>
+  <div id="storyExploreViewport" class="story-explore-viewport">
+    <div id="storyExploreWorld" class="story-explore-world">
+      <div class="story-explore-zone story-explore-city">街</div>
+      <div class="story-explore-zone story-explore-suburbs">郊外</div>
+      <div class="story-explore-zone story-explore-grass">草原</div>
+      <div class="story-explore-road story-explore-road-main"></div>
+      <div class="story-explore-road story-explore-road-branch"></div>
+      <div class="story-explore-building story-explore-lab">🚀<br>宇宙研究施設</div>
+      <div class="story-explore-building story-explore-house" style="left:190px;top:330px">🏠</div>
+      <div class="story-explore-building story-explore-house" style="left:530px;top:250px">🏢</div>
+      <div class="story-explore-building story-explore-house" style="left:650px;top:760px">🏠</div>
+      <div class="story-explore-building story-explore-house" style="left:360px;top:990px">🏬</div>
+      <div class="story-explore-tree" style="left:900px;top:260px">🌳</div>
+      <div class="story-explore-tree" style="left:1050px;top:880px">🌲</div>
+      <div class="story-explore-tree" style="left:1240px;top:440px">🌳</div>
+      <div class="story-explore-tree" style="left:1420px;top:1080px">🌲</div>
+      <div class="story-explore-tree" style="left:1750px;top:360px">🌳</div>
+      <div class="story-explore-tree" style="left:1920px;top:850px">🌲</div>
+      <div class="story-explore-stage" style="left:1510px;top:650px">🚩 1-1 異変の始まり</div>
+      <div class="story-explore-stage story-explore-locked" style="left:1840px;top:1120px">🔒 1-2 黒い何か</div>
+      <div id="storyExplorePlayer" class="story-explore-player" aria-label="プレイヤー">🧑‍🚀</div>
+    </div>
+  </div>
+  <div class="story-explore-hint">街から郊外を抜けて草原まで自由に歩けるよ。宇宙研究施設も探してみよう！</div>
+  <div class="story-explore-pad" aria-label="移動操作">
+    <button type="button" data-explore-dir="up">▲</button>
+    <div><button type="button" data-explore-dir="left">◀</button><button type="button" data-explore-dir="down">▼</button><button type="button" data-explore-dir="right">▶</button></div>
+  </div>
+</div>
+
 <div id="storyEpisodeScreen" class="story-screen hidden" aria-label="1-1 異変の始まり">
   <div class="story-panel">
     <h1>1-1「異変の始まり」</h1>
@@ -5132,6 +5199,60 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   window.openStoryWorlds=function(){hideStory("storyStageScreen");hideStory("storyWorld2StageScreen");hideStory("storyEpisodeScreen");showStory("storyWorldScreen");};
   window.openStoryWorld2Stages=function(){hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");renderStoryWorld2Stages();showStory("storyWorld2StageScreen");};
   function renderStoryWorld2Stages(){const grid=$story("storyWorld2StageGrid");if(!grid)return;grid.innerHTML="";[["2-2","赤い結晶"],["2-3","緑の結晶"],["2-4","水色の結晶"],["2-5","黒い結晶"]].forEach(([id,name])=>{let done=false;try{done=localStorage.getItem("story"+id.replace("-","")+"Cleared")==="1"}catch(e){}const card=document.createElement("div");card.className="story-stage-card"+(done?" cleared":" unlocked");const title=document.createElement("strong");title.textContent=id;card.appendChild(title);const label=document.createElement("div");label.style.cssText="font-size:12px;margin-top:4px";label.textContent=name;card.appendChild(label);const status=document.createElement("div");status.style.cssText="font-size:12px;margin-top:5px";status.textContent=done?"✅ クリア":"プレイ可能";card.appendChild(status);const btn=document.createElement("button");btn.type="button";btn.textContent=done?"もう一度戦う":"プレイ";btn.addEventListener("click",()=>window.startStoryBattle(id));card.appendChild(btn);grid.appendChild(card);});};
+
+  let storyExploreFrame=0;
+  const storyExplorePosition={x:420,y:760};
+  const storyExploreKeys=new Set();
+  const storyExploreDirections={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
+  function storyExploreVisible(){const el=$story("storyExploreScreen");return !!(el&&!el.classList.contains("hidden"));}
+  function storyExploreDraw(){
+    const player=$story("storyExplorePlayer"),view=$story("storyExploreViewport");
+    if(!player||!view)return;
+    player.style.left=storyExplorePosition.x+"px";
+    player.style.top=storyExplorePosition.y+"px";
+    const maxX=Math.max(0,storyExplorePosition.x-view.clientWidth/2);
+    const maxY=Math.max(0,storyExplorePosition.y-view.clientHeight/2);
+    view.scrollLeft=maxX;view.scrollTop=maxY;
+  }
+  function storyExploreTick(){
+    if(!storyExploreVisible()){storyExploreFrame=0;return;}
+    let dx=0,dy=0;
+    storyExploreKeys.forEach(k=>{const d=storyExploreDirections[k];if(d){dx+=d[0];dy+=d[1];}});
+    if(dx&&dy){dx*=0.7071;dy*=0.7071;}
+    storyExplorePosition.x=Math.max(40,Math.min(2160,storyExplorePosition.x+dx*4.2));
+    storyExplorePosition.y=Math.max(80,Math.min(1460,storyExplorePosition.y+dy*4.2));
+    storyExploreDraw();
+    storyExploreFrame=requestAnimationFrame(storyExploreTick);
+  }
+  window.openStoryExplore=function(){
+    hideStory("storyWorldScreen");hideStory("storyEpisodeScreen");hideStory("storyWorld2StageScreen");
+    renderStoryStages();hideStory("storyStageScreen");showStory("storyExploreScreen");
+    const view=$story("storyExploreViewport");if(view){view.scrollLeft=0;view.scrollTop=0;}
+    storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);
+  };
+  window.closeStoryExplore=function(){
+    hideStory("storyExploreScreen");storyExploreKeys.clear();
+    if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}
+    renderStoryStages();showStory("storyStageScreen");
+  };
+  document.addEventListener("keydown",function(e){
+    if(!storyExploreVisible())return;
+    const k=e.key.toLowerCase();
+    const map={arrowup:"up",w:"up",arrowdown:"down",s:"down",arrowleft:"left",a:"left",arrowright:"right",d:"right"};
+    if(map[k]){e.preventDefault();storyExploreKeys.add(map[k]);}
+  });
+  document.addEventListener("keyup",function(e){
+    const k=e.key.toLowerCase();
+    const map={arrowup:"up",w:"up",arrowdown:"down",s:"down",arrowleft:"left",a:"left",arrowright:"right",d:"right"};
+    if(map[k])storyExploreKeys.delete(map[k]);
+  });
+  window.addEventListener("blur",function(){storyExploreKeys.clear();});
+  document.querySelectorAll("[data-explore-dir]").forEach(function(btn){
+    const dir=btn.getAttribute("data-explore-dir");
+    btn.addEventListener("pointerdown",function(e){if(!storyExploreVisible())return;e.preventDefault();storyExploreKeys.add(dir);if(btn.setPointerCapture)btn.setPointerCapture(e.pointerId);});
+    ["pointerup","pointercancel","lostpointercapture"].forEach(function(type){btn.addEventListener(type,function(){storyExploreKeys.delete(dir);});});
+  });
+
   window.openStoryStages=function(){hideStory("storyWorldScreen");hideStory("storyEpisodeScreen");renderStoryStages();showStory("storyStageScreen");};
   window.closeStoryScreens=function(){hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");const map=$story("mapSelect");if(map)map.classList.remove("hidden");};
   function getStoryProgress(){try{return Math.max(1,Math.min(5,Number(localStorage.getItem("storyWorld1Unlocked")||1)));}catch(e){return 1;}}

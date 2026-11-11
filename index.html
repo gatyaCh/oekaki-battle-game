@@ -5138,8 +5138,8 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     const unlocked=getStoryProgress(),cleared=getStoryCleared();
      const titles={1:"異変の始まり",2:"黒い何か",3:"隕石の正体",4:"広がる黒い影",5:"惑星のものではない"};
      for(let i=1;i<=5;i++){
-       let done=false;try{done=(i===1&&cleared)||(i===2&&localStorage.getItem("story12Cleared")==="1")||(i===4&&localStorage.getItem("story14Cleared")==="1");}catch(e){}
-       const available=i===1||(i===2&&cleared);
+       let done=false;try{done=(i===1&&cleared)||(i===2&&localStorage.getItem("story12Cleared")==="1")||(i===3&&localStorage.getItem("story13Cleared")==="1")||(i===4&&localStorage.getItem("story14Cleared")==="1");}catch(e){}
+       const available=i===1||(i===2&&cleared)||(i===3&&localStorage.getItem("story12Cleared")==="1");
        const card=document.createElement("div");card.className="story-stage-card"+(done?" cleared":available?" unlocked":"");
        const title=document.createElement("strong");title.textContent="1-"+i;card.appendChild(title);
        const name=document.createElement("div");name.style.fontSize="12px";name.style.marginTop="4px";name.textContent=titles[i];card.appendChild(name);
@@ -5147,6 +5147,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
        const btn=document.createElement("button");btn.type="button";
        if(i===1){btn.textContent=done?"もう一度見る":"プレイ";btn.addEventListener("click",startStoryEpisode);}
        else if(i===2){btn.textContent=done?"もう一度戦う":"プレイ";btn.disabled=!available;btn.addEventListener("click",()=>window.startStoryBattle("1-2"));}
+       else if(i===3){btn.textContent=done?"もう一度調査する":"プレイ";btn.disabled=!(localStorage.getItem("story12Cleared")==="1");btn.addEventListener("click",()=>window.startStory13());}
        else if(i===4){btn.textContent="開発テスト";btn.addEventListener("click",()=>window.startStoryBattle("1-4"));}
        else {btn.textContent="制作中";btn.disabled=true;}
        card.appendChild(btn);grid.appendChild(card);
@@ -10835,7 +10836,61 @@ body.special-code-open #adminAbuseDialogue.active{
   opacity:0!important;
 }
 </style>
-</body>
+
+<style id="story13-lab-style">
+#story13Screen{position:fixed;inset:0;z-index:1000005;background:#071329;color:#eafaff;display:none;overflow:auto;font-family:Arial,sans-serif}
+#story13Screen.active{display:block}
+#story13Screen .s13-wrap{max-width:1100px;margin:auto;padding:14px}
+#story13Screen .s13-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+#story13Screen .s13-scene{position:relative;overflow:hidden;border:2px solid #63dfff;border-radius:16px;box-shadow:0 0 24px #1bbfff55;background:#14274b}
+#story13Screen .s13-scene img{display:block;width:100%;height:auto}
+#story13Screen .s13-panel{background:#13284a;border:1px solid #4ccfff;border-radius:14px;padding:14px;margin-top:12px}
+#story13Screen button{border:1px solid #72eaff;border-radius:10px;background:linear-gradient(135deg,#1765a0,#453d9b);color:white;padding:10px 16px;font-weight:bold;cursor:pointer}
+#story13Screen button:disabled{opacity:.45;cursor:not-allowed}
+#story13Screen .s13-meter{height:18px;background:#07152e;border:1px solid #65dcff;border-radius:20px;overflow:hidden;margin:10px 0}
+#story13Screen .s13-meter>i{display:block;width:0;height:100%;background:linear-gradient(90deg,#28baff,#a4ffff);transition:width .08s}
+#story13Screen input[type=range]{width:min(100%,480px);accent-color:#68edff}
+#story13Screen .s13-status{color:#a8eaff;min-height:1.5em}
+#story13Screen .s13-hidden{display:none!important}
+#story13Screen .s13-liquid{position:absolute;width:70px;height:45px;left:50%;top:63%;transform:translate(-50%,-50%);border-radius:48% 52% 40% 60%;background:radial-gradient(ellipse at 30% 25%,#7a6c91,#080811 65%);box-shadow:0 0 22px #000,0 0 10px #7b67a8;animation:s13pulse 2s infinite alternate}
+@keyframes s13pulse{to{filter:brightness(1.5);transform:translate(-50%,-50%) scale(1.08)}}
+#story13Screen .s13-shake{animation:s13shake .3s 3}
+@keyframes s13shake{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+@media(max-width:650px){#story13Screen .s13-wrap{padding:8px}#story13Screen .s13-panel{padding:10px}}
+</style>
+<div id="story13Screen" aria-live="polite">
+ <div class="s13-wrap">
+  <div class="s13-head"><div><strong>WORLD 1 / STAGE 1-3</strong><h2 style="margin:5px 0">隕石の正体</h2></div><button type="button" id="s13Exit">ステージ選択へ戻る</button></div>
+  <div class="s13-scene" id="s13Scene"><img src="assets/story-world1-lab.svg" alt="青と紫の近未来研究室"><div id="s13Liquid" class="s13-liquid s13-hidden"></div></div>
+  <section class="s13-panel" id="s13Panel">
+   <h3 id="s13Title">① 隕石を装置にはめる</h3><p id="s13Desc">観測台の中央に隕石をセットしよう。</p>
+   <div id="s13Controls"><button type="button" id="s13Insert">隕石を装置にはめる</button></div>
+   <div class="s13-status" id="s13Status">研究装置は待機中。</div>
+  </section>
+ </div>
+</div>
+<script id="story13-runtime">
+(function(){
+ const $=id=>document.getElementById(id);
+ const screen=$("story13Screen");if(!screen)return;
+ let stage=1,light=0,liquid=0,armTimer=null,liquidPos=50;
+ function show(){screen.classList.add("active");stage=1;render();}
+ function hide(){screen.classList.remove("active");stopArm();}
+ function stopArm(){if(armTimer){clearInterval(armTimer);armTimer=null;}}
+ function render(){
+  $("s13Liquid").classList.toggle("s13-hidden",stage<4);
+  const title=$("s13Title"),desc=$("s13Desc"),controls=$("s13Controls"),status=$("s13Status");
+  if(stage===1){title.textContent="① 隕石を装置にはめる";desc.textContent="観測台の中央に隕石をセットしよう。";controls.innerHTML='<button type="button" id="s13Insert">隕石を装置にはめる</button>';status.textContent="研究装置は待機中。";$("s13Insert").onclick=()=>{stage=2;render();};}
+  if(stage===2){title.textContent="② アームで光を取り出す";desc.textContent="「抽出開始」を押している間、アームが少しずつ光を取り出すよ。100%まで続けよう。";controls.innerHTML='<div class="s13-meter"><i id="s13LightFill"></i></div><button type="button" id="s13Extract">光の抽出開始（押し続ける）</button> <button type="button" id="s13Abort">緊急停止</button>';status.textContent="アームを隕石へ移動中…";const b=$("s13Extract");const start=()=>{if(armTimer)return;armTimer=setInterval(()=>{light=Math.min(100,light+2);const f=$("s13LightFill");if(f)f.style.width=light+"%";if(light>=100){stopArm();stage=3;render();}},100);};b.addEventListener("pointerdown",start);["pointerup","pointerleave","pointercancel"].forEach(ev=>b.addEventListener(ev,stopArm));$("s13Abort").onclick=()=>{stopArm();$("s13Scene").classList.add("s13-shake");setTimeout(()=>$("s13Scene").classList.remove("s13-shake"),900);stage=2;light=0;render();status.textContent="抽出失敗！隕石が不安定になった。ステップ②からやり直そう。";};}
+  if(stage===3){title.textContent="③ 隕石が砕けた！";desc.textContent="光を取り出したことで、隕石がいくつもの破片に分かれた。次は黒い液体を回収しよう。";controls.innerHTML='<button type="button" id="s13Next">破片を調べる</button>';status.textContent="隕石の内部から未知の物質を検出。";$("s13Next").onclick=()=>{stage=4;render();};}
+  if(stage===4){title.textContent="④ 黒い液体を慎重に回収";desc.textContent="スライダーで回収アームの位置を合わせて「回収」を押そう。中央の安全範囲に合わせると成功。";controls.innerHTML='<label>回収アームの位置：<input id="s13LiquidRange" type="range" min="0" max="100" value="'+liquidPos+'"></label><div class="s13-meter"><i id="s13LiquidFill"></i></div><button type="button" id="s13Collect">この位置から回収</button>';status.textContent="液体がゆっくり動いている。慎重に位置を合わせよう。";$("s13LiquidRange").oninput=e=>{liquidPos=Number(e.target.value);$("s13Liquid").style.left=(20+liquidPos*.6)+"%";};$("s13Collect").onclick=()=>{if(liquidPos>=42&&liquidPos<=58){liquid=Math.min(100,liquid+25);$("s13LiquidFill").style.width=liquid+"%";status.textContent="回収成功！こぼさずに採取できた。";if(liquid>=100){stage=5;setTimeout(render,500);}}else{stage=4;liquid=0;$("s13Scene").classList.add("s13-shake");setTimeout(()=>$("s13Scene").classList.remove("s13-shake"),900);status.textContent="回収失敗！黒い液体が主人公に付着し、視界が暗くなった…… GAME OVER。④から再挑戦しよう。";const b=$("s13Collect");b.textContent="④を最初からやり直す";b.onclick=()=>{liquid=0;liquidPos=50;render();};}};}
+  if(stage===5){title.textContent="⑤ 惑星物研究処理";desc.textContent="回収した黒い液体を専用装置へ移す。";controls.innerHTML='<div style="padding:14px;border:1px solid #72eaff;border-radius:10px;background:#081a35">🧪 黒い液体を「惑星物研究処理」装置へ転送中…</div><button type="button" id="s13Finish">転送完了</button>';status.textContent="未知の物質の分析を開始できる状態になった。";$("s13Finish").onclick=()=>{stage=6;render();};}
+  if(stage===6){title.textContent="1-3 クリア！";desc.textContent="黒い液体の回収と転送に成功した。正体の分析は次の段階へ……。";controls.innerHTML='<button type="button" id="s13Done">ステージ選択へ戻る</button>';status.textContent="惑星物研究処理：サンプル受け入れ完了。";$("s13Done").onclick=()=>{try{localStorage.setItem("story13Cleared","1");}catch(e){}hide();if(typeof window.renderStoryStages==="function")window.renderStoryStages();};}
+ }
+ $("s13Exit").onclick=hide;
+ window.startStory13=show;
+})();
+</script></body>
 </html>
 
 <script id="achievement-feature-20261018">

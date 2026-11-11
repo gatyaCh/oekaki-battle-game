@@ -4632,7 +4632,7 @@ body {
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px;max-width:1200px;margin:auto">
     <section style="background:#071e3b;border:3px solid #168cff;border-radius:20px;padding:16px;box-shadow:0 0 18px #087dff">
       <div style="display:flex;align-items:center;gap:14px"><div style="font-size:64px">🤜</div><div><h2 style="margin:0;color:#71bdff">kakeru</h2><b>専用武器：拳</b><div>近接攻撃に特化・連打可能</div></div></div>
-      <hr><h3>武器の性能</h3><p>⚔️ 攻撃力：1発6ダメージ</p><p>📏 攻撃範囲：剣の1.5倍（チャージ適用）</p><p>⏱️ クールタイム：なし</p>
+      <hr><h3>武器の性能</h3><p>⚔️ 攻撃力：1発4ダメージ</p><p>📏 攻撃範囲：剣の1.5倍（チャージ適用）</p><p>⏱️ クールタイム：0.3秒</p><p>💫 スタン時間：0.2秒</p>
       <hr><h3>特殊効果</h3><p>🎒 アイテムを各7個に設定（使用ごとに1個消費）</p><p>🐢 敵の速度は通常どおり</p><p>🛡️ 拳が敵本体に命中すると短時間ひるませ、近くの敵弾も消す</p>
       <button data-pick-special="kakeru" style="width:100%;padding:14px;border:0;border-radius:12px;background:#087dff;color:white;font-size:20px;font-weight:bold;cursor:pointer">これにする！</button>
     </section>
@@ -6086,7 +6086,7 @@ function attack() {
   if (window.adminPanelInteracting || gameOver || stageClear) return;
   if (window.specialCodes?.kakeru) {
     const fistRange = (72 + charge / 2) * 1.5;
-    const fistDamage = 6 * atkBuff * (1 + drawAttackBonus) * (kizuku2Active ? 2 : 1)
+    const fistDamage = 4 * atkBuff * (1 + drawAttackBonus) * (kizuku2Active ? 2 : 1)
       * (window.sougoBoostActive ? 3 : 1) * (adminRankAbility === "damage4" ? 4 : 1)
       * ((window.halloweenEffects || {}).candy > 0 ? 1.8 : 1)
       * ((window.halloweenEffects || {}).zombie > 0 ? 2.3 : 1)
@@ -6098,13 +6098,13 @@ function attack() {
     });
     if (Math.hypot(p.x - enemy.x, p.y - enemy.y) < fistRange) { damageEnemy(fistDamage); hitMainEnemy = true; }
     if (hitMainEnemy) {
-      stun = Math.max(stun, 18);
+      stun = Math.max(stun, 12);
       for (let i = enemyBullets.length - 1; i >= 0; i--) {
         const b = enemyBullets[i];
         if (b.enemy && Math.hypot(p.x - b.x, p.y - b.y) < fistRange + 18) enemyBullets.splice(i, 1);
       }
     }
-    msg.textContent = "🤜 拳！ " + Math.round(fistDamage) + "ダメージ / 範囲70% / CTなし";
+    msg.textContent = "🤜 拳！ " + Math.round(fistDamage) + "ダメージ / スタン0.2秒 / CT0.3秒";
     return;
   }
   if (window.specialCodes?.sougo) {
@@ -6535,6 +6535,7 @@ function nextStage() {
   updateSpecialGauge();
   if (rikuActive) addRandomSpecialStock();
   setTimeout(() => {
+    if (window.specialCodes?.kakeru) { proceedToNextStageNumber(); return; }
     if (stage === 4) { openShop(1); return; }
     if (stage === 7) { openShop(2); return; }
     openUpgradeShop(true);
@@ -6664,6 +6665,7 @@ function getUpgradePrice(key, level) {
   return base==null?null:(upgradeDiscountWon?Math.ceil(base*0.8):base);
 }
 function openUpgradeShop(advanceAfterClose=true) {
+  if(window.specialCodes?.kakeru){if(advanceAfterClose)proceedToNextStageNumber();return;}
   upgradeShopNeedsAdvance=!!advanceAfterClose;
   rouletteAttemptedThisVisit=false;
   renderUpgradeShop();
@@ -6771,7 +6773,7 @@ function closeShop() {
   // ステージ4・7では通常ショップのあとに自己強化ショップも開く。
   if (shopNeedsAdvance) {
     shopNeedsAdvance = false;
-    if (stage === 4 || stage === 7) openUpgradeShop(true);
+    if ((stage === 4 || stage === 7) && !window.specialCodes?.kakeru) openUpgradeShop(true);
     else proceedToNextStageNumber();
   }
 }
@@ -7322,12 +7324,12 @@ function update() {
   p.x = Math.max(25, Math.min(CANVAS_WIDTH - 25, p.x));
   p.y = Math.max(25, Math.min(CANVAS_HEIGHT - 25, p.y));
   if (charging && window.specialCodes?.kakeru) {
-    // 拳は長押し中に自動攻撃。実際の攻撃間隔は50ms（0.05秒）。
+    // 拳は長押し中に自動攻撃。攻撃間隔は0.3秒。
     const now = performance.now();
     if (now >= (window.kakeruNextAttackAt || 0)) {
       charge = 0;
       attack();
-      window.kakeruNextAttackAt = now + 100;
+      window.kakeruNextAttackAt = now + 300;
     }
   } else if (charging && attackCooldown <= 0) {
     if (charge < 100) charge += 1;
@@ -8517,7 +8519,7 @@ loop();
       ["❤","💪","🛡️","🗿","👻","🔮","⚡️","tripleGatling"].forEach(id => { inv.normal[id] = 7; });
       ["horse","candy","bat","allies","zombie","potionLarge","potionSmall"].forEach(id => { inv.halloween[id] = 7; });
       p.max = 350; p.hp = 350;
-      msg.textContent = "🤜 kakeru 発動！専用武器・拳（攻撃6／最大体力350／剣の範囲1.5倍・チャージ適用／CTなし）＋初期アイテム各7個！";
+      msg.textContent = "🤜 kakeru 発動！専用武器・拳（攻撃4／スタン0.2秒／CT0.3秒／最大体力350／剣の範囲1.5倍）＋初期アイテム各7個！";
       return true;
     }
     if (c === "sougo") {
@@ -10939,11 +10941,11 @@ body.special-code-open #adminAbuseDialogue.active{
 #story15Screen .s15-muted{color:#b6d9ed}#story15Screen .s15-board{display:grid;gap:7px;width:min(92vw,540px);aspect-ratio:1;margin:16px auto;padding:10px;border:2px solid #4bdfff;border-radius:14px;background:#0a1c31;box-shadow:inset 0 0 25px #3ccfff22}
 #story15Screen .s15-tile{position:relative;min-width:0;min-height:0;border:1px solid #426b88;border-radius:9px;background:linear-gradient(145deg,#193b59,#0c1d31);padding:0;display:block;overflow:hidden;touch-action:manipulation}
 #story15Screen .s15-tile .core{position:absolute;left:50%;top:50%;width:19%;height:19%;transform:translate(-50%,-50%);border-radius:50%;background:#4a7898;box-shadow:0 0 8px #49cfff}
-#story15Screen .s15-arm{position:absolute;left:50%;top:50%;width:12%;height:42%;border-radius:8px;background:#31516b;transform:translate(-50%,-100%);transform-origin:50% 100%}
+#story15Screen .s15-arm{position:absolute;left:50%;top:50%;width:12%;height:49%;border-radius:8px;background:#31516b;transform:translate(-50%,-100%);transform-origin:50% 100%}
 #story15Screen .s15-arm.r{transform:translate(0,-50%) rotate(90deg);transform-origin:0 50%}
 #story15Screen .s15-arm.d{transform:translate(-50%,0) rotate(180deg);transform-origin:50% 0}
 #story15Screen .s15-arm.l{transform:translate(-100%,-50%) rotate(-90deg);transform-origin:100% 50%}
-#story15Screen .s15-arm.on{background:linear-gradient(#b8faff,#36cfff);box-shadow:0 0 8px #38dfff}
+#story15Screen .s15-arm.on{background:linear-gradient(#eaffff,#36cfff);box-shadow:0 0 8px #38dfff,0 0 16px #35eaff;filter:brightness(1.35)}
 #story15Screen .s15-tile.source{border-color:#64f5bc;background:#14543f}#story15Screen .s15-tile.sink{border-color:#c28cff;background:#4c286c}
 #story15Screen .s15-tile.source .core{background:#64f5bc}#story15Screen .s15-tile.sink .core{background:#d9a4ff}
 #story15Screen .s15-label{position:absolute;left:1px;right:1px;bottom:2px;font-size:clamp(8px,1.4vw,11px);color:#fff}
@@ -11130,7 +11132,7 @@ const B={U:1,R:2,D:4,L:8};
 function dir(a,b){if(b.r<a.r)return B.U;if(b.c>a.c)return B.R;if(b.r>a.r)return B.D;return B.L}
 function rot(m){return((m<<1)&15)|(m>>3)}
 function around(r,c,n){return[{r:r-1,c,d:B.U,o:B.D},{r,c:c+1,d:B.R,o:B.L},{r:r+1,c,d:B.D,o:B.U},{r,c:c-1,d:B.L,o:B.R}].filter(x=>x.r>=0&&x.r<n&&x.c>=0&&x.c<n)}
-function arms(m){return["U","R","D","L"].map((x,i)=>'<i class="s15-arm '+x.toLowerCase()+(m&[1,2,4,8][i]?" on":"")+'"></i>').join("")}
+function arms(m,powered=0){return["U","R","D","L"].map((x,i)=>'<i class="s15-arm '+x.toLowerCase()+(powered&[1,2,4,8][i]?" on":"")+'"></i>').join("")}
 function makeBoard(){
  const n=round+3;board=Array.from({length:n*n},()=>({mask:0,kind:"",locked:false}));
  const route=[];for(let c=0;c<n;c++)route.push({r:0,c});for(let r=1;r<n;r++)route.push({r,c:n-1});
@@ -11138,15 +11140,27 @@ function makeBoard(){
  const shapes=[3,6,12,9,5,10];board.forEach(x=>{if(x.kind)return;x.mask=shapes[Math.floor(Math.random()*shapes.length)];if(Math.random()<.65){let t=1+Math.floor(Math.random()*3);while(t--)x.mask=rot(x.mask)}});
  solved=false;renderBoard();
 }
+function poweredMasks(){
+ const n=round+3,powered=Array(board.length).fill(0),seen=new Set([0]),q=[0];
+ while(q.length){
+  const k=q.shift(),r=Math.floor(k/n),c=k%n;
+  for(const z of around(r,c,n)){
+   if(!(board[k].mask&z.d)||!(board[z.r*n+z.c].mask&z.o))continue;
+   const j=z.r*n+z.c;powered[k]|=z.d;powered[j]|=z.o;
+   if(!seen.has(j)){seen.add(j);q.push(j)}
+  }
+ }
+ return powered;
+}
 function renderBoard(){
- const n=round+3,el=$("s15Board");el.style.gridTemplateColumns="repeat("+n+",1fr)";el.classList.remove("s15-power-flow");el.innerHTML="";
- board.forEach((x,i)=>{const b=document.createElement("button");b.type="button";b.className="s15-tile "+x.kind;b.dataset.index=i;b.disabled=x.locked;b.setAttribute("aria-label",x.kind==="source"?"電源":x.kind==="sink"?"マシン":"回路パーツ "+(i+1));b.innerHTML='<i class="core"></i>'+arms(x.mask)+(x.kind==="source"?'<span class="s15-label">電源</span>':x.kind==="sink"?'<span class="s15-label">マシン</span>':"");el.appendChild(b)});
- $("s15Round").textContent="回路修理 "+(round+1)+" / 3";$("s15GridSize").textContent=n+" × "+n;$("s15PuzzleStatus").textContent="回路パーツをタップして電気を通そう。";$("s15Next").disabled=true;$("s15Next").textContent="回路を確認中…";$("s15Scene").classList.remove("repaired");
+ const n=round+3,el=$("s15Board"),powered=poweredMasks();el.style.gridTemplateColumns="repeat("+n+",1fr)";el.classList.remove("s15-power-flow");el.innerHTML="";
+ board.forEach((x,i)=>{const b=document.createElement("button");b.type="button";b.className="s15-tile "+x.kind;b.dataset.index=i;b.disabled=x.locked;b.setAttribute("aria-label",x.kind==="source"?"電源":x.kind==="sink"?"マシン":"回路パーツ "+(i+1));b.innerHTML='<i class="core"></i>'+arms(x.mask,powered[i])+(x.kind==="source"?'<span class="s15-label">電源</span>':x.kind==="sink"?'<span class="s15-label">マシン</span>':"");el.appendChild(b)});
+ $("s15Round").textContent="回路修理 "+(round+1)+" / 3";$("s15GridSize").textContent=n+" × "+n;$("s15PuzzleStatus").textContent="光っている棒が、電気の通っている方向だよ。次のパーツへつなげよう。";$("s15Next").disabled=true;$("s15Next").textContent="回路を確認中…";$("s15Scene").classList.remove("repaired");
 }
 function connected(){
  const n=round+3,end=n*n-1,seen=new Set([0]),q=[0];while(q.length){const k=q.shift(),r=Math.floor(k/n),c=k%n;for(const z of around(r,c,n)){if(!(board[k].mask&z.d))continue;const j=z.r*n+z.c;if(seen.has(j)||!(board[j].mask&z.o))continue;if(j===end)return true;seen.add(j);q.push(j)}}return false;
 }
-$("s15Board").addEventListener("click",e=>{const t=e.target.closest(".s15-tile");if(!t||solved)return;const i=Number(t.dataset.index),x=board[i];if(!x||x.locked)return;x.mask=rot(x.mask);t.innerHTML='<i class="core"></i>'+arms(x.mask);if(connected()){solved=true;$("s15Board").classList.add("s15-power-flow");$("s15PuzzleStatus").innerHTML='<span class="s15-success">⚡ 電気がマシンまで流れた！ 修理成功！</span>';$("s15Next").disabled=false;$("s15Next").textContent=round===2?"分析を開始する ▶":"次の回路へ ▶";$("s15Scene").classList.add("repaired")}else $("s15PuzzleStatus").textContent="まだ電気が届かない。パーツを回転させて道をつなごう。"});
+$("s15Board").addEventListener("click",e=>{const t=e.target.closest(".s15-tile");if(!t||solved)return;const i=Number(t.dataset.index),x=board[i];if(!x||x.locked)return;x.mask=rot(x.mask);renderBoard();if(connected()){solved=true;$("s15Board").classList.add("s15-power-flow");$("s15PuzzleStatus").innerHTML='<span class="s15-success">⚡ 電気がマシンまで流れた！ 修理成功！</span>';$("s15Next").disabled=false;$("s15Next").textContent=round===2?"分析を開始する ▶":"次の回路へ ▶";$("s15Scene").classList.add("repaired")}else $("s15PuzzleStatus").textContent="光っている棒をたどって、次のマスへ電気をつなごう。"});
 function next(){
  if(phase===1||phase===2){const d=scenes[phase];if(lineIndex<d.lines.length-1){lineIndex++;renderDialogue()}else if(phase===1){phase=2;lineIndex=0;renderDialogue()}else enterPuzzle();return}
  if(phase===3){if(!board.length){makeBoard();return}if(!solved)return;if(round<2){round++;makeBoard();return}phase=4;lineIndex=0;$("s15PuzzleArea").classList.add("s15-hidden");renderDialogue();return}

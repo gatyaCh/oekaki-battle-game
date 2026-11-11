@@ -5139,7 +5139,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
      const titles={1:"異変の始まり",2:"黒い何か",3:"隕石の正体",4:"広がる黒い影",5:"惑星のものではない"};
      for(let i=1;i<=5;i++){
        let done=false;try{done=(i===1&&cleared)||(i===2&&localStorage.getItem("story12Cleared")==="1")||(i===3&&localStorage.getItem("story13Cleared")==="1")||(i===4&&localStorage.getItem("story14Cleared")==="1")||(i===5&&localStorage.getItem("story15Cleared")==="1");}catch(e){}
-       const available=i===1||(i===2&&cleared)||(i===3&&localStorage.getItem("story12Cleared")==="1")||(i===5&&localStorage.getItem("story14Cleared")==="1");
+       const available=i===1||(i===2&&cleared)||(i===3&&localStorage.getItem("story12Cleared")==="1")||i===5;
        const card=document.createElement("div");card.className="story-stage-card"+(done?" cleared":available?" unlocked":"");
        const title=document.createElement("strong");title.textContent="1-"+i;card.appendChild(title);
        const name=document.createElement("div");name.style.fontSize="12px";name.style.marginTop="4px";name.textContent=titles[i];card.appendChild(name);
@@ -10731,9 +10731,22 @@ body.special-code-open #adminAbuseDialogue.active{
  window.startStoryBattle=start;
  function clearCanvas(){g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);g.strokeStyle="#172033";g.lineWidth=7;g.lineCap="round";g.lineJoin="round";strokes=[]}
  function pos(e){const r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*c.width/r.width,y:(e.clientY-r.top)*c.height/r.height}}
- c.addEventListener("pointerdown",e=>{if(!$("storyDrawPanel").classList.contains("active"))return;e.preventDefault();drawing=true;last=pos(e);strokes.push([last]);c.setPointerCapture(e.pointerId)});
- c.addEventListener("pointermove",e=>{if(!drawing)return;e.preventDefault();const p=pos(e);g.beginPath();g.moveTo(last.x,last.y);g.lineTo(p.x,p.y);g.stroke();strokes[strokes.length-1].push(p);last=p});
- ["pointerup","pointercancel"].forEach(x=>c.addEventListener(x,()=>{drawing=false;last=null}));
+ c.style.touchAction="none";
+ c.addEventListener("pointerdown",e=>{
+  if(!$("storyDrawPanel").classList.contains("active")||!g)return;
+  e.preventDefault();drawing=true;last=pos(e);strokes.push([last]);
+  try{c.setPointerCapture(e.pointerId)}catch(_){}
+ });
+ c.addEventListener("pointermove",e=>{
+  if(!drawing||!$("storyDrawPanel").classList.contains("active")||!g)return;
+  e.preventDefault();const p=pos(e);
+  if(!last){last=p;strokes.push([p]);return}
+  g.beginPath();g.moveTo(last.x,last.y);g.lineTo(p.x,p.y);g.stroke();
+  if(!strokes.length)strokes.push([last]);
+  strokes[strokes.length-1].push(p);last=p;
+ });
+ ["pointerup","pointercancel","lostpointercapture"].forEach(x=>c.addEventListener(x,()=>{drawing=false;last=null}));
+ window.addEventListener("blur",()=>{drawing=false;last=null});
  document.querySelectorAll(".story-battle-commands button").forEach(b=>b.addEventListener("click",()=>{
   if(turnBusy||hp<=0||enemies.every(e=>e.hp<=0))return;
   action=b.dataset.action;$("storyDrawPrompt").textContent=prompts[action];$("storyDrawResult").textContent="";$("storyDrawPanel").classList.add("active");clearCanvas();render();$("storyDrawPanel").scrollIntoView({behavior:"smooth",block:"nearest"});

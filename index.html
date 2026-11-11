@@ -4296,7 +4296,7 @@ body {
     <p>ぶつかり始めた世界を巡り、その謎を解き明かそう。</p>
     <div class="story-world-grid">
       <div class="story-world-card available"><h2>🌍 第1ワールド</h2><h3>惑星衝突の謎</h3><p>全5ステージ</p><button type="button" onclick="openStoryStages()">ワールドに入る</button></div>
-      <div class="story-world-card"><h2>🌿 第2ワールド</h2><p>？？？</p><button type="button" disabled>未解放</button></div>
+      <div class="story-world-card available"><h2>🌌 第2ワールド</h2><h3>崩壊した浮遊都市</h3><p>2-2〜2-5 実装中</p><button type="button" onclick="openStoryWorld2Stages()">ステージを選ぶ</button></div>
       <div class="story-world-card"><h2>⚙️ 第3ワールド</h2><p>？？？</p><button type="button" disabled>未解放</button></div>
       <div class="story-world-card"><h2>🌊 第4ワールド</h2><p>？？？</p><button type="button" disabled>未解放</button></div>
       <div class="story-world-card"><h2>🌑 第5ワールド</h2><p>？？？</p><button type="button" disabled>未解放</button></div>
@@ -4313,6 +4313,7 @@ body {
     <button type="button" class="story-action story-back" onclick="openStoryWorlds()">ワールド選択に戻る</button>
   </div>
 </div>
+<div id="storyWorld2StageScreen" class="story-screen hidden" aria-label="第2ワールドのステージ選択"><div class="story-panel"><h1>🌌 第2ワールド：崩壊した浮遊都市</h1><p>結晶に覆われた島々を探索し、謎の敵に立ち向かおう。</p><div class="story-stage-grid" id="storyWorld2StageGrid"></div><p>2-2〜2-5をプレイできます。</p><button type="button" class="story-action story-back" onclick="openStoryWorlds()">ワールド選択に戻る</button></div></div>
 <div id="storyEpisodeScreen" class="story-screen hidden" aria-label="1-1 異変の始まり">
   <div class="story-panel">
     <h1>1-1「異変の始まり」</h1>
@@ -5128,7 +5129,9 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   window.openStoryCodeGate=function(){hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");const map=$story("mapSelect");if(map)map.classList.add("hidden");const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(input)input.value="";if(message)message.textContent="";showStory("storyCodeGate");if(input)input.focus();};
   window.closeStoryCodeGate=function(){hideStory("storyCodeGate");const map=$story("mapSelect");if(map)map.classList.remove("hidden");};
   window.submitStoryTestCode=function(){const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(!input||!message)return;if(input.value!==STORY_TEST_CODE){message.textContent="❌ コードが違います。";input.select();return;}hideStory("storyCodeGate");input.value="";openStoryWorlds();};
-  window.openStoryWorlds=function(){hideStory("storyStageScreen");hideStory("storyEpisodeScreen");showStory("storyWorldScreen");};
+  window.openStoryWorlds=function(){hideStory("storyStageScreen");hideStory("storyWorld2StageScreen");hideStory("storyEpisodeScreen");showStory("storyWorldScreen");};
+  window.openStoryWorld2Stages=function(){hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");renderStoryWorld2Stages();showStory("storyWorld2StageScreen");};
+  function renderStoryWorld2Stages(){const grid=$story("storyWorld2StageGrid");if(!grid)return;grid.innerHTML="";[["2-2","赤い結晶"],["2-3","緑の結晶"],["2-4","水色の結晶"],["2-5","黒い結晶"]].forEach(([id,name])=>{let done=false;try{done=localStorage.getItem("story"+id.replace("-","")+"Cleared")==="1"}catch(e){}const card=document.createElement("div");card.className="story-stage-card"+(done?" cleared":" unlocked");const title=document.createElement("strong");title.textContent=id;card.appendChild(title);const label=document.createElement("div");label.style.cssText="font-size:12px;margin-top:4px";label.textContent=name;card.appendChild(label);const status=document.createElement("div");status.style.cssText="font-size:12px;margin-top:5px";status.textContent=done?"✅ クリア":"プレイ可能";card.appendChild(status);const btn=document.createElement("button");btn.type="button";btn.textContent=done?"もう一度戦う":"プレイ";btn.addEventListener("click",()=>window.startStoryBattle(id));card.appendChild(btn);grid.appendChild(card);});};
   window.openStoryStages=function(){hideStory("storyWorldScreen");hideStory("storyEpisodeScreen");renderStoryStages();showStory("storyStageScreen");};
   window.closeStoryScreens=function(){hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");const map=$story("mapSelect");if(map)map.classList.remove("hidden");};
   function getStoryProgress(){try{return Math.max(1,Math.min(5,Number(localStorage.getItem("storyWorld1Unlocked")||1)));}catch(e){return 1;}}
@@ -10657,7 +10660,11 @@ body.special-code-open #adminAbuseDialogue.active{
  const $=id=>document.getElementById(id);
  const cfg={
  "1-2":{title:"1-2「黒い何か」",subtitle:"草原に落ちた隕石から現れた黒い敵",scene:"grass",enemies:[["黒い敵①",100,7],["黒い敵②",100,7],["黒い敵③",100,7]]},
- "1-4":{title:"1-4「広がる黒い影」",subtitle:"黒い影に覆われた街で敵を食い止めよう",scene:"town",enemies:[["黒い敵①",150,10],["黒い敵②",150,10],["大型の黒い敵",400,40]]}
+ "1-4":{title:"1-4「広がる黒い影」",subtitle:"黒い影に覆われた街で敵を食い止めよう",scene:"town",enemies:[["黒い敵①",150,10],["黒い敵②",150,10],["大型の黒い敵",400,40]]},
+ "2-2":{title:"2-2「赤い結晶」",subtitle:"赤い結晶を宿した敵を含む3体を倒そう",scene:"island-red",enemies:[["影の敵①",100,7],["影の敵②",100,7],["赤い結晶の敵",100,50,"red","攻撃力50"]]},
+ "2-3":{title:"2-3「緑の結晶」",subtitle:"攻撃をかわす緑の結晶の敵に注意しよう",scene:"island-green",enemies:[["影の敵①",110,7],["緑の結晶の敵",110,7,"green","回避率20%"],["影の敵③",110,7]]},
+ "2-4":{title:"2-4「水色の結晶」",subtitle:"体力の高い水色の結晶の敵を倒そう",scene:"island-cyan",enemies:[["影の敵①",110,7],["影の敵②",110,7],["水色の結晶の敵",200,7,"cyan","HP200"],["影の敵④",110,7]]},
+ "2-5":{title:"2-5「黒い結晶」",subtitle:"黒い結晶の敵はHPが50以下になると仲間を吸収する",scene:"island-black",enemies:[["影の敵①",115,7],["影の敵②",115,7],["影の敵③",115,7],["影の敵④",115,7],["黒い結晶の敵",115,7,"black","HP50以下で吸収"]]}
  };
  const prompts={attack:"お題：剣を描こう！",dodge:"お題：翼を描こう！",defend:"お題：盾を描こう！",heal:"お題：回復の薬を描こう！"};
  const introLinesByStage={
@@ -10683,10 +10690,14 @@ body.special-code-open #adminAbuseDialogue.active{
   ["主人公","……前に何かいる！","reveal","encounter"],
   ["ナレーション","目の前に、巨大な黒い影が立ちはだかった！","reveal","encounter"],
   ["主人公","ここを通してもらう！みんなを助けるために、突破するんだ！","reveal","encounter"]
- ]
+ ],
+ "2-2":[["ナレーション","主人公は、結晶に覆われた浮島のひとつに降り立った。","","crystal-red"],["主人公","街のような建物が並んでいる……。でも、どこも崩れている。","","crystal-red"],["ナレーション","廃墟の奥から黒い影のような敵が3体現れた。","shadow-rise","crystal-red"],["主人公","こっちに気づいたみたいだ……！戦うしかない！","crystal-glow","crystal-red"]],
+ "2-3":[["ナレーション","次の浮島には、緑色の結晶が建物や地面に広がっていた。","","crystal-green"],["主人公","この島の結晶は、さっきの赤いものとは違う……。","","crystal-green"],["ナレーション","結晶の陰から、3体の影の敵が姿を現した。","shadow-rise","crystal-green"],["主人公","緑の結晶を持つ敵がいる。動きに注意しよう！","crystal-glow","crystal-green"]],
+ "2-4":[["ナレーション","さらに奥の浮島へ進むと、水色の結晶が街全体を覆っていた。","","crystal-cyan"],["主人公","結晶が壁みたいになっている……。かなり頑丈そうだ。","","crystal-cyan"],["ナレーション","4体の影の敵が行く手をふさいだ。そのうち1体は大きな水色の結晶を身につけている。","shadow-rise","crystal-cyan"],["主人公","あの結晶を持つ敵は、ほかより体力が高そうだ……！","crystal-glow","crystal-cyan"]],
+ "2-5":[["ナレーション","最後の浮島は、黒い結晶に深く覆われていた。周囲の空気まで重く感じる。","","crystal-black"],["主人公","この黒い結晶……今まで見たものと何か違う。","","crystal-black"],["ナレーション","5体の影の敵が現れた。その中心には、ひときわ大きな黒い結晶を持つ敵がいる。","shadow-rise","crystal-black"],["主人公","あいつから強い気配を感じる……。油断しないでいこう！","crystal-glow","crystal-black"]]
  };
  let introLines=[];
- let stage="",hp=300,enemies=[],target=0,action="",strokes=[],drawing=false,last=null,introIndex=0,playerGuard=0,playerDodge=0,turnBusy=false;
+ let stage="",hp=300,enemies=[],target=0,action="",strokes=[],drawing=false,last=null,introIndex=0,playerGuard=0,playerDodge=0,turnBusy=false,rewardShown=false,absorptionTriggered=false;
  const c=$("storyDrawCanvas"),g=c?.getContext("2d");
  function log(t){$("storyBattleLog").textContent=t}
  function fx(text,kind){const arena=$("storyBattleArena");let el=document.createElement("div");el.className="story-fx";el.textContent=text;arena.appendChild(el);setTimeout(()=>el.remove(),1000);const player=arena.querySelector(".story-battle-actor.player");if(player&&kind){player.classList.remove("anim-"+kind);void player.offsetWidth;player.classList.add("anim-"+kind);setTimeout(()=>player.classList.remove("anim-"+kind),700)}}
@@ -10695,8 +10706,8 @@ body.special-code-open #adminAbuseDialogue.active{
   $("storyPlayerHpText").textContent=hp+" / 300";$("storyPlayerHpBar").style.width=(hp/300*100)+"%";
   const root=$("storyBattleEnemies");root.innerHTML="";
   enemies.forEach((e,i)=>{const d=document.createElement("div");d.className="story-battle-actor"+(e.hp<=0?" dead":i===target?" target":"");
-   d.innerHTML='<div class="actor-emoji">'+(stage==="1-4"&&i===2?"👹":"🌑")+'</div><div class="actor-name"></div><div class="actor-hp"><span></span></div><small></small><div class="actor-status"></div>';
-   d.querySelector(".actor-name").textContent=e.name;d.querySelector(".actor-hp span").style.width=Math.max(0,e.hp/e.max*100)+"%";d.querySelector("small").textContent="HP "+Math.max(0,e.hp)+"/"+e.max;d.querySelector(".actor-status").textContent=e.hp>0?(e.guard?"🛡️ 防御中":e.dodge?"💨 回避態勢":""):"";
+   d.innerHTML='<div class="actor-emoji"></div><div class="actor-name"></div><div class="actor-hp"><span></span></div><small></small><div class="actor-status"></div>';
+   const crystalMark={red:"🔴",green:"🟢",cyan:"🔹",black:"⬛"};d.querySelector(".actor-emoji").textContent=(stage==="1-4"&&i===2?"👹":"🌑")+(e.crystal?crystalMark[e.crystal]||"":"");d.querySelector(".actor-name").textContent=e.name;d.querySelector(".actor-hp span").style.width=Math.max(0,e.hp/e.max*100)+"%";d.querySelector("small").textContent="HP "+Math.max(0,e.hp)+"/"+e.max;d.querySelector(".actor-status").textContent=e.hp>0?(e.guard?"🛡️ 防御中":e.dodge?"💨 回避態勢":e.ability||""):"";
    if(e.hp>0)d.onclick=()=>{target=i;render()};root.appendChild(d);
   });
   document.querySelectorAll(".story-battle-commands button").forEach(b=>b.disabled=hp<=0||enemies.every(e=>e.hp<=0)||$("storyDrawPanel").classList.contains("active")||turnBusy);
@@ -10717,10 +10728,10 @@ body.special-code-open #adminAbuseDialogue.active{
  }
  function advanceIntro(){if(introIndex<introLines.length-1){introIndex++;showIntroLine()}else beginBattle()}
  function start(id){
-  if(!cfg[id])return;stage=id;hp=300;target=0;playerGuard=0;playerDodge=0;turnBusy=false;
-  enemies=cfg[id].enemies.map(e=>({name:e[0],hp:e[1],max:e[1],attack:e[2],guard:0,dodge:0}));
+  if(!cfg[id])return;stage=id;hp=300;target=0;playerGuard=0;playerDodge=0;turnBusy=false;rewardShown=false;absorptionTriggered=false;
+  enemies=cfg[id].enemies.map(e=>({name:e[0],hp:e[1],max:e[1],attack:e[2],crystal:e[3]||"",ability:e[4]||"",guard:0,dodge:0,absorbed:false}));
   $("storyBattleScreen").classList.remove("hidden");$("storyStageScreen").classList.add("hidden");
-  if(id==="1-2"||id==="1-4"){
+  if(id==="1-2"||id==="1-4"||id.startsWith("2-")){
    introLines=introLinesByStage[id];introIndex=0;
    const intro=$("storyIntro");
    if(intro.parentElement!==document.body)document.body.appendChild(intro);
@@ -10777,11 +10788,14 @@ body.special-code-open #adminAbuseDialogue.active{
   }
   playerGuard=0;playerDodge=0;return messages;
  }
+ function showWorld2Reward(){if(rewardShown||!stage.startsWith("2-"))return;rewardShown=true;const data={"2-2":["赤","🔴","#ff4545"],"2-3":["緑","🟢","#4ade80"],"2-4":["水色","🔹","#67e8f9"],"2-5":["黒","⬛","#64748b"]}[stage];if(!data)return;try{localStorage.setItem("story"+stage.replace("-","")+"Cleared","1")}catch(e){}const overlay=document.createElement("div");overlay.className="story2-reward-overlay";overlay.innerHTML='<div class="story2-reward-card"><div class="story2-reward-label">CRYSTAL ACQUIRED</div><div class="story2-reward-gem" style="--gem-color:'+data[2]+'">'+data[1]+'</div><h2>'+data[0]+'色の結晶を入手！</h2><p>結晶が淡く輝き、主人公の手元へゆっくりと浮かび上がった。</p><button type="button">ステージ選択へ戻る</button></div>';$("storyBattleScreen").appendChild(overlay);overlay.querySelector("button").onclick=()=>{overlay.remove();$("storyBattleScreen").classList.add("hidden");$("storyWorld2StageScreen").classList.remove("hidden");renderStoryWorld2Stages();};}
+ function startBlackAbsorption(){if(absorptionTriggered)return;const boss=enemies.find(e=>e.crystal==="black");if(!boss||boss.hp>50)return;absorptionTriggered=true;turnBusy=true;$("storyDrawPanel").classList.remove("active");boss.hp=Math.max(1,boss.hp);const victims=enemies.filter(e=>e!==boss&&e.hp>0),stolen=victims.reduce((sum,e)=>sum+e.hp,0);const overlay=document.createElement("div");overlay.className="story2-absorb-overlay";overlay.innerHTML='<div class="story2-absorb-card"><div class="story2-smoke"></div><div class="story2-absorb-crystal">⬛</div><h2>黒い結晶が反応した……！</h2><p>黒い敵「……すべて、ひとつに。」</p><p>周囲の敵が黒い結晶へ吸い込まれていく！</p><button type="button">演出を進める</button></div>';$("storyBattleScreen").appendChild(overlay);overlay.querySelector("button").onclick=()=>{victims.forEach(e=>{e.hp=0;e.absorbed=true});boss.max+=stolen;boss.hp+=stolen;boss.absorbed=true;overlay.remove();log("黒い結晶が仲間を吸収！残りHPの合計 "+stolen+" を取り込み、最大HPが "+boss.max+" に増加した！");fx("⬛ HP +"+stolen,"heal");turnBusy=false;render();finish();};}
  function finish(){
   render();
   if(enemies.every(e=>e.hp<=0)){
    log("勝利！ "+stage+"クリア！");$("storyBattleResult").textContent="🎉 ステージクリア！";
-   try{localStorage.setItem(stage==="1-2"?"story12Cleared":"story14Cleared","1")}catch(e){}
+   try{localStorage.setItem(stage==="1-2"?"story12Cleared":stage==="1-4"?"story14Cleared":"story"+stage.replace("-","")+"Cleared","1")}catch(e){}
+   if(stage.startsWith("2-"))showWorld2Reward();
    return true;
   }
   if(hp<=0){log("HPが0になった。ステージをやり直そう。");$("storyBattleResult").textContent="敗北";return true}
@@ -10803,7 +10817,7 @@ body.special-code-open #adminAbuseDialogue.active{
     msg+="\n攻撃力"+totalPower+"を敵"+alive.length+"体に分配！";
     alive.forEach(({e,i},n)=>{
      const allocated=share+(n<remainder?1:0);
-     if(e.dodge>0&&Math.random()*100<e.dodge){
+     if((e.crystal==="green"&&Math.random()<0.20)||(e.dodge>0&&Math.random()*100<e.dodge)){
       msg+="\n"+e.name+"は攻撃を回避！";
       enemyFx(i,"💨 回避！","dodge");
      }else{
@@ -10819,6 +10833,7 @@ body.special-code-open #adminAbuseDialogue.active{
   }else if(action==="dodge"){playerDodge=Math.min(100,50+Math.round(score*.5));fx("💨 回避態勢！","dodge");msg+="\n回避率"+playerDodge+"%で敵の攻撃に備える！"}
   else if(action==="defend"){playerGuard=Math.min(70,40+Math.round(score*.3));fx("🛡️ 防御！","defend");msg+="\n次の敵の攻撃を"+playerGuard+"%軽減！"}
   else{const amount=Math.min(70,30+Math.round(score*.4)),before=hp;hp=Math.min(300,hp+amount);const actual=hp-before;fx("💚 +"+actual+" 回復！","heal");msg+="\nHPが"+actual+"回復した！"}
+  if(stage==="2-5"&&!absorptionTriggered){const black=enemies.find(e=>e.crystal==="black");if(black&&black.hp<=50){startBlackAbsorption();$("storyDrawResult").textContent=grade+"評価（"+score+"点）";return;}}
   $("storyDrawResult").textContent=grade+"評価（"+score+"点）";
   $("storyDrawPanel").classList.remove("active");turnBusy=true;render();
   if(finish()){turnBusy=false;return}
@@ -10826,7 +10841,7 @@ body.special-code-open #adminAbuseDialogue.active{
   log(msg);$("storyBattleResult").textContent=msg;render();turnBusy=false;finish();
  };
  $("storyIntroNext").onclick=advanceIntro;$("storyIntroSkip").onclick=beginBattle;
- $("storyBattleExit").onclick=()=>{$("storyBattleScreen").classList.add("hidden");$("storyIntro").classList.add("hidden");$("storyStageScreen").classList.remove("hidden");if(window.openStoryStages)window.openStoryStages()};
+ $("storyBattleExit").onclick=()=>{$("storyBattleScreen").classList.add("hidden");$("storyIntro").classList.add("hidden");if(stage.startsWith("2-")){renderStoryWorld2Stages();$("storyWorld2StageScreen").classList.remove("hidden");}else{$("storyStageScreen").classList.remove("hidden");if(window.openStoryStages)window.openStoryStages();}};
 })();
 </script>
 
@@ -10853,6 +10868,28 @@ body.special-code-open #adminAbuseDialogue.active{
 }
 </style>
 
+<style id="story-world2-battle-style">
+.story-intro-scene.scene-crystal-red{background:radial-gradient(circle at 72% 45%,#ff595955,transparent 23%),linear-gradient(#202a3d 0 55%,#353846 56% 100%)}
+.story-intro-scene.scene-crystal-green{background:radial-gradient(circle at 25% 48%,#4ade8055,transparent 24%),linear-gradient(#182d32 0 55%,#283d35 56% 100%)}
+.story-intro-scene.scene-crystal-cyan{background:radial-gradient(circle at 70% 44%,#67e8f955,transparent 24%),linear-gradient(#172c42 0 55%,#34485a 56% 100%)}
+.story-intro-scene.scene-crystal-black{background:radial-gradient(circle at 50% 40%,#111827 0 8%,#000 58%),linear-gradient(#090b13,#171827)}
+.story-intro-scene.scene-crystal-red:before,.story-intro-scene.scene-crystal-green:before,.story-intro-scene.scene-crystal-cyan:before,.story-intro-scene.scene-crystal-black:before{content:"💎　🏚️　💎　🏙️　💎";position:absolute;left:0;right:0;bottom:12%;font-size:clamp(28px,6vw,58px);text-align:center;filter:drop-shadow(0 0 12px #000);animation:story2Float 3s ease-in-out infinite alternate}
+.story-intro-scene.scene-crystal-red:before{color:#ff6565;text-shadow:0 0 18px #f33}.story-intro-scene.scene-crystal-green:before{color:#86efac;text-shadow:0 0 18px #2f5}.story-intro-scene.scene-crystal-cyan:before{color:#a5f3fc;text-shadow:0 0 18px #0df}.story-intro-scene.scene-crystal-black:before{content:"⬛　🌑　⬛　🌑　⬛";text-shadow:0 0 20px #000}
+@keyframes story2Float{from{transform:translateY(5px)}to{transform:translateY(-10px)}}
+.story2-reward-overlay,.story2-absorb-overlay{position:fixed;inset:0;z-index:1000200;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(3,8,20,.88);color:#fff}
+.story2-reward-card,.story2-absorb-card{position:relative;overflow:hidden;width:min(92vw,560px);padding:26px 20px;border:2px solid #83dfff;border-radius:18px;background:linear-gradient(145deg,#132b48,#090f20);box-shadow:0 0 35px #38bdf866;text-align:center}
+.story2-reward-label{font-size:12px;letter-spacing:.25em;color:#a5f3fc;font-weight:900}
+.story2-reward-gem{margin:14px auto;width:92px;height:112px;display:grid;place-items:center;font-size:58px;filter:drop-shadow(0 0 18px var(--gem-color));animation:story2GemRise 1.5s ease-in-out infinite alternate}
+@keyframes story2GemRise{from{transform:translateY(10px) scale(.9);filter:drop-shadow(0 0 8px var(--gem-color))}to{transform:translateY(-9px) scale(1.08);filter:drop-shadow(0 0 28px var(--gem-color))}}
+.story2-reward-card h2{margin:8px 0 12px}.story2-reward-card p,.story2-absorb-card p{line-height:1.7;color:#dbeafe}.story2-reward-card button,.story2-absorb-card button{margin-top:18px;padding:11px 20px;border:1px solid #a5f3fc;border-radius:10px;background:#075985;color:#fff;font-weight:900;cursor:pointer}
+.story2-absorb-card{border-color:#7c7c91;background:radial-gradient(circle at 50% 20%,#343044,#080910 72%);box-shadow:0 0 42px #111827}
+.story2-smoke{position:absolute;inset:-20%;pointer-events:none;background:radial-gradient(ellipse at 30% 45%,#7772 0 12%,transparent 30%),radial-gradient(ellipse at 70% 55%,#aaa3 0 10%,transparent 28%),radial-gradient(ellipse at 50% 75%,#333b 0 12%,transparent 35%);filter:blur(12px);animation:story2Smoke 2.4s ease-in-out infinite alternate}
+@keyframes story2Smoke{from{transform:translate(-5%,3%) scale(.9);opacity:.35}to{transform:translate(5%,-3%) scale(1.15);opacity:.9}}
+.story2-absorb-crystal{position:relative;z-index:1;font-size:70px;filter:drop-shadow(0 0 24px #9ca3af);animation:story2AbsorbPulse .65s ease-in-out infinite alternate}
+@keyframes story2AbsorbPulse{to{transform:scale(1.22) rotate(8deg);filter:drop-shadow(0 0 34px #fff)}}
+.story2-absorb-card h2,.story2-absorb-card p,.story2-absorb-card button{position:relative;z-index:2}
+@media(prefers-reduced-motion:reduce){.story2-reward-gem,.story2-smoke,.story2-absorb-crystal,.story-intro-scene.scene-crystal-red:before,.story-intro-scene.scene-crystal-green:before,.story-intro-scene.scene-crystal-cyan:before,.story-intro-scene.scene-crystal-black:before{animation:none!important}}
+</style>
 <style id="story13-lab-style">
 #story13Screen{position:fixed;inset:0;z-index:1000005;background:#071329;color:#eafaff;display:none;overflow:auto;font-family:Arial,sans-serif}
 #story13Screen.active{display:block}

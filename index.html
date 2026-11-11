@@ -10942,7 +10942,7 @@ body.special-code-open #adminAbuseDialogue.active{
   }else if(stage===2){
    title.textContent="② アームで光を取り出す";
    desc.textContent="アーム先端の光る丸をドラッグして、隕石の光る中心に合わせよう。位置が合ったら抽出ボタンを押してね。";
-   controls.innerHTML='<div class="s13-meter"><i id="s13LightFill"></i></div><div class="s13-instruction">操作：アーム先端をマウスまたは指でつかんで移動</div><button type="button" id="s13Action" disabled>この位置で光を抽出</button>';
+   controls.innerHTML='<div class="s13-meter"><i id="s13LightFill"></i></div><div class="s13-instruction">操作：アーム先端をマウスまたは指でつかんで移動</div><button type="button" id="s13Action">この位置で光を抽出</button>';
    $("s13LightFill").style.width=light+"%";drawArm();
    $("s13Action").onclick=()=>{
     if(distance(tip,target)<78){armReady=true;$("s13Action").disabled=true;status("位置固定！アームが光をゆっくり吸い上げている…");let p=0;
@@ -10958,7 +10958,7 @@ body.special-code-open #adminAbuseDialogue.active{
   }else if(stage===4){
    title.textContent="④ 黒い液体を慎重に回収";
    desc.textContent="回収アームの先端をドラッグして、黒い液体の真上に合わせよう。合ったら回収ボタンを押す。";
-   controls.innerHTML='<div class="s13-meter"><i id="s13LiquidFill"></i></div><div class="s13-instruction">操作：先端を黒い液体の中心へドラッグ</div><button type="button" id="s13Action" disabled>この位置から液体を回収</button>';
+   controls.innerHTML='<div class="s13-meter"><i id="s13LiquidFill"></i></div><div class="s13-instruction">操作：先端を黒い液体の中心へドラッグ</div><button type="button" id="s13Action">この位置から液体を回収</button>';
    $("s13Liquid").style.left="50%";$("s13Liquid").style.top="65%";$("s13LiquidFill").style.width=liquid+"%";drawArm();
    status("アームを液体の中心に合わせよう。");
    $("s13Action").onclick=()=>{
@@ -10982,7 +10982,7 @@ body.special-code-open #adminAbuseDialogue.active{
  scene.addEventListener("pointermove",e=>{
   if(!dragging)return;const p=point(e);tip={x:Math.max(430,Math.min(1120,p.x)),y:Math.max(180,Math.min(600,p.y))};drawArm();
   const good=stage===2?distance(tip,target)<78:stage===4?distance(tip,liquidTarget)<76:false;
-  const b=$("s13Action");if(b)b.disabled=!good;
+  const b=$("s13Action");if(b)b.disabled=false;
   if(stage===2)status(good?"位置OK！「この位置で光を抽出」を押そう。":"先端を隕石の光る中心へ近づけよう。");
   if(stage===4)status(good?"位置OK！「この位置から液体を回収」を押そう。":"先端を黒い液体の中心へ近づけよう。");
  });

@@ -10894,7 +10894,7 @@ body.special-code-open #adminAbuseDialogue.active{
 (function(){
  const $=id=>document.getElementById(id),screen=$("story13Screen"),scene=$("s13Scene");
  if(!screen||!scene)return;
- let stage=1,light=0,liquid=0,tip={x:700,y:360},dragging=false,armReady=false,liquidReady=false,fxTimer=null;
+ let stage=1,light=0,liquid=0,tip={x:700,y:360},dragging=false,armReady=false,liquidReady=false,fxTimer=null,pullDistance=0,lastMoveAt=0;
  const handle=$("s13ArmHandle"),path=$("s13ArmPath"),joint=$("s13ArmJoint");
  const target={x:610,y:405},liquidTarget={x:610,y:455};
  function stop(){dragging=false;}
@@ -10919,9 +10919,10 @@ body.special-code-open #adminAbuseDialogue.active{
   for(let i=0;i<12;i++){const d=document.createElement("i");d.className="s13-shard burst";d.style.setProperty("--dx",(Math.cos(i*Math.PI/6)*180)+"px");d.style.setProperty("--dy",(Math.sin(i*Math.PI/6)*130)+"px");d.style.left="51%";d.style.top="58%";box.appendChild(d);}
  }
  function fail2(){
-  effect("failure");status("抽出位置がずれて隕石が不安定化！光の抽出に失敗した。②からやり直そう。");
-  $("s13ArmHandle").style.fill="#ff9b72";
-  setTimeout(()=>{$("s13ArmHandle").style.fill="";tip={x:700,y:360};drawArm();armReady=false;const b=$("s13Action");if(b)b.disabled=true;},900);
+  effect("failure");status("アームを急に動かしすぎた！隕石が不安定になった。②からやり直そう。");
+  $("s13ArmHandle").style.fill="#ff9b72";pullDistance=0;light=0;armReady=false;
+  const fill=$("s13LightFill");if(fill)fill.style.width="0%";
+  setTimeout(()=>{$("s13ArmHandle").style.fill="";tip={x:700,y:360};drawArm();},900);
  }
  function fail4(){
   effect("failure");$("s13Darkout").classList.add("on");
@@ -10941,15 +10942,10 @@ body.special-code-open #adminAbuseDialogue.active{
    $("s13Insert").onclick=()=>{stage=2;tip={x:700,y:360};armReady=false;render();};
   }else if(stage===2){
    title.textContent="② アームで光を取り出す";
-   desc.textContent="アーム先端の光る丸をドラッグして、隕石の光る中心に合わせよう。位置が合ったら抽出ボタンを押してね。";
-   controls.innerHTML='<div class="s13-meter"><i id="s13LightFill"></i></div><div class="s13-instruction">操作：アーム先端をマウスまたは指でつかんで移動</div><button type="button" id="s13Action">この位置で光を抽出</button>';
-   $("s13LightFill").style.width=light+"%";drawArm();
-   $("s13Action").onclick=()=>{
-    if(distance(tip,target)<78){armReady=true;$("s13Action").disabled=true;status("位置固定！アームが光をゆっくり吸い上げている…");let p=0;
-     const timer=setInterval(()=>{p=Math.min(100,p+5);light=p;$("s13LightFill").style.width=p+"%";if(p>=100){clearInterval(timer);effect("success");burst();status("抽出成功！隕石が光を放ち、破片に分かれた！");setTimeout(()=>{stage=3;render();},1300);}},110);
-    }else fail2();
-   };
-   status("アームをドラッグして隕石の中心に合わせよう。");
+   desc.textContent="先端を隕石の光の中心に合わせたら、そのままアームの根元側（右下）へゆっくりドラッグ！引き出した距離に合わせてメーターが進むよ。";
+   controls.innerHTML='<div class="s13-meter"><i id="s13LightFill"></i></div><div class="s13-instruction">①光の中心に合わせる → ②右下方向へゆっくり引き出す（ボタン操作なし）</div>';
+   $("s13LightFill").style.width=light+"%";drawArm();pullDistance=0;armReady=false;lastMoveAt=0;
+   status("アーム先端を光の中心に合わせて、ゆっくり引き出そう。");
   }else if(stage===3){
    $("s13ArmSvg").style.display="none";title.textContent="③ 隕石が砕けた！";
    desc.textContent="光を取り出したことで隕石が破片に分かれた。破片の中に黒い液体が見える。";
@@ -10980,11 +10976,34 @@ body.special-code-open #adminAbuseDialogue.active{
  }
  handle.addEventListener("pointerdown",e=>{if(stage!==2&&stage!==4)return;dragging=true;handle.setPointerCapture(e.pointerId);e.preventDefault();});
  scene.addEventListener("pointermove",e=>{
-  if(!dragging)return;const p=point(e);tip={x:Math.max(430,Math.min(1120,p.x)),y:Math.max(180,Math.min(600,p.y))};drawArm();
-  const good=stage===2?distance(tip,target)<78:stage===4?distance(tip,liquidTarget)<76:false;
-  const b=$("s13Action");if(b)b.disabled=false;
-  if(stage===2)status(good?"位置OK！「この位置で光を抽出」を押そう。":"先端を隕石の光る中心へ近づけよう。");
-  if(stage===4)status(good?"位置OK！「この位置から液体を回収」を押そう。":"先端を黒い液体の中心へ近づけよう。");
+  if(!dragging)return;
+  const previous={x:tip.x,y:tip.y},p=point(e),now=performance.now();
+  tip={x:Math.max(430,Math.min(1120,p.x)),y:Math.max(180,Math.min(600,p.y))};drawArm();
+  if(stage===2){
+   if(!armReady&&distance(tip,target)<72){armReady=true;pullDistance=0;lastMoveAt=now;status("光をつかんだ！アームの根元側へ、ゆっくり引き出そう。");return;}
+   if(armReady){
+    const dx=tip.x-previous.x,dy=tip.y-previous.y,dt=Math.max(8,now-(lastMoveAt||now));
+    const speed=Math.hypot(dx,dy)/dt;lastMoveAt=now;
+    if(speed>1.45){fail2();return;}
+    const len=Math.hypot(380,100),ux=380/len,uy=100/len;
+    const along=(tip.x-target.x)*ux+(tip.y-target.y)*uy;
+    const across=Math.abs((tip.x-target.x)*uy-(tip.y-target.y)*ux);
+    if(across<82)pullDistance=Math.max(pullDistance,along);
+    light=Math.max(0,Math.min(100,Math.round(pullDistance/230*100)));
+    const fill=$("s13LightFill");if(fill)fill.style.width=light+"%";
+    if(light>=100){
+     dragging=false;armReady=false;effect("success");burst();status("抽出成功！ゆっくり光を引き出せた！隕石が光を放ち、破片に分かれた！");
+     setTimeout(()=>{stage=3;render();},1300);return;
+    }
+    status(across>=82?"引き出す方向がずれているよ。根元側へまっすぐ動かそう。":light>0?"いい調子！そのままゆっくり引き出そう。":"光をつかんだ！右下方向へゆっくり引き出そう。");
+   }else status("先端を隕石の光る中心に合わせよう。");
+   return;
+  }
+  if(stage===4){
+   const good=distance(tip,liquidTarget)<76;
+   const b=$("s13Action");if(b)b.disabled=false;
+   status(good?"位置OK！「この位置から液体を回収」を押そう。":"先端を黒い液体の中心へ近づけよう。");
+  }
  });
  ["pointerup","pointercancel"].forEach(ev=>scene.addEventListener(ev,stop));
  $("s13Exit").onclick=hide;window.startStory13=show;drawArm();

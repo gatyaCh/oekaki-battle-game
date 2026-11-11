@@ -4632,7 +4632,7 @@ body {
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px;max-width:1200px;margin:auto">
     <section style="background:#071e3b;border:3px solid #168cff;border-radius:20px;padding:16px;box-shadow:0 0 18px #087dff">
       <div style="display:flex;align-items:center;gap:14px"><div style="font-size:64px">🤜</div><div><h2 style="margin:0;color:#71bdff">kakeru</h2><b>専用武器：拳</b><div>近接攻撃に特化・連打可能</div></div></div>
-      <hr><h3>武器の性能</h3><p>⚔️ 攻撃力：1発4ダメージ</p><p>📏 攻撃範囲：剣の1.5倍（チャージ適用）</p><p>⏱️ クールタイム：0.3秒</p><p>💫 スタン時間：0.2秒</p>
+      <hr><h3>武器の性能</h3><p>⚔️ 攻撃力：1発4ダメージ</p><p>📏 攻撃範囲：剣の1.5倍（チャージ適用）</p><p>⏱️ クールタイム：0.15秒</p><p>💫 スタン時間：0.2秒</p>
       <hr><h3>特殊効果</h3><p>🎒 アイテムを各7個に設定（使用ごとに1個消費）</p><p>🐢 敵の速度は通常どおり</p><p>🛡️ 拳が敵本体に命中すると短時間ひるませ、近くの敵弾も消す</p>
       <button data-pick-special="kakeru" style="width:100%;padding:14px;border:0;border-radius:12px;background:#087dff;color:white;font-size:20px;font-weight:bold;cursor:pointer">これにする！</button>
     </section>
@@ -6104,7 +6104,7 @@ function attack() {
         if (b.enemy && Math.hypot(p.x - b.x, p.y - b.y) < fistRange + 18) enemyBullets.splice(i, 1);
       }
     }
-    msg.textContent = "🤜 拳！ " + Math.round(fistDamage) + "ダメージ / スタン0.2秒 / CT0.3秒";
+    msg.textContent = "🤜 拳！ " + Math.round(fistDamage) + "ダメージ / スタン0.2秒 / CT0.15秒";
     return;
   }
   if (window.specialCodes?.sougo) {
@@ -7324,12 +7324,12 @@ function update() {
   p.x = Math.max(25, Math.min(CANVAS_WIDTH - 25, p.x));
   p.y = Math.max(25, Math.min(CANVAS_HEIGHT - 25, p.y));
   if (charging && window.specialCodes?.kakeru) {
-    // 拳は長押し中に自動攻撃。攻撃間隔は0.3秒。
+    // 拳は長押し中に自動攻撃。攻撃間隔は0.15秒。
     const now = performance.now();
     if (now >= (window.kakeruNextAttackAt || 0)) {
       charge = 0;
       attack();
-      window.kakeruNextAttackAt = now + 300;
+      window.kakeruNextAttackAt = now + 150;
     }
   } else if (charging && attackCooldown <= 0) {
     if (charge < 100) charge += 1;
@@ -8519,7 +8519,7 @@ loop();
       ["❤","💪","🛡️","🗿","👻","🔮","⚡️","tripleGatling"].forEach(id => { inv.normal[id] = 7; });
       ["horse","candy","bat","allies","zombie","potionLarge","potionSmall"].forEach(id => { inv.halloween[id] = 7; });
       p.max = 350; p.hp = 350;
-      msg.textContent = "🤜 kakeru 発動！専用武器・拳（攻撃4／スタン0.2秒／CT0.3秒／最大体力350／剣の範囲1.5倍）＋初期アイテム各7個！";
+      msg.textContent = "🤜 kakeru 発動！専用武器・拳（攻撃4／スタン0.2秒／CT0.15秒／最大体力350／剣の範囲1.5倍）＋初期アイテム各7個！";
       return true;
     }
     if (c === "sougo") {

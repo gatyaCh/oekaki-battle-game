@@ -3648,8 +3648,11 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 .story-explore-lab{left:300px;top:570px;width:190px;height:125px;font-size:21px;background:linear-gradient(145deg,#dbeafe,#60a5fa);border-color:#1e40af}
 .story-explore-house{width:105px;height:85px;font-size:44px}
 .story-explore-tree{position:absolute;z-index:2;font-size:48px;filter:drop-shadow(0 5px 3px #0005)}
-.story-explore-stage{position:absolute;z-index:3;padding:12px 16px;border:2px solid #fde68a;border-radius:12px;background:#172554eF;color:#fff;font-weight:900;box-shadow:0 5px 15px #0007;white-space:nowrap}
-.story-explore-locked{border-color:#94a3b8;background:#334155eF}
+.story-explore-stage-layer{position:absolute;inset:0;z-index:3;pointer-events:none}
+.story-explore-stage{position:absolute;min-width:150px;padding:11px 13px;border:2px solid #fde68a;border-radius:12px;background:#172554ef;color:#fff;font-weight:900;box-shadow:0 5px 15px #0007;white-space:normal;text-align:center;pointer-events:auto;display:flex;flex-direction:column;gap:4px;align-items:center}
+.story-explore-stage small{font-size:11px;font-weight:600;color:#dbeafe}
+.story-explore-stage:disabled{opacity:.72;cursor:not-allowed;border-color:#94a3b8;background:#334155ef}
+.story-explore-stage:not(:disabled):hover{filter:brightness(1.2);transform:translateY(-2px)}
 .story-explore-player{position:absolute;z-index:4;left:420px;top:760px;width:54px;height:54px;display:grid;place-items:center;border:3px solid #fff;border-radius:50%;background:#2563eb;font-size:34px;box-shadow:0 0 0 4px #1d4ed888,0 5px 12px #0008;transform:translate(-50%,-50%);pointer-events:none}
 .story-explore-hint{position:absolute;z-index:5;left:50%;bottom:14px;transform:translateX(-50%);max-width:min(650px,80vw);padding:9px 14px;border:1px solid #64748b;border-radius:12px;background:#0f172aeF;text-align:center;font-size:13px}
 .story-explore-pad{position:absolute;z-index:6;right:18px;bottom:72px;display:grid;gap:5px;touch-action:none}
@@ -4347,7 +4350,7 @@ body {
 
 <div id="storyExploreScreen" class="story-explore-screen hidden" aria-label="ワールド1探索フィールド">
   <div class="story-explore-top">
-    <button type="button" onclick="closeStoryExplore()">← ステージ選択へ</button>
+    <button type="button" onclick="closeStoryExplore()">← ワールド選択へ</button>
     <strong>🌍 ワールド1探索フィールド</strong>
     <span>WASD / 矢印キーで移動</span>
   </div>
@@ -4369,12 +4372,11 @@ body {
       <div class="story-explore-tree" style="left:1420px;top:1080px">🌲</div>
       <div class="story-explore-tree" style="left:1750px;top:360px">🌳</div>
       <div class="story-explore-tree" style="left:1920px;top:850px">🌲</div>
-      <div class="story-explore-stage" style="left:1510px;top:650px">🚩 1-1 異変の始まり</div>
-      <div class="story-explore-stage story-explore-locked" style="left:1840px;top:1120px">🔒 1-2 黒い何か</div>
+      <div id="storyExploreStageEntrances" class="story-explore-stage-layer" aria-label="ステージ入口"></div>
       <div id="storyExplorePlayer" class="story-explore-player" aria-label="プレイヤー">🧑‍🚀</div>
     </div>
   </div>
-  <div class="story-explore-hint">街から郊外を抜けて草原まで自由に歩けるよ。宇宙研究施設も探してみよう！</div>
+  <div class="story-explore-hint">街・郊外・草原を自由に探索！草原にあるステージ入口を押すと、そのステージを始められるよ。</div>
   <div class="story-explore-pad" aria-label="移動操作">
     <button type="button" data-explore-dir="up">▲</button>
     <div><button type="button" data-explore-dir="left">◀</button><button type="button" data-explore-dir="down">▼</button><button type="button" data-explore-dir="right">▶</button></div>
@@ -5205,6 +5207,37 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   const storyExploreKeys=new Set();
   const storyExploreDirections={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
   function storyExploreVisible(){const el=$story("storyExploreScreen");return !!(el&&!el.classList.contains("hidden"));}
+  function renderStoryExploreEntrances(){
+    const layer=$story("storyExploreStageEntrances");if(!layer)return;
+    layer.innerHTML="";
+    const titles={1:"異変の始まり",2:"黒い何か",3:"隕石の正体",4:"広がる黒い影",5:"惑星のものではない"};
+    const positions={1:[1510,650],2:[1840,1120],3:[1660,280],4:[1240,1110],5:[2020,620]};
+    const unlocked=getStoryProgress(),cleared=getStoryCleared();
+    for(let i=1;i<=5;i++){
+      let done=false,available=false;
+      try{
+        done=(i===1&&cleared)||(i===2&&localStorage.getItem("story12Cleared")==="1")||(i===3&&localStorage.getItem("story13Cleared")==="1")||(i===4&&localStorage.getItem("story14Cleared")==="1")||(i===5&&localStorage.getItem("story15Cleared")==="1");
+        available=i===1||(i===2&&cleared)||(i===3&&localStorage.getItem("story12Cleared")==="1")||i===4||i===5;
+      }catch(e){available=i===1||i===4||i===5;}
+      const btn=document.createElement("button");btn.type="button";
+      btn.className="story-explore-stage"+(available?"":" story-explore-locked");
+      btn.style.left=positions[i][0]+"px";btn.style.top=positions[i][1]+"px";
+      const title=document.createElement("strong");title.textContent=(available?"🚩 ":"🔒 ")+"1-"+i+" "+titles[i];btn.appendChild(title);
+      const status=document.createElement("small");status.textContent=done?"✅ クリア":available?(i===4?"開発テスト":"入口に入る"):"未解放";btn.appendChild(status);
+      btn.disabled=!available;
+      btn.addEventListener("click",function(){if(!available)return;launchStoryExploreStage(i);});
+      layer.appendChild(btn);
+    }
+  }
+  function launchStoryExploreStage(i){
+    hideStory("storyExploreScreen");storyExploreKeys.clear();
+    if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}
+    if(i===1){startStoryEpisode();return;}
+    if(i===2){window.startStoryBattle("1-2");return;}
+    if(i===3){window.startStory13();return;}
+    if(i===4){window.startStoryBattle("1-4");return;}
+    if(i===5){window.startStory15();return;}
+  }
   function storyExploreDraw(){
     const player=$story("storyExplorePlayer"),view=$story("storyExploreViewport");
     if(!player||!view)return;
@@ -5226,14 +5259,14 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   }
   window.openStoryExplore=function(){
     hideStory("storyWorldScreen");hideStory("storyEpisodeScreen");hideStory("storyWorld2StageScreen");
-    renderStoryStages();hideStory("storyStageScreen");showStory("storyExploreScreen");
+    renderStoryStages();renderStoryExploreEntrances();hideStory("storyStageScreen");showStory("storyExploreScreen");
     const view=$story("storyExploreViewport");if(view){view.scrollLeft=0;view.scrollTop=0;}
     storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);
   };
   window.closeStoryExplore=function(){
     hideStory("storyExploreScreen");storyExploreKeys.clear();
     if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}
-    renderStoryStages();showStory("storyStageScreen");
+    showStory("storyWorldScreen");
   };
   document.addEventListener("keydown",function(e){
     if(!storyExploreVisible())return;
@@ -5253,7 +5286,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     ["pointerup","pointercancel","lostpointercapture"].forEach(function(type){btn.addEventListener(type,function(){storyExploreKeys.delete(dir);});});
   });
 
-  window.openStoryStages=function(){hideStory("storyWorldScreen");hideStory("storyEpisodeScreen");renderStoryStages();showStory("storyStageScreen");};
+  window.openStoryStages=function(){window.openStoryExplore();};
   window.closeStoryScreens=function(){hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");const map=$story("mapSelect");if(map)map.classList.remove("hidden");};
   function getStoryProgress(){try{return Math.max(1,Math.min(5,Number(localStorage.getItem("storyWorld1Unlocked")||1)));}catch(e){return 1;}}
   function getStoryCleared(){try{return localStorage.getItem("storyWorld1Stage1Cleared")==="1";}catch(e){return false;}}

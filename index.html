@@ -10878,11 +10878,33 @@ body.special-code-open #adminAbuseDialogue.active{
 #story13Screen .s13-shake{animation:s13shake .3s 3}
 @keyframes s13shake{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
 @media(max-width:650px){#story13Screen .s13-wrap{padding:8px}#story13Screen .s13-panel{padding:10px}}
+
+#story13Screen .s13-liquid{width:104px;height:64px;border:2px solid #a89acb;background:radial-gradient(ellipse at 28% 20%,#b4a4d5 0 5%,#51436e 18%,#171322 58%,#05050b 78%);box-shadow:0 0 25px #080611,0 0 18px #9c7bda;z-index:4}
+#story13Screen .s13-liquid.extracting{animation:s13liquiddraw .7s ease-in-out infinite alternate;filter:brightness(1.5)}
+@keyframes s13liquiddraw{to{transform:translate(-50%,-50%) scale(.72,.55);filter:brightness(2)}}
+#story13Screen .s13-vial{position:absolute;left:68%;top:65%;width:42px;height:78px;transform:translate(-50%,-50%);border:3px solid #bafaff;border-top:0;border-radius:5px 5px 12px 12px;background:#b9faff18;box-shadow:0 0 14px #45dfff88;z-index:5;overflow:hidden}
+#story13Screen .s13-vial:before{content:"";position:absolute;left:7px;right:7px;top:-7px;height:12px;border:3px solid #bafaff;border-radius:4px;background:#31577b}
+#story13Screen .s13-vial-fill{position:absolute;bottom:0;left:0;right:0;height:0;background:linear-gradient(180deg,#b5a1dc,#2c193d 65%,#080710);box-shadow:0 0 14px #9e78d9;transition:height .16s linear}
+#story13Screen .s13-liquid-stream{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:6;opacity:0}
+#story13Screen .s13-liquid-stream path{fill:none;stroke:#b9a6e7;stroke-width:12;stroke-linecap:round;stroke-dasharray:13 12;filter:drop-shadow(0 0 9px #b99aff);animation:s13stream .42s linear infinite}
+#story13Screen .s13-liquid-stream.on{opacity:1}
+@keyframes s13stream{to{stroke-dashoffset:-50}}
+#story13Screen .s13-light-stream{fill:none;stroke:#c8ffff;stroke-width:11;stroke-linecap:round;stroke-dasharray:7 12;filter:drop-shadow(0 0 14px #43efff);opacity:0}
+#story13Screen .s13-light-stream.on{opacity:1;animation:s13stream .35s linear infinite}
+#story13Screen .s13-transfer-capsule{position:absolute;left:68%;top:65%;width:32px;height:58px;border:3px solid #c9ffff;border-radius:8px 8px 12px 12px;background:linear-gradient(180deg,#d9ffff44,#9a7bc988);box-shadow:0 0 18px #78f5ff;opacity:0;z-index:8;transform:translate(-50%,-50%)}
+#story13Screen .s13-transfer-capsule:after{content:"";position:absolute;left:4px;right:4px;bottom:4px;height:45%;border-radius:4px;background:linear-gradient(#bda8eb,#21142f)}
+#story13Screen .s13-transfer-capsule.run{opacity:1;animation:s13capsule 3.2s cubic-bezier(.45,.05,.25,1) forwards}
+@keyframes s13capsule{0%{left:68%;top:65%;transform:translate(-50%,-50%)}45%{left:75%;top:47%;transform:translate(-50%,-50%) rotate(-14deg)}100%{left:85%;top:22%;transform:translate(-50%,-50%);opacity:0}}
+#story13Screen .s13-transfer-beam{position:absolute;left:70%;top:23%;width:15%;height:2px;background:#aaffff;box-shadow:0 0 20px 8px #4aeaff;opacity:0;transform:rotate(-65deg);transform-origin:left center;z-index:7}
+#story13Screen .s13-transfer-beam.on{animation:s13beam 2.7s ease-out forwards}
+@keyframes s13beam{0%{opacity:0;transform:rotate(-65deg) scaleX(.1)}30%{opacity:1;transform:rotate(-65deg) scaleX(1)}100%{opacity:0;transform:rotate(-65deg) scaleX(1)}}
+#story13Screen .s13-dialogue{padding:12px;border:1px solid #75eaff;border-radius:10px;background:#071a35;color:#eaffff;min-height:66px;line-height:1.65}
+#story13Screen .s13-dialogue strong{color:#72edff;margin-right:8px}
 </style>
 <div id="story13Screen" aria-live="polite">
  <div class="s13-wrap">
   <div class="s13-head"><div><strong>WORLD 1 / STAGE 1-3</strong><h2 style="margin:5px 0">隕石の正体</h2></div><button type="button" id="s13Exit">ステージ選択へ戻る</button></div>
-  <div class="s13-scene" id="s13Scene"><img src="assets/story-world1-lab.svg" alt="青と紫の近未来研究室"><div id="s13Liquid" class="s13-liquid s13-hidden"></div><svg id="s13ArmSvg" class="s13-arm-overlay" viewBox="0 0 1200 700" preserveAspectRatio="none" aria-label="操作できるロボットアーム"><circle id="s13Target" class="s13-target" cx="610" cy="405" r="62"/><path id="s13ArmPath" class="s13-arm-line" d="M990 505 L850 390 L700 360"/><circle class="s13-arm-core" cx="990" cy="505" r="34"/><circle id="s13ArmJoint" class="s13-arm-core" cx="850" cy="390" r="25"/><circle id="s13ArmHandle" class="s13-arm-handle" cx="700" cy="360" r="22"/></svg><div id="s13Fx" class="s13-fx"></div><div id="s13Darkout" class="s13-darkout"></div><div id="s13Shards"></div></div>
+  <div class="s13-scene" id="s13Scene"><img src="assets/story-world1-lab.svg" alt="青と紫の近未来研究室"><div id="s13Liquid" class="s13-liquid s13-hidden"></div><div id="s13Vial" class="s13-vial s13-hidden"><i id="s13VialFill" class="s13-vial-fill"></i></div><svg id="s13LiquidStream" class="s13-liquid-stream" viewBox="0 0 1200 700" preserveAspectRatio="none"><path d="M610 455 Q700 380 816 455"/></svg><svg id="s13LightStream" viewBox="0 0 1200 700" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5"><path class="s13-light-stream" d="M610 405 Q770 420 990 505"/></svg><div id="s13TransferCapsule" class="s13-transfer-capsule"></div><div id="s13TransferBeam" class="s13-transfer-beam"></div><svg id="s13ArmSvg" class="s13-arm-overlay" viewBox="0 0 1200 700" preserveAspectRatio="none" aria-label="操作できるロボットアーム"><circle id="s13Target" class="s13-target" cx="610" cy="405" r="62"/><path id="s13ArmPath" class="s13-arm-line" d="M990 505 L850 390 L700 360"/><circle class="s13-arm-core" cx="990" cy="505" r="34"/><circle id="s13ArmJoint" class="s13-arm-core" cx="850" cy="390" r="25"/><circle id="s13ArmHandle" class="s13-arm-handle" cx="700" cy="360" r="22"/></svg><div id="s13Fx" class="s13-fx"></div><div id="s13Darkout" class="s13-darkout"></div><div id="s13Shards"></div></div>
   <section class="s13-panel" id="s13Panel">
    <h3 id="s13Title">① 隕石を装置にはめる</h3><p id="s13Desc">観測台の中央に隕石をセットしよう。</p>
    <div id="s13Controls"><button type="button" id="s13Insert">隕石を装置にはめる</button></div>
@@ -10894,7 +10916,7 @@ body.special-code-open #adminAbuseDialogue.active{
 (function(){
  const $=id=>document.getElementById(id),screen=$("story13Screen"),scene=$("s13Scene");
  if(!screen||!scene)return;
- let stage=1,light=0,liquid=0,tip={x:700,y:360},dragging=false,armReady=false,liquidReady=false,fxTimer=null,pullDistance=0,lastMoveAt=0;
+ let stage=1,light=0,liquid=0,tip={x:700,y:360},dragging=false,armReady=false,liquidReady=false,fxTimer=null,pullDistance=0,lastMoveAt=0,transferStarted=false;
  const handle=$("s13ArmHandle"),path=$("s13ArmPath"),joint=$("s13ArmJoint");
  const target={x:610,y:405},liquidTarget={x:610,y:455};
  function stop(){dragging=false;}
@@ -10929,11 +10951,14 @@ body.special-code-open #adminAbuseDialogue.active{
   status("回収に失敗！黒い液体が主人公に付着し、視界が暗くなった…… GAME OVER。④から再挑戦しよう。");
   setTimeout(()=>{$("s13Darkout").classList.remove("on");liquid=0;liquidReady=false;tip={x:700,y:360};drawArm();render();},1600);
  }
- function show(){screen.classList.add("active");stage=1;light=0;liquid=0;tip={x:700,y:360};render();}
+ function show(){screen.classList.add("active");stage=1;light=0;liquid=0;transferStarted=false;tip={x:700,y:360};render();}
  function hide(){screen.classList.remove("active");stop();}
  function render(){
   $("s13Liquid").classList.toggle("s13-hidden",stage<4);
+  $("s13Vial").classList.toggle("s13-hidden",stage!==4);
   $("s13ArmSvg").style.display=(stage===2||stage===4)?"block":"none";
+  $("s13LiquidStream").classList.remove("on");$("s13LightStream").querySelector("path").classList.remove("on");
+  $("s13TransferCapsule").classList.remove("run");$("s13TransferBeam").classList.remove("on");
   const title=$("s13Title"),desc=$("s13Desc"),controls=$("s13Controls");
   if(stage===1){
    title.textContent="① 隕石を装置にはめる";desc.textContent="観測台の中央に隕石をセットしよう。";
@@ -10953,20 +10978,41 @@ body.special-code-open #adminAbuseDialogue.active{
    $("s13Next").onclick=()=>{stage=4;tip={x:700,y:360};liquid=0;liquidReady=false;render();};
   }else if(stage===4){
    title.textContent="④ 黒い液体を慎重に回収";
-   desc.textContent="回収アームの先端をドラッグして、黒い液体の真上に合わせよう。合ったら回収ボタンを押す。";
-   controls.innerHTML='<div class="s13-meter"><i id="s13LiquidFill"></i></div><div class="s13-instruction">操作：先端を黒い液体の中心へドラッグ</div><button type="button" id="s13Action">この位置から液体を回収</button>';
-   $("s13Liquid").style.left="50%";$("s13Liquid").style.top="65%";$("s13LiquidFill").style.width=liquid+"%";drawArm();
+   desc.textContent="先端を黒い液体の中心に合わせて回収ボタンを押そう。液体が糸状になって吸い上がり、横の容器にたまっていくよ。";
+   controls.innerHTML='<div class="s13-meter"><i id="s13LiquidFill"></i></div><div class="s13-instruction">操作：アーム先端を黒い液体の中心へドラッグ → 回収開始</div><button type="button" id="s13Action">黒い液体を回収する</button>';
+   $("s13VialFill").style.height=liquid+"%";drawArm();
    status("アームを液体の中心に合わせよう。");
    $("s13Action").onclick=()=>{
-    if(distance(tip,liquidTarget)<76){liquidReady=true;$("s13Action").disabled=true;status("回収成功！容器へ少しずつ移している…");let p=liquid;
-     const timer=setInterval(()=>{p=Math.min(100,p+5);liquid=p;$("s13LiquidFill").style.width=p+"%";if(p>=100){clearInterval(timer);effect("success");status("回収成功！黒い液体をすべて安全に採取できた！");setTimeout(()=>{stage=5;render();},1100);}},130);
+    if(distance(tip,liquidTarget)<76){
+     liquidReady=true;$("s13Action").disabled=true;status("回収中…黒い液体がアームに吸い上げられている！");
+     $("s13Liquid").classList.add("extracting");$("s13LiquidStream").classList.add("on");let p=liquid;
+     const timer=setInterval(()=>{p=Math.min(100,p+4);liquid=p;$("s13LiquidFill").style.width=p+"%";$("s13VialFill").style.height=p+"%";$("s13Liquid").style.opacity=String(1-p/125);
+      if(p>=100){clearInterval(timer);$("s13LiquidStream").classList.remove("on");$("s13Liquid").classList.add("s13-hidden");effect("success");status("回収成功！黒い液体がサンプル容器に収まった！");
+       setTimeout(()=>{stage=5;render();},900);}
+     },150);
     }else fail4();
    };
   }else if(stage===5){
-   $("s13ArmSvg").style.display="none";title.textContent="⑤ 惑星物研究処理";
-   desc.textContent="回収した黒い液体を専用装置へ移す。";
-   controls.innerHTML='<div style="padding:14px;border:1px solid #72eaff;border-radius:10px;background:#081a35">🧪 黒い液体を「惑星物研究処理」装置へ転送中…</div><button type="button" id="s13Finish">転送完了</button>';
-   status("未知の物質の分析を開始できる状態になった。");
+   $("s13ArmSvg").style.display="none";title.textContent="⑤ 惑星物研究マシン（仮）へ転送";
+   desc.textContent="採取したサンプルを研究マシンへ移送する。";
+   controls.innerHTML='<div id="s13Dialogue" class="s13-dialogue"><strong>主人公</strong>回収した黒い液体を、惑星物研究マシン（仮）へ移送する。</div><button type="button" id="s13Finish" disabled>次へ</button>';
+   status("サンプル容器を搬送中…");
+   if(!transferStarted){
+    transferStarted=true;$("s13TransferCapsule").classList.add("run");$("s13TransferBeam").classList.add("on");
+    const lines=[
+     ["主人公","回収した黒い液体を、惑星物研究マシン（仮）へ移送する。",0],
+     ["研究マシン","サンプルを確認。未知の物質反応を検出しました。",1900],
+     ["主人公","やっぱり……普通の隕石とは違う。",3900],
+     ["研究マシン","分析装置へサンプルを転送します。転送開始。",5700],
+     ["主人公","この物質の正体が分かれば、惑星同士の衝突を止める手がかりになるはずだ。",7900],
+     ["研究マシン","サンプル転送完了。分析準備が整いました。",10500]
+    ];
+    lines.forEach(([speaker,line,delay],index)=>setTimeout(()=>{
+     const d=$("s13Dialogue");if(!d||stage!==5)return;
+     d.innerHTML="<strong>"+speaker+"</strong>"+line;
+     if(index===lines.length-1){$("s13Finish").disabled=false;status("惑星物研究マシン（仮）：サンプル受け入れ完了。");effect("success");}
+    },delay));
+   }
    $("s13Finish").onclick=()=>{effect("success");stage=6;render();};
   }else if(stage===6){
    title.textContent="1-3 クリア！";desc.textContent="黒い液体の回収と転送に成功した。正体の分析は次の段階へ……。";

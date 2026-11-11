@@ -17,23 +17,24 @@
 <path d="M390 480H830L790 555H430Z" fill="#243f70" stroke="#69dfff" stroke-width="5"/>
 <path d="M440 475H780L750 520H470Z" fill="url(#glass)" stroke="#9afaff" stroke-width="4"/>
 <ellipse cx="610" cy="475" rx="175" ry="38" fill="#7deeff" opacity=".16" filter="url(#glow)"/>
-<!-- meteor -->
+<!-- High-contrast meteor sample -->
+<ellipse cx="610" cy="505" rx="145" ry="34" fill="#02091b" opacity=".72"/>
+<circle cx="610" cy="405" r="150" fill="#36dfff" opacity=".13" filter="url(#glow)"/>
 <g id="meteor" transform="translate(610 405)">
- <path d="M-110 -20L-83 -82 -25 -105 28 -88 90 -55 112 5 70 72 5 94 -70 65 -115 20Z" fill="url(#rock)" stroke="#a9c6e8" stroke-width="7"/>
- <path d="M-54 -67L-20 -38 -38 2 5 28 32 -5 65 18" fill="none" stroke="#52eaff" stroke-width="9" stroke-linecap="round" filter="url(#glow)"/>
- <path d="M-20 -38L10 -75M5 28L-15 65M32 -5L70 -55" fill="none" stroke="#b2ffff" stroke-width="4"/>
- <circle cx="0" cy="0" r="18" fill="#8fffff" opacity=".7" filter="url(#glow)"/>
+ <path d="M-126 -28L-105 -94 -53 -126 17 -119 82 -91 128 -30 117 45 70 108 5 126 -70 101 -126 48Z" fill="#202c48" stroke="#d4efff" stroke-width="10"/>
+ <path d="M-113 -30L-91 -88 -47 -113 12 -105 75 -78 112 -25 101 37 60 91 4 108 -61 84 -111 39Z" fill="url(#rock)" stroke="#6d829f" stroke-width="4"/>
+ <path d="M-77 -55L-44 -80 -13 -58 -25 -25 -61 -20Z" fill="#26334e" stroke="#a4b8d4" stroke-width="5"/>
+ <path d="M39 48L62 20 91 37 78 70 49 78Z" fill="#1a2944" stroke="#9db2d1" stroke-width="5"/>
+ <path d="M-22 -105L-8 -68 -35 -33 2 -5 -17 34 18 57 8 103" fill="none" stroke="#48edff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+ <path d="M-8 -68L28 -92 45 -64M2 -5L47 -20 79 -5M-17 34L-58 52" fill="none" stroke="#d2ffff" stroke-width="6" stroke-linecap="round" filter="url(#glow)"/>
+ <circle cx="2" cy="-5" r="32" fill="#5ff5ff" opacity=".4" filter="url(#glow)"/>
+ <circle cx="2" cy="-5" r="14" fill="#efffff" filter="url(#glow)"/>
 </g>
-<!-- articulated robot arm, distinct joints for animation -->
-<g id="robot-arm" stroke-linecap="round" stroke-linejoin="round">
- <path d="M990 505L980 355" stroke="#101b35" stroke-width="72"/><path d="M990 505L980 355" stroke="#dcecff" stroke-width="48"/>
- <circle cx="980" cy="355" r="34" fill="#273d68" stroke="#83eaff" stroke-width="8"/>
- <path d="M980 355L865 270" stroke="#e6f2ff" stroke-width="44"/><path d="M980 355L865 270" stroke="#6ceaff" stroke-width="7"/>
- <circle cx="865" cy="270" r="28" fill="#243c69" stroke="#9afaff" stroke-width="8"/>
- <path d="M865 270L760 320" stroke="#e6f2ff" stroke-width="36"/><path d="M865 270L760 320" stroke="#6ceaff" stroke-width="6"/>
- <circle cx="760" cy="320" r="23" fill="#203c69" stroke="#9afaff" stroke-width="7"/>
- <path d="M760 320L720 370" stroke="#dcecff" stroke-width="24"/><path d="M720 370L690 360M720 370L700 395" stroke="#a8faff" stroke-width="12"/>
+<g font-family="Arial,sans-serif" font-weight="bold">
+ <rect x="505" y="235" width="210" height="34" rx="17" fill="#081a35" stroke="#7dfaff" stroke-width="2"/>
+ <text x="610" y="258" text-anchor="middle" font-size="17" fill="#d9ffff" letter-spacing="2">METEOR SAMPLE</text>
 </g>
+<!-- Dynamic arm is drawn by the interactive overlay -->
 <!-- processing machine -->
 <g transform="translate(910 80)"><rect width="220" height="145" rx="18" fill="#182b50" stroke="#7deaff" stroke-width="5"/><rect x="18" y="18" width="184" height="75" rx="10" fill="#07152f" stroke="#54dfff" stroke-width="3"/><path d="M35 68H185" stroke="#40eaff" stroke-width="5" filter="url(#glow)"/><circle cx="48" cy="120" r="8" fill="#70ffef"/><circle cx="78" cy="120" r="8" fill="#70ffef"/><circle cx="108" cy="120" r="8" fill="#70ffef"/></g>
 <!-- side glass tanks -->

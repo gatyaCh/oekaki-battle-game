@@ -10890,6 +10890,17 @@ body.special-code-open #adminAbuseDialogue.active{
 .story2-absorb-card h2,.story2-absorb-card p,.story2-absorb-card button{position:relative;z-index:2}
 @media(prefers-reduced-motion:reduce){.story2-reward-gem,.story2-smoke,.story2-absorb-crystal,.story-intro-scene.scene-crystal-red:before,.story-intro-scene.scene-crystal-green:before,.story-intro-scene.scene-crystal-cyan:before,.story-intro-scene.scene-crystal-black:before{animation:none!important}}
 </style>
+
+<style id="story-world2-arena-polish">
+.story-battle-arena.island-red{background:radial-gradient(ellipse at 22% 24%,#ff777733,transparent 25%),linear-gradient(180deg,#283449 0 42%,#59606a 43% 48%,#3e454e 49% 100%)!important}
+.story-battle-arena.island-green{background:radial-gradient(ellipse at 76% 30%,#4ade8033,transparent 24%),linear-gradient(180deg,#1d3940 0 42%,#53665a 43% 48%,#35483a 49% 100%)!important}
+.story-battle-arena.island-cyan{background:radial-gradient(ellipse at 50% 20%,#67e8f944,transparent 26%),linear-gradient(180deg,#203c55 0 42%,#687b8b 43% 48%,#3e5366 49% 100%)!important}
+.story-battle-arena.island-black{background:radial-gradient(ellipse at 50% 25%,#5552,transparent 28%),linear-gradient(180deg,#090b13 0 43%,#222330 44% 49%,#11121b 50% 100%)!important}
+.story-intro-scene.shadow-rise .story-intro-black{display:block!important;opacity:1!important;font-size:clamp(48px,9vw,86px)!important;animation:story2ShadowRise .9s ease-out both}
+.story-intro-scene.crystal-glow:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 62%,#fff9,transparent 35%);pointer-events:none;animation:story2CrystalFlash .8s ease-out both}
+@keyframes story2ShadowRise{from{transform:translateY(70px) scale(.4);opacity:0;filter:blur(12px)}to{transform:translateY(0) scale(1);opacity:1;filter:blur(0)}}
+@keyframes story2CrystalFlash{0%{opacity:0}35%{opacity:1}100%{opacity:0}}
+</style>
 <style id="story13-lab-style">
 #story13Screen{position:fixed;inset:0;z-index:1000005;background:#071329;color:#eafaff;display:none;overflow:auto;font-family:Arial,sans-serif}
 #story13Screen.active{display:block}

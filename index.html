@@ -10993,14 +10993,14 @@ body.special-code-open #adminAbuseDialogue.active{
     }else fail4();
    };
   }else if(stage===5){
-   $("s13ArmSvg").style.display="none";title.textContent="⑤ 惑星物研究マシン（仮）へ転送";
+   $("s13ArmSvg").style.display="none";title.textContent="⑤ 惑星物研究マシンへ転送";
    desc.textContent="採取したサンプルを研究マシンへ移送する。";
-   controls.innerHTML='<div id="s13Dialogue" class="s13-dialogue"><strong>主人公</strong>回収した黒い液体を、惑星物研究マシン（仮）へ移送する。</div><button type="button" id="s13Finish" disabled>次へ</button>';
+   controls.innerHTML='<div id="s13Dialogue" class="s13-dialogue"><strong>主人公</strong>回収した黒い液体を、惑星物研究マシンへ移送する。</div><button type="button" id="s13Finish" disabled>次へ</button>';
    status("サンプル容器を搬送中…");
    if(!transferStarted){
     transferStarted=true;$("s13TransferCapsule").classList.add("run");$("s13TransferBeam").classList.add("on");
     const lines=[
-     ["主人公","回収した黒い液体を、惑星物研究マシン（仮）へ移送する。",0],
+     ["主人公","回収した黒い液体を、惑星物研究マシンへ移送する。",0],
      ["研究マシン","サンプルを確認。未知の物質反応を検出しました。",1900],
      ["主人公","やっぱり……普通の隕石とは違う。",3900],
      ["研究マシン","分析装置へサンプルを転送します。転送開始。",5700],
@@ -11010,13 +11010,13 @@ body.special-code-open #adminAbuseDialogue.active{
     lines.forEach(([speaker,line,delay],index)=>setTimeout(()=>{
      const d=$("s13Dialogue");if(!d||stage!==5)return;
      d.innerHTML="<strong>"+speaker+"</strong>"+line;
-     if(index===lines.length-1){$("s13Finish").disabled=false;status("惑星物研究マシン（仮）：サンプル受け入れ完了。");effect("success");}
+     if(index===lines.length-1){$("s13Finish").disabled=false;status("惑星物研究マシン：サンプル受け入れ完了。");effect("success");}
     },delay));
    }
    $("s13Finish").onclick=()=>{effect("success");stage=6;render();};
   }else if(stage===6){
    title.textContent="1-3 クリア！";desc.textContent="黒い液体の回収と転送に成功した。正体の分析は次の段階へ……。";
-   controls.innerHTML='<button type="button" id="s13Done">ステージ選択へ戻る</button>';status("惑星物研究マシン（仮）：サンプル受け入れ完了。");
+   controls.innerHTML='<button type="button" id="s13Done">ステージ選択へ戻る</button>';status("惑星物研究マシン：サンプル受け入れ完了。");
    $("s13Done").onclick=()=>{try{localStorage.setItem("story13Cleared","1");}catch(e){}hide();};
   }
  }

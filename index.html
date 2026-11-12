@@ -5260,9 +5260,9 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   const STORY_GOLD_KEY="storyWorld1Gold";
   const storyShopProducts=[
     {id:"weapon",name:"強化武器",icon:"⚔️",desc:"攻撃力アップ",prices:[60,130,240]},
-    {id:"shield",name:"強化シールド",icon:"🛡️",desc:"防御性能アップ",prices:[55,120,220]},
-    {id:"heal",name:"上級回復薬",icon:"💚",desc:"回復量アップ",prices:[45,100,190]},
-    {id:"dodge",name:"高性能ブーツ",icon:"💨",desc:"回避率アップ",prices:[50,110,200]}
+    {id:"shield",name:"強化シールド",icon:"🧿",desc:"防御性能アップ",prices:[55,120,220]},
+    {id:"heal",name:"上級回復薬",icon:"💖",desc:"回復量アップ",prices:[45,100,190]},
+    {id:"dodge",name:"高性能ブーツ",icon:"👟",desc:"回避率アップ",prices:[50,110,200]}
   ];
   const storyGearInfo=[
     {id:"weapon",base:"🗡️",upgraded:"⚔️",name:"攻撃"},
@@ -11287,7 +11287,7 @@ body.special-code-open #adminAbuseDialogue.active{
         const shopWeaponEquipped=typeof window.getStoryEquippedGear==="function"&&window.getStoryEquippedGear("weapon")==="shop";
         const earnedExp=shopWeaponEquipped?Math.round(baseExp*1.5):baseExp;
         stageEarnedExp+=earnedExp;
-        msg+="\\n🪙 "+e.name+"が"+reward+" Gをドロップ！\\n✨ "+earnedExp+" EXPを獲得！";
+        msg+="\n🪙 "+e.name+"が"+reward+" Gをドロップ！\n✨ "+earnedExp+" EXPを獲得！";
       }
      }
      e.guard=0;e.dodge=0;

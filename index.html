@@ -3655,6 +3655,14 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 .story-explore-stage:not(:disabled):hover{filter:brightness(1.2);transform:translateY(-2px)}
 .story-explore-player{position:absolute;z-index:4;left:420px;top:760px;width:54px;height:54px;display:grid;place-items:center;border:3px solid #fff;border-radius:50%;background:#2563eb;font-size:34px;box-shadow:0 0 0 4px #1d4ed888,0 5px 12px #0008;transform:translate(-50%,-50%);pointer-events:none}
 .story-explore-hint{position:absolute;z-index:5;left:50%;bottom:14px;transform:translateX(-50%);max-width:min(650px,80vw);padding:9px 14px;border:1px solid #64748b;border-radius:12px;background:#0f172aeF;text-align:center;font-size:13px}
+.story-inventory-toggle{position:absolute;z-index:9;right:16px;top:62px;padding:10px 14px;border:1px solid #93c5fd;border-radius:11px;background:#1e3a8a;color:#fff;font-weight:900;box-shadow:0 4px 12px #0006}
+.story-inventory-panel{position:absolute;z-index:18;right:14px;top:112px;width:min(330px,calc(100vw - 28px));max-height:min(70vh,560px);overflow:auto;padding:14px;border:1px solid #93c5fd;border-radius:16px;background:#101b30f5;color:#fff;box-shadow:0 12px 36px #0009}
+.story-inventory-head{display:flex;justify-content:space-between;align-items:center;font-size:17px}.story-inventory-head button{border:0;border-radius:8px;background:#475569;color:#fff;padding:5px 10px}
+.story-inventory-sub{margin:14px 0 7px;color:#93c5fd;font-size:12px;font-weight:900}.story-inventory-gear{display:grid;gap:7px}
+.story-inventory-gear-row{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border:1px solid #334155;border-radius:10px;background:#1e293b}
+.story-inventory-gear-row strong{font-size:17px}.story-inventory-gear-row small{color:#cbd5e1}
+.story-inventory-skin{margin-top:9px;padding:8px;border-radius:9px;background:#312e81;color:#e0e7ff;font-size:13px}
+.story-inventory-owned{display:grid;gap:6px}.story-inventory-owned div{padding:7px 9px;border-radius:8px;background:#1e293b;color:#e2e8f0;font-size:13px}
 .story-explore-wallet{position:absolute;z-index:7;left:14px;top:62px;padding:8px 12px;border:1px solid #fbbf24;border-radius:10px;background:#111827eF;color:#fde68a;font-weight:900}
 .story-secret-shop{position:absolute;z-index:2;left:760px;top:420px;width:78px;height:68px;display:grid;place-items:center;border:2px dashed #64748b;border-radius:10px;background:#172033;color:#cbd5e1;font-size:27px;opacity:.22;filter:grayscale(1);cursor:pointer}
 .story-secret-shop.discovered{opacity:1;filter:none;border-style:solid;border-color:#fbbf24;background:#3b2a12;box-shadow:0 0 22px #fbbf2470}
@@ -4395,6 +4403,13 @@ body {
     </div>
   </div>
   <div class="story-explore-wallet">🪙 <span id="storyExploreWallet">0</span> G</div>
+  <button type="button" id="storyInventoryToggle" class="story-inventory-toggle">🎒 アイテム</button>
+  <aside id="storyInventoryPanel" class="story-inventory-panel hidden" aria-label="所持アイテムと装備">
+    <div class="story-inventory-head"><strong>🎒 アイテム・装備</strong><button type="button" id="storyInventoryClose" aria-label="閉じる">✕</button></div>
+    <p class="story-inventory-sub">現在装備しているもの</p><div id="storyInventoryGear" class="story-inventory-gear"></div>
+    <div class="story-inventory-skin" id="storyInventorySkin">スキン：現在選択中のスキン</div>
+    <p class="story-inventory-sub">所持アイテム</p><div id="storyInventoryOwned" class="story-inventory-owned"></div>
+  </aside>
   <div id="storyExploreShopModal" class="story-explore-shop-modal hidden" role="dialog" aria-modal="true">
     <div class="story-explore-shop-card story-shop-catalog"><div style="font-size:34px">🕯️</div><h2>秘密のお店「？？？」</h2><p>「ここでは、今の装備より強いものを売っているよ。」</p><p>所持金：🪙 <strong id="storyShopWallet">0</strong> G</p><div id="storyShopItems" class="story-shop-items"></div><button type="button" id="storyShopClose">探索に戻る</button></div>
   </div>
@@ -5219,6 +5234,30 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     {id:"heal",name:"上級回復薬",icon:"💚",desc:"回復量アップ",prices:[45,100,190]},
     {id:"dodge",name:"高性能ブーツ",icon:"💨",desc:"回避率アップ",prices:[50,110,200]}
   ];
+  const storyGearInfo=[
+    {id:"weapon",base:"🗡️",upgraded:"⚔️",name:"攻撃"},
+    {id:"shield",base:"🛡️",upgraded:"🧿",name:"防御"},
+    {id:"heal",base:"💚",upgraded:"💖",name:"回復"},
+    {id:"dodge",base:"💨",upgraded:"👟",name:"回避"}
+  ];
+  function renderStoryInventory(){
+    const gear=$story("storyInventoryGear"),owned=$story("storyInventoryOwned");if(!gear||!owned)return;
+    gear.innerHTML="";owned.innerHTML="";
+    for(const item of storyGearInfo){
+      const level=getStoryShopLevel(item.id),row=document.createElement("div");row.className="story-inventory-gear-row";
+      const left=document.createElement("span");left.textContent=item.name;
+      const right=document.createElement("strong");right.textContent=(level>0?item.upgraded:item.base)+" "+(level>0?"強化装備 Lv."+level:"初期装備");
+      row.append(left,right);gear.appendChild(row);
+      const possession=document.createElement("div");possession.textContent=(level>0?item.upgraded:item.base)+" "+item.name+"："+(level>0?"強化版を所持・装備中":"初期装備を装備中");owned.appendChild(possession);
+    }
+    const skin=$story("storyInventorySkin");
+    if(skin){let selected="選択中のスキン";try{const d=JSON.parse(localStorage.getItem("oekakiBattleSkinsV1")||"{}");if(d.selected)selected=d.selected;}catch(e){}skin.textContent="スキン："+selected;}
+    const secret=document.createElement("div");let hasSecret=false;try{const d=JSON.parse(localStorage.getItem("oekakiBattleSkinsV1")||"{}");hasSecret=Array.isArray(d.unlocked)&&d.unlocked.includes("secret_nebula");}catch(e){}
+    secret.textContent=hasSecret?"🌌 ネビュラ：所持":"🌌 限定スキン：未所持";owned.appendChild(secret);
+  }
+  const inventoryToggle=$story("storyInventoryToggle"),inventoryClose=$story("storyInventoryClose");
+  if(inventoryToggle)inventoryToggle.addEventListener("click",()=>{renderStoryInventory();$story("storyInventoryPanel").classList.toggle("hidden");});
+  if(inventoryClose)inventoryClose.addEventListener("click",()=>$story("storyInventoryPanel").classList.add("hidden"));
   function renderStoryShopItems(){
     const root=$story("storyShopItems");if(!root)return;root.innerHTML="";
     for(const item of storyShopProducts){
@@ -5325,6 +5364,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     const wallet=$story("storyExploreWallet"),shopWallet=$story("storyShopWallet");
     if(wallet)wallet.textContent=gold;if(shopWallet)shopWallet.textContent=gold;
     if($story('storyShopItems'))renderStoryShopItems();
+    if(!$story("storyInventoryPanel").classList.contains("hidden"))renderStoryInventory();
   }
   function openStorySecretShop(){
     renderStoryShopItems();
@@ -11113,7 +11153,7 @@ body.special-code-open #adminAbuseDialogue.active{
   if(action==="attack"){
    const alive=enemies.map((e,i)=>({e,i})).filter(x=>x.e.hp>0);
    if(alive.length){
-    const totalPower=25+Math.round(score*.3)+getStoryShopLevel("weapon")*8;
+    const basePower=25+Math.round(score*.3);const weaponLevel=getStoryShopLevel("weapon");const totalPower=Math.round(basePower*(weaponLevel>0?2+(weaponLevel-1)*.5:1));
     const share=Math.floor(totalPower/alive.length),remainder=totalPower%alive.length;
     msg+="\n攻撃力"+totalPower+"を敵"+alive.length+"体に分配！";
     alive.forEach(({e,i},n)=>{
@@ -11137,9 +11177,9 @@ body.special-code-open #adminAbuseDialogue.active{
     });
     fx("⚔️ 全体攻撃！","attack");
    }
-  }else if(action==="dodge"){playerDodge=Math.min(100,50+Math.round(score*.5)+getStoryShopLevel("dodge")*5);fx("💨 回避態勢！","dodge");msg+="\n回避率"+playerDodge+"%で敵の攻撃に備える！"}
-  else if(action==="defend"){playerGuard=Math.min(90,40+Math.round(score*.3)+getStoryShopLevel("shield")*8);fx("🛡️ 防御！","defend");msg+="\n次の敵の攻撃を"+playerGuard+"%軽減！"}
-  else{const amount=Math.min(100,30+Math.round(score*.4)+getStoryShopLevel("heal")*10),before=hp;hp=Math.min(300,hp+amount);const actual=hp-before;fx("💚 +"+actual+" 回復！","heal");msg+="\nHPが"+actual+"回復した！"}
+  }else if(action==="dodge"){playerDodge=Math.min(100,Math.round((50+Math.round(score*.5))*(getStoryShopLevel("dodge")>0?2+(getStoryShopLevel("dodge")-1)*.5:1)));fx("💨 回避態勢！","dodge");msg+="\n回避率"+playerDodge+"%で敵の攻撃に備える！"}
+  else if(action==="defend"){playerGuard=Math.min(90,Math.round((40+Math.round(score*.3))*(getStoryShopLevel("shield")>0?2+(getStoryShopLevel("shield")-1)*.5:1)));fx("🛡️ 防御！","defend");msg+="\n次の敵の攻撃を"+playerGuard+"%軽減！"}
+  else{const healLevel=getStoryShopLevel("heal");const amount=Math.min(200,Math.round((30+Math.round(score*.4))*(healLevel>0?2+(healLevel-1)*.5:1))),before=hp;hp=Math.min(300,hp+amount);const actual=hp-before;fx("💚 +"+actual+" 回復！","heal");msg+="\nHPが"+actual+"回復した！"}
   if(stage==="2-5"&&!absorptionTriggered){const black=enemies.find(e=>e.crystal==="black");if(black&&black.hp<=50){startBlackAbsorption();$("storyDrawResult").textContent=grade+"評価（"+score+"点）";return;}}
   $("storyDrawResult").textContent=grade+"評価（"+score+"点）";
   $("storyDrawPanel").classList.remove("active");turnBusy=true;render();

@@ -12449,7 +12449,7 @@ function missionStatus(){const el=missionPanel();if(mission.boss)el.textContent=
 function startMissionOne(){missionLoad();if(mission.one){missionStatus();return}const hard=stage>=5;mission.boss={x:Math.min(CANVAS_WIDTH-80,Math.max(80,p.x+150)),y:Math.min(CANVAS_HEIGHT-80,Math.max(80,p.y-80)),hp:hard?500:300,max:hard?500:300,atk:hard?40:20,cool:0};missionStatus()}
 function startMissionTwo(){missionLoad();if(mission.two){missionStatus();return}mission.twoActive=true;mission.twoCleared=false;mission.enemies=[];mission.kills=0;mission.spawnTick=0;missionStatus()}
 function missionWin(which){if(which===1){mission.one=true;mission.boss=null}else{mission.two=true;mission.twoActive=false;mission.twoCleared=true;mission.enemies=[]}missionSave();missionStatus();const m=$("msg");if(m)m.textContent=which===1?"🏆 ミッション1クリア！スペシャルコード「2026」を獲得！":"🏆 ミッション2クリア！スペシャルコード「skin」を獲得！"}
-missionLoad();
+missionLoad();missionStatus();
 function missionUpdate(){if(!active||currentScreen!=="game"||gameOver)return;
  if(mission.boss){const b=mission.boss,dx=p.x-b.x,dy=p.y-b.y,d=Math.hypot(dx,dy)||1;b.x+=dx/d*1.15;b.y+=dy/d*1.15;if(d<58){b.cool++;if(b.cool>=90){b.cool=0;damagePlayer(b.atk)}}}
  if(mission.twoActive&&!mission.twoCleared){mission.spawnTick++;if(mission.spawnTick>=90&&mission.enemies.length<8){mission.spawnTick=0;mission.enemies.push({x:CANVAS_WIDTH-30,y:50+Math.random()*(CANVAS_HEIGHT-100),hp:30,max:30,cool:0})}

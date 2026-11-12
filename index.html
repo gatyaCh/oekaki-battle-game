@@ -3655,6 +3655,13 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 .story-explore-stage:not(:disabled):hover{filter:brightness(1.2);transform:translateY(-2px)}
 .story-explore-player{position:absolute;z-index:4;left:420px;top:760px;width:54px;height:54px;display:grid;place-items:center;border:3px solid #fff;border-radius:50%;background:#2563eb;font-size:34px;box-shadow:0 0 0 4px #1d4ed888,0 5px 12px #0008;transform:translate(-50%,-50%);pointer-events:none}
 .story-explore-hint{position:absolute;z-index:5;left:50%;bottom:14px;transform:translateX(-50%);max-width:min(650px,80vw);padding:9px 14px;border:1px solid #64748b;border-radius:12px;background:#0f172aeF;text-align:center;font-size:13px}
+.story-explore-wallet{position:absolute;z-index:7;left:14px;top:62px;padding:8px 12px;border:1px solid #fbbf24;border-radius:10px;background:#111827eF;color:#fde68a;font-weight:900}
+.story-secret-shop{position:absolute;z-index:2;left:760px;top:420px;width:78px;height:68px;display:grid;place-items:center;border:2px dashed #64748b;border-radius:10px;background:#172033;color:#cbd5e1;font-size:27px;opacity:.22;filter:grayscale(1);cursor:pointer}
+.story-secret-shop.discovered{opacity:1;filter:none;border-style:solid;border-color:#fbbf24;background:#3b2a12;box-shadow:0 0 22px #fbbf2470}
+.story-secret-shop-label{font-size:10px;font-weight:900}
+.story-explore-shop-modal{position:absolute;z-index:22;inset:0;display:grid;place-items:center;background:#020617c9;padding:18px}
+.story-explore-shop-card{width:min(390px,92vw);padding:22px;border:1px solid #fbbf24;border-radius:18px;background:#151c2b;text-align:center;box-shadow:0 16px 50px #0009}
+.story-explore-shop-card h2{margin:0 0 8px;color:#fde68a}.story-explore-shop-card p{color:#e2e8f0}
 .story-explore-prompt{position:absolute;z-index:8;left:50%;top:62px;transform:translateX(-50%);padding:9px 16px;border:2px solid #fde68a;border-radius:12px;background:#172554f2;color:#fff;text-align:center;box-shadow:0 5px 18px #0008;white-space:nowrap}
 .story-explore-confirm{position:absolute;z-index:20;inset:0;display:grid;place-items:center;background:#020617b8;padding:18px}
 .story-explore-confirm-card{width:min(390px,92vw);padding:22px;border:1px solid #94a3b8;border-radius:18px;background:#111c30;color:#fff;text-align:center;box-shadow:0 16px 50px #0009}
@@ -4383,8 +4390,14 @@ body {
       <div class="story-explore-tree" style="left:1750px;top:360px">🌳</div>
       <div class="story-explore-tree" style="left:1920px;top:850px">🌲</div>
       <div id="storyExploreStageEntrances" class="story-explore-stage-layer" aria-label="ステージ入口"></div>
+      <button type="button" id="storySecretShopDoor" class="story-secret-shop" style="left:760px;top:420px" aria-label="隠しショップ入口"><span>🚪</span><span class="story-secret-shop-label">？？？</span></button>
       <div id="storyExplorePlayer" class="story-explore-player" aria-label="プレイヤー">🧑‍🚀</div>
     </div>
+  </div>
+  <div class="story-explore-wallet">🪙 <span id="storyExploreWallet">0</span> G</div>
+  <div id="storySecretShop" class="story-secret-shop" role="button" aria-label="隠された入口"><span>🚪</span><span class="story-secret-shop-label">？？？</span></div>
+  <div id="storyExploreShopModal" class="story-explore-shop-modal hidden" role="dialog" aria-modal="true">
+    <div class="story-explore-shop-card"><div style="font-size:38px">🕯️</div><h2>？？？</h2><p>「よくここを見つけたね……」</p><p>秘密のお店を発見した！商品は準備中だ。</p><p>所持金：🪙 <strong id="storyShopWallet">0</strong> G</p><button type="button" id="storyShopClose">探索に戻る</button></div>
   </div>
   <div id="storyExplorePrompt" class="story-explore-prompt hidden" role="status">入口の近くにいるよ！<br><strong id="storyExplorePromptText">スペースキーで調べる</strong></div>
   <div id="storyExploreConfirm" class="story-explore-confirm hidden" role="dialog" aria-modal="true" aria-labelledby="storyExploreConfirmTitle">
@@ -5272,6 +5285,19 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     if(i===4){window.startStoryBattle("1-4");return;}
     if(i===5){window.startStory15();return;}
   }
+  let storySecretShopFound=false;
+  function updateStoryWallet(){
+    const gold=String(getStoryGold());
+    const wallet=$story("storyExploreWallet"),shopWallet=$story("storyShopWallet");
+    if(wallet)wallet.textContent=gold;if(shopWallet)shopWallet.textContent=gold;
+  }
+  function openStorySecretShop(){
+    if(!storySecretShopFound)return;
+    showStory("storyExploreShopModal");updateStoryWallet();storyExploreKeys.clear();
+  }
+  const secretDoor=$story("storySecretShopDoor"),shopClose=$story("storyShopClose");
+  if(secretDoor)secretDoor.addEventListener("click",openStorySecretShop);
+  if(shopClose)shopClose.addEventListener("click",()=>hideStory("storyExploreShopModal"));
   function storyExploreCheckNearby(){
     let nearest=0,best=Infinity;
     for(let i=1;i<=5;i++){
@@ -5284,11 +5310,22 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     if(prompt)prompt.classList.toggle("hidden",!storyExploreNearbyStage||!!storyExploreConfirmStage);
     if(action)action.classList.toggle("is-visible",!!storyExploreNearbyStage&&!storyExploreConfirmStage);
     if(label&&storyExploreNearbyStage)label.textContent="1-"+storyExploreNearbyStage+" の入口：スペースキー / 攻撃キーで調べる";
+    const shopDist=Math.hypot(storyExplorePosition.x-798,storyExplorePosition.y-454);
+    if(shopDist<90&&!storySecretShopFound){
+      storySecretShopFound=true;const door=$story("storySecretShopDoor");
+      if(door)door.classList.add("discovered");
+      const hint=$story("storyExplorePrompt"),txt=$story("storyExplorePromptText");
+      if(hint&&!storyExploreNearbyStage)hint.classList.remove("hidden");
+      if(txt&&!storyExploreNearbyStage)txt.textContent="秘密のお店を発見！スペースキーで入る";
+    }
+    if(shopDist<90&&storySecretShopFound&&!storyExploreNearbyStage&&$story("storyExplorePromptText"))$story("storyExplorePromptText").textContent="秘密のお店：スペースキーで入る";
+    updateStoryWallet();
   }
   function storyExploreInteract(){
     if(!storyExploreVisible())return;
     if(storyExploreConfirmStage){storyExploreCloseConfirm();return;}
-    if(storyExploreNearbyStage)storyExploreOpenConfirm(storyExploreNearbyStage);
+    if(storyExploreNearbyStage){storyExploreOpenConfirm(storyExploreNearbyStage);return;}
+    if(storySecretShopFound&&Math.hypot(storyExplorePosition.x-798,storyExplorePosition.y-454)<90){openStorySecretShop();}
   }
   const storyExploreYes=$story("storyExploreConfirmYes"),storyExploreNo=$story("storyExploreConfirmNo"),storyExploreAction=$story("storyExploreAction");
   if(storyExploreYes)storyExploreYes.addEventListener("click",function(){if(storyExploreConfirmStage)launchStoryExploreStage(storyExploreConfirmStage);});
@@ -10879,6 +10916,9 @@ body.special-code-open #adminAbuseDialogue.active{
 <script id="story-battle-runtime">
 (function(){
  const $=id=>document.getElementById(id);
+ const STORY_GOLD_KEY="storyWorld1Gold";
+ function getStoryGold(){try{return Math.max(0,Number(localStorage.getItem(STORY_GOLD_KEY)||0));}catch(e){return 0;}}
+ function addStoryGold(amount){const next=getStoryGold()+amount;try{localStorage.setItem(STORY_GOLD_KEY,String(next));}catch(e){}return next;}
  const cfg={
  "1-2":{title:"1-2「黒い何か」",subtitle:"草原に落ちた隕石から現れた黒い敵",scene:"grass",enemies:[["黒い敵①",100,7],["黒い敵②",100,7],["黒い敵③",100,7]]},
  "1-4":{title:"1-4「広がる黒い影」",subtitle:"黒い影に覆われた街で敵を食い止めよう",scene:"town",enemies:[["黒い敵①",150,10],["黒い敵②",150,10],["大型の黒い敵",400,40]]},
@@ -11042,10 +11082,16 @@ body.special-code-open #adminAbuseDialogue.active{
       msg+="\n"+e.name+"は攻撃を回避！";
       enemyFx(i,"💨 回避！","dodge");
      }else{
+      const wasAlive=e.hp>0;
       const damage=Math.max(1,Math.ceil(allocated*(1-(e.guard||0)/100)));
       e.hp=Math.max(0,e.hp-damage);
       msg+="\n"+e.name+"に"+damage+"ダメージ！"+(e.guard?"（防御で軽減）":"");
       enemyFx(i,"⚔️ -"+damage,"hit");
+      if(wasAlive&&e.hp<=0&&!e.absorbed){
+        const reward=e.crystal?12:5;
+        addStoryGold(reward);
+        msg+="\\n🪙 "+e.name+"が"+reward+" Gをドロップ！";
+      }
      }
      e.guard=0;e.dodge=0;
     });

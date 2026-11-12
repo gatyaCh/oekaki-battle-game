@@ -11686,7 +11686,37 @@ $("s15Next").addEventListener("click",next);
 function back(){hide();if(window.openStoryStages)window.openStoryStages()}
 $("s15Exit").addEventListener("click",back);$("s15Back").addEventListener("click",back);window.startStory15=show;
 })();
-</script></body>
+</script>
+<script id="device-selection-click-recovery">
+(function(){
+  function forceDeviceSelection(mode){
+    try {
+      if(typeof window.chooseDevice === "function") {
+        window.chooseDevice(mode);
+      } else {
+        document.body.classList.toggle("mobile-mode", mode === "mobile");
+        ["title","draw","count","gameArea","resultScreen","tutorialChoice"].forEach(id=>{
+          const el=document.getElementById(id);
+          if(el) el.classList.add("hidden");
+        });
+        const map=document.getElementById("mapSelect");
+        if(map) map.classList.remove("hidden");
+      }
+    } catch(err) {
+      console.error("端末選択画面の切替に失敗:",err);
+      document.getElementById("title")?.classList.add("hidden");
+      document.getElementById("mapSelect")?.classList.remove("hidden");
+    }
+  }
+  document.addEventListener("click",function(e){
+    const button=e.target && e.target.closest ? e.target.closest('#title button[onclick*="chooseDevice"]') : null;
+    if(!button) return;
+    const mode=button.getAttribute("onclick").includes("'mobile'") ? "mobile" : "pc";
+    forceDeviceSelection(mode);
+  },true);
+})();
+</script>
+</body>
 </html>
 
 <script id="achievement-feature-20261018">

@@ -11592,7 +11592,7 @@ body.special-code-open #adminAbuseDialogue.active{
   }else if(stage===6){
    title.textContent="1-3 クリア！";desc.textContent="黒い液体の回収と転送に成功した。正体の分析は次の段階へ……。";
    controls.innerHTML='<button type="button" id="s13Done">ステージ選択へ戻る</button>';status("惑星物研究マシン：サンプル受け入れ完了。");
-   $("s13Done").onclick=()=>{try{localStorage.setItem("story13Cleared","1");}catch(e){}hide();};
+   $("s13Done").onclick=()=>{try{localStorage.setItem("story13Cleared","1");}catch(e){}hide();if(typeof window.openStoryExplore==="function")window.openStoryExplore();};
   }
  }
  handle.addEventListener("pointerdown",e=>{if(stage!==2&&stage!==4)return;dragging=true;handle.setPointerCapture(e.pointerId);e.preventDefault();});

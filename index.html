@@ -5346,7 +5346,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
       const d=progress[item.id][type],need=d.level>=3?0:storyGearThreshold(type,d.level),name=type==="initial"?"初期装備":"ショップ装備";
       const card=document.createElement("div");card.className="story-exp-card";
       const title=document.createElement("strong");title.textContent=item.name+"（"+name+"） Lv."+d.level;
-      const detail=document.createElement("small");detail.textContent=d.level>=3?"最大レベル":("次のレベルまで "+d.exp+" / "+need+" EXP");
+      const detail=document.createElement("small");detail.textContent=d.level>=3?"最大レベル":("次のレベルまであと "+Math.max(0,need-d.exp)+" EXP（"+d.exp+" / "+need+"）");
       const bar=document.createElement("div");bar.className="story-exp-progress";const fill=document.createElement("span");fill.style.width=(d.level>=3?100:Math.min(100,d.exp/need*100))+"%";bar.appendChild(fill);
       const btn=document.createElement("button");btn.type="button";btn.textContent=d.level>=3?"MAX":"10 EXP 振り込む";btn.disabled=d.level>=3||storyStageExpBudget<10;btn.addEventListener("click",()=>spendStoryGearExp(item.id,type));
       card.append(title,detail,bar,btn);root.appendChild(card);
@@ -11282,7 +11282,12 @@ body.special-code-open #adminAbuseDialogue.active{
       if(wasAlive&&e.hp<=0&&!e.absorbed){
         const reward=e.crystal?12:5;
         addStoryGold(reward);
-        msg+="\\n🪙 "+e.name+"が"+reward+" Gをドロップ！";
+        const isSpecialEnemy=!!e.crystal||e.max>=300||e.attack>=40;
+        const baseExp=isSpecialEnemy?40:20;
+        const shopWeaponEquipped=typeof window.getStoryEquippedGear==="function"&&window.getStoryEquippedGear("weapon")==="shop";
+        const earnedExp=shopWeaponEquipped?Math.round(baseExp*1.5):baseExp;
+        stageEarnedExp+=earnedExp;
+        msg+="\\n🪙 "+e.name+"が"+reward+" Gをドロップ！\\n✨ "+earnedExp+" EXPを獲得！";
       }
      }
      e.guard=0;e.dodge=0;

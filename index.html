@@ -4351,7 +4351,7 @@ body {
         <button onclick="selectNormalMap()">通常マップで遊ぶ</button>
         <button class="map-tutorial-button" onclick="askMapTutorial('normal')">📘 チュートリアル</button>
       </div>
-      <div class="map-option map-story-option" id="storyModeOption"><h2>📖 ストーリーモード</h2><p>謎解き・戦闘・探索の新しい冒険</p><span class="map-lock-label">🌍 第1ワールド解放中</span><button type="button" id="storyModeOpen" onclick="openStoryWorlds()">ストーリーモードを開く</button></div>
+      <div class="map-option map-story-option" id="storyModeOption"><h2>📖 ストーリーモード</h2><p>謎解き・戦闘・探索の新しい冒険</p><span class="map-lock-label">🌍 第1ワールド解放中</span><button type="button" id="storyModeOpen" onclick="(function(){var map=document.getElementById('mapSelect');var screen=document.getElementById('storyWorldScreen');if(map)map.classList.add('hidden');if(screen)screen.classList.remove('hidden');})();">ストーリーモードを開く</button></div>
     </div>
   </div>
 </div>

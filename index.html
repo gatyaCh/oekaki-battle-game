@@ -5213,6 +5213,9 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
 /* Story mode - World 1 opening episode */
 (function(){
   const $story=id=>document.getElementById(id);
+  const STORY_GOLD_KEY="storyWorld1Gold";
+  function getStoryGold(){try{return Math.max(0,Number(localStorage.getItem(STORY_GOLD_KEY)||0));}catch(e){return 0;}}
+
   const storyLines=[
     {name:"ナレーション",text:"主人公は、宇宙にある惑星を観察・研究する仕事をしていた。",scene:"宇宙観測ステーション",mode:""},
     {name:"主人公",text:"観測データは正常……。今日もいつも通りの観察になりそうだ。",scene:"観測中の惑星",mode:""},

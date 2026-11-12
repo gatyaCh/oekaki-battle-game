@@ -5238,7 +5238,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     skinBtn.addEventListener("click",()=>{if(getStoryGold()<180||owned)return;try{localStorage.setItem(STORY_GOLD_KEY,String(getStoryGold()-180));}catch(e){}if(typeof window.unlockGameSkin==="function")window.unlockGameSkin("secret_nebula");updateStoryWallet();renderStoryShopItems();});
     skinRow.append(skinInfo,skinBtn);root.appendChild(skinRow);
     const equip=document.createElement("button");equip.type="button";equip.textContent="🌌 ネビュラを装備";equip.style.margin="0 0 10px";
-    equip.addEventListener("click",()=>{if(typeof window.selectGameSkin==="function")window.selectGameSkin("secret_nebula");});root.appendChild(equip);
+    equip.disabled=!owned;equip.addEventListener("click",()=>{if(typeof window.selectGameSkin==="function")window.selectGameSkin("secret_nebula");});root.appendChild(equip);
   }
 
  const STORY_SHOP_KEY="storyWorld1ShopUpgrades";

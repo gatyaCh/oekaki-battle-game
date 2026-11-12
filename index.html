@@ -4395,7 +4395,6 @@ body {
     </div>
   </div>
   <div class="story-explore-wallet">🪙 <span id="storyExploreWallet">0</span> G</div>
-  <div id="storySecretShop" class="story-secret-shop" role="button" aria-label="隠された入口"><span>🚪</span><span class="story-secret-shop-label">？？？</span></div>
   <div id="storyExploreShopModal" class="story-explore-shop-modal hidden" role="dialog" aria-modal="true">
     <div class="story-explore-shop-card"><div style="font-size:38px">🕯️</div><h2>？？？</h2><p>「よくここを見つけたね……」</p><p>秘密のお店を発見した！商品は準備中だ。</p><p>所持金：🪙 <strong id="storyShopWallet">0</strong> G</p><button type="button" id="storyShopClose">探索に戻る</button></div>
   </div>
@@ -5326,6 +5325,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   }
   function storyExploreInteract(){
     if(!storyExploreVisible())return;
+    if(!$story("storyExploreShopModal").classList.contains("hidden"))return;
     if(storyExploreConfirmStage){storyExploreCloseConfirm();return;}
     if(storyExploreNearbyStage){storyExploreOpenConfirm(storyExploreNearbyStage);return;}
     if(storySecretShopFound&&Math.hypot(storyExplorePosition.x-798,storyExplorePosition.y-454)<90){openStorySecretShop();}
@@ -5367,6 +5367,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   };
   document.addEventListener("keydown",function(e){
     if(!storyExploreVisible())return;
+    if(!$story("storyExploreShopModal").classList.contains("hidden"))return;
     const k=e.key.toLowerCase();
     const map={arrowup:"up",w:"up",arrowdown:"down",s:"down",arrowleft:"left",a:"left",arrowright:"right",d:"right"};
     if(map[k]){e.preventDefault();storyExploreKeys.add(map[k]);}

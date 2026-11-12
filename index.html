@@ -4339,7 +4339,7 @@ body {
   <h2 style="margin-bottom:16px;">遊ぶ端末を選択してください</h2>
   <button onclick="chooseDevice('pc')" style="font-size:20px; padding:14px 28px;">💻 PC版</button>
   <button onclick="chooseDevice('mobile')" style="font-size:20px; padding:14px 28px;">📱 スマホ版</button>
-  <div style="margin-top:14px;"><button type="button" id="adminAbuseOpenBtn" style="display:block;width:min(560px,95%);margin:0 auto;padding:12px 16px;border:3px solid #6b7280;border-radius:12px;background:#e5e7eb;color:#374151;font-weight:900;font-size:clamp(16px,2.5vw,21px);line-height:1.4;text-shadow:none;box-shadow:0 3px 10px #0003;filter:none">ADMIN ABUSE　11/14　22:10〜22:30</button></div>
+  <div style="margin-top:14px;"><button type="button" id="adminAbuseOpenBtn" style="display:block;width:min(560px,95%);margin:0 auto;padding:12px 16px;border:3px solid #6b7280;border-radius:12px;background:#e5e7eb;color:#374151;font-weight:900;font-size:clamp(16px,2.5vw,21px);line-height:1.4;text-shadow:none;box-shadow:0 3px 10px #0003;filter:none">👑 ADMIN ABUSE　11/14　22:10〜22:30</button></div>
 </div>
 
 <div id="adminAbuseConfirmScreen" class="hidden" role="dialog" aria-modal="true"><div class="admin-abuse-card"><h2>👑 ADMIN ABUSEをしますか？</h2><p>25分間の特別イベントを開始します。</p><button type="button" id="adminAbuseYesV2">はい、プレイする</button><button type="button" id="adminAbuseNoV2">いいえ</button></div></div><div id="adminAbuseEndScreen" class="hidden" role="dialog" aria-modal="true"><div class="admin-abuse-card"><h2>⌛ ADMIN ABUSE終了</h2><p>イベント時間が終了しました。イベント専用効果はリセットされました。</p><button type="button" id="adminAbuseEndOkV2">タイトルへ戻る</button></div></div><div id="adminAbuseTimer" aria-live="polite">👑 ADMIN ABUSE　20:00</div><div id="adminAbuseDialogue" aria-live="polite"></div><div id="adminAbuseBoostHUD" aria-label="ADMIN ABUSE強化状況"><div>☘️ <b id="adminAbuseLuckV2">×1</b></div><div>⚔️ <b id="adminAbuseAttackV2">×1</b></div><div>👟 <b id="adminAbuseSpeedV2">×1</b></div><div>💫 ソウル <b id="adminAbuseCoinV2">×1</b></div><div>✨️ ポイント <b id="adminAbusePointsV2">×1</b></div></div><div id="mapSelect" class="hidden" aria-label="マップ選択">
@@ -12554,15 +12554,14 @@ function updateButton(){
   const b=$("adminAbuseOpenBtn");if(!b)return;
   const now=Date.now(),open=now>=from&&now<until,ended=now>=until;
   b.disabled=!open;
+  b.textContent="👑 ADMIN ABUSE　11/14　22:10〜22:30";
   if(open){
-    b.textContent="🌀ADMIN ABUSE🌪️　参加する";
     b.title="開催中！クリックして参加";
     b.style.background="linear-gradient(135deg,#a5f3fc,#67e8f9)";
     b.style.borderColor="#0891b2";b.style.color="#164e63";
     b.style.opacity="1";b.style.cursor="pointer";
     b.removeAttribute("aria-disabled");
   }else{
-    b.textContent=ended?"🔒 ADMIN ABUSE　受付終了":"🔒 ADMIN ABUSE　11/14 22:10から解放";
     b.title=ended?"参加受付は終了しました":"日本時間22:10になると参加できます";
     b.style.background="#e5e7eb";b.style.borderColor="#6b7280";
     b.style.color="#6b7280";b.style.opacity=".75";

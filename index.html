@@ -4300,18 +4300,6 @@ body {
 </style>
 
 
-<style id="map-screen-click-layer-fix">
-/* マップ選択は独立した最前面レイヤーとして扱い、下の描画UIにクリックを奪われないようにする */
-#mapSelect:not(.hidden){position:fixed!important;inset:0!important;z-index:14900!important;display:flex!important;pointer-events:auto!important;}
-#mapSelect:not(.hidden) .map-select-card,
-#mapSelect:not(.hidden) .map-options,
-#mapSelect:not(.hidden) .map-option,
-#mapSelect:not(.hidden) .map-option button{pointer-events:auto!important;}
-#draw.hidden{display:none!important;pointer-events:none!important;}
-#hushBtn{z-index:10020!important;}
-body:has(#mapSelect:not(.hidden)) #hushBtn,
-body:has(.story-screen:not(.hidden)) #hushBtn{display:none!important;visibility:hidden!important;pointer-events:none!important;}
-</style>
 </head>
 <body>
 
@@ -4363,7 +4351,7 @@ body:has(.story-screen:not(.hidden)) #hushBtn{display:none!important;visibility:
         <button onclick="selectNormalMap()">通常マップで遊ぶ</button>
         <button class="map-tutorial-button" onclick="askMapTutorial('normal')">📘 チュートリアル</button>
       </div>
-      <div class="map-option map-story-option" id="storyModeOption"><h2>📖 ストーリーモード</h2><p>謎解き・戦闘・探索の新しい冒険</p><span class="map-lock-label">🌍 第1ワールド解放中</span><button type="button" id="storyModeOpen" onclick="window.openStoryWorldSelect()">ストーリーモードを開く</button></div>
+      <div class="map-option map-story-option" id="storyModeOption"><h2>📖 ストーリーモード</h2><p>謎解き・戦闘・探索の新しい冒険</p><span class="map-lock-label">🌌 第1ワールド制作中</span><button type="button" id="storyModeOpen" onclick="openStoryCodeGate()">テストコードを入力</button></div>
     </div>
   </div>
 </div>
@@ -4385,7 +4373,7 @@ body:has(.story-screen:not(.hidden)) #hushBtn{display:none!important;visibility:
     <p>ぶつかり始めた世界を巡り、その謎を解き明かそう。</p>
     <div class="story-world-grid">
       <div class="story-world-card available"><h2>🌍 第1ワールド</h2><h3>惑星衝突の謎</h3><p>全5ステージ</p><button type="button" onclick="openStoryStages()">ワールドに入る</button></div>
-      <div class="story-world-card locked"><h2>🔒 第2ワールド</h2><h3>崩壊した浮遊都市</h3><p>テストコードが必要</p><button type="button" onclick="openStoryCodeGate()">テストコードを入力</button></div>
+      <div class="story-world-card available"><h2>🌌 第2ワールド</h2><h3>崩壊した浮遊都市</h3><p>2-2〜2-5 実装中</p><button type="button" onclick="openStoryWorld2Stages()">ステージを選ぶ</button></div>
       <div class="story-world-card"><h2>⚙️ 第3ワールド</h2><p>？？？</p><button type="button" disabled>未解放</button></div>
       <div class="story-world-card"><h2>🌊 第4ワールド</h2><p>？？？</p><button type="button" disabled>未解放</button></div>
       <div class="story-world-card"><h2>🌑 第5ワールド</h2><p>？？？</p><button type="button" disabled>未解放</button></div>
@@ -4934,12 +4922,7 @@ function syncScreenVisibility() {
     game: document.getElementById("gameArea"),
     result: document.getElementById("resultScreen"),
     tutorialChoice: document.getElementById("tutorialChoice"),
-    mapSelect: document.getElementById("mapSelect"),
-    storyWorlds: document.getElementById("storyWorldScreen"),
-    storyWorld1Stages: document.getElementById("storyStageScreen"),
-    storyWorld2Stages: document.getElementById("storyWorld2StageScreen"),
-    storyCodeGate: document.getElementById("storyCodeGate"),
-    storyEpisode: document.getElementById("storyEpisodeScreen")
+    mapSelect: document.getElementById("mapSelect")
   };
   Object.entries(screens).forEach(([name, el]) => {
     if (!el) return;
@@ -5418,13 +5401,11 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   function hideStory(id){const el=$story(id);if(el)el.classList.add("hidden");}
   function showStory(id){const el=$story(id);if(el)el.classList.remove("hidden");}
   const STORY_TEST_CODE="Story";
-  let storyCodeGateReturn="worlds";
-  window.openStoryCodeGate=function(){storyCodeGateReturn="worlds";hideStory("storyWorldScreen");hideStory("storyWorld2StageScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(input)input.value="";if(message)message.textContent="";showStory("storyCodeGate");if(input)input.focus();};
-  window.closeStoryCodeGate=function(){hideStory("storyCodeGate");if(storyCodeGateReturn==="worlds")showStory("storyWorldScreen");else{const map=$story("mapSelect");if(map)map.classList.remove("hidden");}};
-  window.submitStoryTestCode=function(){const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(!input||!message)return;if(input.value!==STORY_TEST_CODE){message.textContent="❌ コードが違います。";input.select();return;}hideStory("storyCodeGate");input.value="";openStoryWorld2Stages();};
-  window.openStoryWorldSelect=function(){hideStory("storyWorld3StageScreen");hideStory("storyWorld4StageScreen");hideStory("storyWorld5StageScreen");setScreen("storyWorlds");};
-  window.openStoryWorlds=window.openStoryWorldSelect;
-  window.openStoryWorld2Stages=function(){hideStory("storyCodeGate");hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");renderStoryWorld2Stages();showStory("storyWorld2StageScreen");};
+  window.openStoryCodeGate=function(){hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");const map=$story("mapSelect");if(map)map.classList.add("hidden");const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(input)input.value="";if(message)message.textContent="";showStory("storyCodeGate");if(input)input.focus();};
+  window.closeStoryCodeGate=function(){hideStory("storyCodeGate");const map=$story("mapSelect");if(map)map.classList.remove("hidden");};
+  window.submitStoryTestCode=function(){const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(!input||!message)return;if(input.value!==STORY_TEST_CODE){message.textContent="❌ コードが違います。";input.select();return;}hideStory("storyCodeGate");input.value="";openStoryWorlds();};
+  window.openStoryWorlds=function(){hideStory("storyStageScreen");hideStory("storyWorld2StageScreen");hideStory("storyEpisodeScreen");showStory("storyWorldScreen");};
+  window.openStoryWorld2Stages=function(){hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");renderStoryWorld2Stages();showStory("storyWorld2StageScreen");};
   function renderStoryWorld2Stages(){const grid=$story("storyWorld2StageGrid");if(!grid)return;grid.innerHTML="";[["2-2","赤い結晶"],["2-3","緑の結晶"],["2-4","水色の結晶"],["2-5","黒い結晶"]].forEach(([id,name])=>{let done=false;try{done=localStorage.getItem("story"+id.replace("-","")+"Cleared")==="1"}catch(e){}const card=document.createElement("div");card.className="story-stage-card"+(done?" cleared":" unlocked");const title=document.createElement("strong");title.textContent=id;card.appendChild(title);const label=document.createElement("div");label.style.cssText="font-size:12px;margin-top:4px";label.textContent=name;card.appendChild(label);const status=document.createElement("div");status.style.cssText="font-size:12px;margin-top:5px";status.textContent=done?"✅ クリア":"プレイ可能";card.appendChild(status);const btn=document.createElement("button");btn.type="button";btn.textContent=done?"もう一度戦う":"プレイ";btn.addEventListener("click",()=>window.startStoryBattle(id));card.appendChild(btn);grid.appendChild(card);});};
 
   let storyExploreFrame=0;
@@ -5582,7 +5563,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   });
 
   window.openStoryStages=function(){window.openStoryExplore();};
-  window.closeStoryScreens=function(){setScreen("mapSelect");};
+  window.closeStoryScreens=function(){hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");const map=$story("mapSelect");if(map)map.classList.remove("hidden");};
   function getStoryProgress(){try{return Math.max(1,Math.min(5,Number(localStorage.getItem("storyWorld1Unlocked")||1)));}catch(e){return 1;}}
   function getStoryCleared(){try{return localStorage.getItem("storyWorld1Stage1Cleared")==="1";}catch(e){return false;}}
   function renderStoryStages(){
@@ -11732,49 +11713,6 @@ $("s15Exit").addEventListener("click",back);$("s15Back").addEventListener("click
     if(!button) return;
     const mode=button.getAttribute("onclick").includes("'mobile'") ? "mobile" : "pc";
     forceDeviceSelection(mode);
-  },true);
-})();
-</script>
-
-<style id="final-map-and-story-interaction-fix">
-/* 選択画面をほかの固定UIより前に出す */
-#mapSelect:not(.hidden){position:fixed!important;inset:0!important;z-index:999990!important;display:flex!important;pointer-events:auto!important;}
-#mapSelect:not(.hidden) .map-select-card,
-#mapSelect:not(.hidden) .map-options,
-#mapSelect:not(.hidden) .map-option,
-#mapSelect:not(.hidden) .map-option *{pointer-events:auto!important;}
-.story-screen:not(.hidden){position:fixed!important;inset:0!important;z-index:999999!important;pointer-events:auto!important;}
-.story-screen:not(.hidden) .story-panel,
-.story-screen:not(.hidden) button{pointer-events:auto!important;}
-#hushBtn{display:none!important;visibility:hidden!important;pointer-events:none!important;}
-</style>
-<script id="final-map-and-story-interaction-fix-js">
-(function(){
-  function showOnly(id){
-    var ids=["title","draw","count","gameArea","resultScreen","tutorialChoice","mapSelect","storyWorldScreen","storyStageScreen","storyWorld2StageScreen","storyCodeGate","storyEpisodeScreen","storyBattleScreen"];
-    ids.forEach(function(key){var el=document.getElementById(key);if(el)el.classList.toggle("hidden",key!==id);});
-    if(typeof currentScreen!=="undefined")currentScreen=id;
-    if(typeof syncScreenVisibility==="function"){
-      // 中央管理側にも同じ画面を同期
-      try{setScreen(id);}catch(e){}
-    }
-  }
-  document.addEventListener("click",function(e){
-    var button=e.target&&e.target.closest?e.target.closest("button"):null;
-    if(!button)return;
-    if(button.id==="storyModeOpen"){
-      e.preventDefault();e.stopImmediatePropagation();showOnly("storyWorldScreen");return;
-    }
-    if(button.closest("#mapSelect") && button.closest(".map-normal-option") && !button.classList.contains("map-tutorial-button")){
-      e.preventDefault();e.stopImmediatePropagation();
-      window.halloweenWaveActive=false;window.halloweenWaveTestRequested=false;
-      if(typeof setRankPointTableForMap==="function")setRankPointTableForMap();
-      showOnly("draw");if(typeof redrawCanvas==="function")redrawCanvas();return;
-    }
-    if(button.closest("#mapSelect") && button.classList.contains("map-tutorial-button")){
-      e.preventDefault();e.stopImmediatePropagation();
-      var confirm=document.getElementById("mapTutorialConfirm");if(confirm)confirm.classList.remove("hidden");return;
-    }
   },true);
 })();
 </script>

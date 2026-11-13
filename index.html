@@ -9804,8 +9804,91 @@ return origUpdate.apply(this,arguments)};
    {id:'secret_nebula',name:'ネビュラ',icon:'🌌',condition:'秘密のお店で購入',category:'秘密のお店'},
    {id:'white',name:'ホワイト',icon:'⚪️',category:'コモン'},
    {id:'blue',name:'ブルー',icon:'🔵',category:'コモン'},
-   {id:'admin_demon',name:'ADMIN ABUSE限定',icon:'😈',condition:'ADMIN ABUSEミッション報酬コード skin で解放！',category:'コモン'},
-   {id:'black',name:'ブラック',icon:'⚫️',category:'コモン'},\n');const q=prompt('再解放するスキンの番号・名前・IDを入力してください。\n\n'+list);if(q===null||!q.trim())return;const n=Number(q.trim());const sk=Number.isInteger(n)&&n>=1&&n<=skins.length?skins[n-1]:null;const ok=window.adminReunlockGameSkin(sk?sk.id:q);if(!ok)alert('スキンが見つかりませんでした。番号・名前・IDのいずれかを入力してください。');else alert('スキンを再解放しました。スキン選択から確認できます。');});
+   {id:'black',name:'ブラック',icon:'⚫️',category:'コモン'},\n   {id:'admin_demon',name:'ADMIN ABUSE限定',icon:'😈',condition:'ADMIN ABUSEミッション報酬コード skin で解放！',category:'コモン'},
+   {id:'streamer_capsule',name:'GATYAカプセル',icon:'🫧',condition:'ランクGATYAに到達すると解放！',category:'ストリーマー'},
+   {id:'carracing',name:'カーレース',icon:'🏎️',condition:'ADMIN ABUSE配布コード carracing で解放！',category:'限定スキン2'},
+   {id:'retry',name:'リトライ',icon:'🔄',condition:'二日目のADMIN ABUSE配布コード retry で解放！',category:'限定スキン2'},
+   {id:'fuse_egg',name:'エッグ',icon:'🥚',condition:'ヒューズで🥚を引くと獲得！',category:'ヒューズ限定'},
+   {id:'fuse_tree',name:'ツリー',icon:'🌲',condition:'ヒューズで🌲を引くと獲得！',category:'ヒューズ限定'},
+   {id:'fuse_otter',name:'ラッコ',icon:'🦦',condition:'ヒューズで🦦を引くと獲得！',category:'ヒューズ限定'},
+   {id:'fuse_panda',name:'パンダ',icon:'🐼',condition:'ヒューズで🐼を引くと獲得！',category:'ヒューズ限定'},
+   {id:'fuse_bear',name:'クマ',icon:'🐻',condition:'ヒューズで🐻を引くと獲得！',category:'ヒューズ限定'},
+   {id:'fuse_eggroll',name:'たまご焼き',icon:'🍳',condition:'ヒューズで🍳を引くと獲得！',category:'ヒューズ限定'},
+   {id:'fuse_swirl',name:'うずまき',icon:'🌀',condition:'ヒューズで🌀を引くと獲得！',category:'ヒューズ限定'},
+   {id:'fuse_tornado',name:'たつまき',icon:'🌪️',condition:'ヒューズで🌪️を引くと獲得！',category:'ヒューズ限定'},
+   {id:'achievement_01',name:'初陣',icon:'🔰',achievement:true,achievementId:1,condition:'初めてバトルを開始すると解放！',category:'実績解除１'},
+   {id:'achievement_02',name:'初勝利',icon:'💯',achievement:true,achievementId:2,condition:'初めてバトルに勝利すると解放！',category:'実績解除１'},
+   {id:'achievement_03',name:'ボスハンター',icon:'👿',achievement:true,achievementId:3,condition:'ボスを合計10体倒すと解放！',category:'実績解除１'},
+   {id:'achievement_04',name:'無傷の勝利',icon:'🥳',achievement:true,achievementId:4,condition:'ダメージを受けずに勝利すると解放！',category:'実績解除１'},
+   {id:'achievement_05',name:'お宝発見！',icon:'📦️',achievement:true,achievementId:5,condition:'初めて宝箱を開けると解放！',category:'実績解除１'},
+   {id:'achievement_06',name:'アイテムコレクター',icon:'🎁',achievement:true,achievementId:6,condition:'異なる種類のアイテムを6種類使うと解放！',category:'実績解除１'},
+   {id:'achievement_07',name:'強化の極み',icon:'🦾',achievement:true,achievementId:7,condition:'強化ショップでいずれか1つを最大レベルにすると解放！',category:'実績解除２'},
+   {id:'achievement_08',name:'ランクアップ！',icon:'🚀',achievement:true,achievementId:8,condition:'初めてランクB以上を獲得すると解放！',category:'実績解除２'},
+   {id:'achievement_09',name:'ハロウィン探検隊',icon:'🍬',achievement:true,achievementId:9,condition:'ハロウィンマップのWave 3に到達すると解放！',category:'実績解除２'},
+   {id:'achievement_10',name:'真の勇者',icon:'🗡️',achievement:true,achievementId:10,condition:'ハロウィンマップの最終ボスを倒すと解放！',category:'実績解除２'},
+   {id:'achievement_11',name:'魂の収集家',icon:'💫',achievement:true,achievementId:11,condition:'1回の通常バトルでポイントを100以上獲得すると解放！',category:'実績解除２'},
+   {id:'achievement_12',name:'？？？',icon:'🤫',achievement:true,achievementId:12,condition:'隠し実績：通常マップを必殺技・復活アイテムなしでクリアすると解放！',category:'実績解除２'},
+   {id:'gold',name:'ゴールド',icon:'🥇',condition:'ステージ4をクリアしよう！',category:'コモン'},
+   {id:'magic',name:'マジック',icon:'🫥',condition:'Aランクを達成しよう！',category:'コモン'},
+   {id:'gamer',name:'ゲーマー',icon:'👾',condition:'強化ショップでどれか1つをレベルMAXにしよう！',category:'コモン'},
+   {id:'halloween_pumpkin',name:'パンプキン',icon:'🎃',condition:'ハロウィンマップを1回のプレイで1分間プレイしよう！',category:'期間限定'},
+   {id:'halloween_cat',name:'黒猫',icon:'🐈‍⬛',condition:'Wave 1のボスをノーダメージで倒そう！',category:'期間限定'},
+   {id:'halloween_spider',name:'スパイダー',icon:'🕷️',condition:'Wave 3に到達しよう！',category:'期間限定'},
+   {id:'halloween_witch',name:'魔女',icon:'🧙‍♀️',condition:'Wave 4のゴーストボスを倒そう！',category:'期間限定'},
+   {id:'halloween_vampire',name:'ヴァンパイア',icon:'🧛',condition:'Wave 8のボスを倒そう！',category:'期間限定'},
+   {id:'halloween_oni',name:'鬼',icon:'👹',condition:'ハロウィンマップのWave 1〜8ですべてのボスを倒そう！',category:'期間限定'},
+   {id:'halloween_coffin',name:'棺桶',icon:'⚰️',condition:'通常マップの8ステージで死亡すると解放！',category:'期間限定'},
+   {id:'halloween_gravestone',name:'墓石',icon:'🪦',condition:'ハロウィンマップで死亡した回数が合計5回になると解放！',category:'期間限定'},
+   {id:'halloween_immortal_zombie',name:'イモータルゾンビ',icon:'🧟',condition:'ハロウィンマップでイモータルゾンビを使うと解放！',category:'期間限定'},
+   {id:'limited2_moon',name:'ムーン',icon:'🌙',condition:'すべての限定スキンをゲットすると解放！',category:'限定スキン2'},
+   {id:'limited2_trophy',name:'トロフィー',icon:'🏆',condition:'すべての実績を解放するとゲット！',category:'限定スキン2'},
+   {id:'limited2_unknown2',name:'？',icon:'？',condition:'ゲット方法：未定',category:'限定スキン2'},
+   {id:'limited2_unknown3',name:'？',icon:'？',condition:'ゲット方法：未定',category:'限定スキン2'},
+   {id:'limited2_unknown4',name:'？',icon:'？',condition:'ゲット方法：未定',category:'限定スキン2'},
+   {id:'limited2_unknown5',name:'？',icon:'？',condition:'ゲット方法：未定',category:'限定スキン2'}
+  ];
+ let data={selected:'default',unlocked:['default','white','blue','black'],gamerHint:false};
+ try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v&&typeof v==='object')data={...data,...v};}catch(e){}
+ if(!Array.isArray(data.unlocked))data.unlocked=['default','white','blue','black'];
+  if(!data.unlocked.includes('default'))data.unlocked.push('default');
+ // 消費状態は実際のヒューズ履歴と照合し、古い不整合データで全スキンが隠れないようにする。
+ try{const fd=JSON.parse(localStorage.getItem('oekakiBattleFusionV1')||'{}')||{};const fused=Array.isArray(fd.fused)?fd.fused:[];data.consumed=(Array.isArray(data.consumed)?data.consumed:[]).filter(id=>fused.includes(id)&&!data.unlocked.includes(id));}catch(e){data.consumed=Array.isArray(data.consumed)?data.consumed:[];}
+ // 限定スキン2の未設定枠は表示用の「？」であり、実際に使用できるスキンではない。
+ const isUnconfiguredLimited2Skin=id=>/^limited2_unknown[2-5]$/.test(String(id||''));
+ data.unlocked=data.unlocked.filter(id=>!isUnconfiguredLimited2Skin(id));
+ if(isUnconfiguredLimited2Skin(data.selected))data.selected='default';
+ const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){}};
+ let adminGrantedSkinIds=[];try{const ag=JSON.parse(localStorage.getItem('oekakiBattleAdminGrantedAllSkinsV1')||'[]');if(Array.isArray(ag))adminGrantedSkinIds=ag;}catch(e){} const isUnlocked=id=>data.unlocked.includes(id)||adminGrantedSkinIds.includes(id); const isConsumed=id=>Array.isArray(data.consumed)&&data.consumed.includes(id); window.isGameSkinConsumed=isConsumed; window.consumeGameSkin=(id)=>{if(!skins.some(sk=>sk.id===id))return false;data.consumed=Array.isArray(data.consumed)?data.consumed:[];if(!data.consumed.includes(id))data.consumed.push(id);data.consumedProgress=data.consumedProgress||{};data.consumedProgress[id]=0;data.unlocked=data.unlocked.filter(x=>x!==id);if(data.selected===id)data.selected=data.unlocked.includes('white')?'white':'default';save();render();return true;}; window.restoreConsumedGameSkin=(id)=>{data.consumed=(data.consumed||[]).filter(x=>x!==id);if(data.consumedProgress)delete data.consumedProgress[id];if(!data.unlocked.includes(id))data.unlocked.push(id);try{const fk='oekakiBattleFusionV1',fd=JSON.parse(localStorage.getItem(fk)||'{}')||{};fd.fused=(Array.isArray(fd.fused)?fd.fused:[]).filter(x=>x!==id);localStorage.setItem(fk,JSON.stringify(fd));}catch(e){}save();render();return true;};
+ window.getSelectedSkinEmoji=()=>isUnconfiguredLimited2Skin(data.selected)?'⚪️':(skins.find(x=>x.id===data.selected)?.icon||'⚪️');
+ window.drawSelectedSkin=(ctx,x,y,size=36)=>{
+   if(data.selected!=='streamer_capsule')return false;
+   ctx.save();const r=size*0.48;
+   ctx.shadowColor='rgba(74,232,255,.9)';ctx.shadowBlur=size*0.24;
+   ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.clip();
+   const top=ctx.createRadialGradient(x-r*.35,y-r*.48,1,x,y,r*1.2);
+   top.addColorStop(0,'#e9ffff');top.addColorStop(.34,'#8ff7ff');top.addColorStop(1,'#24b8ed');
+   ctx.fillStyle=top;ctx.fillRect(x-r,y-r,size,size);
+   const bottom=ctx.createLinearGradient(x,y,x,y+r);bottom.addColorStop(0,'#ff5c68');bottom.addColorStop(1,'#b9002c');
+   ctx.fillStyle=bottom;ctx.fillRect(x-r,y,size,size);ctx.shadowBlur=0;
+   ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=Math.max(1.2,size*.045);
+   ctx.beginPath();ctx.moveTo(x-r*.88,y);ctx.lineTo(x+r*.88,y);ctx.stroke();
+   ctx.beginPath();ctx.ellipse(x-r*.25,y-r*.43,r*.18,r*.3,-.45,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.78)';ctx.fill();
+   ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.lineWidth=Math.max(1.5,size*.055);ctx.strokeStyle='#f8fdff';ctx.stroke();
+   ctx.restore();return true;
+ };
+ function unlock(id){data.consumed=Array.isArray(data.consumed)?data.consumed:[];if(data.consumed.includes(id)){data.consumedProgress=data.consumedProgress||{};data.consumedProgress[id]=(Number(data.consumedProgress[id])||0)+1;if(data.consumedProgress[id]<2){save();return;}data.consumed=data.consumed.filter(x=>x!==id);delete data.consumedProgress[id];try{const fk='oekakiBattleFusionV1',fd=JSON.parse(localStorage.getItem(fk)||'{}')||{};fd.fused=(Array.isArray(fd.fused)?fd.fused:[]).filter(x=>x!==id);localStorage.setItem(fk,JSON.stringify(fd));}catch(e){}}if(!isUnlocked(id)){data.unlocked.push(id);save();render();checkMoonUnlock();const sk=skins.find(x=>x.id===id);const message='🎉 '+(sk?sk.name:'スキン')+'スキンを解放！';const m=document.getElementById('skinMessage');if(m)m.textContent=message;let toast=document.getElementById('skinUnlockToast');if(!toast){toast=document.createElement('div');toast.id='skinUnlockToast';toast.setAttribute('role','status');toast.style.cssText='position:fixed;right:16px;top:16px;left:auto;transform:translateX(120%);z-index:999999;background:linear-gradient(110deg,rgba(28,32,38,.98),rgba(45,49,56,.98));color:#fff;padding:12px 18px;border:2px solid #d6b45b;border-radius:7px;box-shadow:0 5px 18px #000b;font-size:clamp(14px,2.5vw,18px);font-weight:800;text-align:left;max-width:min(360px,calc(100vw - 24px));min-width:min(260px,calc(100vw - 24px));';if(!document.getElementById('skinAchievementToastStyle')){const style=document.createElement('style');style.id='skinAchievementToastStyle';style.textContent='@keyframes skinAchievementSlideIn{0%{transform:translateX(120%);opacity:0}70%{transform:translateX(-6px);opacity:1}100%{transform:translateX(0);opacity:1}}@keyframes skinAchievementSlideOut{0%{transform:translateX(0);opacity:1}100%{transform:translateX(120%);opacity:0}}';document.head.appendChild(style);}toast.style.animation='skinAchievementSlideIn .42s cubic-bezier(.2,.8,.2,1) both';document.body.appendChild(toast);}toast.textContent=message;toast.style.display='block';if(toast._hideTimer)clearTimeout(toast._hideTimer);toast._hideTimer=setTimeout(()=>{toast.style.animation='skinAchievementSlideOut .28s ease-in both';setTimeout(()=>{toast.style.display='none';},280);},3000);if(typeof window.gameAudioSfx==='function')window.gameAudioSfx('clear');else if(typeof window.playSound==='function')window.playSound('clear');}}
+ const limitedSkinIdsForMoon=['halloween_pumpkin','halloween_cat','halloween_spider','halloween_witch','halloween_vampire','halloween_oni','halloween_coffin','halloween_gravestone','halloween_immortal_zombie'];
+ function checkMoonUnlock(){if(limitedSkinIdsForMoon.every(isUnlocked)&&!isUnlocked('limited2_moon'))unlock('limited2_moon');}
+ window.grantFusionGameSkin=(id)=>{const sk=skins.find(x=>x.id===id);if(!sk)return false;data.consumed=(Array.isArray(data.consumed)?data.consumed:[]).filter(x=>x!==id);if(data.consumedProgress)delete data.consumedProgress[id];if(!data.unlocked.includes(id))data.unlocked.push(id);save();render();checkMoonUnlock();const m=document.getElementById('skinMessage');if(m)m.textContent='🎉 '+sk.name+'スキンを獲得しました！';return true;};
+ window.unlockGameSkin=unlock;
+ window.selectGameSkin=(id)=>{if(!isUnlocked(id))return false;data.selected=id;save();render();if(typeof window.redrawCanvas==='function')window.redrawCanvas();return true;};
+ window.adminUnlockAllGameSkins=()=>{const key='oekakiBattleAdminGrantedAllSkinsV1',backupKey='oekakiBattleAdminConsumedBackupV1';let granted=[];try{granted=JSON.parse(localStorage.getItem(key)||'[]');if(!Array.isArray(granted))granted=[];}catch(e){}if(!granted.length){try{localStorage.setItem(backupKey,JSON.stringify({consumed:Array.isArray(data.consumed)?data.consumed:[],consumedProgress:data.consumedProgress||{}}));}catch(e){}}const allIds=skins.map(sk=>sk.id).filter(id=>!isUnconfiguredLimited2Skin(id));granted=[...new Set([...granted,...allIds])];adminGrantedSkinIds=granted.slice();data.unlocked=[...new Set([...data.unlocked,...allIds])];data.consumed=[];data.consumedProgress={};try{localStorage.setItem(key,JSON.stringify(granted));}catch(e){}try{const fk='oekakiBattleFusionV1',fd=JSON.parse(localStorage.getItem(fk)||'{}')||{};fd.fused=(Array.isArray(fd.fused)?fd.fused:[]).filter(id=>!allIds.includes(id));localStorage.setItem(fk,JSON.stringify(fd));}catch(e){}save();render();const m=document.getElementById('skinMessage');if(m)m.textContent='👑 管理者操作：登録済みスキンをすべて解放しました！';return allIds.length;};
+ window.adminDisableAllSkinUnlocks=()=>{const key='oekakiBattleAdminGrantedAllSkinsV1',backupKey='oekakiBattleAdminConsumedBackupV1';let granted=[];try{granted=JSON.parse(localStorage.getItem(key)||'[]');if(!Array.isArray(granted))granted=[];}catch(e){}if(!granted.length)return 0;adminGrantedSkinIds=[];data.unlocked=data.unlocked.filter(id=>!granted.includes(id));try{const backup=JSON.parse(localStorage.getItem(backupKey)||'null');if(backup&&typeof backup==='object'){data.consumed=Array.isArray(backup.consumed)?backup.consumed:[];data.consumedProgress=backup.consumedProgress&&typeof backup.consumedProgress==='object'?backup.consumedProgress:{};}localStorage.removeItem(backupKey);localStorage.removeItem(key);}catch(e){}if(!data.unlocked.includes(data.selected)){data.selected=data.unlocked.includes('white')?'white':(data.unlocked[0]||'default');}save();render();const m=document.getElementById('skinMessage');if(m)m.textContent='🔒 管理者効果OFF：管理者による全スキン解放を解除しました。元から所持していたスキンは残ります。';return granted.length;};
+ window.adminReunlockGameSkin=(query)=>{const q=String(query||'').trim().toLowerCase();const sk=skins.find(x=>x.id.toLowerCase()===q||x.name.toLowerCase()===q||x.icon===q);if(!sk)return false;data.unlocked=[...new Set([...data.unlocked,sk.id])];save();render();const m=document.getElementById('skinMessage');if(m)m.textContent='🔓 '+sk.name+'スキンを再解放しました！';return true;};
+ const adminUnlockAllButton=document.getElementById('admUnlockAllSkins');
+ if(adminUnlockAllButton)adminUnlockAllButton.addEventListener('click',()=>{if(!confirm('登録されているすべてのスキンを解放しますか？'))return;window.adminUnlockAllGameSkins();alert('登録済みスキン '+skins.length+' 種類を解放しました。スキン選択から確認できます。');});
+ const adminReunlockButton=document.getElementById('admReunlockSkin');
+ if(adminReunlockButton)adminReunlockButton.addEventListener('click',()=>{const list=skins.map((sk,i)=>(i+1)+'. '+sk.name+' ['+sk.id+']').join('\n');const q=prompt('再解放するスキンの番号・名前・IDを入力してください。\n\n'+list);if(q===null||!q.trim())return;const n=Number(q.trim());const sk=Number.isInteger(n)&&n>=1&&n<=skins.length?skins[n-1]:null;const ok=window.adminReunlockGameSkin(sk?sk.id:q);if(!ok)alert('スキンが見つかりませんでした。番号・名前・IDのいずれかを入力してください。');else alert('スキンを再解放しました。スキン選択から確認できます。');});
  const adminSelectSkinButton=document.getElementById('admSelectSkin');
  if(adminSelectSkinButton)adminSelectSkinButton.addEventListener('click',()=>{const panel=document.getElementById('skinPanel');if(!panel)return;panel.classList.remove('hidden');render();});
  const halloweenSkinIds={pumpkin:'halloween_pumpkin',cat:'halloween_cat',spider:'halloween_spider',witch:'halloween_witch',vampire:'halloween_vampire',oni:'halloween_oni',coffin:'halloween_coffin',grave:'halloween_gravestone',zombie:'halloween_immortal_zombie'};

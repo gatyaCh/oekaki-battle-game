@@ -4300,6 +4300,19 @@ body {
 </style>
 
 
+
+<style id="map-screen-click-layer-fix">
+/* マップ選択画面を前面に出し、背面UIがクリックを奪わないようにする */
+#mapSelect:not(.hidden){position:fixed!important;inset:0!important;z-index:14900!important;display:flex!important;pointer-events:auto!important;}
+#mapSelect:not(.hidden) .map-select-card,
+#mapSelect:not(.hidden) .map-options,
+#mapSelect:not(.hidden) .map-option,
+#mapSelect:not(.hidden) .map-option button{pointer-events:auto!important;}
+#draw.hidden{display:none!important;pointer-events:none!important;}
+#hushBtn{z-index:10020!important;}
+body:has(#mapSelect:not(.hidden)) #hushBtn,
+body:has(.story-screen:not(.hidden)) #hushBtn{display:none!important;visibility:hidden!important;pointer-events:none!important;}
+</style>
 </head>
 <body>
 

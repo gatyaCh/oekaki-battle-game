@@ -5689,9 +5689,11 @@ if (battleStartButton) {
       p.max = Math.round(p.max * (1 + drawHpBonus));
       p.hp = p.max;
       drawBonusPending = false;
+      if(typeof window.adminAbuseStartOnCountdown==="function")window.adminAbuseStartOnCountdown();
       startCountdown();
       return;
     }
+    if(typeof window.adminAbuseStartOnCountdown==="function")window.adminAbuseStartOnCountdown();
     startCountdown();
   };
   battleStartButton.style.touchAction = "manipulation";
@@ -12528,15 +12530,12 @@ function begin(){
 }
 function start(){hide(confirm);hide(end);hide($("adminAbuseTestCodeScreen"));window.adminAbusePending=false;window.halloweenWaveActive=false;window.halloweenWaveTestRequested=false;if(typeof window.chooseDevice==="function")window.chooseDevice("pc");if(typeof window.selectNormalMap==="function")window.selectNormalMap();mission.revealed=false;missionStatus();window.adminAbuseCountdownPending=true;}
 let adminAbuseTestAuthorized=false;
-const adminAbuseOriginalStartCountdown=window.startCountdown;
-if(typeof adminAbuseOriginalStartCountdown==="function"&&!window.startCountdown.__adminAbuseCountdownHook){
-  const hookedStartCountdown=function(){
-    if(window.adminAbuseCountdownPending&&!active){window.adminAbuseCountdownPending=false;begin();}
-    return adminAbuseOriginalStartCountdown.apply(this,arguments);
-  };
-  hookedStartCountdown.__adminAbuseCountdownHook=true;
-  window.startCountdown=hookedStartCountdown;
-}
+window.adminAbuseStartOnCountdown=function(){
+  if(window.adminAbuseCountdownPending&&!active){
+    window.adminAbuseCountdownPending=false;
+    begin();
+  }
+};
 function updateButton(){
   const b=$("adminAbuseOpenBtn");if(!b)return;
   const now=Date.now(),open=now>=from&&now<until,ended=now>=until;

@@ -11763,9 +11763,7 @@ $("s15Exit").addEventListener("click",back);$("s15Back").addEventListener("click
     var button=e.target&&e.target.closest?e.target.closest("button"):null;
     if(!button)return;
     if(button.id==="storyModeOpen"){
-      e.preventDefault();e.stopImmediatePropagation();
-      if(typeof window.openStoryWorldSelect==="function")window.openStoryWorldSelect();
-      return;
+      e.preventDefault();e.stopImmediatePropagation();showOnly("storyWorldScreen");return;
     }
     if(button.closest("#mapSelect") && button.closest(".map-normal-option") && !button.classList.contains("map-tutorial-button")){
       e.preventDefault();e.stopImmediatePropagation();

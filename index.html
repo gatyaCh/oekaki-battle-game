@@ -4934,7 +4934,12 @@ function syncScreenVisibility() {
     game: document.getElementById("gameArea"),
     result: document.getElementById("resultScreen"),
     tutorialChoice: document.getElementById("tutorialChoice"),
-    mapSelect: document.getElementById("mapSelect")
+    mapSelect: document.getElementById("mapSelect"),
+    storyWorlds: document.getElementById("storyWorldScreen"),
+    storyWorld1Stages: document.getElementById("storyStageScreen"),
+    storyWorld2Stages: document.getElementById("storyWorld2StageScreen"),
+    storyCodeGate: document.getElementById("storyCodeGate"),
+    storyEpisode: document.getElementById("storyEpisodeScreen")
   };
   Object.entries(screens).forEach(([name, el]) => {
     if (!el) return;
@@ -5417,7 +5422,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   window.openStoryCodeGate=function(){storyCodeGateReturn="worlds";hideStory("storyWorldScreen");hideStory("storyWorld2StageScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(input)input.value="";if(message)message.textContent="";showStory("storyCodeGate");if(input)input.focus();};
   window.closeStoryCodeGate=function(){hideStory("storyCodeGate");if(storyCodeGateReturn==="worlds")showStory("storyWorldScreen");else{const map=$story("mapSelect");if(map)map.classList.remove("hidden");}};
   window.submitStoryTestCode=function(){const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(!input||!message)return;if(input.value!==STORY_TEST_CODE){message.textContent="❌ コードが違います。";input.select();return;}hideStory("storyCodeGate");input.value="";openStoryWorld2Stages();};
-  window.openStoryWorldSelect=function(){hideStory("storyCodeGate");hideStory("storyStageScreen");hideStory("storyWorld2StageScreen");hideStory("storyEpisodeScreen");hideStory("storyWorld3StageScreen");hideStory("storyWorld4StageScreen");hideStory("storyWorld5StageScreen");if(typeof syncScreenVisibility==="function"){currentScreen="mapSelect";syncScreenVisibility();}const map=$story("mapSelect");if(map)map.classList.add("hidden");showStory("storyWorldScreen");};
+  window.openStoryWorldSelect=function(){hideStory("storyWorld3StageScreen");hideStory("storyWorld4StageScreen");hideStory("storyWorld5StageScreen");setScreen("storyWorlds");};
   window.openStoryWorlds=window.openStoryWorldSelect;
   window.openStoryWorld2Stages=function(){hideStory("storyCodeGate");hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");renderStoryWorld2Stages();showStory("storyWorld2StageScreen");};
   function renderStoryWorld2Stages(){const grid=$story("storyWorld2StageGrid");if(!grid)return;grid.innerHTML="";[["2-2","赤い結晶"],["2-3","緑の結晶"],["2-4","水色の結晶"],["2-5","黒い結晶"]].forEach(([id,name])=>{let done=false;try{done=localStorage.getItem("story"+id.replace("-","")+"Cleared")==="1"}catch(e){}const card=document.createElement("div");card.className="story-stage-card"+(done?" cleared":" unlocked");const title=document.createElement("strong");title.textContent=id;card.appendChild(title);const label=document.createElement("div");label.style.cssText="font-size:12px;margin-top:4px";label.textContent=name;card.appendChild(label);const status=document.createElement("div");status.style.cssText="font-size:12px;margin-top:5px";status.textContent=done?"✅ クリア":"プレイ可能";card.appendChild(status);const btn=document.createElement("button");btn.type="button";btn.textContent=done?"もう一度戦う":"プレイ";btn.addEventListener("click",()=>window.startStoryBattle(id));card.appendChild(btn);grid.appendChild(card);});};
@@ -5577,7 +5582,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   });
 
   window.openStoryStages=function(){window.openStoryExplore();};
-  window.closeStoryScreens=function(){hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");const map=$story("mapSelect");if(map)map.classList.remove("hidden");};
+  window.closeStoryScreens=function(){setScreen("mapSelect");};
   function getStoryProgress(){try{return Math.max(1,Math.min(5,Number(localStorage.getItem("storyWorld1Unlocked")||1)));}catch(e){return 1;}}
   function getStoryCleared(){try{return localStorage.getItem("storyWorld1Stage1Cleared")==="1";}catch(e){return false;}}
   function renderStoryStages(){

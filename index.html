@@ -11759,6 +11759,88 @@ $("s15Exit").addEventListener("click",back);$("s15Back").addEventListener("click
   },true);
 })();
 </script>
+<style id="story-world2-21-style">
+#storyWorld2IntroScreen{z-index:15030;padding:12px;background:radial-gradient(ellipse at 50% 0,#263b77,#050816 75%)}
+.w2intro-panel{width:min(1080px,100%);margin:0 auto;padding:clamp(10px,2vw,22px);border:1px solid #64748b;border-radius:18px;background:rgba(7,13,30,.96);box-shadow:0 18px 60px #000b}
+.w2intro-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.w2intro-head h1{font-size:clamp(18px,3vw,28px);text-align:left}
+.w2intro-head button,.w2intro-controls button{border:0;border-radius:9px;padding:10px 16px;color:#fff;background:#2563eb;font-weight:800;cursor:pointer}
+.w2intro-head button{background:#475569}
+.w2intro-scene{position:relative;isolation:isolate;overflow:hidden;width:100%;height:clamp(230px,48vh,500px);border:2px solid #8ab8ff;border-radius:14px;background:#10264c}
+.w2intro-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 48%;transform:scale(1.03);transition:transform 1.2s ease,filter 1s ease}
+.w2intro-scene.phase-crystal .w2intro-art{object-position:15% 45%;transform:scale(1.12);filter:saturate(1.15) brightness(1.08)}
+.w2intro-scene.phase-sky .w2intro-art{object-position:48% 40%;transform:scale(1.15);filter:brightness(1.16)}
+.w2intro-scene.phase-rift .w2intro-art,.w2intro-scene.phase-island .w2intro-art{object-position:78% 45%;transform:scale(1.08);filter:saturate(1.2)}
+.w2intro-flash{position:absolute;inset:0;z-index:2;pointer-events:none;background:#dffaff;opacity:0}
+.w2intro-scene.phase-sky .w2intro-flash{animation:w2introFlash .85s ease-out}
+.w2intro-rift{position:absolute;z-index:1;left:58%;top:48%;width:clamp(90px,19vw,210px);aspect-ratio:.72;border:clamp(5px,.9vw,11px) solid #c4b5fd;border-radius:50%;transform:translate(-50%,-50%) scale(.05) rotate(12deg);opacity:0;box-shadow:0 0 18px #a855f7,0 0 55px #7c3aed,inset 0 0 24px #c4b5fd;transition:transform 1.2s cubic-bezier(.2,.8,.2,1),opacity .6s}
+.w2intro-scene.phase-rift .w2intro-rift,.w2intro-scene.phase-island .w2intro-rift{transform:translate(-50%,-50%) scale(1) rotate(0);opacity:.85;animation:w2introPortal 4s linear infinite}
+.w2intro-island-glow{position:absolute;z-index:1;right:5%;top:30%;width:34%;height:45%;border-radius:50%;background:#a7f3d0;filter:blur(30px);opacity:0;transition:opacity 1s}
+.w2intro-scene.phase-island .w2intro-island-glow{opacity:.22}
+.w2intro-caption{position:absolute;z-index:3;left:10px;right:10px;bottom:10px;padding:8px;border-radius:8px;background:#020617c9;color:#e0f2fe;font-weight:800;text-shadow:0 2px 4px #000}
+.w2intro-dialogue{margin:12px auto 0;padding:14px 16px;min-height:112px;text-align:left;border:1px solid #60a5fa;border-radius:12px;background:linear-gradient(120deg,#102447,#111c33);box-shadow:0 0 20px #2563eb22}
+.w2intro-name{margin-bottom:6px;color:#93c5fd;font-weight:900;font-size:14px}
+.w2intro-text{font-size:clamp(16px,2.2vw,21px);line-height:1.6;white-space:pre-wrap}
+.w2intro-controls{display:flex;justify-content:flex-end;gap:10px;margin-top:10px}
+.w2intro-controls button{min-width:116px}
+@keyframes w2introFlash{0%{opacity:.85}100%{opacity:0}}
+@keyframes w2introPortal{0%{filter:hue-rotate(0deg);transform:translate(-50%,-50%) scale(1) rotate(0)}100%{filter:hue-rotate(45deg);transform:translate(-50%,-50%) scale(1.06) rotate(360deg)}}
+@media(max-width:600px){#storyWorld2IntroScreen{padding:6px}.w2intro-panel{padding:8px}.w2intro-scene{height:38vh;min-height:210px}.w2intro-dialogue{padding:11px;min-height:118px}.w2intro-controls button{flex:1;padding:11px 8px;min-width:0}}
+@media(prefers-reduced-motion:reduce){.w2intro-art,.w2intro-rift,.w2intro-island-glow{transition:none!important;animation:none!important}}
+</style>
+<div id="storyWorld2IntroScreen" class="story-screen hidden" aria-label="2-1 次元の裂け目">
+ <div class="w2intro-panel">
+  <div class="w2intro-head"><h1>2-1「次元の裂け目」</h1><button type="button" id="storyWorld2IntroSkip">スキップ ▶▶</button></div>
+  <div id="storyWorld2IntroScene" class="w2intro-scene phase-crystal">
+   <img class="w2intro-art" src="assets/story-world2-intro-art.svg" alt="光る結晶と次元の裂け目から現れた浮島" draggable="false">
+   <div class="w2intro-flash"></div><div class="w2intro-rift"></div><div class="w2intro-island-glow"></div>
+   <div class="w2intro-caption" id="storyWorld2IntroCaption">主人公が持っていた結晶</div>
+  </div>
+  <div class="w2intro-dialogue"><div class="w2intro-name" id="storyWorld2IntroName">ナレーション</div><div class="w2intro-text" id="storyWorld2IntroText"></div></div>
+  <div class="w2intro-controls"><button type="button" id="storyWorld2IntroNext">次へ ▶</button></div>
+ </div>
+</div>
+
+<script id="story-world2-21-runtime">
+(function(){
+ const $=id=>document.getElementById(id);
+ const lines=[
+  ["ナレーション","ワールド1での冒険を終えた主人公。その手には、あのとき手に入れた結晶があった。","phase-crystal","主人公が持っていた結晶"],
+  ["主人公","……ん？ 結晶が光り始めた……？","phase-crystal","結晶がまばゆく光りだす"],
+  ["ナレーション","結晶は主人公の手を離れ、ゆっくりと空へ浮かび上がっていく。","phase-sky","空へ飛び立つ結晶"],
+  ["主人公","お、おい！ どこへ行くんだ！？","phase-sky","空へ飛び立つ結晶"],
+  ["ナレーション","次の瞬間、空に大きな光が走り、空間に裂け目が生まれた。","phase-rift","空に現れた次元の裂け目"],
+  ["主人公","空が……割れている！？ いったい何が起きているんだ……！","phase-rift","広がる次元の裂け目"],
+  ["ナレーション","裂け目の向こうから、巨大な浮島が姿を現した。島には見たことのない建物や結晶が広がっている。","phase-island","裂け目から現れた謎の浮島"],
+  ["主人公","す、すごい……！ この浮島が……あの結晶から生まれたのか……！","phase-island","空に浮かぶ謎の島"],
+  ["主人公","この島の謎を解き明かすために……行くしかない……！","phase-island","浮島へ向かう決意"]
+ ];
+ let index=0,open=false;
+ function render(){
+  const line=lines[index],scene=$("storyWorld2IntroScene");
+  if(!line||!scene)return;
+  $("storyWorld2IntroName").textContent=line[0];
+  $("storyWorld2IntroText").textContent=line[1];
+  scene.className="w2intro-scene "+line[2];
+  $("storyWorld2IntroCaption").textContent=line[3];
+  $("storyWorld2IntroNext").textContent=index===lines.length-1?"2-1をクリア ▶":"次へ ▶";
+ }
+ function finish(){
+  if(!open)return;open=false;
+  try{localStorage.setItem("storyWorld2Stage1Cleared","1");}catch(e){}
+  $("storyWorld2IntroScreen").classList.add("hidden");
+  if(typeof window.openStoryWorld2Stages==="function")window.openStoryWorld2Stages();
+ }
+ window.startStoryWorld2Intro=function(){
+  index=0;open=true;
+  $("storyWorld2StageScreen").classList.add("hidden");
+  $("storyWorld2IntroScreen").classList.remove("hidden");
+  render();
+ };
+ $("storyWorld2IntroNext").addEventListener("click",()=>{if(index<lines.length-1){index++;render()}else finish()});
+ $("storyWorld2IntroSkip").addEventListener("click",finish);
+})();
+</script>
 </body>
 </html>
 
@@ -12737,85 +12819,3 @@ window.addEventListener("beforeunload",()=>{clearInterval(interval);scheduled.fo
 #adminAbuseDialogue.speaker-hacker{font-family:"Courier New","Arial Black",monospace!important;font-weight:1000!important;letter-spacing:.045em!important;color:#fff!important;-webkit-text-fill-color:#fff!important;-webkit-text-stroke:1.5px #050505!important;paint-order:stroke fill!important;text-shadow:0 0 4px #000,0 0 8px #000!important;border-color:#111!important;background:linear-gradient(90deg,rgba(8,8,8,.96),rgba(28,28,28,.94),rgba(8,8,8,.96))!important}
 @media(max-width:600px){#adminAbuseDialogue{width:92vw!important;padding:7px 10px!important;font-size:clamp(12px,3.2vw,16px)!important;line-height:1.3!important}#adminAbuseDialogue.speaker-admin2{-webkit-text-stroke:1px #38d9ff!important}#adminAbuseDialogue.speaker-gacha{-webkit-text-stroke:1px #ff3434!important}#adminAbuseDialogue.speaker-hacker{-webkit-text-stroke:1px #050505!important}}
 </style>
-<style id="story-world2-21-style">
-#storyWorld2IntroScreen{z-index:15030;padding:12px;background:radial-gradient(ellipse at 50% 0,#263b77,#050816 75%)}
-.w2intro-panel{width:min(1080px,100%);margin:0 auto;padding:clamp(10px,2vw,22px);border:1px solid #64748b;border-radius:18px;background:rgba(7,13,30,.96);box-shadow:0 18px 60px #000b}
-.w2intro-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
-.w2intro-head h1{font-size:clamp(18px,3vw,28px);text-align:left}
-.w2intro-head button,.w2intro-controls button{border:0;border-radius:9px;padding:10px 16px;color:#fff;background:#2563eb;font-weight:800;cursor:pointer}
-.w2intro-head button{background:#475569}
-.w2intro-scene{position:relative;isolation:isolate;overflow:hidden;width:100%;height:clamp(230px,48vh,500px);border:2px solid #8ab8ff;border-radius:14px;background:#10264c}
-.w2intro-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 48%;transform:scale(1.03);transition:transform 1.2s ease,filter 1s ease}
-.w2intro-scene.phase-crystal .w2intro-art{object-position:15% 45%;transform:scale(1.12);filter:saturate(1.15) brightness(1.08)}
-.w2intro-scene.phase-sky .w2intro-art{object-position:48% 40%;transform:scale(1.15);filter:brightness(1.16)}
-.w2intro-scene.phase-rift .w2intro-art,.w2intro-scene.phase-island .w2intro-art{object-position:78% 45%;transform:scale(1.08);filter:saturate(1.2)}
-.w2intro-flash{position:absolute;inset:0;z-index:2;pointer-events:none;background:#dffaff;opacity:0}
-.w2intro-scene.phase-sky .w2intro-flash{animation:w2introFlash .85s ease-out}
-.w2intro-rift{position:absolute;z-index:1;left:58%;top:48%;width:clamp(90px,19vw,210px);aspect-ratio:.72;border:clamp(5px,.9vw,11px) solid #c4b5fd;border-radius:50%;transform:translate(-50%,-50%) scale(.05) rotate(12deg);opacity:0;box-shadow:0 0 18px #a855f7,0 0 55px #7c3aed,inset 0 0 24px #c4b5fd;transition:transform 1.2s cubic-bezier(.2,.8,.2,1),opacity .6s}
-.w2intro-scene.phase-rift .w2intro-rift,.w2intro-scene.phase-island .w2intro-rift{transform:translate(-50%,-50%) scale(1) rotate(0);opacity:.85;animation:w2introPortal 4s linear infinite}
-.w2intro-island-glow{position:absolute;z-index:1;right:5%;top:30%;width:34%;height:45%;border-radius:50%;background:#a7f3d0;filter:blur(30px);opacity:0;transition:opacity 1s}
-.w2intro-scene.phase-island .w2intro-island-glow{opacity:.22}
-.w2intro-caption{position:absolute;z-index:3;left:10px;right:10px;bottom:10px;padding:8px;border-radius:8px;background:#020617c9;color:#e0f2fe;font-weight:800;text-shadow:0 2px 4px #000}
-.w2intro-dialogue{margin:12px auto 0;padding:14px 16px;min-height:112px;text-align:left;border:1px solid #60a5fa;border-radius:12px;background:linear-gradient(120deg,#102447,#111c33);box-shadow:0 0 20px #2563eb22}
-.w2intro-name{margin-bottom:6px;color:#93c5fd;font-weight:900;font-size:14px}
-.w2intro-text{font-size:clamp(16px,2.2vw,21px);line-height:1.6;white-space:pre-wrap}
-.w2intro-controls{display:flex;justify-content:flex-end;gap:10px;margin-top:10px}
-.w2intro-controls button{min-width:116px}
-@keyframes w2introFlash{0%{opacity:.85}100%{opacity:0}}
-@keyframes w2introPortal{0%{filter:hue-rotate(0deg);transform:translate(-50%,-50%) scale(1) rotate(0)}100%{filter:hue-rotate(45deg);transform:translate(-50%,-50%) scale(1.06) rotate(360deg)}}
-@media(max-width:600px){#storyWorld2IntroScreen{padding:6px}.w2intro-panel{padding:8px}.w2intro-scene{height:38vh;min-height:210px}.w2intro-dialogue{padding:11px;min-height:118px}.w2intro-controls button{flex:1;padding:11px 8px;min-width:0}}
-@media(prefers-reduced-motion:reduce){.w2intro-art,.w2intro-rift,.w2intro-island-glow{transition:none!important;animation:none!important}}
-</style>
-<div id="storyWorld2IntroScreen" class="story-screen hidden" aria-label="2-1 次元の裂け目">
- <div class="w2intro-panel">
-  <div class="w2intro-head"><h1>2-1「次元の裂け目」</h1><button type="button" id="storyWorld2IntroSkip">スキップ ▶▶</button></div>
-  <div id="storyWorld2IntroScene" class="w2intro-scene phase-crystal">
-   <img class="w2intro-art" src="assets/story-world2-intro-art.svg" alt="光る結晶と次元の裂け目から現れた浮島" draggable="false">
-   <div class="w2intro-flash"></div><div class="w2intro-rift"></div><div class="w2intro-island-glow"></div>
-   <div class="w2intro-caption" id="storyWorld2IntroCaption">主人公が持っていた結晶</div>
-  </div>
-  <div class="w2intro-dialogue"><div class="w2intro-name" id="storyWorld2IntroName">ナレーション</div><div class="w2intro-text" id="storyWorld2IntroText"></div></div>
-  <div class="w2intro-controls"><button type="button" id="storyWorld2IntroNext">次へ ▶</button></div>
- </div>
-</div>
-
-<script id="story-world2-21-runtime">
-(function(){
- const $=id=>document.getElementById(id);
- const lines=[
-  ["ナレーション","ワールド1での冒険を終えた主人公。その手には、あのとき手に入れた結晶があった。","phase-crystal","主人公が持っていた結晶"],
-  ["主人公","……ん？ 結晶が光り始めた……？","phase-crystal","結晶がまばゆく光りだす"],
-  ["ナレーション","結晶は主人公の手を離れ、ゆっくりと空へ浮かび上がっていく。","phase-sky","空へ飛び立つ結晶"],
-  ["主人公","お、おい！ どこへ行くんだ！？","phase-sky","空へ飛び立つ結晶"],
-  ["ナレーション","次の瞬間、空に大きな光が走り、空間に裂け目が生まれた。","phase-rift","空に現れた次元の裂け目"],
-  ["主人公","空が……割れている！？ いったい何が起きているんだ……！","phase-rift","広がる次元の裂け目"],
-  ["ナレーション","裂け目の向こうから、巨大な浮島が姿を現した。島には見たことのない建物や結晶が広がっている。","phase-island","裂け目から現れた謎の浮島"],
-  ["主人公","す、すごい……！ この浮島が……あの結晶から生まれたのか……！","phase-island","空に浮かぶ謎の島"],
-  ["主人公","この島の謎を解き明かすために……行くしかない……！","phase-island","浮島へ向かう決意"]
- ];
- let index=0,open=false;
- function render(){
-  const line=lines[index],scene=$("storyWorld2IntroScene");
-  if(!line||!scene)return;
-  $("storyWorld2IntroName").textContent=line[0];
-  $("storyWorld2IntroText").textContent=line[1];
-  scene.className="w2intro-scene "+line[2];
-  $("storyWorld2IntroCaption").textContent=line[3];
-  $("storyWorld2IntroNext").textContent=index===lines.length-1?"2-1をクリア ▶":"次へ ▶";
- }
- function finish(){
-  if(!open)return;open=false;
-  try{localStorage.setItem("storyWorld2Stage1Cleared","1");}catch(e){}
-  $("storyWorld2IntroScreen").classList.add("hidden");
-  if(typeof window.openStoryWorld2Stages==="function")window.openStoryWorld2Stages();
- }
- window.startStoryWorld2Intro=function(){
-  index=0;open=true;
-  $("storyWorld2StageScreen").classList.add("hidden");
-  $("storyWorld2IntroScreen").classList.remove("hidden");
-  render();
- };
- $("storyWorld2IntroNext").addEventListener("click",()=>{if(index<lines.length-1){index++;render()}else finish()});
- $("storyWorld2IntroSkip").addEventListener("click",finish);
-})();
-</script>

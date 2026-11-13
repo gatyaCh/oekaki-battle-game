@@ -4342,7 +4342,7 @@ body {
   <div style="margin-top:14px;"><button type="button" id="adminAbuseOpenBtn" style="display:block;width:min(560px,95%);margin:0 auto;padding:12px 16px;border:3px solid #6b7280;border-radius:12px;background:#e5e7eb;color:#374151;font-weight:900;font-size:clamp(16px,2.5vw,21px);line-height:1.4;text-shadow:none;box-shadow:0 3px 10px #0003;filter:none">👑 ADMIN ABUSE　11/14　22:10〜22:30</button></div>
 </div>
 
-<div id="adminAbuseConfirmScreen" class="hidden" role="dialog" aria-modal="true"><div class="admin-abuse-card"><h2>👑 ADMIN ABUSEをしますか？</h2><p>25分間の特別イベントを開始します。</p><button type="button" id="adminAbuseYesV2">はい、プレイする</button><button type="button" id="adminAbuseNoV2">いいえ</button></div></div><div id="adminAbuseEndScreen" class="hidden" role="dialog" aria-modal="true"><div class="admin-abuse-card"><h2>⌛ ADMIN ABUSE終了</h2><p>イベント時間が終了しました。イベント専用効果はリセットされました。</p><button type="button" id="adminAbuseEndOkV2">タイトルへ戻る</button></div></div><div id="adminAbuseTimer" aria-live="polite">👑 ADMIN ABUSE　20:00</div><div id="adminAbuseDialogue" aria-live="polite"></div><div id="adminAbuseBoostHUD" aria-label="ADMIN ABUSE強化状況"><div>☘️ <b id="adminAbuseLuckV2">×1</b></div><div>⚔️ <b id="adminAbuseAttackV2">×1</b></div><div>👟 <b id="adminAbuseSpeedV2">×1</b></div><div>💫 ソウル <b id="adminAbuseCoinV2">×1</b></div><div>✨️ ポイント <b id="adminAbusePointsV2">×1</b></div></div><div id="mapSelect" class="hidden" aria-label="マップ選択">
+<div id="adminAbuseTestCodeScreen" class="hidden" role="dialog" aria-modal="true"><div class="admin-abuse-card"><h2>🔐 ADMIN ABUSE テスト認証</h2><p>テストコードを入力してください。</p><input id="adminAbuseTestCodeInput" type="password" autocomplete="off" spellcheck="false" placeholder="テストコード" style="box-sizing:border-box;width:100%;max-width:300px;padding:12px;font-size:18px;margin:8px 0"><p id="adminAbuseTestCodeMessage" role="status" aria-live="polite" style="min-height:22px;color:#ef4444"></p><button type="button" id="adminAbuseTestCodeSubmit">認証する</button><button type="button" id="adminAbuseTestCodeCancel">戻る</button></div></div><div id="adminAbuseConfirmScreen" class="hidden" role="dialog" aria-modal="true"><div class="admin-abuse-card"><h2>👑 ADMIN ABUSEをしますか？</h2><p>25分間の特別イベントを開始します。</p><button type="button" id="adminAbuseYesV2">はい、プレイする</button><button type="button" id="adminAbuseNoV2">いいえ</button></div></div><div id="adminAbuseEndScreen" class="hidden" role="dialog" aria-modal="true"><div class="admin-abuse-card"><h2>⌛ ADMIN ABUSE終了</h2><p>イベント時間が終了しました。イベント専用効果はリセットされました。</p><button type="button" id="adminAbuseEndOkV2">タイトルへ戻る</button></div></div><div id="adminAbuseTimer" aria-live="polite">👑 ADMIN ABUSE　20:00</div><div id="adminAbuseDialogue" aria-live="polite"></div><div id="adminAbuseBoostHUD" aria-label="ADMIN ABUSE強化状況"><div>☘️ <b id="adminAbuseLuckV2">×1</b></div><div>⚔️ <b id="adminAbuseAttackV2">×1</b></div><div>👟 <b id="adminAbuseSpeedV2">×1</b></div><div>💫 ソウル <b id="adminAbuseCoinV2">×1</b></div><div>✨️ ポイント <b id="adminAbusePointsV2">×1</b></div></div><div id="mapSelect" class="hidden" aria-label="マップ選択">
   <div class="map-select-card">
     <h1>🗺️ マップ選択</h1><p>遊びたいマップを選んでね！</p>
     <div class="map-options">
@@ -12512,31 +12512,35 @@ function begin(){
 }
 function start(){hide(confirm);hide(end);window.adminAbusePending=true;window.adminAbuseActive=false;window.halloweenWaveActive=false;window.halloweenWaveTestRequested=false;if(typeof window.chooseDevice==="function"){window.chooseDevice("pc");if(typeof window.selectNormalMap==="function")window.selectNormalMap();}else if(typeof window.selectNormalMap==="function"){window.selectNormalMap();}}
 document.addEventListener("click",e=>{const b=e.target&&e.target.closest?e.target.closest("#battleBtn"):null;if(b&&window.adminAbusePending){window.adminAbusePending=false;setTimeout(()=>{if(!active)begin()},0)}},true);
+let adminAbuseTestAuthorized=false;
 function updateButton(){
   const b=$("adminAbuseOpenBtn");if(!b)return;
   const now=Date.now(),open=now>=from&&now<until,ended=now>=until;
-  b.disabled=!open;
-  b.textContent="👑 ADMIN ABUSE　11/14　22:10〜22:30";
-  if(open){
-    b.title="開催中！クリックして参加";
-    b.style.background="linear-gradient(135deg,#a5f3fc,#67e8f9)";
-    b.style.borderColor="#0891b2";b.style.color="#164e63";
-    b.style.opacity="1";b.style.cursor="pointer";
-    b.removeAttribute("aria-disabled");
-  }else{
-    b.title=ended?"参加受付は終了しました":"日本時間22:10になると参加できます";
-    b.style.background="#e5e7eb";b.style.borderColor="#6b7280";
-    b.style.color="#6b7280";b.style.opacity=".75";
-    b.style.cursor="not-allowed";b.setAttribute("aria-disabled","true");
-  }
+  b.disabled=false;
+  b.textContent=open?"👑 ADMIN ABUSE　開催中":"👑 ADMIN ABUSE　テストプレイ";
+  b.title=open?"開催中！クリックして参加":"テストコードを入力して参加";
+  b.style.background=open?"linear-gradient(135deg,#a5f3fc,#67e8f9)":"linear-gradient(135deg,#fde68a,#f59e0b)";
+  b.style.borderColor=open?"#0891b2":"#b45309";
+  b.style.color=open?"#164e63":"#78350f";
+  b.style.opacity="1";b.style.cursor="pointer";b.removeAttribute("aria-disabled");
 }
 updateButton();setInterval(updateButton,250);if($("adminAbuseScheduleTimer"))$("adminAbuseScheduleTimer").style.display="none";
 $("adminAbuseOpenBtn")?.addEventListener("click",()=>{
-  const now=Date.now();
-  if(now<from||now>=until){updateButton();return;}
-  show(confirm);
+  const now=Date.now(),open=now>=from&&now<until;
+  if(open){show(confirm);return;}
+  const input=$("adminAbuseTestCodeInput"),message=$("adminAbuseTestCodeMessage");
+  if(input)input.value="";if(message)message.textContent="";
+  show($("adminAbuseTestCodeScreen"));if(input)input.focus();
 });
-$("adminAbuseYesV2")?.addEventListener("click",start);$("adminAbuseNoV2")?.addEventListener("click",()=>hide(confirm));$("adminAbuseEndOkV2")?.addEventListener("click",()=>location.reload());
+$("adminAbuseTestCodeSubmit")?.addEventListener("click",()=>{
+  const input=$("adminAbuseTestCodeInput"),message=$("adminAbuseTestCodeMessage");
+  if(!input||!message)return;
+  if(input.value!=="1114"){message.textContent="❌ コードが違います。";input.select();return;}
+  adminAbuseTestAuthorized=true;hide($("adminAbuseTestCodeScreen"));input.value="";show(confirm);
+});
+$("adminAbuseTestCodeCancel")?.addEventListener("click",()=>hide($("adminAbuseTestCodeScreen")));
+$("adminAbuseYesV2")?.addEventListener("click",()=>{if(!adminAbuseTestAuthorized){const now=Date.now();if(now<from||now>=until){hide(confirm);return;}}adminAbuseTestAuthorized=false;start();});
+$("adminAbuseNoV2")?.addEventListener("click",()=>hide(confirm));$("adminAbuseEndOkV2")?.addEventListener("click",()=>location.reload());
 const originalShow=window.showResult;if(typeof originalShow==="function")window.showResult=function(){const r=originalShow.apply(this,arguments);if(active){document.body.classList.add("admin-abuse-result-lock");const retry=$("resultToTitle"),back=$("resultBackBtn");if(retry){retry.textContent="🔄 リトライ";retry.onclick=e=>{e?.preventDefault();if(typeof window.retryFromGameOver==="function")window.retryFromGameOver()}}if(back)back.classList.add("hidden")}return r};
 window.addEventListener("beforeunload",()=>{clearInterval(interval);scheduled.forEach(clearTimeout)});
 })();</script>

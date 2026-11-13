@@ -1,1 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 585"><title>World 2 opening artwork</title></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 585" role="img" aria-labelledby="t d">
+<title id="t">結晶と次元の裂け目、浮島</title><desc id="d">青空に浮かぶ光る結晶と紫色の次元の裂け目、その向こうに現れた緑の浮島</desc>
+<defs>
+ <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#153b78"/><stop offset=".55" stop-color="#4c8fd2"/><stop offset="1" stop-color="#d4edff"/></linearGradient>
+ <linearGradient id="rift" x2="1" y2="1"><stop stop-color="#7c3aed"/><stop offset=".5" stop-color="#d8b4fe"/><stop offset="1" stop-color="#312e81"/></linearGradient>
+ <linearGradient id="rock" x2="0" y2="1"><stop stop-color="#657b9b"/><stop offset="1" stop-color="#17243d"/></linearGradient>
+ <linearGradient id="crystal" x2="1" y2="1"><stop stop-color="#fff"/><stop offset=".35" stop-color="#a5f3fc"/><stop offset="1" stop-color="#2563eb"/></linearGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="12" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <filter id="soft"><feGaussianBlur stdDeviation="18"/></filter>
+</defs>
+<rect width="1440" height="585" fill="url(#sky)"/>
+<g fill="#fff" opacity=".62"><path d="M0 160Q90 90 180 150Q240 75 325 142Q395 155 420 220H0Z"/><path d="M950 130Q1030 70 1110 125Q1190 65 1280 130Q1370 130 1440 190H950Z"/></g>
+<path d="M0 470Q180 370 330 460T660 430V585H0Z" fill="#427a56"/><path d="M0 505Q180 435 360 500T660 480V585H0Z" fill="#28583f"/>
+<g opacity=".65" fill="#a7f3d0"><path d="M70 468l25-65 25 65zM160 480l20-55 20 55zM480 462l30-76 30 76z"/></g>
+<ellipse cx="930" cy="290" rx="360" ry="210" fill="#a855f7" opacity=".18" filter="url(#soft)"/>
+<g class="portal" filter="url(#glow)" fill="none" stroke="url(#rift)"><path d="M760 60C630 120 620 390 790 470C970 540 1120 360 1030 150C970 20 840 10 760 60Z" stroke-width="26"/><path d="M790 90C690 160 700 360 820 425C940 485 1050 330 985 170C940 65 850 45 790 90Z" stroke="#e9d5ff" stroke-width="5"/></g>
+<g fill="#fff" opacity=".9" filter="url(#glow)"><path d="M735 95l-42 70 52-25 30 60 10-88 66-28-72-3-22-70z"/><path d="M1040 300l-30 24 42 2 12 35 10-39 40-10-38-10-11-34z"/></g>
+<g transform="translate(850 180)">
+ <path d="M-180 95Q-100 20 0 48Q100 -5 205 70Q265 115 245 175L190 250L100 295L-45 280L-150 220Z" fill="#315c45" stroke="#b7e4a4" stroke-width="8"/>
+ <path d="M-180 110Q-95 45 0 65Q110 10 205 82Q240 105 240 145Q120 190 20 170Q-85 190-170 150Z" fill="#79b86a"/>
+ <path d="M-145 165L-95 240L-35 300L35 315L115 275L190 220L225 150L180 250L110 330L20 360L-75 310Z" fill="url(#rock)"/>
+ <path d="M-105 85l30-55 25 55zM-10 65l45-75 38 75zM100 70l30-48 24 55z" fill="#4d8059"/>
+ <g fill="#c4f1ad"><circle cx="-90" cy="82" r="18"/><circle cx="40" cy="60" r="22"/><circle cx="145" cy="82" r="16"/></g>
+ <path d="M-65 220Q-80 260-95 300M85 230Q100 280 110 310" stroke="#9be7ff" stroke-width="9" opacity=".8"/>
+ <g fill="#6d5b49"><rect x="-5" y="65" width="24" height="48"/><path d="M-20 75L7 25L35 75Z"/></g>
+</g>
+<g transform="translate(260 180)" filter="url(#glow)"><path d="M0-125L52-35L25 105L-24 92L-55-34Z" fill="url(#crystal)" stroke="#e0f2fe" stroke-width="7"/><path d="M0-125L5 10L-24 92L-55-34Z" fill="#fff" opacity=".42"/><path d="M52-35L5 10L25 105" fill="none" stroke="#fff" stroke-width="4" opacity=".8"/><circle r="105" fill="#67e8f9" opacity=".12"/></g>
+<g transform="translate(135 440)" fill="#101a2d"><path d="M0 110Q-10 35 35 0Q80-25 110 18L135 110Z"/><circle cx="72" cy="-10" r="35"/><path d="M45 12L5 95L42 110L78 55L112 110L145 100L102 10Z" fill="#172b48"/></g>
+<g fill="#fff" opacity=".8"><circle cx="560" cy="120" r="4"/><circle cx="610" cy="260" r="3"/><circle cx="1150" cy="90" r="4"/><circle cx="1250" cy="250" r="3"/><circle cx="700" cy="500" r="4"/></g>
+</svg>

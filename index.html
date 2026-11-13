@@ -8920,7 +8920,21 @@ loop();
 
   window.useSpecialCode = function useSpecialCode(code){
     const c = String(code || "").trim().toLowerCase();
-    if (c === "skin") {\n      if (typeof window.unlockGameSkin !== "function") return false;\n      window.unlockGameSkin("admin_demon");\n      msg.textContent = "😈 限定スキンを解放しました！";\n      return true;\n    }\n    if (c === "2026") {\n      if (typeof window.skipFusionCooldown !== "function" || !window.skipFusionCooldown()) {\n        msg.textContent = "⚠️ スキップできるヒューズ合成がありません。合成中に入力してね。";\n        return false;\n      }\n      msg.textContent = "⚗️ ヒューズマシンの合成時間をスキップしました！";\n      return true;\n    }\n    if (c === "carracing") {
+    if (c === "skin") {
+      if (typeof window.unlockGameSkin !== "function") return false;
+      window.unlockGameSkin("admin_demon");
+      msg.textContent = "😈 限定スキンを解放しました！";
+      return true;
+    }
+    if (c === "2026") {
+      if (typeof window.skipFusionCooldown !== "function" || !window.skipFusionCooldown()) {
+        msg.textContent = "⚠️ スキップできるヒューズ合成がありません。合成中に入力してね。";
+        return false;
+      }
+      msg.textContent = "⚗️ ヒューズマシンの合成時間をスキップしました！";
+      return true;
+    }
+    if (c === "carracing") {
       if (typeof window.unlockGameSkin !== "function") return false;
       window.unlockGameSkin("carracing");
       msg.textContent = "🏎️ カーレーススキンを解放しました！";

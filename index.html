@@ -12957,10 +12957,26 @@ function updateStep2Mode(){
   if(cfg.kind==="jupiter"&&step2Mode.windBurst>0)speed*=0.12;
   step2Move(p,dx/len*speed,dy/len*speed,p.r);
   if(cfg.kind==="jupiter"){
-    step2Mode.windTimer+=dt;step2Mode.windDirTimer+=dt;
-    if(step2Mode.windDirTimer>=3){step2Mode.windDirTimer=0;const a=Math.random()*Math.PI*2;step2Mode.windX=Math.cos(a);step2Mode.windY=Math.sin(a);}
-    if(step2Mode.windTimer>=20){step2Mode.windTimer=0;step2Mode.windBurst=5;msg.textContent="🌪️ 強風！風に振り回される！";}
-    if(step2Mode.windBurst>0){step2Mode.windBurst=Math.max(0,step2Mode.windBurst-dt);step2Move(p,step2Mode.windX*3.4,step2Mode.windY*3.4,p.r);}
+    // 5秒ごとに強風が始まり、7秒間続く。風向きは吹いている間もランダムに変化。
+    step2Mode.windTimer+=dt;
+    if(step2Mode.windTimer>=5){
+      step2Mode.windTimer-=5;
+      step2Mode.windBurst=7;
+      step2Mode.windDirTimer=0;
+      const a=Math.random()*Math.PI*2;
+      step2Mode.windX=Math.cos(a);step2Mode.windY=Math.sin(a);
+      msg.textContent="🌪️ 強風！風向きが次々に変わる！";
+    }
+    if(step2Mode.windBurst>0){
+      step2Mode.windBurst=Math.max(0,step2Mode.windBurst-dt);
+      step2Mode.windDirTimer+=dt;
+      if(step2Mode.windDirTimer>=1){
+        step2Mode.windDirTimer=0;
+        const a=Math.random()*Math.PI*2;
+        step2Mode.windX=Math.cos(a);step2Mode.windY=Math.sin(a);
+      }
+      step2Move(p,step2Mode.windX*3.4,step2Mode.windY*3.4,p.r);
+    }
   }
   // 子分：月・水星は接近、火星・木星は固定砲台。
   minions.forEach(m=>{

@@ -12997,7 +12997,7 @@ function updateStep2Mode(){
   });
   step2Mode.bullets=step2Mode.bullets.filter(b=>!b.dead&&b.x>-30&&b.x<CANVAS_WIDTH+30&&b.y>-30&&b.y<CANVAS_HEIGHT+30);
   if(enemy.hp<=0){enemy.hp=0;nextStage();return;}
-  if(p.hp<=0){p.hp=0;gameOver=true;step2Mode.active=false;showResult(false);return;}
+  if(p.hp<=0){p.hp=0;gameOver=true;step2Mode.active=false;document.body.classList.remove("step2-admin-enabled");showResult(false);return;}
   document.getElementById("hp").textContent=Math.floor(p.hp);
   document.getElementById("maxHpText").textContent=Math.floor(p.max);
   document.getElementById("ehp").textContent=Math.floor(enemy.hp);
@@ -13041,7 +13041,7 @@ function drawStep2Mode(){
 function advanceStep2Mode(){
   stageClear=true;step2Mode.index++;
   if(step2Mode.index>4){
-    step2Mode.active=false;gameOver=false;stageClear=false;
+    step2Mode.active=false;document.body.classList.remove("step2-admin-enabled");gameOver=false;stageClear=false;
     msg.textContent="🎉 STEP 2のステージ1〜4クリア！";
     const done=document.createElement("div");done.id="step2CompleteOverlay";
     done.style.cssText="position:fixed;inset:0;z-index:1000000;background:#080d1eee;color:white;display:flex;align-items:center;justify-content:center;padding:20px;";

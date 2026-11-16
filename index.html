@@ -8802,9 +8802,13 @@ loop();
   panel.querySelectorAll("[data-step2]").forEach(b => b.onclick = (e) => {
     e.preventDefault(); e.stopPropagation();
     const target = Number(b.dataset.step2);
+    if (!step2Mode.stages[target-1]) return;
     if (deviceMode !== "mobile" && !confirm("STEP 2「" + step2Mode.stages[target-1].name + "」へ移動しますか？")) return;
+    // ステージ移動後も管理者パネルを開いたままにする。
     startStep2Mode(target);
-    panel.classList.add("hidden");
+    panel.classList.remove("hidden");
+    document.getElementById("adminBody").style.display="block";
+    document.getElementById("adminArrow").textContent="▲";
   });
   panel.querySelectorAll("[data-s]").forEach(b => b.onclick = (e) => {
     e.preventDefault();
@@ -12866,10 +12870,13 @@ const step2Mode = {
   active:false, index:1, elapsed:0, windTimer:0, windBurst:0, bossAttack:0, rangedTimer:0,
   pits:[], hazards:[], bullets:[], windX:0, windY:0, windDirTimer:0,
   stages:[
-    {name:"🌙 STEP 2-1：月",boss:"🌙",hp:1600,minionHp:320,count:4,kind:"moon"},
-    {name:"👽 STEP 2-2：火星",boss:"👽",hp:1700,minionHp:357,count:4,kind:"mars"},
-    {name:"🌑 STEP 2-3：水星",boss:"🌑",hp:1800,minionHp:396,count:4,kind:"mercury"},
-    {name:"☠ STEP 2-4：木星",boss:"☠",hp:1900,minionHp:285,count:2,kind:"jupiter"}
+    {name:"🌙 STEP 2-1：月",boss:"🌙",hp:1600,minionHp:320,count:4,kind:"moon",bg:"#777b86"},
+    {name:"👽 STEP 2-2：火星",boss:"👽",hp:1700,minionHp:357,count:4,kind:"mars",bg:"#a33b25"},
+    {name:"🌑 STEP 2-3：水星",boss:"🌑",hp:1800,minionHp:396,count:4,kind:"mercury",bg:"#9a8060"},
+    {name:"☠ STEP 2-4：木星",boss:"☠",hp:1900,minionHp:285,count:2,kind:"jupiter",bg:"#b8a36a"},
+    {name:"🌋 STEP 2-5：金星",boss:"🌋",hp:2050,minionHp:340,count:4,kind:"venus",bg:"#d97732"},
+    {name:"🪐 STEP 2-6：土星",boss:"🪐",hp:2200,minionHp:365,count:4,kind:"saturn",bg:"#b69a70"},
+    {name:"☀️ STEP 2-7：太陽",boss:"☀️",hp:2500,minionHp:420,count:2,kind:"sun",bg:"#d99a28"}
   ]
 };
 function setupStep2Stage(n){
@@ -12882,7 +12889,10 @@ function setupStep2Stage(n){
     const angle=Math.PI*2*i/cfg.count;
     minions.push({x:620+Math.cos(angle)*70,y:250+Math.sin(angle)*145,hp:cfg.minionHp,maxHp:cfg.minionHp,atk:cfg.kind==="mars"?10:10,r:19,type:cfg.kind==="mars"||cfg.kind==="jupiter"?"step2_turret":"step2_melee",shot:0,cool:0});
   }
-  p.x=100;p.y=250;p.hp=p.max;
+  // STEP 2では現在の強化・特殊コードによる最大HPを維持しつつ、
+  // 不正値やHP上限超過を防ぐ。各惑星への移動時は全回復。
+  p.max=Number.isFinite(Number(p.max))?Math.max(150,Math.min(1000,Number(p.max))):150;
+  p.hp=p.max;p.x=100;p.y=250;
   enemyBullets=[];magmaZones=[];boxes=[];dmgText=[];
   treasureChest={x:450,y:250,opened:false,progress:0,maxProgress:100,r:20};
   // STEP 2は専用の惑星フィールド。通常ステージ1の障害物データを
@@ -12988,12 +12998,27 @@ function updateStep2Mode(){
     }
   }
   if(cfg.kind==="jupiter"&&bd<68&&step2Mode.bossAttack>=0.5){step2Mode.bossAttack=0;damagePlayer(20);}
+  // 金星：一定間隔でプレイヤー周辺に毒性の高温地帯を作る。
+  if(cfg.kind==="venus"&&Math.floor(step2Mode.elapsed/4)!==Math.floor((step2Mode.elapsed-dt)/4)){
+    step2Mode.hazards.push({x:Math.max(55,Math.min(CANVAS_WIDTH-55,p.x+(Math.random()-.5)*230)),y:Math.max(55,Math.min(CANVAS_HEIGHT-55,p.y+(Math.random()-.5)*180)),r:48,life:3.5,kind:"☣️",cool:0});
+  }
+  // 土星：リング状の障害帯が定期的に横切る。
+  if(cfg.kind==="saturn"&&Math.floor(step2Mode.elapsed/6)!==Math.floor((step2Mode.elapsed-dt)/6)){
+    step2Mode.hazards.push({x:CANVAS_WIDTH/2,y:CANVAS_HEIGHT/2,r:150,life:2.2,kind:"🪐",cool:0});
+  }
+  // 太陽：短い警告のあと、広い熱波を発生させる。
+  if(cfg.kind==="sun"&&Math.floor(step2Mode.elapsed/5)!==Math.floor((step2Mode.elapsed-dt)/5)){
+    step2Mode.hazards.push({x:CANVAS_WIDTH/2,y:CANVAS_HEIGHT/2,r:220,life:2.5,kind:"☀️",cool:0});
+  }
   if(cfg.kind==="moon"&&step2Mode.elapsed>=10&&Math.floor(step2Mode.elapsed/10)!==Math.floor((step2Mode.elapsed-dt)/10)&&step2Mode.pits.length<5){
     step2Mode.pits.push({x:enemy.x,y:enemy.y,r:22,emoji:"🕳️"});
   }
   step2Mode.hazards.forEach(h=>{
     h.life-=dt;if(h.kind==="🔥"&&Math.hypot(p.x-h.x,p.y-h.y)<h.r){h.cool=(h.cool||0)+dt;if(h.cool>=0.3){h.cool=0;step2DotDamage(5);}}
     if(h.kind==="🌋"&&Math.hypot(p.x-h.x,p.y-h.y)<h.r){h.cool=(h.cool||0)+dt;if(h.cool>=0.4){h.cool=0;step2DotDamage(5);}}
+    if(h.kind==="☣️"&&Math.hypot(p.x-h.x,p.y-h.y)<h.r){h.cool=(h.cool||0)+dt;if(h.cool>=0.35){h.cool=0;step2DotDamage(7);}}
+    if(h.kind==="🪐"&&Math.abs(Math.hypot(p.x-h.x,p.y-h.y)-h.r)<20){h.cool=(h.cool||0)+dt;if(h.cool>=0.3){h.cool=0;step2DotDamage(8);}}
+    if(h.kind==="☀️"&&Math.hypot(p.x-h.x,p.y-h.y)<h.r){h.cool=(h.cool||0)+dt;if(h.cool>=0.25){h.cool=0;step2DotDamage(8);}}
   });
   step2Mode.hazards=step2Mode.hazards.filter(h=>h.life>0);
   step2Mode.pits=step2Mode.pits.filter(h=>{if(Math.hypot(p.x-h.x,p.y-h.y)<h.r+p.r){slowDebuffTimer=Math.max(slowDebuffTimer,10);return false;}return true;});
@@ -13012,27 +13037,40 @@ function updateStep2Mode(){
   document.getElementById("ehp").textContent=Math.floor(enemy.hp);
 }
 function attackStep2Mode(){
-  if(gameOver||stageClear||attackCooldown>0)return;
-  const cfg=step2Mode.stages[step2Mode.index-1],damage=getDamage();
-  const range=weapon==="🚙"?118:weapon==="⚔️"?72+charge/2:90;
-  const hit=(x,y)=>Math.hypot(p.x-x,p.y-y)<range;
-  let did=false;
+  if(gameOver||stageClear||attackCooldown>0||window.adminPanelInteracting)return;
+  const damage=getDamage();
+  const ranged=weapon==="🏹"||weapon==="🚙"||weapon==="⚡️"||weapon==="🪄";
+  if(weapon==="⚡️"&&typeof newWeaponAttack==="function"){
+    newWeaponAttack();
+    attackCooldown=window.adminNoCooldown?0:0.3;
+    return;
+  }
+  if(weapon==="🪄"){
+    const dx=mouse.x-p.x,dy=mouse.y-p.y,d=Math.hypot(dx,dy)||1;
+    for(let i=0;i<8;i++){const a=Math.atan2(dy,dx)+(i-3.5)*0.16;step2Mode.bullets.push({x:p.x,y:p.y,vx:Math.cos(a)*7,vy:Math.sin(a)*7,emoji:"✨",damage:damage*0.7,player:true});}
+    attackCooldown=window.adminNoCooldown?0:0.55;return;
+  }
   if(weapon==="🏹"||weapon==="🚙"){
     const dx=mouse.x-p.x,dy=mouse.y-p.y,d=Math.hypot(dx,dy)||1;
     step2Mode.bullets.push({x:p.x,y:p.y,vx:dx/d*8,vy:dy/d*8,emoji:weapon==="🏹"?"🏹":"🚙",damage,player:true});
     if(weapon==="🚙")dashTimer=18;
-  }else{
-    minions.forEach(m=>{if(m.hp>0&&hit(m.x,m.y)){damageMinion(m,damage);did=true;}});
-    if(hit(enemy.x,enemy.y)){damageEnemy(damage);did=true;}
+    attackCooldown=window.adminNoCooldown?0:0.3;return;
   }
+  const range=weapon==="🚙"?118:weapon==="⚔️"?72+charge/2:weapon==="拳"?108:90;
+  const hit=(x,y)=>Math.hypot(p.x-x,p.y-y)<range;
+  let did=false;
+  const specialRange=window.specialCodes?.kakeru?108:window.specialCodes?.sougo?216:range;
+  const specialDamage=window.specialCodes?.kakeru?damage*1.4:window.specialCodes?.sougo?damage*1.8:damage;
+  minions.forEach(m=>{if(m.hp>0&&hit(m.x,m.y)){damageMinion(m,specialDamage);did=true;}});
+  if(hit(enemy.x,enemy.y)){damageEnemy(specialDamage);did=true;}
   attackCooldown=window.adminNoCooldown?0:0.3;
   if(did)msg.textContent="攻撃！";
 }
 function drawStep2Mode(){
   ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation="source-over";ctx.filter="none";ctx.clearRect(0,0,c.width,c.height);
   const cfg=step2Mode.stages[step2Mode.index-1];
-  const backgrounds=["#777b86","#a33b25","#9a8060","#b8a36a"];
-  ctx.fillStyle=backgrounds[step2Mode.index-1];ctx.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+  const backgrounds=step2Mode.stages.map(v=>v.bg);
+  ctx.fillStyle=cfg.bg||backgrounds[step2Mode.index-1];ctx.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
   ctx.textAlign="center";ctx.textBaseline="middle";
   // 惑星らしい地形と星空。
   ctx.fillStyle="rgba(255,255,255,.28)";for(let i=0;i<34;i++){const x=(i*137+41)%CANVAS_WIDTH,y=(i*83+19)%CANVAS_HEIGHT;ctx.fillRect(x,y,2,2);}
@@ -13049,12 +13087,12 @@ function drawStep2Mode(){
 }
 function advanceStep2Mode(){
   stageClear=true;step2Mode.index++;
-  if(step2Mode.index>4){
+  if(step2Mode.index>7){
     step2Mode.active=false;document.body.classList.remove("step2-admin-enabled");gameOver=false;stageClear=false;
-    msg.textContent="🎉 STEP 2のステージ1〜4クリア！";
+    msg.textContent="🎉 STEP 2のステージ1〜7クリア！";
     const done=document.createElement("div");done.id="step2CompleteOverlay";
     done.style.cssText="position:fixed;inset:0;z-index:1000000;background:#080d1eee;color:white;display:flex;align-items:center;justify-content:center;padding:20px;";
-    done.innerHTML='<div style="background:#172033;border:2px solid #a78bfa;border-radius:16px;padding:24px;max-width:420px;"><h2>🪐 STEP 2 前半クリア！</h2><p style="margin:14px 0;">月・火星・水星・木星を突破した！</p><button id="step2CompleteClose">戻る</button></div>';
+    done.innerHTML='<div style="background:#172033;border:2px solid #a78bfa;border-radius:16px;padding:24px;max-width:420px;"><h2>🪐 STEP 2 クリア！</h2><p style="margin:14px 0;">月・火星・水星・木星・金星・土星・太陽を突破した！</p><button id="step2CompleteClose">戻る</button></div>';
     document.body.appendChild(done);document.getElementById("step2CompleteClose").onclick=()=>{done.remove();currentScreen="title";syncScreenVisibility();resetGame();};
     return;
   }

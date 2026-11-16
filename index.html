@@ -12872,8 +12872,8 @@ const step2Mode = {
   stages:[
     {name:"🌙 STEP 2-1：月",boss:"🌙",hp:1600,minionHp:320,count:4,kind:"moon",bg:"#777b86"},
     {name:"👽 STEP 2-2：火星",boss:"👽",hp:1700,minionHp:357,count:4,kind:"mars",bg:"#a33b25"},
-    {name:"🌑 STEP 2-3：水星",boss:"🌑",hp:1800,minionHp:396,count:4,kind:"mercury",bg:"#9a8060"},
-    {name:"☠ STEP 2-4：木星",boss:"☠",hp:1900,minionHp:285,count:2,kind:"jupiter",bg:"#b8a36a"}
+    {name:"🌑 STEP 2-3：水星",boss:"🌑",hp:1800,minionHp:396,count:4,kind:"mercury",bg:"#59636d"},
+    {name:"☠ STEP 2-4：木星",boss:"☠",hp:1900,minionHp:285,count:2,kind:"jupiter",bg:"#b89a45"}
   ]
 };
 function setupStep2Stage(n){
@@ -13008,8 +13008,8 @@ function updateStep2Mode(){
   step2Mode.bullets.forEach(b=>{
     b.x+=b.vx;b.y+=b.vy;
     if(b.player){
-      if(Math.hypot(enemy.x-b.x,enemy.y-b.y)<enemy.r+12){damageEnemy(b.damage);b.dead=true;}
-      else{const target=minions.find(m=>m.hp>0&&Math.hypot(m.x-b.x,m.y-b.y)<m.r+12);if(target){damageMinion(target,b.damage);b.dead=true;}}
+      if(Math.hypot(enemy.x-b.x,enemy.y-b.y)<enemy.r+20){damageEnemy(b.damage);b.dead=true;}
+      else{const target=minions.find(m=>m.hp>0&&Math.hypot(m.x-b.x,m.y-b.y)<m.r+20);if(target){damageMinion(target,b.damage);b.dead=true;}}
     }else if(Math.hypot(p.x-b.x,p.y-b.y)<p.r+13){damagePlayer(b.damage);if(b.slow)slowDebuffTimer=Math.max(slowDebuffTimer,5);b.dead=true;}
   });
   step2Mode.bullets=step2Mode.bullets.filter(b=>!b.dead&&b.x>-30&&b.x<CANVAS_WIDTH+30&&b.y>-30&&b.y<CANVAS_HEIGHT+30);
@@ -13051,7 +13051,8 @@ function attackStep2Mode(){
   minions.forEach(m=>{if(m.hp>0&&hit(m.x,m.y)){damageMinion(m,specialDamage);did=true;}});
   if(hit(enemy.x,enemy.y)){damageEnemy(specialDamage);did=true;}
   attackCooldown=window.adminNoCooldown?0:0.3;
-  if(did)msg.textContent="攻撃！";
+  // 攻撃キーが届いたことを必ず画面に表示し、命中時は既存の敵ダメージ処理を通す。
+  msg.textContent=did?"⚔️ STEP 2 攻撃命中！":"⚔️ STEP 2 攻撃！敵に近づくか、照準を敵に合わせてね";
 }
 function drawStep2Mode(){
   ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation="source-over";ctx.filter="none";ctx.clearRect(0,0,c.width,c.height);
@@ -13063,13 +13064,24 @@ function drawStep2Mode(){
   ctx.fillStyle="rgba(255,255,255,.28)";for(let i=0;i<34;i++){const x=(i*137+41)%CANVAS_WIDTH,y=(i*83+19)%CANVAS_HEIGHT;ctx.fillRect(x,y,2,2);}
   step2Mode.pits.forEach(h=>{ctx.save();ctx.strokeStyle="rgba(20,20,30,.9)";ctx.lineWidth=3;ctx.beginPath();ctx.arc(h.x,h.y,h.r+5,0,Math.PI*2);ctx.stroke();ctx.font="34px serif";ctx.fillText("🕳️",h.x,h.y);ctx.restore();});
   step2Mode.hazards.forEach(h=>{ctx.fillStyle=h.kind==="🌋"?"rgba(255,70,0,.42)":"rgba(255,80,0,.35)";ctx.beginPath();ctx.arc(h.x,h.y,h.r,0,Math.PI*2);ctx.fill();ctx.font="28px serif";ctx.fillText(h.kind,h.x,h.y);});
+  // 木星は金色の縞模様、水星は暗い岩場＋溶岩で、惑星ごとの違いを明確にする。
+  if(cfg.kind==="jupiter"){
+    ctx.save();ctx.globalAlpha=1;
+    for(let k=0;k<5;k++){ctx.fillStyle=k%2===0?"rgba(92,48,116,.16)":"rgba(255,230,160,.18)";ctx.fillRect(0,75+k*105,CANVAS_WIDTH,24);}
+    ctx.restore();
+  }
   minions.forEach(m=>{if(m.hp<=0)return;
     // 敵の近距離攻撃が届く範囲を常時表示（予告アニメーションは追加しない）。
-    if(m.type!=="step2_turret"){ctx.beginPath();ctx.arc(m.x,m.y,48,0,Math.PI*2);ctx.fillStyle="rgba(255,60,60,.10)";ctx.fill();ctx.strokeStyle="rgba(255,80,80,.45)";ctx.lineWidth=1.5;ctx.stroke();}
-    ctx.font="30px serif";ctx.fillText("😈",m.x,m.y);ctx.fillStyle="#111";ctx.fillRect(m.x-20,m.y-28,40,5);ctx.fillStyle="#4ade80";ctx.fillRect(m.x-20,m.y-28,40*Math.max(0,m.hp/m.maxHp),5);});
+    if(m.type!=="step2_turret"){ctx.beginPath();ctx.arc(m.x,m.y,48,0,Math.PI*2);ctx.fillStyle="rgba(255,60,60,.10)";ctx.fill();ctx.strokeStyle="rgba(255,80,80,.65)";ctx.lineWidth=2;ctx.stroke();}
+    ctx.save();ctx.globalAlpha=1;ctx.shadowColor="#111";ctx.shadowBlur=7;
+    ctx.beginPath();ctx.arc(m.x,m.y,23,0,Math.PI*2);ctx.fillStyle="rgba(20,24,35,.82)";ctx.fill();
+    ctx.font="30px serif";ctx.lineWidth=2;ctx.strokeStyle="#fff";ctx.strokeText(m.type==="step2_turret"?(cfg.kind==="jupiter"?"🛰️":"🔴"):"😈",m.x,m.y);ctx.fillStyle="#fff";ctx.fillText(m.type==="step2_turret"?(cfg.kind==="jupiter"?"🛰️":"🔴"):"😈",m.x,m.y);ctx.restore();
+    ctx.fillStyle="#111";ctx.fillRect(m.x-20,m.y-32,40,6);ctx.fillStyle="#4ade80";ctx.fillRect(m.x-20,m.y-32,40*Math.max(0,m.hp/m.maxHp),6);});
   // ボスの近距離攻撃範囲も常時表示。
-  if(cfg.kind!=="mars"){const bossRange=cfg.kind==="moon"?62:cfg.kind==="mercury"||cfg.kind==="jupiter"?68:125;ctx.beginPath();ctx.arc(enemy.x,enemy.y,bossRange,0,Math.PI*2);ctx.fillStyle="rgba(255,40,40,.09)";ctx.fill();ctx.strokeStyle="rgba(255,70,70,.5)";ctx.lineWidth=2;ctx.stroke();}
-  ctx.font="48px serif";ctx.fillText(cfg.boss,enemy.x,enemy.y);
+  if(cfg.kind!=="mars"){const bossRange=cfg.kind==="moon"?62:cfg.kind==="mercury"||cfg.kind==="jupiter"?68:125;ctx.beginPath();ctx.arc(enemy.x,enemy.y,bossRange,0,Math.PI*2);ctx.fillStyle="rgba(255,40,40,.09)";ctx.fill();ctx.strokeStyle="rgba(255,70,70,.65)";ctx.lineWidth=2;ctx.stroke();}
+  ctx.save();ctx.globalAlpha=1;ctx.shadowColor="#111";ctx.shadowBlur=10;
+  ctx.beginPath();ctx.arc(enemy.x,enemy.y,34,0,Math.PI*2);ctx.fillStyle="rgba(20,24,35,.78)";ctx.fill();
+  ctx.font="48px serif";ctx.lineWidth=2;ctx.strokeStyle="#fff";ctx.strokeText(cfg.boss,enemy.x,enemy.y);ctx.fillStyle="#fff";ctx.fillText(cfg.boss,enemy.x,enemy.y);ctx.restore();
   ctx.fillStyle="#111";ctx.fillRect(enemy.x-42,enemy.y-43,84,8);ctx.fillStyle="#ef4444";ctx.fillRect(enemy.x-42,enemy.y-43,84*Math.max(0,enemy.hp/enemy.maxHp),8);
   step2Mode.bullets.forEach(b=>{ctx.font="24px serif";ctx.fillText(b.emoji,b.x,b.y);});
   ctx.font="34px serif";ctx.fillText(typeof window.getSelectedSkinEmoji==="function"?window.getSelectedSkinEmoji():"🙂",p.x,p.y);

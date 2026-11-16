@@ -8606,10 +8606,16 @@ loop();
   const codeInput = document.getElementById("specialCodeInput");
   const codeMsg = document.getElementById("specialCodeMsg");
   function openAdminPanel() {
-    if (currentScreen !== "draw") return;
+    // STEP 1は従来どおり描画画面のみ。STEP 2では惑星バトル中も管理者パネルを開ける。
+    const canOpen = currentScreen === "draw" || (step2Mode.active && currentScreen === "game");
+    if (!canOpen) return;
     if (!adminUnlocked) {
-      codeBox.classList.remove("hidden");
-      codeInput.focus();
+      if (typeof window.openSpecialCodeBox === "function") window.openSpecialCodeBox();
+      else {
+        codeBox.classList.remove("hidden");
+        document.body.classList.add("special-code-open");
+        codeInput.focus();
+      }
       return;
     }
     // 攻撃状態を残さない
@@ -9386,7 +9392,9 @@ loop();
 
     const isVisible=el => el && !el.classList.contains("hidden");
     const battleOrCountdown=isVisible(count) || isVisible(game);
-    const canUse=isVisible(draw) && !battleOrCountdown;
+    // STEP 1の戦闘中は従来どおり非表示。STEP 2の惑星バトル中だけ管理者入口を許可。
+    const step2Battle=document.body.classList.contains("step2-admin-enabled") && isVisible(game);
+    const canUse=(isVisible(draw) && !battleOrCountdown) || step2Battle;
 
     hush.style.setProperty("display", canUse ? "block" : "none", "important");
     hush.style.setProperty("visibility", canUse ? "visible" : "hidden", "important");
@@ -11913,6 +11921,31 @@ $("s15Exit").addEventListener("click",back);$("s15Back").addEventListener("click
 }
 </style>
 
+
+<style id="step2-admin-panel-access-v29">
+/* STEP 2の間だけ、戦闘中のスペシャルコード入口と管理者パネルを有効化 */
+body.step2-admin-enabled #hushBtn{
+  display:block !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+  z-index:960010 !important;
+}
+body.step2-admin-enabled #specialCodeBox{
+  display:block !important;
+  pointer-events:auto !important;
+  z-index:1000000 !important;
+}
+body.step2-admin-enabled.special-code-open #specialCodeBox{
+  display:block !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+}
+body.step2-admin-enabled #adminPanel{
+  z-index:960020 !important;
+  pointer-events:auto !important;
+}
+</style>
+
 </body>
 </html>
 
@@ -12856,6 +12889,7 @@ function setupStep2Stage(n){
 }
 function startStep2Mode(n){
   step2Mode.active=true;
+  document.body.classList.add("step2-admin-enabled");
   resetStep2BattleStats();
   setupStep2Stage(n);
   currentScreen="game";syncScreenVisibility();

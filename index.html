@@ -8683,10 +8683,19 @@ loop();
 
     if (code === "gaku admin") {
       adminUnlocked = true;
-      codeBox.classList.add("hidden");if(window.gameSavePaused&&currentScreen==="game"&&window.returnToBattlePauseMenu)window.returnToBattlePauseMenu();
-      openAdminPanel();
+      // hiddenクラスだけで閉じると special-code-open が残り、
+      // 武器選択前の描画画面までCSSで隠れてしまう。専用の終了処理で
+      // 入力レイヤー・キャンバス操作・bodyクラスをまとめて元に戻す。
+      if (typeof window.closeSpecialCodeBox === "function") {
+        window.closeSpecialCodeBox();
+      } else {
+        codeBox.classList.add("hidden");
+        document.body.classList.remove("special-code-open");
+      }
+      if(window.gameSavePaused&&currentScreen==="game"&&window.returnToBattlePauseMenu)window.returnToBattlePauseMenu();
       codeInput.value = "";
       codeMsg.textContent = "";
+      openAdminPanel();
       msg.textContent = "👑 管理者パネルを解放しました！";
     } else {
       codeMsg.textContent = "❌ コードが違います";

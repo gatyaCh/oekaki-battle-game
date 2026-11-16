@@ -6887,6 +6887,7 @@ function retryFromGameOver() {
 }
 
 function resetGame() {
+  if (typeof step2Mode !== "undefined") step2Mode.active = false;
   drawAccuracyScore = 0; drawHpBonus = 0; drawAttackBonus = 0; drawBonusPending = false;
   tutorialActive = false;
   tutorialPhase = "battle";
@@ -12834,8 +12835,6 @@ function updateStep2Mode(){
   if(keys[String(ck.down||"s").toLowerCase()])dy++;
   if(keys[String(ck.left||"a").toLowerCase()])dx--;
   if(keys[String(ck.right||"d").toLowerCase()])dx++;
-  const mobileStick=document.getElementById("moveStick");
-  if(deviceMode==="mobile"&&mobileStick&&window.mobileMoveVector){dx+=Number(window.mobileMoveVector.x)||0;dy+=Number(window.mobileMoveVector.y)||0;}
   const len=Math.hypot(dx,dy)||1;
   let speed=3.2*(1+upgradeLevels.speed*0.05)*(slowDebuffTimer>0?0.8:1);
   if(cfg.kind==="jupiter"&&step2Mode.windBurst>0)speed*=0.12;
@@ -12883,10 +12882,16 @@ function updateStep2Mode(){
   });
   step2Mode.hazards=step2Mode.hazards.filter(h=>h.life>0);
   step2Mode.pits=step2Mode.pits.filter(h=>{if(Math.hypot(p.x-h.x,p.y-h.y)<h.r+p.r){slowDebuffTimer=Math.max(slowDebuffTimer,10);return false;}return true;});
-  step2Mode.bullets.forEach(b=>{b.x+=b.vx;b.y+=b.vy;if(Math.hypot(p.x-b.x,p.y-b.y)<p.r+13){damagePlayer(b.damage);if(b.slow)slowDebuffTimer=Math.max(slowDebuffTimer,5);b.dead=true;}});
+  step2Mode.bullets.forEach(b=>{
+    b.x+=b.vx;b.y+=b.vy;
+    if(b.player){
+      if(Math.hypot(enemy.x-b.x,enemy.y-b.y)<enemy.r+12){damageEnemy(b.damage);b.dead=true;}
+      else{const target=minions.find(m=>m.hp>0&&Math.hypot(m.x-b.x,m.y-b.y)<m.r+12);if(target){damageMinion(target,b.damage);b.dead=true;}}
+    }else if(Math.hypot(p.x-b.x,p.y-b.y)<p.r+13){damagePlayer(b.damage);if(b.slow)slowDebuffTimer=Math.max(slowDebuffTimer,5);b.dead=true;}
+  });
   step2Mode.bullets=step2Mode.bullets.filter(b=>!b.dead&&b.x>-30&&b.x<CANVAS_WIDTH+30&&b.y>-30&&b.y<CANVAS_HEIGHT+30);
   if(enemy.hp<=0){enemy.hp=0;nextStage();return;}
-  if(p.hp<=0){p.hp=0;gameOver=true;showResult(false);return;}
+  if(p.hp<=0){p.hp=0;gameOver=true;step2Mode.active=false;showResult(false);return;}
   document.getElementById("hp").textContent=Math.floor(p.hp);
   document.getElementById("maxHpText").textContent=Math.floor(p.max);
   document.getElementById("ehp").textContent=Math.floor(enemy.hp);
@@ -12897,13 +12902,14 @@ function attackStep2Mode(){
   const range=weapon==="🚙"?118:weapon==="⚔️"?72+charge/2:90;
   const hit=(x,y)=>Math.hypot(p.x-x,p.y-y)<range;
   let did=false;
-  minions.forEach(m=>{if(m.hp>0&&hit(m.x,m.y)){damageMinion(m,damage);did=true;}});
-  if(hit(enemy.x,enemy.y)){damageEnemy(damage);did=true;}
   if(weapon==="🏹"||weapon==="🚙"){
     const dx=mouse.x-p.x,dy=mouse.y-p.y,d=Math.hypot(dx,dy)||1;
     step2Mode.bullets.push({x:p.x,y:p.y,vx:dx/d*8,vy:dy/d*8,emoji:weapon==="🏹"?"🏹":"🚙",damage,player:true});
+    if(weapon==="🚙")dashTimer=18;
+  }else{
+    minions.forEach(m=>{if(m.hp>0&&hit(m.x,m.y)){damageMinion(m,damage);did=true;}});
+    if(hit(enemy.x,enemy.y)){damageEnemy(damage);did=true;}
   }
-  if(weapon==="🚙")dashTimer=18;
   attackCooldown=window.adminNoCooldown?0:0.3;
   if(did)msg.textContent="攻撃！";
 }

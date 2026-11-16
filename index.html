@@ -11858,6 +11858,61 @@ $("s15Exit").addEventListener("click",back);$("s15Back").addEventListener("click
  $("storyWorld2IntroSkip").addEventListener("click",finish);
 })();
 </script>
+
+<style id="special-code-layout-fix-v28">
+/* V28: スペシャルコード画面の4パネルが760px内に押し込まれないよう修正 */
+#specialCodeBox .special-code-layout{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  align-items:stretch !important;
+  justify-content:center !important;
+  gap:18px !important;
+  width:min(1320px,96vw) !important;
+  max-width:min(1320px,96vw) !important;
+  margin:30px auto 0 !important;
+  box-sizing:border-box !important;
+}
+#specialCodeBox .special-code-input-panel,
+#specialCodeBox .public-special-code-panel{
+  box-sizing:border-box !important;
+  flex:1 1 250px !important;
+  width:auto !important;
+  min-width:250px !important;
+  max-width:320px !important;
+  overflow-wrap:anywhere !important;
+}
+#specialCodeBox .special-code-input-panel{
+  flex:1 1 250px !important;
+  min-width:250px !important;
+  overflow:visible !important;
+}
+#specialCodeBox #specialCodeInput{
+  display:block !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+}
+@media(max-width:700px){
+  #specialCodeBox .special-code-layout{
+    flex-direction:column !important;
+    flex-wrap:nowrap !important;
+    align-items:center !important;
+    width:100% !important;
+    max-width:100% !important;
+    gap:14px !important;
+    margin-top:15px !important;
+  }
+  #specialCodeBox .special-code-input-panel,
+  #specialCodeBox .public-special-code-panel{
+    flex:0 1 auto !important;
+    width:min(92vw,420px) !important;
+    min-width:0 !important;
+    max-width:420px !important;
+  }
+}
+</style>
+
 </body>
 </html>
 
@@ -12788,7 +12843,10 @@ function setupStep2Stage(n){
   p.x=100;p.y=250;p.hp=p.max;
   enemyBullets=[];magmaZones=[];boxes=[];dmgText=[];
   treasureChest={x:450,y:250,opened:false,progress:0,maxProgress:100,r:20};
-  setStageObstacles(1);
+  // STEP 2は専用の惑星フィールド。通常ステージ1の障害物データを
+  // 読み込むと、描画されない障害物だけが残って透明な壁になるため、
+  // STEP 2の各ステージでは通常マップの障害物判定を使わない。
+  obstacles=[];
   document.getElementById("stageLabel").textContent=cfg.name;
   document.getElementById("ehp").textContent=cfg.hp;
   document.getElementById("hp").textContent=Math.floor(p.hp);

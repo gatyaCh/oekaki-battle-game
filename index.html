@@ -12820,6 +12820,13 @@ function step2Move(obj,dx,dy,r){
   if(!positionBlocked(nx,obj.y,r))obj.x=nx;
   if(!positionBlocked(obj.x,ny,r))obj.y=ny;
 }
+function step2DotDamage(amount){
+  if(p.invincibility>0||shieldActive||ghost||admin.invincible||admin.god)return;
+  const actual=Math.max(0,Math.min(p.hp,Number(amount)||0));
+  p.hp-=actual;totalDamageTaken+=actual;
+  if(window.halloweenEffects&&window.halloweenEffects.bat>0)p.hp=Math.min(p.max,p.hp+actual*0.3);
+  p.invincibility=0;
+}
 function step2Fire(x,y,emoji,damage,speed,slow){
   const dx=p.x-x,dy=p.y-y,d=Math.hypot(dx,dy)||1;
   step2Mode.bullets.push({x,y,vx:dx/d*speed,vy:dy/d*speed,emoji,damage,slow});
@@ -12835,6 +12842,7 @@ function updateStep2Mode(){
   if(keys[String(ck.down||"s").toLowerCase()])dy++;
   if(keys[String(ck.left||"a").toLowerCase()])dx--;
   if(keys[String(ck.right||"d").toLowerCase()])dx++;
+  if(deviceMode==="mobile"){if(keys.arrowup)dy--;if(keys.arrowdown)dy++;if(keys.arrowleft)dx--;if(keys.arrowright)dx++;}
   const len=Math.hypot(dx,dy)||1;
   let speed=3.2*(1+upgradeLevels.speed*0.05)*(slowDebuffTimer>0?0.8:1);
   if(cfg.kind==="jupiter"&&step2Mode.windBurst>0)speed*=0.12;
@@ -12853,13 +12861,19 @@ function updateStep2Mode(){
       m.shot+=dt;const interval=cfg.kind==="mars"?0.8:0.4;
       if(m.shot>=interval){m.shot=0;step2Fire(m.x,m.y,"🔴",cfg.kind==="mars"?10:7,4,false);}
     }else{
-      step2Move(m,(p.x-m.x)/d*1.05,(p.y-m.y)/d*1.05,m.r);
+      let mx=(p.x-m.x)/d*1.05,my=(p.y-m.y)/d*1.05;
+      if(cfg.kind==="jupiter"&&step2Mode.windBurst>0){mx*=0.12;my*=0.12;step2Move(m,step2Mode.windX*2.2,step2Mode.windY*2.2,m.r);}
+      step2Move(m,mx,my,m.r);
       m.cool+=dt;if(d<48&&m.cool>=0.5){m.cool=0;damagePlayer(10);}
     }
   });
   // ボスの基本移動と近接攻撃。
   const bd=Math.hypot(p.x-enemy.x,p.y-enemy.y)||1;
-  if(cfg.kind!=="mars")step2Move(enemy,(p.x-enemy.x)/bd*0.75,(p.y-enemy.y)/bd*0.75,enemy.r);
+  if(cfg.kind!=="mars"){
+    const windFactor=cfg.kind==="jupiter"&&step2Mode.windBurst>0?0.12:1;
+    step2Move(enemy,(p.x-enemy.x)/bd*0.75*windFactor,(p.y-enemy.y)/bd*0.75*windFactor,enemy.r);
+    if(cfg.kind==="jupiter"&&step2Mode.windBurst>0)step2Move(enemy,step2Mode.windX*2.6,step2Mode.windY*2.6,enemy.r);
+  }
   step2Mode.bossAttack+=dt;
   if(cfg.kind==="moon"&&step2Mode.bossAttack>=0.5&&bd<62){step2Mode.bossAttack=0;damagePlayer(20);}
   if(cfg.kind==="mars"){
@@ -12877,8 +12891,8 @@ function updateStep2Mode(){
     step2Mode.pits.push({x:enemy.x,y:enemy.y,r:22,emoji:"🕳️"});
   }
   step2Mode.hazards.forEach(h=>{
-    h.life-=dt;if(h.kind==="🔥"&&Math.hypot(p.x-h.x,p.y-h.y)<h.r){h.cool=(h.cool||0)+dt;if(h.cool>=0.3){h.cool=0;damagePlayer(5);}}
-    if(h.kind==="🌋"&&Math.hypot(p.x-h.x,p.y-h.y)<h.r){h.cool=(h.cool||0)+dt;if(h.cool>=0.4){h.cool=0;damagePlayer(5);}}
+    h.life-=dt;if(h.kind==="🔥"&&Math.hypot(p.x-h.x,p.y-h.y)<h.r){h.cool=(h.cool||0)+dt;if(h.cool>=0.3){h.cool=0;step2DotDamage(5);}}
+    if(h.kind==="🌋"&&Math.hypot(p.x-h.x,p.y-h.y)<h.r){h.cool=(h.cool||0)+dt;if(h.cool>=0.4){h.cool=0;step2DotDamage(5);}}
   });
   step2Mode.hazards=step2Mode.hazards.filter(h=>h.life>0);
   step2Mode.pits=step2Mode.pits.filter(h=>{if(Math.hypot(p.x-h.x,p.y-h.y)<h.r+p.r){slowDebuffTimer=Math.max(slowDebuffTimer,10);return false;}return true;});

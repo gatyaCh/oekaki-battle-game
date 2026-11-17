@@ -60,6 +60,15 @@ button:disabled { opacity: 0.5; cursor: not-allowed; background: #222; }
 #gearBtn { position: absolute; right: 8px; top: 8px; font-size: 24px; padding: 6px; }
 #hushBtn { position: fixed; right: 54px; top: 8px; font-size: 24px; padding: 6px; z-index: 310; }
 #achievementLockBtn { position: fixed; right: 146px; top: 8px; font-size: 24px; padding: 6px; z-index: 310; }
+#christmasRewardBtn { position: fixed; right: 192px; top: 8px; font-size: 24px; padding: 6px; z-index: 310; filter: grayscale(1); opacity: .72; }
+#christmasRewardPanel { position:fixed; inset:0; z-index:1000002; background:rgba(5,10,20,.94); color:#fff; padding:clamp(16px,4vw,32px); overflow:auto; box-sizing:border-box; }
+#christmasRewardPanel.hidden { display:none !important; }
+#christmasRewardPanel .christmas-reward-inner { width:min(760px,100%); margin:0 auto; text-align:center; }
+#christmasRewardPanel .christmas-reward-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; margin:22px auto; }
+#christmasRewardPanel .christmas-reward-slot { min-height:92px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; border:2px solid #687080; border-radius:12px; background:linear-gradient(145deg,#555b66,#303641); color:#d1d5db; font-weight:900; }
+#christmasRewardPanel .christmas-reward-slot b { font-size:28px; color:#e5e7eb; }
+#christmasRewardPanel .christmas-reward-slot span { font-size:12px; }
+@media(max-width:520px){#christmasRewardPanel .christmas-reward-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}#christmasRewardPanel .christmas-reward-slot{min-height:76px}}
 #rankPointBtn { display: none; position: fixed; right: 100px; top: 8px; font-size: 24px; padding: 6px; z-index: 310; }
 #achievementLockNotice { position: fixed; right: 146px; top: 52px; z-index: 320; background: #292929; border: 1px solid #777; border-radius: 8px; padding: 8px 12px; color: #fff; font-size: 14px; box-shadow: 0 3px 12px #0008; }
 #rankPointOverlay { position:fixed; inset:0; z-index:10050; background:rgba(0,0,0,.94); color:#fff; padding:20px; overflow:auto; }
@@ -4518,7 +4527,9 @@ body {
 </div>
 <button id="hushBtn" title="スペシャルコード">🤫</button>
 
+<button id="christmasRewardBtn" type="button" title="毎日報酬（準備中）" aria-label="毎日報酬（準備中）" style="display:none;visibility:hidden;pointer-events:none" disabled>🎄</button>
 <button id="achievementLockBtn" type="button" title="実績機能" aria-label="実績機能（ロック中）" style="display:none;visibility:hidden;pointer-events:none" disabled>🏆️</button>
+<div id="christmasRewardPanel" class="hidden" role="dialog" aria-modal="true" aria-labelledby="christmasRewardTitle"><div class="christmas-reward-inner"><h2 id="christmasRewardTitle">🎄 毎日報酬</h2><p>報酬はまだ公開されていません。</p><div class="christmas-reward-grid"><div class="christmas-reward-slot" aria-label="1日目の報酬：未公開"><b>？</b><span>1日目</span></div><div class="christmas-reward-slot" aria-label="2日目の報酬：未公開"><b>？</b><span>2日目</span></div><div class="christmas-reward-slot" aria-label="3日目の報酬：未公開"><b>？</b><span>3日目</span></div><div class="christmas-reward-slot" aria-label="4日目の報酬：未公開"><b>？</b><span>4日目</span></div><div class="christmas-reward-slot" aria-label="5日目の報酬：未公開"><b>？</b><span>5日目</span></div><div class="christmas-reward-slot" aria-label="6日目の報酬：未公開"><b>？</b><span>6日目</span></div><div class="christmas-reward-slot" aria-label="7日目の報酬：未公開"><b>？</b><span>7日目</span></div><div class="christmas-reward-slot" aria-label="8日目の報酬：未公開"><b>？</b><span>8日目</span></div><div class="christmas-reward-slot" aria-label="9日目の報酬：未公開"><b>？</b><span>9日目</span></div><div class="christmas-reward-slot" aria-label="10日目の報酬：未公開"><b>？</b><span>10日目</span></div><div class="christmas-reward-slot" aria-label="11日目の報酬：未公開"><b>？</b><span>11日目</span></div><div class="christmas-reward-slot" aria-label="12日目の報酬：未公開"><b>？</b><span>12日目</span></div><div class="christmas-reward-slot" aria-label="13日目の報酬：未公開"><b>？</b><span>13日目</span></div><div class="christmas-reward-slot" aria-label="14日目の報酬：未公開"><b>？</b><span>14日目</span></div><div class="christmas-reward-slot" aria-label="15日目の報酬：未公開"><b>？</b><span>15日目</span></div></div><button id="christmasRewardCloseBtn" type="button">閉じる</button></div></div>
 <div id="achievementLockNotice" class="hidden" role="status">🔒 ロックされています</div>
 <div id="rankPointOverlay" class="hidden" role="dialog" aria-modal="true" aria-label="ランク・ポイント表">
   <section id="rankPointView">
@@ -4970,6 +4981,7 @@ function syncScreenVisibility() {
   const gearBtn = document.getElementById("gearBtn");
   const hushBtn = document.getElementById("hushBtn");
   const achievementLockBtn = document.getElementById("achievementLockBtn");
+  const christmasRewardBtn = document.getElementById("christmasRewardBtn");
   const achievementLockNotice = document.getElementById("achievementLockNotice");
   const rankPointBtn = document.getElementById("rankPointBtn");
   const specialCodeBox = document.getElementById("specialCodeBox");
@@ -4996,6 +5008,12 @@ function syncScreenVisibility() {
   const drawScreen = document.getElementById("draw");
   const drawScreenActuallyVisible = !!drawScreen && !drawScreen.classList.contains("hidden") && getComputedStyle(drawScreen).display !== "none";
   const showAchievementButton = currentScreen === "draw" && drawScreenActuallyVisible && !selectionOverlayOpen;
+  if (christmasRewardBtn) {
+    christmasRewardBtn.style.display = showAchievementButton ? "block" : "none";
+    christmasRewardBtn.style.visibility = showAchievementButton ? "visible" : "hidden";
+    christmasRewardBtn.style.pointerEvents = showAchievementButton ? "auto" : "none";
+    christmasRewardBtn.disabled = !showAchievementButton;
+  }
   if (achievementLockBtn) {
     achievementLockBtn.style.display = showAchievementButton ? "block" : "none";
     achievementLockBtn.style.visibility = showAchievementButton ? "visible" : "hidden";
@@ -11961,6 +11979,19 @@ body.step2-admin-enabled #adminPanel{
   pointer-events:auto !important;
 }
 </style>
+
+
+<script id="christmas-daily-reward-placeholder">
+(function(){
+  const button=document.getElementById("christmasRewardBtn");
+  const panel=document.getElementById("christmasRewardPanel");
+  const close=document.getElementById("christmasRewardCloseBtn");
+  if(button&&panel)button.addEventListener("click",()=>panel.classList.remove("hidden"));
+  if(close&&panel)close.addEventListener("click",()=>panel.classList.add("hidden"));
+  if(panel)panel.addEventListener("click",e=>{if(e.target===panel)panel.classList.add("hidden");});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&panel)panel.classList.add("hidden");});
+})();
+</script>
 
 </body>
 </html>

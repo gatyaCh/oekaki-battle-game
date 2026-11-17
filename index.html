@@ -6542,6 +6542,8 @@ function fireWandMagic() {
   msg.textContent="🪄 拡散弾20発！追尾弾："+homingCount+"発";
 }
 function attack() {
+  // STEP 2では専用処理へ確実に接続し、通常武器・飛び道具を同じ更新系で処理する。
+  if (step2Mode.active) { attackStep2Mode(); return; }
   // STEP 1・STEP 2共通：武器ごとの既存攻撃処理をそのまま使用する。
   // 管理者パネルが閉じているのに入力フラグだけ残った場合は解除し、通常攻撃を妨げない。
   if (window.adminPanelInteracting) {
@@ -10651,7 +10653,7 @@ body.mobile-mode #battlePickupNotice {
       }
       return;
     }
-    if(String(id).startsWith("🛰️:")){const key=String(id).slice(3);if(step2Items.some(x=>x.id===key))inv.step2[key]=(inv.step2[key]||0)+1;return "🛰️ボックスのアイテムをアイテム保管庫に追加！";}
+    if(String(id).startsWith("🛰️:")){const key=String(id).slice(4);if(step2Items.some(x=>x.id===key))inv.step2[key]=(inv.step2[key]||0)+1;return "🛰️ボックスのアイテムをアイテム保管庫に追加！";}
     if(normalItems.some(x=>x.id===id))inv.normal[id]=(inv.normal[id]||0)+1;
   };
   function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}

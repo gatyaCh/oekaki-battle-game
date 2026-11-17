@@ -10595,6 +10595,14 @@ body.mobile-mode #battlePickupNotice {
     {id:"⚡️",name:"⚡️ 雷撃",desc:"敵に最大HPの5%ダメージ"},
     {id:"tripleGatling",name:"🔫 トリプルガトリング【激レア・出現率0.3%】",desc:"プレイヤーの周囲に3基設置。5秒間、自動攻撃（1発2ダメージ）"}
   ];
+  const step2Items=[
+    {id:"酸素ボンベ",name:"🧪 酸素ボンベ",desc:"HPを75回復"},
+    {id:"ロケット",name:"🚀 ロケット",desc:"7秒間、移動スピード3倍"},
+    {id:"無重力",name:"🫧 無重力",desc:"5秒間、敵の動きを停止"},
+    {id:"UFO",name:"🛸 UFO",desc:"3体のUFOが5秒間ビーム攻撃"},
+    {id:"ブラックホール",name:"🌀 ブラックホール",desc:"3秒間、0.3秒ごとに5ダメージ＋引き寄せ"},
+    {id:"銀河",name:"🌌 銀河",desc:"5秒間、攻撃・弾幕を反射"}
+  ];
   const halloweenItems=[
     {id:"horse",name:"👻 ゴーストライダー",desc:"5秒間、速度2.3倍・障害物すり抜け"},
     {id:"candy",name:"🍬 キャンディー",desc:"4秒間、攻撃・速度1.8倍"},
@@ -10608,7 +10616,8 @@ body.mobile-mode #battlePickupNotice {
   function inventory(){
     if(!window.gameItemInventory)window.gameItemInventory={normal:{},halloween:{}};
     const inv=window.gameItemInventory;
-    if(!inv.normal)inv.normal={};if(!inv.halloween)inv.halloween={};
+    if(!inv.normal)inv.normal={};if(!inv.halloween)inv.halloween={};if(!inv.step2)inv.step2={};
+    step2Items.forEach(x=>{if(!Number.isFinite(inv.step2[x.id]))inv.step2[x.id]=0});
     normalItems.forEach(x=>{if(!Number.isFinite(inv.normal[x.id]))inv.normal[x.id]=0});
     [...halloweenItems,{id:"potion",name:"potion"}].forEach(x=>{if(!Number.isFinite(inv.halloween[x.id]))inv.halloween[x.id]=0});
     // 旧バージョンで保管庫に残っていた毒薬の項目も表示・保持しない。
@@ -10642,6 +10651,7 @@ body.mobile-mode #battlePickupNotice {
       }
       return;
     }
+    if(String(id).startsWith("🛰️:")){const key=String(id).slice(3);if(step2Items.some(x=>x.id===key))inv.step2[key]=(inv.step2[key]||0)+1;return "🛰️ボックスのアイテムをアイテム保管庫に追加！";}
     if(normalItems.some(x=>x.id===id))inv.normal[id]=(inv.normal[id]||0)+1;
   };
   function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
@@ -10654,15 +10664,17 @@ body.mobile-mode #battlePickupNotice {
   }
   function render(){
     inventory();
-    title.textContent=tab==="normal"?"🗄️ 通常アイテム":"🎃 ハロウィンボックス";
-    subtitle.textContent=tab==="normal"?"所持数を確認して、使いたいアイテムを選んでね。":"🎃ボックスの景品一覧。魔女の回復薬は抽選された種類ごとに表示するよ。";
+    title.textContent=tab==="normal"?"🗄️ 通常アイテム":tab==="halloween"?"🎃 ハロウィンボックス":"🛰️ ボックス";
+    subtitle.textContent=tab==="normal"?"所持数を確認して、使いたいアイテムを選んでね。":tab==="halloween"?"🎃ボックスの景品一覧。魔女の回復薬は抽選された種類ごとに表示するよ。":(step2Mode.active?"STEP 2で使えるアイテムだよ。":"STEP 2に入ると使用できるよ。");
     if(tab==="normal"){
       itemsNode.innerHTML=normalItems.map(x=>row(x,false)).join("");
-    }else{
+    }else if(tab==="halloween"){
       const main='<div class="game-inventory-row"><div class="game-inventory-name"><strong>🧙 魔女の回復薬</strong><small>大回復薬30%・小回復薬50%・毒20%（毒は引いた瞬間に発動）</small><small>保管庫の回復薬：'+totalPotion()+'個</small></div><span>↓</span></div>';
       itemsNode.innerHTML=main+halloweenItems.map(x=>row(x,!!x.sub)).join("");
+    }else{
+      itemsNode.innerHTML=step2Items.map(x=>row(x,false)).join("");
     }
-    footer.innerHTML='<button id="gameInventoryPrevBtn" '+(tab==="normal"?'disabled':'')+'>←</button><button id="gameInventoryNextBtn" '+(tab==="halloween"?'disabled':'')+'>→</button><button id="gameInventoryCloseBtn">閉じる（戦闘再開）</button>';
+    footer.innerHTML='<button id="gameInventoryPrevBtn" '+(tab==="normal"?'disabled':'')+'>←</button><button id="gameInventoryNextBtn" '+(tab==="step2"?'disabled':'')+'>→</button><button id="gameInventoryCloseBtn">閉じる（戦闘再開）</button>';
   }
   function showInventory(){window.gameSavePaused=true;pendingUses=[];tab="normal";render();overlay.classList.remove("hidden");}window.openGameInventory=showInventory;window.openBattleInventoryFromPause=function(){if(currentScreen!=="game"||!window.gameSavePaused)return;inventoryOpenedFromPause=true;showInventory();};
   function showUsedNotice(name){
@@ -10677,6 +10689,11 @@ body.mobile-mode #battlePickupNotice {
     let key=id,bag=tab==="normal"?inv.normal:inv.halloween;
     if(tab==="halloween"&&id==="potionLarge")key="potionLarge";
     if(tab==="halloween"&&id==="potionSmall")key="potionSmall";
+    if(tab==="step2"){
+      if(!step2Mode.active){if(typeof msg!=="undefined")msg.textContent="⚠️ STEP 2プレイ中に使用できるアイテムだよ。";return;}
+      if(!Number.isFinite(inv.step2[id])||inv.step2[id]<1)return;
+      inv.step2[id]--;step2Mode.inventory=id;step2UseItem();render();return;
+    }
     if(!Number.isFinite(bag[key])||bag[key]<1)return;
     if(id==="🗿"&&revive)return;
     bag[key]--;
@@ -10757,8 +10774,8 @@ body.mobile-mode #battlePickupNotice {
   });
   overlay.addEventListener("click",e=>{
     const b=e.target.closest("button");if(!b)return;
-    if(b.id==="gameInventoryNextBtn"){tab="halloween";render();return;}
-    if(b.id==="gameInventoryPrevBtn"){tab="normal";render();return;}
+    if(b.id==="gameInventoryNextBtn"){tab=tab==="normal"?"halloween":"step2";render();return;}
+    if(b.id==="gameInventoryPrevBtn"){tab=tab==="step2"?"halloween":"normal";render();return;}
     if(b.id==="gameInventoryCloseBtn"){startCountdown();return;}
     if(b.id==="gameInventoryNoticeClose"){render();return;}
     if(b.dataset.useItem){useItem(b.dataset.useItem);return;}
@@ -13007,7 +13024,7 @@ function updateStep2Mode(){
   step2Mode.boxes.forEach(b=>{if(!b.active)return;if(Math.hypot(p.x-b.x,p.y-b.y)<p.r+22){
     const pool=[["酸素ボンベ",50],["ロケット",30],["無重力",10],["UFO",6],["ブラックホール",3],["銀河",1]];
     let roll=Math.random()*100,got=pool[0][0];for(const [name,rate] of pool){roll-=rate;if(roll<0){got=name;break;}}
-    step2Mode.inventory=got;b.active=false;b.cooldown=20;msg.textContent="🛰️ "+got+"を獲得！下のアイテムボタンで使用できるよ。";
+    if(typeof window.addInventoryItem==="function")window.addInventoryItem("🛰️:"+got);b.active=false;b.cooldown=20;msg.textContent="🛰️ "+got+"を獲得！アイテム保管庫の「🛰️ ボックス」に追加したよ！";
   }});
   // 子分：月・水星は接近、火星・木星は固定砲台。
   minions.forEach(m=>{

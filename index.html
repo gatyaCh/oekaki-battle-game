@@ -4883,6 +4883,7 @@ body {
     <button type="button" data-step2="4">☠ 4：木星</button>
     <button id="admRates">🎁 アイテム確率変更</button>
     <button id="admBoxCount">📦 ボックス数変更</button>
+    <button id="admStep2Boxes" style="border-color:#7dd3fc;color:#bae6fd;">🛰️ STEP 2ボックス召喚</button>
     <hr style="margin: 4px 0;">
     <div style="padding:6px 4px; border:1px solid #666; border-radius:6px; margin:4px 0; background:#181818;">
       <b style="display:block; color:#ffd700; margin-bottom:5px;">🔑 すべてのコード</b>
@@ -8848,6 +8849,11 @@ loop();
     }
     const rows = document.getElementById("adminRateRows");
     rows.innerHTML = Object.entries(window.itemRates).map(([item, rate]) => `<label style="display:block;margin:5px 0">${item} <input data-item="${item}" type="text" value="${rate}" style="width:70px"> %</label>`).join("") + `<hr><label style="display:block;margin:5px 0">🔫 トリプルガトリング（激レア） <input data-item="__tripleGatlingRate" type="text" value="${Number(window.tripleGatlingRate ?? 0.3)}" style="width:70px"> %</label><small>※独立抽選。通常アイテムの確率とは別に設定できます（0〜100%）。</small>`;
+  };
+  document.getElementById("admStep2Boxes").onclick = () => {
+    if(!step2Mode.active){msg.textContent="⚠️ STEP 2プレイ中だけ召喚できます。";return;}
+    step2Mode.boxes.forEach(b=>{b.active=true;b.cooldown=0;});
+    msg.textContent="🛰️ STEP 2ボックスを3か所に召喚しました！";
   };
   document.getElementById("admBoxCount").onclick = () => {
     const input = prompt("ドロップボックス数を設定（1〜10）", window.adminBoxCount);
@@ -12869,6 +12875,7 @@ window.addEventListener("beforeunload",()=>{clearInterval(interval);scheduled.fo
 const step2Mode = {
   active:false, index:1, elapsed:0, windTimer:0, windBurst:0, bossAttack:0, rangedTimer:0,
   pits:[], hazards:[], bullets:[], craters:[], windX:0, windY:0, windDirTimer:0,
+  boxes:[], inventory:null, itemCooldowns:{}, effects:{rocket:0,gravity:0,blackhole:0,galaxy:0,ufo:0},
   stages:[
     {name:"🌙 STEP 2-1：月",boss:"🌙",hp:1600,minionHp:320,count:4,kind:"moon",bg:"#777b86"},
     {name:"👽 STEP 2-2：火星",boss:"👽",hp:1700,minionHp:357,count:4,kind:"mars",bg:"#a33b25"},
@@ -12880,6 +12887,10 @@ function setupStep2Stage(n){
   const cfg=step2Mode.stages[n-1]; step2Mode.index=n; stage=n;
   step2Mode.elapsed=0;step2Mode.windTimer=0;step2Mode.windBurst=0;step2Mode.bossAttack=0;step2Mode.rangedTimer=0;
   step2Mode.pits=[];step2Mode.hazards=[];step2Mode.bullets=[];step2Mode.windDirTimer=0;
+  // STEP 2専用🛰️ボックス。障害物と敵の初期位置を避けた3地点。
+  step2Mode.boxes=[{x:270,y:80,active:true,cooldown:0},{x:470,y:420,active:true,cooldown:0},{x:830,y:420,active:true,cooldown:0}];
+  step2Mode.inventory=null;step2Mode.itemCooldowns={};step2Mode.effects={rocket:0,gravity:0,blackhole:0,galaxy:0,ufo:0};step2Mode.ufoTimer=0;step2Mode.blackholeTick=0;
+  step2EnsureItemButton();
   // 月・水星のクレーターは通過可能な減速エリア。火星の山だけ通常障害物として衝突する。
   const step2ObstacleLayout=[
     {x:150,y:145,w:50,h:50},{x:350,y:105,w:50,h:50},{x:580,y:75,w:50,h:50},
@@ -12949,6 +12960,10 @@ function step2Fire(x,y,emoji,damage,speed,slow){
 function updateStep2Mode(){
   if(window.gameSavePaused||currentScreen!=="game"||gameOver||stageClear)return;
   const dt=1/60,cfg=step2Mode.stages[step2Mode.index-1];step2Mode.elapsed+=dt;
+  step2Mode.boxes.forEach(b=>{if(!b.active){b.cooldown=Math.max(0,b.cooldown-dt);if(b.cooldown<=0)b.active=true;}});
+  for(const k of Object.keys(step2Mode.effects))step2Mode.effects[k]=Math.max(0,step2Mode.effects[k]-dt);
+  if(step2Mode.effects.blackhole>0){step2Mode.blackholeTick+=dt;if(step2Mode.blackholeTick>=0.3){step2Mode.blackholeTick-=0.3;[enemy,...minions].forEach(t=>{if(t.hp<=0)return;const d=Math.hypot(p.x-t.x,p.y-t.y)||1;if(t===enemy)damageEnemy(5);else damageMinion(t,5);t.x+=(p.x-t.x)/d*5;t.y+=(p.y-t.y)/d*5;});}}
+  if(step2Mode.effects.ufo>0){step2Mode.ufoTimer+=dt;if(step2Mode.ufoTimer>=1){step2Mode.ufoTimer=0;const targets=[enemy,...minions].filter(t=>t.hp>0).slice(0,3);targets.forEach(t=>{if(t===enemy)damageEnemy(6);else damageMinion(t,6);});}}
   if(attackCooldown>0)attackCooldown=Math.max(0,attackCooldown-dt);
   if(p.invincibility>0)p.invincibility-=dt;
   if(slowDebuffTimer>0)slowDebuffTimer=Math.max(0,slowDebuffTimer-dt);
@@ -12963,7 +12978,7 @@ function updateStep2Mode(){
     const cx=o.x+o.w/2,cy=o.y+o.h/2;
     return Math.hypot(p.x-cx,p.y-cy)<Math.max(o.w,o.h)/2+p.r;
   });
-  let speed=3.2*(1+upgradeLevels.speed*0.05)*(slowDebuffTimer>0?0.8:1)*(onCrater?0.7:1);
+  let speed=3.2*(1+upgradeLevels.speed*0.05)*(slowDebuffTimer>0?0.8:1)*(onCrater?0.7:1)*(step2Mode.effects.rocket>0?3:1);
   if(cfg.kind==="jupiter"&&step2Mode.windBurst>0)speed*=0.12;
   step2Move(p,dx/len*speed,dy/len*speed,p.r);
   if(cfg.kind==="jupiter"){
@@ -12988,9 +13003,16 @@ function updateStep2Mode(){
       step2Move(p,step2Mode.windX*3.4,step2Mode.windY*3.4,p.r);
     }
   }
+  // 🛰️接触したボックスだけ消え、20秒後に同じ場所へ復活。
+  step2Mode.boxes.forEach(b=>{if(!b.active)return;if(Math.hypot(p.x-b.x,p.y-b.y)<p.r+22){
+    const pool=[["酸素ボンベ",50],["ロケット",30],["無重力",10],["UFO",6],["ブラックホール",3],["銀河",1]];
+    let roll=Math.random()*100,got=pool[0][0];for(const [name,rate] of pool){roll-=rate;if(roll<0){got=name;break;}}
+    step2Mode.inventory=got;b.active=false;b.cooldown=20;msg.textContent="🛰️ "+got+"を獲得！下のアイテムボタンで使用できるよ。";
+  }});
   // 子分：月・水星は接近、火星・木星は固定砲台。
   minions.forEach(m=>{
     if(m.hp<=0)return;
+    if(step2Mode.effects.gravity>0)return;
     const d=Math.hypot(p.x-m.x,p.y-m.y)||1;
     if(m.type==="step2_turret"){
       m.shot+=dt;const interval=cfg.kind==="mars"?0.8:0.4;
@@ -13004,7 +13026,7 @@ function updateStep2Mode(){
   });
   // ボスの基本移動と近接攻撃。
   const bd=Math.hypot(p.x-enemy.x,p.y-enemy.y)||1;
-  if(cfg.kind!=="mars"){
+  if(cfg.kind!=="mars"&&step2Mode.effects.gravity<=0){
     const windFactor=cfg.kind==="jupiter"&&step2Mode.windBurst>0?0.12:1;
     step2Move(enemy,(p.x-enemy.x)/bd*0.75*windFactor,(p.y-enemy.y)/bd*0.75*windFactor,enemy.r);
     if(cfg.kind==="jupiter"&&step2Mode.windBurst>0)step2Move(enemy,step2Mode.windX*2.6,step2Mode.windY*2.6,enemy.r);
@@ -13042,6 +13064,7 @@ function updateStep2Mode(){
     if(b.x<-30||b.x>CANVAS_WIDTH+30||b.y<-30||b.y>CANVAS_HEIGHT+30)enemyBullets.splice(i,1);
   }
   step2Mode.bullets.forEach(b=>{
+    if(step2Mode.effects.galaxy>0&&!b.player){b.vx=-b.vx;b.vy=-b.vy;b.player=true;b.damage=b.damage||10;b.emoji="✨";}
     b.x+=b.vx;b.y+=b.vy;
     if(b.player){
       if(Math.hypot(enemy.x-b.x,enemy.y-b.y)<enemy.r+20){damageEnemy(b.damage);b.dead=true;}
@@ -13049,8 +13072,11 @@ function updateStep2Mode(){
     }else if(Math.hypot(p.x-b.x,p.y-b.y)<p.r+13){damagePlayer(b.damage);if(b.slow)slowDebuffTimer=Math.max(slowDebuffTimer,5);b.dead=true;}
   });
   step2Mode.bullets=step2Mode.bullets.filter(b=>!b.dead&&b.x>-30&&b.x<CANVAS_WIDTH+30&&b.y>-30&&b.y<CANVAS_HEIGHT+30);
+  step2Mode.bullets.forEach(b=>{if(!b.player||b.dead)return;if(Math.hypot(enemy.x-b.x,enemy.y-b.y)<enemy.r+16){damageEnemy(b.damage);b.dead=true;}else{const t=minions.find(m=>m.hp>0&&Math.hypot(m.x-b.x,m.y-b.y)<m.r+16);if(t){damageMinion(t,b.damage);b.dead=true;}}});
+  step2Mode.bullets=step2Mode.bullets.filter(b=>!b.dead);
   if(enemy.hp<=0){enemy.hp=0;nextStage();return;}
-  if(p.hp<=0){p.hp=0;gameOver=true;step2Mode.active=false;document.body.classList.remove("step2-admin-enabled");showResult(false);return;}
+  if(p.hp<=0){p.hp=0;gameOver=true;step2Mode.active=false;document.body.classList.remove("step2-admin-enabled");const ib=document.getElementById("step2UseItem");if(ib)ib.style.display="none";showResult(false);return;}
+  step2EnsureItemButton();
   document.getElementById("hp").textContent=Math.floor(p.hp);
   document.getElementById("maxHpText").textContent=Math.floor(p.max);
   document.getElementById("ehp").textContent=Math.floor(enemy.hp);
@@ -13110,6 +13136,7 @@ function drawStep2Mode(){
   });
   // 火星の山は他マップと同じ50×50サイズの通常障害物。
   if(cfg.kind==="mars"){ctx.font="36px serif";obstacles.forEach(o=>ctx.fillText("⛰️",o.x+o.w/2,o.y+o.h/2));}
+  step2Mode.boxes.forEach(b=>{if(!b.active)return;ctx.save();ctx.fillStyle="rgba(8,35,65,.9)";ctx.strokeStyle="#7dd3fc";ctx.lineWidth=3;ctx.beginPath();ctx.arc(b.x,b.y,23,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.font="30px serif";ctx.fillStyle="#fff";ctx.fillText("🛰️",b.x,b.y);ctx.restore();});
   step2Mode.pits.forEach(h=>{ctx.save();ctx.strokeStyle="rgba(20,20,30,.9)";ctx.lineWidth=3;ctx.beginPath();ctx.arc(h.x,h.y,h.r+5,0,Math.PI*2);ctx.stroke();ctx.font="34px serif";ctx.fillText("🕳️",h.x,h.y);ctx.restore();});
   step2Mode.hazards.forEach(h=>{ctx.save();ctx.globalAlpha=1;ctx.fillStyle=h.kind==="🌋"?"rgba(255,70,0,.58)":"rgba(255,80,0,.48)";ctx.beginPath();ctx.arc(h.x,h.y,h.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle=h.kind==="🌋"?"#ffb000":"#ff3b18";ctx.lineWidth=3;ctx.stroke();ctx.font="bold 30px serif";ctx.fillStyle="#fff";ctx.strokeStyle="#7c1d0b";ctx.lineWidth=3;ctx.strokeText(h.kind,h.x,h.y);ctx.fillText(h.kind,h.x,h.y);ctx.restore();});
   // 木星は金色の縞模様、水星は暗い岩場＋溶岩で、惑星ごとの違いを明確にする。
@@ -13163,6 +13190,9 @@ function drawStep2Mode(){
   ctx.lineWidth=3;ctx.strokeStyle="#fff";ctx.stroke();
   ctx.font="38px serif";ctx.fillStyle="#fff";
   ctx.fillText(typeof window.getSelectedSkinEmoji==="function"?window.getSelectedSkinEmoji():"🙂",p.x,p.y);
+  if(step2Mode.effects.rocket>0){ctx.font="24px serif";ctx.fillText("🚀",p.x,p.y+30);}
+  if(step2Mode.effects.blackhole>0){ctx.font="44px serif";ctx.fillText("🌀",p.x,p.y-65);}
+  if(step2Mode.effects.galaxy>0){ctx.beginPath();ctx.arc(p.x,p.y,52,0,Math.PI*2);ctx.strokeStyle="#a78bfa";ctx.lineWidth=5;ctx.stroke();}
   ctx.fillStyle="#111";ctx.fillRect(p.x-25,p.y-37,50,7);
   ctx.fillStyle="#22c55e";ctx.fillRect(p.x-25,p.y-37,50*Math.max(0,p.hp/Math.max(1,p.max)),7);
   if(slashTimer>0){
@@ -13173,10 +13203,25 @@ function drawStep2Mode(){
   }
   ctx.restore();
 }
+function step2EnsureItemButton(){
+  let btn=document.getElementById("step2UseItem");
+  if(!btn){btn=document.createElement("button");btn.id="step2UseItem";btn.type="button";btn.style.cssText="position:fixed;z-index:960010;left:50%;bottom:18px;transform:translateX(-50%);padding:12px 20px;border:2px solid #7dd3fc;border-radius:12px;background:#082f49;color:white;font-weight:bold;font-size:16px;display:none;";document.body.appendChild(btn);btn.addEventListener("click",step2UseItem);}
+  btn.style.display=step2Mode.active?"block":"none";btn.textContent=step2Mode.inventory?"🎒 "+step2Mode.inventory+" を使用":"🎒 アイテムなし";btn.disabled=!step2Mode.inventory;
+}
+function step2UseItem(){
+  const item=step2Mode.inventory;if(!step2Mode.active||!item)return;
+  if(item==="酸素ボンベ"){p.hp=Math.min(p.max,p.hp+75);msg.textContent="🧪 HPを75回復！";}
+  if(item==="ロケット"){step2Mode.effects.rocket=7;msg.textContent="🚀 7秒間スピード3倍！";}
+  if(item==="無重力"){step2Mode.effects.gravity=5;msg.textContent="🫧 敵が5秒間、動けなくなった！";}
+  if(item==="UFO"){step2Mode.effects.ufo=5;step2Mode.ufoTimer=0;msg.textContent="🛸 UFO3体が5秒間ビーム攻撃！";}
+  if(item==="ブラックホール"){step2Mode.effects.blackhole=3;step2Mode.blackholeTick=0;msg.textContent="🌀 ブラックホール発動！";}
+  if(item==="銀河"){step2Mode.effects.galaxy=5;msg.textContent="🌌 5秒間、攻撃を反射！";}
+  step2Mode.inventory=null;step2EnsureItemButton();
+}
 function advanceStep2Mode(){
   stageClear=true;step2Mode.index++;
   if(step2Mode.index>4){
-    step2Mode.active=false;document.body.classList.remove("step2-admin-enabled");gameOver=false;stageClear=false;
+    step2Mode.active=false;document.body.classList.remove("step2-admin-enabled");const ib=document.getElementById("step2UseItem");if(ib)ib.style.display="none";gameOver=false;stageClear=false;
     msg.textContent="🎉 STEP 2のステージ1〜4クリア！";
     const done=document.createElement("div");done.id="step2CompleteOverlay";
     done.style.cssText="position:fixed;inset:0;z-index:1000000;background:#080d1eee;color:white;display:flex;align-items:center;justify-content:center;padding:20px;";

@@ -6542,9 +6542,7 @@ function fireWandMagic() {
   msg.textContent="🪄 拡散弾20発！追尾弾："+homingCount+"発";
 }
 function attack() {
-  // STEP 2では専用処理へ確実に接続し、通常武器・飛び道具を同じ更新系で処理する。
-  if (step2Mode.active) { attackStep2Mode(); return; }
-  // STEP 1・STEP 2共通：武器ごとの既存攻撃処理をそのまま使用する。
+  // STEP 1で使っている既存の武器攻撃・ダメージ処理をSTEP 2でも再利用する。
   // 管理者パネルが閉じているのに入力フラグだけ残った場合は解除し、通常攻撃を妨げない。
   if (window.adminPanelInteracting) {
     const adminPanel = document.getElementById("adminPanel");
@@ -10653,7 +10651,7 @@ body.mobile-mode #battlePickupNotice {
       }
       return;
     }
-    if(String(id).startsWith("🛰️:")){const key=String(id).slice(4);if(step2Items.some(x=>x.id===key))inv.step2[key]=(inv.step2[key]||0)+1;return "🛰️ボックスのアイテムをアイテム保管庫に追加！";}
+    if(String(id).startsWith("🛰️:")){const key=String(id).split(":").slice(1).join(":");if(step2Items.some(x=>x.id===key)){inv.step2[key]=(Number(inv.step2[key])||0)+1;return "🛰️ボックスのアイテムをアイテム保管庫に追加！";}return "⚠️ STEP 2アイテム名を確認できませんでした: "+key;}
     if(normalItems.some(x=>x.id===id))inv.normal[id]=(inv.normal[id]||0)+1;
   };
   function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
@@ -12984,7 +12982,33 @@ function updateStep2Mode(){
   if(step2Mode.effects.blackhole>0){step2Mode.blackholeTick+=dt;if(step2Mode.blackholeTick>=0.3){step2Mode.blackholeTick-=0.3;[enemy,...minions].forEach(t=>{if(t.hp<=0)return;const d=Math.hypot(p.x-t.x,p.y-t.y)||1;if(t===enemy)damageEnemy(5);else damageMinion(t,5);t.x+=(p.x-t.x)/d*5;t.y+=(p.y-t.y)/d*5;});}}
   if(step2Mode.effects.ufo>0){step2Mode.ufoTimer+=dt;if(step2Mode.ufoTimer>=1){step2Mode.ufoTimer=0;const targets=[enemy,...minions].filter(t=>t.hp>0).slice(0,3);targets.forEach(t=>{if(t===enemy)damageEnemy(6);else damageMinion(t,6);});}}
   if(attackCooldown>0)attackCooldown=Math.max(0,attackCooldown-dt);
+  if(wandCooldown>0)wandCooldown=Math.max(0,wandCooldown-dt);
+  if(slashTimer>0)slashTimer=Math.max(0,slashTimer-1);
   if(p.invincibility>0)p.invincibility-=dt;
+  // STEP 1の既存攻撃で生成される魔法弾・弾幕をSTEP 2でも同じ配列から処理する。
+  for(let i=magicOrbs.length-1;i>=0;i--){
+    const orb=magicOrbs[i];orb.life-=dt;if(orb.life<=0){magicOrbs.splice(i,1);continue;}
+    if(orb.homing){
+      const targets=minions.filter(m=>m.hp>0).map(m=>({x:m.x,y:m.y}));if(enemy&&enemy.hp>0)targets.push({x:enemy.x,y:enemy.y});
+      if(targets.length){let target=targets[0],best=Infinity;for(const t of targets){const dist=Math.hypot(t.x-orb.x,t.y-orb.y);if(dist<best){best=dist;target=t;}}
+        const dx=target.x-orb.x,dy=target.y-orb.y,dist=Math.hypot(dx,dy)||1,speed=orb.homingSpeed||3.8;
+        orb.vx+=(dx/dist*speed-orb.vx)*0.12;orb.vy+=(dy/dist*speed-orb.vy)*0.12;const v=Math.hypot(orb.vx,orb.vy)||1;orb.vx=orb.vx/v*speed;orb.vy=orb.vy/v*speed;}
+    }
+    orb.x+=orb.vx;orb.y+=orb.vy;let hit=false;
+    for(const m of minions){if(m.hp>0&&Math.hypot(orb.x-m.x,orb.y-m.y)<25){damageMinion(m,orb.dmg);hit=true;break;}}
+    if(!hit&&Math.hypot(orb.x-enemy.x,orb.y-enemy.y)<30){if(orb.special||Math.random()<=0.75)damageEnemy(orb.dmg);hit=true;}
+    if(hit||orb.x<0||orb.x>CANVAS_WIDTH||orb.y<0||orb.y>CANVAS_HEIGHT)magicOrbs.splice(i,1);
+  }
+  for(let i=bulletHellBullets.length-1;i>=0;i--){
+    const b=bulletHellBullets[i];b.x+=b.vx;b.y+=b.vy;let hit=false;
+    for(const m of minions){if(m.hp>0&&Math.hypot(b.x-m.x,b.y-m.y)<25){damageMinion(m,b.dmg);hit=true;break;}}
+    if(!hit&&Math.hypot(b.x-enemy.x,b.y-enemy.y)<30){damageEnemy(b.dmg);hit=true;}
+    if(hit||b.x<0||b.x>CANVAS_WIDTH||b.y<0||b.y>CANVAS_HEIGHT)bulletHellBullets.splice(i,1);
+  }
+  // 既存の車ダッシュ移動もSTEP 2のプレイヤーに適用。
+  if(dashTimer>0){step2Move(p,dashVX*(kizuku2Active?2:1),dashVY*(kizuku2Active?2:1),p.r);dashTimer--;
+    if(!carHitThisDash&&Math.hypot(p.x-enemy.x,p.y-enemy.y)<55){damageEnemy(getDamage());carHitThisDash=true;}
+  }
   if(slowDebuffTimer>0)slowDebuffTimer=Math.max(0,slowDebuffTimer-dt);
   let dx=0,dy=0;const ck=window.controlKeys||{};
   if(keys[String(ck.up||"w").toLowerCase()])dy--;
@@ -13026,7 +13050,7 @@ function updateStep2Mode(){
   step2Mode.boxes.forEach(b=>{if(!b.active)return;if(Math.hypot(p.x-b.x,p.y-b.y)<p.r+22){
     const pool=[["酸素ボンベ",50],["ロケット",30],["無重力",10],["UFO",6],["ブラックホール",3],["銀河",1]];
     let roll=Math.random()*100,got=pool[0][0];for(const [name,rate] of pool){roll-=rate;if(roll<0){got=name;break;}}
-    if(typeof window.addInventoryItem==="function")window.addInventoryItem("🛰️:"+got);b.active=false;b.cooldown=b.adminSummoned?0:20;msg.textContent="🛰️ "+got+"を獲得！アイテム保管庫の「🛰️ ボックス」に追加したよ！"+(b.adminSummoned?" 管理者召喚ボックスは消滅しました。":" 20秒後に復活します。");
+    const inv=window.gameItemInventory||(window.gameItemInventory={normal:{},halloween:{},step2:{}});if(!inv.step2)inv.step2={};const before=Number(inv.step2[got])||0;if(typeof window.addInventoryItem==="function")window.addInventoryItem("🛰️:"+got);if((Number(inv.step2[got])||0)<=before)inv.step2[got]=before+1;b.active=false;b.cooldown=b.adminSummoned?0:20;msg.textContent="🛰️ "+got+"を獲得！アイテム保管庫の「🛰️ ボックス」に追加したよ！"+(b.adminSummoned?" 管理者召喚ボックスは消滅しました。":" 20秒後に復活します。");
   }});
   // 子分：月・水星は接近、火星・木星は固定砲台。
   minions.forEach(m=>{

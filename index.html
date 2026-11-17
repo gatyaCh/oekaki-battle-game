@@ -8434,9 +8434,9 @@ function updateRikuUI() {
     charging = false;
     charge = 0;
 
-    // 雷武器もスマホの攻撃ボタンから専用処理へ渡す。
-    if (weapon === "⚡️" && typeof newWeaponAttack === "function") {
-      newWeaponAttack();
+    // 新武器3種はスマホでも専用攻撃処理へ渡す。
+    if (["🪃", "⚡️", "🚨"].includes(weapon) && typeof window.step2NewWeaponAttack === "function") {
+      window.step2NewWeaponAttack();
       attackCooldown = window.adminNoCooldown ? 0 : 0.3;
       return;
     }
@@ -12241,6 +12241,7 @@ function addBoomerang(){const dx=mouse.x-p.x,dy=mouse.y-p.y,d=Math.hypot(dx,dy)|
 function fireSmallLightning(){const t=nearestTarget();const dx=t?t.x-p.x:mouse.x-p.x,dy=t?t.y-p.y:mouse.y-p.y,d=Math.hypot(dx,dy)||1;smallLightnings.push({x:p.x,y:p.y,vx:dx/d*5,vy:dy/d*5,target:t,homing:180,life:240,dmg:5*(1+drawAttackBonus)});smallLightningCooldownFrames=72;}
 function startThunderStorm(ratio){thunderCooldownFrames=390;thunderStormFrames=420;thunderStrikeFrames=0;thunderStrikeLimit=ratio>=.9?6:ratio>=.6?5:4;thunderShadows=[];msg.textContent="⚡ サンダーインパクト！7秒間、雷が降る！";}
 function newWeaponAttack(){if(gameOver||stageClear||isPausedForSpecial||bossSpecialState)return;if(weapon==="🪃"){addBoomerang();return;}if(weapon==="⚡️"){if(thunderCooldownFrames>0){fireSmallLightning();return;}startThunderStorm(Math.max(0,Math.min(1,charge/150)));return;}if(weapon==="🚨"){const reach=74,targets=liveTargets().filter(t=>Math.hypot(t.x-p.x,t.y-p.y)<reach);if(targets.length){targets.forEach(t=>hitNewWeaponTarget(t,typeof getDamage==="function"?getDamage():15));slashTimer=12;return;}if(policeStock>0&&policeTraps.length<6){policeTraps.push({x:p.x,y:p.y,r:25,life:Infinity});policeStock--;msg.textContent="🕳️ トラップ設置！ 残り "+policeStock+" 個";}else msg.textContent=policeStock<=0?"🕳️ トラップ補充中...":"🕳️ トラップは最大6個まで設置中だよ。";}}
+ window.step2NewWeaponAttack=newWeaponAttack;
 beginAttackCharge=function(){if(currentScreen!=="game"||!NEW_WEAPONS.includes(weapon)&&currentScreen!=="game")return;if(!NEW_WEAPONS.includes(weapon))return originalBeginAttackCharge();if(gameOver||stageClear||isPausedForSpecial||window.gameSavePaused||(attackCooldown>0&&weapon!=="⚡️"))return;if(weapon==="⚡️"&&thunderCooldownFrames>0){if(smallLightningCooldownFrames<=0){fireSmallLightning();smallLightningUsedOnPress=true;}else msg.textContent="⚡ 小さな雷のクールタイム中...";return;}charging=true;charge=0;if(weapon==="⚡️")thunderChargeFrames=0;};
 releaseAttackCharge=function(){if(currentScreen!=="game"){charging=false;charge=0;thunderChargeFrames=0;smallLightningUsedOnPress=false;return;}if(!NEW_WEAPONS.includes(weapon))return originalReleaseAttackCharge();if(weapon==="⚡️"&&thunderCooldownFrames>0){smallLightningUsedOnPress=false;charging=false;charge=0;thunderChargeFrames=0;return;}if(!charging)return;charging=false;newWeaponAttack();attackCooldown=(window.adminNoCooldown?0:0.3);charge=0;thunderChargeFrames=0;};
 function updateLightningUltimateShots(){if(lightningUltimateFireFrames<=0)return;lightningUltimateFireFrames--;const target=Math.min(50,Math.floor((420-lightningUltimateFireFrames)*50/420));while(lightningUltimateShotsFired<target){const i=lightningUltimateShotsFired++;const angle=Math.PI*2*i/50;const speed=6.2;enemyBullets.push({x:lightningUltimateCenterX,y:lightningUltimateCenterY,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,angle,zigzagPhase:i*0.37,dmg:5,enemy:false,special:"ultimateLightning",size:22,life:120});}}
@@ -12934,6 +12935,10 @@ function updateStep2Mode(){
   if(wandCooldown>0)wandCooldown=Math.max(0,wandCooldown-dt);
   if(slashTimer>0)slashTimer=Math.max(0,slashTimer-1);
   if(p.invincibility>0)p.invincibility-=dt;
+   if(charging&&window.specialCodes?.kakeru){
+     const now=performance.now();
+     if(now>=(window.kakeruNextAttackAt||0)){charge=0;attack();window.kakeruNextAttackAt=now+150;}
+   }
   // STEP 1の既存攻撃で生成される魔法弾・弾幕をSTEP 2でも同じ配列から処理する。
   for(let i=magicOrbs.length-1;i>=0;i--){
     const orb=magicOrbs[i];orb.life-=dt;if(orb.life<=0){magicOrbs.splice(i,1);continue;}
@@ -13075,30 +13080,35 @@ function updateStep2Mode(){
 }
 function attackStep2Mode(){
   if(gameOver||stageClear||attackCooldown>0||window.adminPanelInteracting)return;
-  const damage=getDamage();
-  if(weapon==="⚡️"&&typeof newWeaponAttack==="function"){
-    newWeaponAttack();
-    slashTimer=12;
+  if(["🪃","⚡️","🚨"].includes(weapon)&&typeof window.step2NewWeaponAttack==="function"){
+    window.step2NewWeaponAttack();
     attackCooldown=window.adminNoCooldown?0:0.3;
     return;
   }
-  if(weapon==="🪄"){
-    slashTimer=12;
-    const dx=mouse.x-p.x,dy=mouse.y-p.y,d=Math.hypot(dx,dy)||1;
-    for(let i=0;i<8;i++){const a=Math.atan2(dy,dx)+(i-3.5)*0.16;step2Mode.bullets.push({x:p.x,y:p.y,vx:Math.cos(a)*7,vy:Math.sin(a)*7,emoji:"✨",damage:damage*0.7,player:true});}
-    attackCooldown=window.adminNoCooldown?0:0.55;return;
+  if(weapon==="🪄"&&!window.specialCodes?.kakeru&&!window.specialCodes?.sougo){
+    if(wandCooldown<=0){fireWandMagic();wandCooldown=window.adminNoCooldown?0:1.7;}
+    else msg.textContent="⏳ 魔法の杖クールタイム中... ("+wandCooldown.toFixed(1)+"s)";
+    return;
   }
-  const range=weapon==="⚔️"?72+charge/2:weapon==="拳"?108:90;
-  slashTimer=12;
+  const damage=getDamage();
+  let range=weapon==="⚔️"?72+charge/2:weapon==="拳"?108:90;
+  let specialDamage=damage,cooldown=0.3;
+  if(window.specialCodes?.kakeru){
+    range=108;
+    specialDamage=4*atkBuff*(1+drawAttackBonus)*(kizuku2Active?2:1)*(window.sougoBoostActive?3:1)*(adminRankAbility==="damage4"?4:1)*((window.halloweenEffects||{}).candy>0?1.8:1)*((window.halloweenEffects||{}).zombie>0?2.3:1)*(1+upgradeLevels.atk*0.04);
+    cooldown=0;
+  }else if(window.specialCodes?.sougo){
+    const hammerCharge=Math.max(0,Math.min(150,charge))/150,hammerBaseDamage=20+30*hammerCharge,halloweenFx=window.halloweenEffects||{};
+    specialDamage=hammerBaseDamage*atkBuff*(1+drawAttackBonus)*1.03*(kizuku2Active?2:1)*(window.sougoBoostActive?3:1)*(adminRankAbility==="damage4"?4:1)*(halloweenFx.candy>0?1.8:1)*(halloweenFx.zombie>0?2.3:1)*(1+upgradeLevels.atk*0.04);
+    range=(72+charge/2)*3;cooldown=3+4*hammerCharge;
+  }
+  slashTimer=window.specialCodes?.sougo?20:12;
   const hit=(x,y)=>Math.hypot(p.x-x,p.y-y)<range;
   let did=false;
-  const specialRange=window.specialCodes?.kakeru?108:window.specialCodes?.sougo?216:range;
-  const specialDamage=window.specialCodes?.kakeru?damage*1.4:window.specialCodes?.sougo?damage*1.8:damage;
   minions.forEach(m=>{if(m.hp>0&&hit(m.x,m.y)){damageMinion(m,specialDamage);did=true;}});
-  if(hit(enemy.x,enemy.y)){damageEnemy(specialDamage);did=true;}
-  attackCooldown=window.adminNoCooldown?0:0.3;
-  // 攻撃キーが届いたことを必ず画面に表示し、命中時は既存の敵ダメージ処理を通す。
-  msg.textContent=did?"⚔️ STEP 2 攻撃命中！":"⚔️ STEP 2 攻撃！敵に近づくか、照準を敵に合わせてね";
+  if(enemy.hp>0&&hit(enemy.x,enemy.y)){damageEnemy(specialDamage);did=true;}
+  attackCooldown=window.adminNoCooldown?0:cooldown;
+  msg.textContent=did?"⚔️ STEP 2 攻撃命中！":"⚔️ STEP 2 攻撃！敵に近づいてね";
 }
 function drawStep2Mode(){
   ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation="source-over";ctx.filter="none";ctx.clearRect(0,0,c.width,c.height);

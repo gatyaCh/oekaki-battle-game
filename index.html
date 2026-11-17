@@ -8851,9 +8851,9 @@ loop();
     rows.innerHTML = Object.entries(window.itemRates).map(([item, rate]) => `<label style="display:block;margin:5px 0">${item} <input data-item="${item}" type="text" value="${rate}" style="width:70px"> %</label>`).join("") + `<hr><label style="display:block;margin:5px 0">🔫 トリプルガトリング（激レア） <input data-item="__tripleGatlingRate" type="text" value="${Number(window.tripleGatlingRate ?? 0.3)}" style="width:70px"> %</label><small>※独立抽選。通常アイテムの確率とは別に設定できます（0〜100%）。</small>`;
   };
   document.getElementById("admStep2Boxes").onclick = () => {
-    if(!step2Mode.active){msg.textContent="⚠️ STEP 2プレイ中だけ召喚できます。";return;}
-    step2Mode.boxes.forEach(b=>{b.active=true;b.cooldown=0;});
-    msg.textContent="🛰️ STEP 2ボックスを3か所に召喚しました！";
+    if(!step2Mode.active || !step2Mode.stages[step2Mode.index-1]){msg.textContent="⚠️ 月・火星・水星・木星のSTEP 2ステージで召喚できます。";return;}
+    step2Mode.boxes.push({x:270,y:250,active:true,cooldown:0,adminSummoned:true});
+    msg.textContent="🛰️ 管理者ボックスを召喚しました！一度ゲットすると消滅します。";
   };
   document.getElementById("admBoxCount").onclick = () => {
     const input = prompt("ドロップボックス数を設定（1〜10）", window.adminBoxCount);
@@ -12977,7 +12977,7 @@ function step2Fire(x,y,emoji,damage,speed,slow){
 function updateStep2Mode(){
   if(window.gameSavePaused||currentScreen!=="game"||gameOver||stageClear)return;
   const dt=1/60,cfg=step2Mode.stages[step2Mode.index-1];step2Mode.elapsed+=dt;
-  step2Mode.boxes.forEach(b=>{if(!b.active){b.cooldown=Math.max(0,b.cooldown-dt);if(b.cooldown<=0)b.active=true;}});
+  step2Mode.boxes.forEach(b=>{if(!b.active&&!b.adminSummoned){b.cooldown=Math.max(0,b.cooldown-dt);if(b.cooldown<=0)b.active=true;}});
   for(const k of Object.keys(step2Mode.effects))step2Mode.effects[k]=Math.max(0,step2Mode.effects[k]-dt);
   if(step2Mode.effects.blackhole>0){step2Mode.blackholeTick+=dt;if(step2Mode.blackholeTick>=0.3){step2Mode.blackholeTick-=0.3;[enemy,...minions].forEach(t=>{if(t.hp<=0)return;const d=Math.hypot(p.x-t.x,p.y-t.y)||1;if(t===enemy)damageEnemy(5);else damageMinion(t,5);t.x+=(p.x-t.x)/d*5;t.y+=(p.y-t.y)/d*5;});}}
   if(step2Mode.effects.ufo>0){step2Mode.ufoTimer+=dt;if(step2Mode.ufoTimer>=1){step2Mode.ufoTimer=0;const targets=[enemy,...minions].filter(t=>t.hp>0).slice(0,3);targets.forEach(t=>{if(t===enemy)damageEnemy(6);else damageMinion(t,6);});}}
@@ -13024,7 +13024,7 @@ function updateStep2Mode(){
   step2Mode.boxes.forEach(b=>{if(!b.active)return;if(Math.hypot(p.x-b.x,p.y-b.y)<p.r+22){
     const pool=[["酸素ボンベ",50],["ロケット",30],["無重力",10],["UFO",6],["ブラックホール",3],["銀河",1]];
     let roll=Math.random()*100,got=pool[0][0];for(const [name,rate] of pool){roll-=rate;if(roll<0){got=name;break;}}
-    if(typeof window.addInventoryItem==="function")window.addInventoryItem("🛰️:"+got);b.active=false;b.cooldown=20;msg.textContent="🛰️ "+got+"を獲得！アイテム保管庫の「🛰️ ボックス」に追加したよ！";
+    if(typeof window.addInventoryItem==="function")window.addInventoryItem("🛰️:"+got);b.active=false;b.cooldown=b.adminSummoned?0:20;msg.textContent="🛰️ "+got+"を獲得！アイテム保管庫の「🛰️ ボックス」に追加したよ！"+(b.adminSummoned?" 管理者召喚ボックスは消滅しました。":" 20秒後に復活します。");
   }});
   // 子分：月・水星は接近、火星・木星は固定砲台。
   minions.forEach(m=>{

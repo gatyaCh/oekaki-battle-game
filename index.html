@@ -6999,8 +6999,8 @@ function nextStage() {
     if (window.specialCodes?.kakeru) { proceedToNextStageNumber(); return; }
     if (stage === 4) { openShop(1); return; }
     if (stage === 7) { openShop(2); return; }
-    // STEP1最終ステージ8の後は強化ショップを開かず、通常ショップへ。
-    if (stage === 8) { openShop(1); return; }
+    // STEP1のステージ8をクリアしたら通常ショップを開き、閉じた後にSTEP2へ進める。
+    if (stage === 8) { window.step2EntryFromStep1Clear = true; openShop(1); return; }
     openUpgradeShop(true);
   }, 700);
 }
@@ -7237,7 +7237,10 @@ function closeShop() {
   if (shopNeedsAdvance) {
     shopNeedsAdvance = false;
     if ((stage === 4 || stage === 7) && !window.specialCodes?.kakeru) openUpgradeShop(true);
-    else if (stage === 8 && !step2Mode.active) startStep2Countdown();
+    else if (stage === 8 && !step2Mode.active && window.step2EntryFromStep1Clear) {
+      window.step2EntryFromStep1Clear = false;
+      startStep2Countdown();
+    }
     else startStageTransitionCountdown(()=>proceedToNextStageNumber());
   }
 }
@@ -13299,12 +13302,12 @@ function step2UseItem(){
 function advanceStep2Mode(){
   stageClear=true;step2Mode.index++;
   if(step2Mode.index>4){
-    step2Mode.active=false;document.body.classList.remove("step2-admin-enabled");const ib=document.getElementById("step2UseItem");if(ib)ib.style.display="none";gameOver=false;stageClear=false;
-    msg.textContent="🎉 STEP 2のステージ1〜4クリア！";
-    const done=document.createElement("div");done.id="step2CompleteOverlay";
-    done.style.cssText="position:fixed;inset:0;z-index:1000000;background:#080d1eee;color:white;display:flex;align-items:center;justify-content:center;padding:20px;";
-    done.innerHTML='<div style="background:#172033;border:2px solid #a78bfa;border-radius:16px;padding:24px;max-width:420px;"><h2>🪐 STEP 2 前半クリア！</h2><p style="margin:14px 0;">月・火星・水星・木星を突破した！</p><button id="step2CompleteClose">戻る</button></div>';
-    document.body.appendChild(done);document.getElementById("step2CompleteClose").onclick=()=>{done.remove();currentScreen="title";syncScreenVisibility();resetGame();};
+    // STEP2の4ステージをすべてクリアしたら、専用オーバーレイではなく通常の戦績画面を表示。
+    step2Mode.active=false;
+    document.body.classList.remove("step2-admin-enabled");
+    const ib=document.getElementById("step2UseItem");if(ib)ib.style.display="none";
+    gameOver=false;stageClear=false;
+    showResult(true);
     return;
   }
   setupStep2Stage(step2Mode.index);stageClear=false;

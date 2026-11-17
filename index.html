@@ -12872,7 +12872,7 @@ function setupStep2Stage(n){
   // 不正値やHP上限超過を防ぐ。各惑星への移動時は全回復。
   // STEP 1で確定した最大HPをそのまま共有し、STEP 2独自の上限変更はしない。
   p.max=Number.isFinite(Number(p.max))&&Number(p.max)>0?Number(p.max):150;
-  p.hp=p.max;p.x=100;p.y=250;
+  p.hp=p.max;p.x=100;p.y=250;p.invincibility=0;
   enemyBullets=[];magmaZones=[];boxes=[];dmgText=[];
   treasureChest={x:450,y:250,opened:false,progress:0,maxProgress:100,r:20};
   // STEP 2は専用の惑星フィールド。通常ステージ1の障害物データを
@@ -12914,10 +12914,24 @@ function step2Move(obj,dx,dy,r){
   if(!positionBlocked(obj.x,ny,r))obj.y=ny;
 }
 function step2DamagePlayer(amount){
-  // チュートリアル用の被ダメージ無効化フラグが残っていても、STEP2では敵の攻撃を通常どおり受ける。
-  const wasTutorialActive=tutorialActive;
-  tutorialActive=false;
-  try{damagePlayer(amount);}finally{tutorialActive=wasTutorialActive;}
+  // STEP2はチュートリアル状態に左右されず、敵の攻撃を専用処理で受ける。
+  // STEP1共通のdamagePlayerラッパーやチュートリアル判定に遮られないようにする。
+  if(Date.now()<(Number(window.adminAbuseEventInvincibleUntil)||0))return false;
+  if(p.invincibility>0||shieldActive||ghost||admin.invincible||admin.god)return false;
+  if(adminRankAbility==="guard"&&adminGuardBlocksLeft>0){
+    adminGuardBlocksLeft--;
+    p.invincibility=0.18;
+    msg.textContent="🛡️ ADMINガード！ 攻撃を無効化（残り "+adminGuardBlocksLeft+"回）";
+    return false;
+  }
+  const rawDamage=Math.max(0,Number(amount)||0);
+  const actual=Math.max(0,Math.min(p.hp,rawDamage*(1-upgradeLevels.defense*0.05)));
+  if(actual<=0)return false;
+  p.hp-=actual;
+  if(window.halloweenEffects&&window.halloweenEffects.bat>0)p.hp=Math.min(p.max,p.hp+actual*0.3);
+  totalDamageTaken+=actual;
+  p.invincibility=0.5;
+  return true;
 }
 function step2DotDamage(amount){
   if(p.invincibility>0||shieldActive||ghost||admin.invincible||admin.god)return;

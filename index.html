@@ -8003,10 +8003,8 @@ function draw() {
     ctx.lineWidth = 1;
   }
   ctx.strokeStyle = "rgba(255,0,0,0.4)"; ctx.beginPath(); ctx.arc(enemy.x, enemy.y, 40, 0, Math.PI * 2); ctx.stroke();
-  if (weapon === "🏹") { ctx.strokeStyle = "blue"; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke(); }
   if (weapon === "⚔️") { ctx.strokeStyle = "yellow"; ctx.beginPath(); ctx.arc(p.x, p.y, 52 + charge / 2, 0, Math.PI * 2); ctx.stroke(); }
   if (window.specialCodes?.kakeru) { ctx.strokeStyle = "#f59e0b"; ctx.beginPath(); ctx.arc(p.x, p.y, (52 + charge / 2) * 1.5, 0, Math.PI * 2); ctx.stroke(); }
-  if (weapon === "🚙") { ctx.strokeStyle = "red"; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke(); }
   if (bulletHellReady) {
     ctx.font = "28px serif";
     const colors = ["🔴", "🔵", "🟡", "🟢"];

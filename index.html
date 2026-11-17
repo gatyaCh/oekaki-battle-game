@@ -12939,6 +12939,8 @@ function setupStep2Stage(n){
   gameOver=false;stageClear=false;charging=false;charge=0;attackCooldown=0;
 }
 function startStep2Mode(n){
+  // STEP 1の保管庫・ポーズ画面から移動してもSTEP 2の戦闘更新が停止しないよう解除。
+  window.gameSavePaused=false;keys={};charging=false;charge=0;window.adminPanelInteracting=false;
   step2Mode.active=true;
   document.body.classList.add("step2-admin-enabled");
   resetStep2BattleStats();

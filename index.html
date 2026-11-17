@@ -12913,6 +12913,12 @@ function step2Move(obj,dx,dy,r){
   if(!positionBlocked(nx,obj.y,r))obj.x=nx;
   if(!positionBlocked(obj.x,ny,r))obj.y=ny;
 }
+function step2DamagePlayer(amount){
+  // チュートリアル用の被ダメージ無効化フラグが残っていても、STEP2では敵の攻撃を通常どおり受ける。
+  const wasTutorialActive=tutorialActive;
+  tutorialActive=false;
+  try{damagePlayer(amount);}finally{tutorialActive=wasTutorialActive;}
+}
 function step2DotDamage(amount){
   if(p.invincibility>0||shieldActive||ghost||admin.invincible||admin.god)return;
   const actual=Math.max(0,Math.min(p.hp,Number(amount)||0));
@@ -13018,7 +13024,7 @@ function updateStep2Mode(){
       let mx=(p.x-m.x)/d*1.05,my=(p.y-m.y)/d*1.05;
       if(cfg.kind==="jupiter"&&step2Mode.windBurst>0){mx*=0.12;my*=0.12;step2Move(m,step2Mode.windX*2.2,step2Mode.windY*2.2,m.r);}
       step2Move(m,mx,my,m.r);
-      m.cool+=dt;if(d<48&&m.cool>=0.5){m.cool=0;damagePlayer(10);}
+      m.cool+=dt;if(d<48&&m.cool>=0.5){m.cool=0;step2DamagePlayer(10);}
     }
   });
   // ボスの基本移動と近接攻撃。
@@ -13029,18 +13035,18 @@ function updateStep2Mode(){
     if(cfg.kind==="jupiter"&&step2Mode.windBurst>0)step2Move(enemy,step2Mode.windX*2.6,step2Mode.windY*2.6,enemy.r);
   }
   step2Mode.bossAttack+=dt;
-  if(cfg.kind==="moon"&&step2Mode.bossAttack>=0.5&&bd<62){step2Mode.bossAttack=0;damagePlayer(20);}
+  if(cfg.kind==="moon"&&step2Mode.bossAttack>=0.5&&bd<62){step2Mode.bossAttack=0;step2DamagePlayer(20);}
   if(cfg.kind==="mars"){
     if(bd<125&&step2Mode.bossAttack>=0.9){step2Mode.bossAttack=0;step2Mode.hazards.push({x:enemy.x,y:enemy.y,r:62,life:1.4,kind:"🔥"});}
     step2Mode.rangedTimer+=dt;if(step2Mode.rangedTimer>=2){step2Mode.rangedTimer=0;step2Fire(enemy.x,enemy.y,"🔥",30,3.1,true);}
   }
   if(cfg.kind==="mercury"){
-    if(bd<68&&step2Mode.bossAttack>=0.8){step2Mode.bossAttack=0;damagePlayer(30);}
+    if(bd<68&&step2Mode.bossAttack>=0.8){step2Mode.bossAttack=0;step2DamagePlayer(30);}
     if(Math.floor(step2Mode.elapsed*0.5)!==Math.floor((step2Mode.elapsed-dt)*0.5)&&step2Mode.hazards.length<6){
       step2Mode.hazards.push({x:70+Math.random()*(CANVAS_WIDTH-140),y:60+Math.random()*(CANVAS_HEIGHT-120),r:34,life:999,kind:"🌋",cool:0});
     }
   }
-  if(cfg.kind==="jupiter"&&bd<68&&step2Mode.bossAttack>=0.5){step2Mode.bossAttack=0;damagePlayer(20);}
+  if(cfg.kind==="jupiter"&&bd<68&&step2Mode.bossAttack>=0.5){step2Mode.bossAttack=0;step2DamagePlayer(20);}
   if(cfg.kind==="moon"&&step2Mode.elapsed>=10&&Math.floor(step2Mode.elapsed/10)!==Math.floor((step2Mode.elapsed-dt)/10)&&step2Mode.pits.length<5){
     step2Mode.pits.push({x:enemy.x,y:enemy.y,r:22,emoji:"🕳️"});
   }
@@ -13066,7 +13072,7 @@ function updateStep2Mode(){
     if(b.player){
       if(Math.hypot(enemy.x-b.x,enemy.y-b.y)<enemy.r+20){damageEnemy(b.damage);b.dead=true;}
       else{const target=minions.find(m=>m.hp>0&&Math.hypot(m.x-b.x,m.y-b.y)<m.r+20);if(target){damageMinion(target,b.damage);b.dead=true;}}
-    }else if(Math.hypot(p.x-b.x,p.y-b.y)<p.r+13){damagePlayer(b.damage);if(b.slow)slowDebuffTimer=Math.max(slowDebuffTimer,5);b.dead=true;}
+    }else if(Math.hypot(p.x-b.x,p.y-b.y)<p.r+13){step2DamagePlayer(b.damage);if(b.slow)slowDebuffTimer=Math.max(slowDebuffTimer,5);b.dead=true;}
   });
   step2Mode.bullets=step2Mode.bullets.filter(b=>!b.dead&&b.x>-30&&b.x<CANVAS_WIDTH+30&&b.y>-30&&b.y<CANVAS_HEIGHT+30);
   step2Mode.bullets.forEach(b=>{if(!b.player||b.dead)return;if(Math.hypot(enemy.x-b.x,enemy.y-b.y)<enemy.r+16){damageEnemy(b.damage);b.dead=true;}else{const t=minions.find(m=>m.hp>0&&Math.hypot(m.x-b.x,m.y-b.y)<m.r+16);if(t){damageMinion(t,b.damage);b.dead=true;}}});

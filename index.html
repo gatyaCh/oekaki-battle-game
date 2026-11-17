@@ -6550,6 +6550,11 @@ function attack() {
       window.adminPanelInteracting = false;
     }
   }
+  // STEP 2では既存の武器別攻撃処理を使い、武器ごとのCTも維持する。
+  if (typeof step2Mode !== "undefined" && step2Mode.active) {
+    attackStep2Mode();
+    return;
+  }
   if (window.adminPanelInteracting || gameOver || stageClear) return;
   if (window.specialCodes?.kakeru) {
     const fistRange = (72 + charge / 2) * 1.5;

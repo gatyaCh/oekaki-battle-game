@@ -3648,7 +3648,7 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 .story-explore-top span{font-size:12px;color:#cbd5e1}
 .story-explore-viewport{position:absolute;inset:48px 0 0;overflow:auto;scrollbar-width:none;overscroll-behavior:contain}
 .story-explore-viewport::-webkit-scrollbar{display:none}
-.story-explore-world{position:relative;width:3000px;height:1500px;overflow:hidden;background:linear-gradient(90deg,#76a85b 0 76%,#101522 76% 100%)}
+.story-explore-world{position:relative;width:3000px;height:1500px;overflow:hidden;background:linear-gradient(90deg,#64748b 0 20.5%,#a3a78b 20.5% 31.5%,#76a85b 31.5% 76%,#101522 76% 100%)}
 .story-explore-rift-zone{left:2290px!important;background:#31205de8;border:1px solid #b69cff;box-shadow:0 0 18px #9b5cff}
 .story-explore-dark-zone{left:2540px!important;background:#050711eF;border:1px solid #64748b}
 .story-explore-rift-art{position:absolute;z-index:2;left:2280px;top:170px;width:170px;height:1180px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:linear-gradient(90deg,transparent,#7c3aed33 20%,#a78bfa99 48%,#312e8133 80%,transparent);border-left:3px solid #a78bfa;border-right:3px solid #7c3aed;box-shadow:0 0 35px #8b5cf6,inset 0 0 35px #8b5cf655}
@@ -3660,7 +3660,7 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 @keyframes storyExploreRiftPulse{from{transform:scaleY(.88);filter:drop-shadow(0 0 12px #8b5cf6)}to{transform:scaleY(1.08);filter:drop-shadow(0 0 28px #c4b5fd)}}
 @keyframes storyExploreDarkFloat{from{transform:translateY(-16px) scale(.94);opacity:.45}to{transform:translateY(18px) scale(1.06);opacity:.9}}
 .story-explore-zone{position:absolute;top:20px;padding:8px 18px;border-radius:20px;background:#0f172acc;color:#fff;font-size:24px;font-weight:900;letter-spacing:4px}
-.story-explore-grass{left:1320px}
+.story-explore-city{left:180px}.story-explore-suburbs{left:790px}.story-explore-grass{left:1530px}
 .story-explore-road{position:absolute;background:#555b60;border:5px solid #d6d3c1;box-shadow:0 0 0 2px #333}
 .story-explore-road-main{left:-80px;top:690px;width:2400px;height:150px;transform:rotate(-7deg)}
 .story-explore-road-branch{left:510px;top:250px;width:125px;height:760px;transform:rotate(8deg)}
@@ -4371,7 +4371,7 @@ body {
         <button onclick="selectNormalMap()">通常マップで遊ぶ</button>
         <button class="map-tutorial-button" onclick="askMapTutorial('normal')">📘 チュートリアル</button>
       </div>
-      <div class="map-option map-story-option" id="storyModeOption"><h2>📖 ストーリーモード</h2><p>謎解き・戦闘・探索の新しい冒険</p><span class="map-lock-label">🌌 第1ワールド制作中</span><button type="button" id="storyModeOpen" onclick="openStoryWorlds()">ストーリーモードを開く</button></div>
+      <div class="map-option map-story-option" id="storyModeOption"><h2>📖 ストーリーモード</h2><p>謎解き・戦闘・探索の新しい冒険</p><span class="map-lock-label">🌌 第1ワールド制作中</span><button type="button" id="storyModeOpen" onclick="openStoryExplore()">ストーリーモードを開く</button></div>
     </div>
   </div>
 </div>
@@ -4416,16 +4416,25 @@ body {
 <div id="storyExploreScreen" class="story-explore-screen hidden" aria-label="ワールド1探索フィールド">
   <div class="story-explore-top">
     <button type="button" onclick="closeStoryExplore()">← ワールド選択へ</button>
-    <strong>🌍 ワールド1探索フィールド</strong>
+    <strong>🌍 全ワールド共通探索フィールド</strong>
     <span>WASD / 矢印キーで移動</span>
   </div>
   <div id="storyExploreViewport" class="story-explore-viewport">
     <div id="storyExploreWorld" class="story-explore-world">
+      <div class="story-explore-zone story-explore-city">街</div>
+      <div class="story-explore-zone story-explore-suburbs">郊外</div>
       <div class="story-explore-zone story-explore-grass">草原</div>
       <div class="story-explore-zone story-explore-rift-zone" style="left:2290px">時空の裂け目</div>
       <div class="story-explore-zone story-explore-dark-zone" style="left:2540px">闇の空間</div>
       <div class="story-explore-rift-art" aria-hidden="true"><span>🌀</span><small>空間がゆがんでいる……</small></div>
       <div class="story-explore-dark-art" aria-hidden="true"><span>🌑</span><span>⚫</span><span>🌑</span><small>光の届かない未知の領域</small></div>
+      <div class="story-explore-road story-explore-road-main"></div>
+      <div class="story-explore-road story-explore-road-branch"></div>
+      <div class="story-explore-building story-explore-lab">🚀<br>宇宙研究施設</div>
+      <div class="story-explore-building story-explore-house" style="left:190px;top:330px">🏠</div>
+      <div class="story-explore-building story-explore-house" style="left:530px;top:250px">🏢</div>
+      <div class="story-explore-building story-explore-house" style="left:650px;top:760px">🏠</div>
+      <div class="story-explore-building story-explore-house" style="left:360px;top:990px">🏬</div>
       <div class="story-explore-tree" style="left:900px;top:260px">🌳</div>
       <div class="story-explore-tree" style="left:1050px;top:880px">🌲</div>
       <div class="story-explore-tree" style="left:1240px;top:440px">🌳</div>
@@ -5447,9 +5456,10 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   function showStory(id){const el=$story(id);if(el)el.classList.remove("hidden");}
   const STORY_TEST_CODE="Story";
   let storyWorld2Authorized=false;
-  window.openStoryCodeGate=function(){hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");hideStory("storyWorld2StageScreen");const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(input)input.value="";if(message)message.textContent="";showStory("storyCodeGate");if(input)input.focus();};
-  window.closeStoryCodeGate=function(){hideStory("storyCodeGate");showStory("storyWorldScreen");};
-  window.submitStoryTestCode=function(){const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(!input||!message)return;if(input.value!==STORY_TEST_CODE){message.textContent="❌ コードが違います。";input.select();return;}storyWorld2Authorized=true;hideStory("storyCodeGate");input.value="";window.openStoryWorld2Stages();};
+  let storyCodeGateReturnToExplore=false;
+  window.openStoryCodeGate=function(fromExplore=false){storyCodeGateReturnToExplore=!!fromExplore;if(!fromExplore){hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");hideStory("storyWorld2StageScreen");}const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(input)input.value="";if(message)message.textContent="";showStory("storyCodeGate");if(input)input.focus();};
+  window.closeStoryCodeGate=function(){hideStory("storyCodeGate");if(storyCodeGateReturnToExplore){showStory("storyExploreScreen");storyExploreKeys.clear();}else showStory("storyWorldScreen");storyCodeGateReturnToExplore=false;};
+  window.submitStoryTestCode=function(){const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(!input||!message)return;if(input.value!==STORY_TEST_CODE){message.textContent="❌ コードが違います。";input.select();return;}storyWorld2Authorized=true;hideStory("storyCodeGate");input.value="";if(storyCodeGateReturnToExplore){storyCodeGateReturnToExplore=false;showStory("storyExploreScreen");storyExploreKeys.clear();storyExploreDraw();}else window.openStoryWorld2Stages();};
   window.openStoryWorlds=function(){hideStory("storyCodeGate");hideStory("storyStageScreen");hideStory("storyWorld2StageScreen");hideStory("storyEpisodeScreen");hideStory("storyExploreScreen");const map=$story("mapSelect");if(map)map.classList.add("hidden");showStory("storyWorldScreen");};
   window.openStoryWorld2Stages=function(){if(!storyWorld2Authorized){window.openStoryCodeGate();return;}hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");renderStoryWorld2Stages();showStory("storyWorld2StageScreen");};
   function renderStoryWorld2Stages(){const grid=$story("storyWorld2StageGrid");if(!grid)return;grid.innerHTML="";[["2-1","次元の裂け目"],["2-2","赤い結晶"],["2-3","緑の結晶"],["2-4","水色の結晶"],["2-5","黒い結晶"]].forEach(([id,name])=>{let done=false;try{done=localStorage.getItem(id==="2-1"?"storyWorld2Stage1Cleared":"story"+id.replace("-","")+"Cleared")==="1"}catch(e){}const card=document.createElement("div");card.className="story-stage-card"+(done?" cleared":" unlocked");const title=document.createElement("strong");title.textContent=id;card.appendChild(title);const label=document.createElement("div");label.style.cssText="font-size:12px;margin-top:4px";label.textContent=name;card.appendChild(label);const status=document.createElement("div");status.style.cssText="font-size:12px;margin-top:5px";status.textContent=done?"✅ クリア":"プレイ可能";card.appendChild(status);const btn=document.createElement("button");btn.type="button";btn.textContent=done?"もう一度見る":"プレイ";btn.addEventListener("click",()=>id==="2-1"?window.startStoryWorld2Intro():window.startStoryBattle(id));card.appendChild(btn);grid.appendChild(card);});};
@@ -5533,7 +5543,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     if(prompt)prompt.classList.toggle("hidden",!storyExploreNearbyStage||!!storyExploreConfirmStage);
     if(action)action.classList.toggle("is-visible",!!storyExploreNearbyStage&&!storyExploreConfirmStage);
     if(label&&storyExploreNearbyStage)label.textContent="1-"+storyExploreNearbyStage+" の入口：スペースキー / 攻撃キーで調べる";
-    const shopDist=Math.hypot(storyExplorePosition.x-798,storyExplorePosition.y-454);
+    const shopDist=Math.hypot(storyExplorePosition.x-1799,storyExplorePosition.y-744);
     if(shopDist<90&&!storySecretShopFound){
       storySecretShopFound=true;const door=$story("storySecretShopDoor");
       if(door)door.classList.add("discovered");
@@ -5549,7 +5559,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     if(!$story("storyExploreShopModal").classList.contains("hidden"))return;
     if(storyExploreConfirmStage){storyExploreCloseConfirm();return;}
     if(storyExploreNearbyStage){storyExploreOpenConfirm(storyExploreNearbyStage);return;}
-    if(storySecretShopFound&&Math.hypot(storyExplorePosition.x-798,storyExplorePosition.y-454)<90){openStorySecretShop();}
+    if(storySecretShopFound&&Math.hypot(storyExplorePosition.x-1799,storyExplorePosition.y-744)<90){openStorySecretShop();}
   }
   const storyExploreYes=$story("storyExploreConfirmYes"),storyExploreNo=$story("storyExploreConfirmNo"),storyExploreAction=$story("storyExploreAction");
   if(storyExploreYes)storyExploreYes.addEventListener("click",function(){if(storyExploreConfirmStage)launchStoryExploreStage(storyExploreConfirmStage);});
@@ -5570,14 +5580,18 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     let dx=0,dy=0;
     storyExploreKeys.forEach(k=>{const d=storyExploreDirections[k];if(d){dx+=d[0];dy+=d[1];}});
     if(dx&&dy){dx*=0.7071;dy*=0.7071;}
-    storyExplorePosition.x=Math.max(40,Math.min(2960,storyExplorePosition.x+dx*4.2));
+    const nextX=Math.max(40,Math.min(2960,storyExplorePosition.x+dx*4.2));
+    if(!storyWorld2Authorized&&nextX>=2270&&storyExplorePosition.x<2270){storyExplorePosition.x=2268;storyExploreKeys.clear();window.openStoryCodeGate(true);}else storyExplorePosition.x=nextX;
     storyExplorePosition.y=Math.max(80,Math.min(1460,storyExplorePosition.y+dy*4.2));
     storyExploreDraw();
     storyExploreFrame=requestAnimationFrame(storyExploreTick);
   }
   window.openStoryExplore=function(){
-    hideStory("storyWorldScreen");hideStory("storyEpisodeScreen");hideStory("storyWorld2StageScreen");
-    renderStoryStages();renderStoryExploreEntrances();hideStory("storyStageScreen");showStory("storyExploreScreen");
+    hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");hideStory("storyWorld2StageScreen");
+    renderStoryStages();renderStoryExploreEntrances();showStory("storyExploreScreen");
+    const top=document.querySelector("#storyExploreScreen .story-explore-top strong");if(top)top.textContent="🌍 全ワールド共通探索フィールド";
+    const hint=document.querySelector("#storyExploreScreen .story-explore-hint");if(hint)hint.textContent="街から草原へ進み、時空の裂け目の先にはコード認証が必要なワールド2が広がっている。";
+    storyExplorePosition.x=420;storyExplorePosition.y=760;
     const view=$story("storyExploreViewport");if(view){view.scrollLeft=0;view.scrollTop=0;}
     storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);
   };
@@ -5596,7 +5610,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   window.closeStoryExplore=function(){
     hideStory("storyExploreScreen");hideStory("storyExploreConfirm");storyExploreKeys.clear();storyExploreConfirmStage=0;
     if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}
-    showStory("storyWorldScreen");
+    const map=$story("mapSelect");if(map)map.classList.remove("hidden");
   };
   document.addEventListener("keydown",function(e){
     if(!storyExploreVisible())return;

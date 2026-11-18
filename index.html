@@ -6502,6 +6502,18 @@ function damageEnemy(amount) {
     msg.textContent = "🛡️ ボスは残存子分により守られている！";
     return;
   }
+  // STEP 1 Stage 1：大ダメージでHPしきい値を一気に飛び越えて必殺技が省略されないよう、
+  // 50%・35%の発動ラインでいったんHPを止め、必殺技終了後に続けて攻撃できるようにする。
+  if (stage === 1 && !bossSpecialState && !gameOver && !stageClear && enemy.maxHp > 0) {
+    const uses = bossSpecialUses[1] || 0;
+    const thresholds = [0.50, 0.35];
+    if (uses < thresholds.length) {
+      const triggerHp = Math.ceil(enemy.maxHp * thresholds[uses]);
+      if (enemy.hp > triggerHp && enemy.hp - amount < triggerHp) {
+        amount = enemy.hp - triggerHp;
+      }
+    }
+  }
   const actual = Math.max(0, Math.min(enemy.hp, amount));
   enemy.hp = Math.max(0, enemy.hp - amount);
   if (actual > 0) {

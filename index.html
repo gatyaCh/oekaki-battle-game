@@ -10180,7 +10180,15 @@ return origUpdate.apply(this,arguments)};
  const save=a=>{try{localStorage.setItem(KEY,JSON.stringify(a.slice(0,3)));}catch(e){}};
  function render(){
   const icon=$('playerTitleSkinIcon'),name=$('playerTitleSkinName'),slots=$('playerTitleSlots');
-  if(icon)icon.textContent=typeof window.getSelectedSkinEmoji==='function'?window.getSelectedSkinEmoji():'🙂';
+  if(icon){
+   icon.textContent='';
+   const canvas=document.createElement('canvas');canvas.width=canvas.height=88;canvas.setAttribute('aria-label','現在使用中のスキン');
+   const ctx=canvas.getContext('2d');
+   let custom=false;
+   try{custom=!!(ctx&&typeof window.drawSelectedSkin==='function'&&window.drawSelectedSkin(ctx,44,44,68));}catch(e){custom=false;}
+   if(custom){canvas.style.width='76px';canvas.style.height='76px';icon.appendChild(canvas);}
+   else icon.textContent=typeof window.getSelectedSkinEmoji==='function'?window.getSelectedSkinEmoji():'🙂';
+  }
   if(name)name.textContent='現在使用中のスキン';
   if(!slots)return;
   const equipped=read();slots.innerHTML='';
@@ -10193,6 +10201,7 @@ return origUpdate.apply(this,arguments)};
    slots.appendChild(row);
   }
  }
+ window.renderPlayerTitleProfile=render;
  function open(){
   const d=$('playerTitleDialog');if(!d)return;
   const list=$('playerTitleEarnedList');if(list){

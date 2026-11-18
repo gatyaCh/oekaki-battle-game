@@ -5765,7 +5765,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     const view=$story("storyExploreViewport");if(view){view.scrollLeft=0;view.scrollTop=0;}
     storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);
   };
-  window.openStoryWorld2Explore=function(){
+  window.openStoryWorld2Explore=function(returnX,returnY){
     if(!syncStoryWorld2Unlock()){window.openStoryWorlds();return;}
     hideStory("storyWorld2StageScreen");hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");
     renderStoryStages();renderStoryExploreEntrances();renderStoryWorld2ExploreEntrances();showStory("storyExploreScreen");
@@ -5773,8 +5773,8 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     if(top)top.textContent="🌌 ワールド2探索フィールド";
     const hint=document.querySelector("#storyExploreScreen .story-explore-hint");
     if(hint)hint.textContent="草原の奥にある時空の裂け目を越えると、闇の空間を探索できるよ。";
-    storyExplorePosition.x=2100;storyExplorePosition.y=750;
-    const view=$story("storyExploreViewport");if(view){view.scrollLeft=storyExplorePosition.x-view.clientWidth/2;view.scrollTop=storyExplorePosition.y-view.clientHeight/2;}
+    storyExplorePosition.x=Number.isFinite(returnX)?Math.max(40,Math.min(4960,returnX)):2100;storyExplorePosition.y=Number.isFinite(returnY)?Math.max(80,Math.min(1460,returnY)):750;
+    const view=$story("storyExploreViewport");if(view){view.scrollLeft=Math.max(0,storyExplorePosition.x-view.clientWidth/2);view.scrollTop=Math.max(0,storyExplorePosition.y-view.clientHeight/2);}
     storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);
   };
   window.closeStoryExplore=function(){
@@ -12231,7 +12231,7 @@ $("s15Exit").addEventListener("click",back);$("s15Back").addEventListener("click
   if(!open)return;open=false;
   try{localStorage.setItem("storyWorld2Stage1Cleared","1");}catch(e){}
   $("storyWorld2IntroScreen").classList.add("hidden");
-  if(typeof window.openStoryWorld2Stages==="function")window.openStoryWorld2Stages();
+  if(typeof window.openStoryWorld2Explore==="function")window.openStoryWorld2Explore(2750,750);
  }
  window.startStoryWorld2Intro=function(){
   index=0;open=true;

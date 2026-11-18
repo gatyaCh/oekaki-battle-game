@@ -7177,11 +7177,19 @@ function buyUpgrade(key) {
   renderUpgradeShop();
 }
 function buyUpgradeWithDiamond(key){
-  const costs={atk:2,defense:1,points:5};
-  const cost=costs[key],caps={atk:10,speed:10,defense:10,points:10,heal:10,special:8,hp:10};
-  if(!cost||!(key in upgradeLevels)||upgradeLevels[key]>=caps[key]||maDiamonds<cost)return;
-  maDiamonds-=cost;saveMADiamonds();upgradeLevels[key]++;
-  if(upgradeLevels[key]>=caps[key]&&typeof window.unlockGameSkin==="function")window.unlockGameSkin("gamer");
+  const costs={atk:2,speed:2,defense:1,points:5,heal:3,special:3,hp:4};
+  const caps={atk:10,speed:10,defense:10,points:10,heal:10,special:8,hp:10};
+  const cost=costs[key],maxLevel=caps[key];
+  if(!cost||!(key in upgradeLevels)||maxLevel==null||upgradeLevels[key]>=maxLevel||maDiamonds<cost)return;
+  const gainedLevels=maxLevel-upgradeLevels[key];
+  maDiamonds-=cost;
+  saveMADiamonds();
+  upgradeLevels[key]=maxLevel;
+  if(key==="hp"&&typeof p!=="undefined"&&p){
+    p.max+=10*gainedLevels;
+    p.hp+=10*gainedLevels;
+  }
+  if(typeof window.unlockGameSkin==="function")window.unlockGameSkin("gamer");
   renderUpgradeShop();
 }
 function closeUpgradeShop() {

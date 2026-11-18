@@ -10132,6 +10132,10 @@ return origUpdate.apply(this,arguments)};
 #playerTitleDialog.hidden{display:none!important}
 #playerTitleDialog .player-title-dialog-card{width:min(440px,100%);max-height:80vh;overflow:auto;padding:20px;border:2px solid #60a5fa;border-radius:16px;background:#111827;color:#fff;text-align:center}
 #playerTitleDialog h3{margin:0 0 8px;color:#fde68a}
+#playerTitleEarnedList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0;text-align:left}
+.player-title-choice{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:48px;padding:8px 10px;border:1px solid #64748b;border-radius:9px;background:#1e293b;color:#e2e8f0;font-size:13px}
+.player-title-choice span{color:#94a3b8;font-size:12px}
+@media(max-width:420px){#playerTitleEarnedList{grid-template-columns:1fr}}
 #playerTitleDialog button{margin:6px}
 @media(max-width:600px){#playerTitleProfile{padding:9px}#playerTitleSkinIcon{font-size:36px}}
 </style>
@@ -10159,7 +10163,19 @@ return origUpdate.apply(this,arguments)};
    slots.appendChild(row);
   }
  }
- function open(){const d=$('playerTitleDialog');if(!d)return;const list=$('playerTitleEarnedList');if(list)list.textContent='獲得した称号がここに表示されます。';d.classList.remove('hidden');}
+ function open(){
+  const d=$('playerTitleDialog');if(!d)return;
+  const list=$('playerTitleEarnedList');if(list){
+   list.innerHTML='';
+   for(let i=1;i<=10;i++){
+    const row=document.createElement('div');row.className='player-title-choice';
+    const number=document.createElement('b');number.textContent='称号枠 '+i;
+    const status=document.createElement('span');status.textContent='未設定';
+    row.append(number,status);list.appendChild(row);
+   }
+  }
+  d.classList.remove('hidden');
+ }
  function close(){$('playerTitleDialog')?.classList.add('hidden');}
  function init(){
   const right=$('drawActionColumn');if(!right||$('playerTitleProfile'))return;

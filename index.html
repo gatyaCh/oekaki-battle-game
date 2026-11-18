@@ -10040,7 +10040,17 @@ return origUpdate.apply(this,arguments)};
 
 <style id="draw-layout-and-skin-shop-refresh">
 /* キャンバス左・操作ボタン右のレイアウト */
-#drawWorkArea{display:flex;align-items:flex-start;justify-content:center;gap:18px;width:min(100%,900px);margin:0 auto 12px;text-align:left}
+#drawWorkArea{display:flex;align-items:flex-start;justify-content:center;gap:24px;width:min(100%,1500px);margin:0 auto 12px;text-align:left}
+#drawCanvasColumn{flex:0 1 440px}
+#drawActionColumn{flex:0 0 270px}
+#drawWorkArea #playerTitleProfile{flex:0 0 340px;width:340px;max-width:340px;align-self:center;margin:58px 0 0;padding:18px;box-sizing:border-box}
+#drawWorkArea #playerTitleProfile h3{font-size:22px}
+#drawWorkArea #playerTitleSkin{min-height:105px;flex-direction:column;gap:6px}
+#drawWorkArea #playerTitleSkinIcon{font-size:58px}
+#drawWorkArea #playerTitleSkinName{font-size:14px}
+#drawWorkArea #playerTitleSlots{gap:10px}
+#drawWorkArea .player-title-slot{min-height:48px;font-size:15px;padding:9px 12px}
+#drawWorkArea #playerTitleManage{min-height:46px;font-size:15px}
 #drawCanvasColumn{display:flex;flex-direction:column;align-items:center;min-width:0}
 #drawCanvasColumn #guideInstruction{text-align:center;max-width:100%}
 #drawActionColumn{display:flex;flex-direction:column;align-items:stretch;gap:9px;min-width:190px;max-width:250px;padding-top:28px}
@@ -10053,6 +10063,7 @@ return origUpdate.apply(this,arguments)};
   #drawActionColumn #skinControlButtons{display:flex;gap:6px;width:100%}
   #drawActionColumn #skinResetDefaultBtn{background:#7c3aed!important;color:#fff!important;border:1px solid #c4b5fd!important;font-weight:800!important}
 #drawActionColumn #closeDrawExpandBtn{display:none}
+@media(max-width:900px){#drawWorkArea{width:min(100%,620px);flex-wrap:wrap;justify-content:center;gap:14px}#drawCanvasColumn{flex:1 1 400px}#drawActionColumn{flex:0 1 250px}#drawWorkArea #playerTitleProfile{flex:1 1 100%;width:min(100%,520px);max-width:520px;margin:8px auto 12px;align-self:stretch}}
 #skinPanel{position:fixed!important;inset:0!important;left:0!important;top:0!important;transform:none!important;width:100vw!important;height:100dvh!important;max-height:none!important;overflow:auto!important;z-index:950000!important;border:0!important;border-radius:0!important;background:radial-gradient(ellipse at top,#263955,#10151f 70%)!important;padding:clamp(18px,4vw,42px)!important;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:none!important}
 #skinPanel.hidden{display:none!important}
 #skinPanel h3{font-size:clamp(25px,4vw,36px);margin-bottom:8px}
@@ -10154,7 +10165,7 @@ return origUpdate.apply(this,arguments)};
   const right=$('drawActionColumn');if(!right||$('playerTitleProfile'))return;
   const panel=document.createElement('section');panel.id='playerTitleProfile';
   panel.innerHTML='<h3>👤 プレイヤー</h3><div id="playerTitleSkin"><span id="playerTitleSkinIcon">🙂</span><span id="playerTitleSkinName">現在使用中のスキン</span></div><div id="playerTitleSlots"></div><button id="playerTitleManage" type="button">🏅 称号を設定（最大3つ）</button>';
-  const skin=$('skinControls');if(skin&&skin.parentNode===right)skin.insertAdjacentElement('afterend',panel);else right.prepend(panel);
+  const work=$('drawWorkArea');if(work)work.appendChild(panel);else if(skin&&skin.parentNode===right)skin.insertAdjacentElement('afterend',panel);else right.prepend(panel);
   $('playerTitleManage')?.addEventListener('click',open);$('playerTitleDialogClose')?.addEventListener('click',close);
   $('playerTitleDialog')?.addEventListener('click',e=>{if(e.target.id==='playerTitleDialog')close();});
   document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});

@@ -3711,7 +3711,7 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 .story-explore-shop-card{width:min(390px,92vw);padding:22px;border:1px solid #fbbf24;border-radius:18px;background:#151c2b;text-align:center;box-shadow:0 16px 50px #0009}
 .story-shop-catalog{max-height:88vh;overflow:auto}.story-shop-items{display:grid;gap:9px;margin:14px 0;text-align:left}.story-shop-item{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:10px;border:1px solid #475569;border-radius:11px;background:#0f172a}.story-shop-item strong{display:block;color:#fde68a}.story-shop-item small{display:block;color:#cbd5e1}.story-shop-item button{padding:8px 10px;min-width:88px}.story-shop-item button:disabled{opacity:.55}.story-explore-shop-card h2{margin:0 0 8px;color:#fde68a}.story-explore-shop-card p{color:#e2e8f0}
 .story-explore-prompt{position:absolute;z-index:8;left:50%;top:62px;transform:translateX(-50%);padding:9px 16px;border:2px solid #fde68a;border-radius:12px;background:#172554f2;color:#fff;text-align:center;box-shadow:0 5px 18px #0008;white-space:nowrap}
-.story-explore-confirm{position:absolute;z-index:20;inset:0;display:grid;place-items:center;background:#020617b8;padding:18px}
+.story-explore-confirm{position:fixed!important;z-index:2147483000!important;inset:0;display:grid;place-items:center;background:#020617b8;padding:18px;pointer-events:auto!important;touch-action:manipulation}.story-explore-confirm-card,.story-explore-confirm-card *{pointer-events:auto!important}.story-explore-confirm-card button{position:relative;z-index:1;min-width:120px;padding:10px 14px;cursor:pointer;touch-action:manipulation}
 .story-explore-confirm-card{width:min(390px,92vw);padding:22px;border:1px solid #94a3b8;border-radius:18px;background:#111c30;color:#fff;text-align:center;box-shadow:0 16px 50px #0009}
 .story-explore-confirm-card h2{margin:0 0 12px;font-size:22px}
 .story-explore-confirm-card p{margin:0 0 20px;color:#dbeafe}
@@ -5739,8 +5739,8 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     if(storySecretShopFound&&Math.hypot(storyExplorePosition.x-1799,storyExplorePosition.y-744)<90){openStorySecretShop();}
   }
   const storyExploreYes=$story("storyExploreConfirmYes"),storyExploreNo=$story("storyExploreConfirmNo"),storyExploreAction=$story("storyExploreAction");
-  if(storyExploreYes)storyExploreYes.addEventListener("click",function(){if(storyExploreConfirmWorld2){launchStoryWorld2ExploreStage(storyExploreConfirmWorld2);return;}if(storyExploreConfirmStage)launchStoryExploreStage(storyExploreConfirmStage);});
-  if(storyExploreNo)storyExploreNo.addEventListener("click",storyExploreCloseConfirm);
+  if(storyExploreYes)storyExploreYes.onclick=function(e){e.preventDefault();e.stopPropagation();if(storyExploreConfirmWorld2){launchStoryWorld2ExploreStage(storyExploreConfirmWorld2);return;}if(storyExploreConfirmStage)launchStoryExploreStage(storyExploreConfirmStage);};
+  if(storyExploreNo)storyExploreNo.onclick=function(e){e.preventDefault();e.stopPropagation();storyExploreCloseConfirm();};
   if(storyExploreAction)storyExploreAction.addEventListener("click",storyExploreInteract);
   function storyExploreDraw(){
     const player=$story("storyExplorePlayer"),view=$story("storyExploreViewport");

@@ -5459,7 +5459,10 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   let storyWorld2Authorized=false;
   function storyWorld2HasStoryClear(){try{return localStorage.getItem("story15Cleared")==="1";}catch(e){return false;}}
   function storyWorld2IsUnlocked(){return storyWorld2Authorized;}
-  function syncStoryWorld2Unlock(){if(storyWorld2IsUnlocked())storyWorld2Authorized=true;return storyWorld2Authorized;}
+  function syncStoryWorld2Unlock(){return storyWorld2Authorized;}
+  // ワールド2のコード認証は現在のページ滞在中だけ有効。ページを離れる/復帰する場合は必ず再認証。
+  window.addEventListener("pagehide",function(){storyWorld2Authorized=false;});
+  window.addEventListener("pageshow",function(){storyWorld2Authorized=false;});
   let storyCodeGateReturnToExplore=false;
   window.openStoryCodeGate=function(fromExplore=false){storyCodeGateReturnToExplore=!!fromExplore;if(fromExplore&&storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}if(!fromExplore){hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");hideStory("storyWorld2StageScreen");}const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(input)input.value="";if(message)message.textContent="";showStory("storyCodeGate");if(input)input.focus();};
   window.closeStoryCodeGate=function(){hideStory("storyCodeGate");if(storyCodeGateReturnToExplore){showStory("storyExploreScreen");storyExplorePosition.x=Math.min(storyExplorePosition.x,2180);storyExploreKeys.clear();storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);}else{showStory("storyWorldScreen");}storyWorld2Authorized=false;storyCodeGateReturnToExplore=false;};

@@ -56,12 +56,15 @@
     body[data-theme="black"] a { color:#d1d5db; }
     body[data-theme="black"] hr { background:linear-gradient(90deg,transparent,#777,transparent); }
     body[data-theme="black"] .qr-card { background:linear-gradient(155deg,rgba(38,38,38,.96),rgba(15,15,15,.96)); border-color:#555; }
-    body[data-theme="halloween"] { color:#fff4e8; background:radial-gradient(ellipse at 15% 15%,rgba(255,125,0,.3),transparent 40%),radial-gradient(ellipse at 85% 80%,rgba(130,40,190,.32),transparent 44%),linear-gradient(135deg,#1b0c24,#3b1745 52%,#160d20); }
-    body[data-theme="halloween"]::before { opacity:.18; background-image:linear-gradient(rgba(255,155,55,.2) 1px,transparent 1px),linear-gradient(90deg,rgba(255,155,55,.2) 1px,transparent 1px); }
-    body[data-theme="halloween"] h1, body[data-theme="halloween"] h2 { color:#fff1d8; text-shadow:0 0 12px rgba(255,125,0,.65); }
-    body[data-theme="halloween"] a { color:#ffc078; }
-    body[data-theme="halloween"] hr { background:linear-gradient(90deg,transparent,#ff8a00,#a855f7,transparent); }
-    body[data-theme="halloween"] .qr-card { background:linear-gradient(155deg,rgba(70,30,75,.95),rgba(35,16,48,.95)); border-color:#c07836; }
+    /* GATYA：カプセルとガチャマシンをイメージした限定背景 */
+    body[data-theme="gatya"] { color:#fff9ff; background:radial-gradient(circle at 12% 18%,rgba(255,105,180,.30),transparent 24%),radial-gradient(circle at 88% 20%,rgba(255,210,70,.27),transparent 25%),radial-gradient(circle at 50% 100%,rgba(125,75,255,.32),transparent 42%),linear-gradient(135deg,#241044 0%,#542078 48%,#171b49 100%); }
+    body[data-theme="gatya"]::before { opacity:.30; background-image:radial-gradient(circle at 18px 18px,rgba(255,255,255,.28) 0 2px,transparent 3px),radial-gradient(circle at 54px 54px,rgba(255,220,120,.24) 0 3px,transparent 4px),linear-gradient(135deg,transparent 48%,rgba(255,255,255,.07) 49% 51%,transparent 52%); background-size:72px 72px,108px 108px,48px 48px; mask-image:linear-gradient(to bottom,black,transparent 96%); }
+    body[data-theme="gatya"]::after { width:460px; height:460px; right:-130px; bottom:-240px; background:radial-gradient(circle,rgba(255,190,70,.28) 0 18%,rgba(255,90,180,.20) 19% 32%,rgba(120,90,255,.18) 33% 48%,transparent 70%); filter:blur(12px); }
+    body[data-theme="gatya"] h1, body[data-theme="gatya"] h2 { color:#fff; text-shadow:0 0 10px rgba(255,120,210,.85),0 0 24px rgba(255,205,90,.48); }
+    body[data-theme="gatya"] a { color:#ffe18a; }
+    body[data-theme="gatya"] hr { height:2px; background:linear-gradient(90deg,transparent,#ff75c8,#ffe17a,#8eeaff,transparent); box-shadow:0 0 16px rgba(255,115,205,.45); }
+    body[data-theme="gatya"] .qr-card { background:linear-gradient(150deg,rgba(74,32,112,.94),rgba(27,28,78,.96)); border-color:#f4b6e8; box-shadow:0 0 22px rgba(255,105,195,.18),inset 0 0 20px rgba(255,210,100,.08); }
+    body[data-theme="gatya"] .qr-card a { color:#ffe18a; }
     body[data-theme="neon"] { color:#f5f7ff; background:radial-gradient(ellipse at 12% 12%,rgba(0,255,245,.25),transparent 38%),radial-gradient(ellipse at 88% 18%,rgba(255,0,190,.23),transparent 40%),radial-gradient(ellipse at 50% 100%,rgba(120,60,255,.2),transparent 45%),linear-gradient(135deg,#070817,#14102e 52%,#080817); }
     body[data-theme="neon"]::before { opacity:.25; background-image:linear-gradient(rgba(0,255,245,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(255,0,190,.16) 1px,transparent 1px); }
     body[data-theme="neon"] h1, body[data-theme="neon"] h2 { color:#fff; text-shadow:0 0 10px #00eaff,0 0 22px #bd42ff; }
@@ -116,7 +119,7 @@
       <button type="button" data-theme-choice="red" aria-pressed="false">🔴 赤</button>
       <button type="button" data-theme-choice="blue" aria-pressed="false">🔵 青</button>
       <button type="button" data-theme-choice="black" aria-pressed="false">⚫ 黒</button>
-      <button type="button" data-theme-choice="halloween" aria-pressed="false">🎃 ハロウィン仕様</button>
+      <button type="button" data-theme-choice="gatya" aria-pressed="false">🎰 GATYA仕様</button>
       <button type="button" data-theme-choice="neon" aria-pressed="false">✨ ネオン仕様</button>
     </div>
     <p style="margin:10px 0 0;font-size:13px">選んだ背景はこのブラウザに保存され、次回も引き継がれます。QRコードは読み取りやすい白黒表示のままです。</p>
@@ -174,7 +177,7 @@
 </div>
 <script>
 (()=>{
-  const allowed=["white","red","blue","black","halloween","neon"];
+  const allowed=["white","red","blue","black","neon","gatya"];
   const buttons=[...document.querySelectorAll("[data-theme-choice]")];
   function applyTheme(theme){
     if(!allowed.includes(theme)) theme="white";

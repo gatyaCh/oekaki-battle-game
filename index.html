@@ -5701,7 +5701,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
       if(dist<best){best=dist;nearest=i;}
     }
     storyExploreNearbyStage=best<=115?nearest:0;
-    storyExploreNearRift=!storyWorld2Authorized&&storyExplorePosition.x>=2160&&storyExplorePosition.x<=2510&&storyExplorePosition.y>=170&&storyExplorePosition.y<=1350;
+    storyExploreNearRift=!storyWorld2Authorized&&storyExplorePosition.x>=2100&&storyExplorePosition.x<=2600&&storyExplorePosition.y>=80&&storyExplorePosition.y<=1460;
     const prompt=$story("storyExplorePrompt"),action=$story("storyExploreAction"),label=$story("storyExplorePromptText");
     const canInteract=!!(storyExploreNearbyStage||storyExploreNearbyWorld2||storyExploreNearRift);
     if(prompt)prompt.classList.toggle("hidden",!canInteract||!!storyExploreConfirmStage||!!storyExploreConfirmWorld2);
@@ -5786,8 +5786,9 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     const k=e.key.toLowerCase();
     const map={arrowup:"up",w:"up",arrowdown:"down",s:"down",arrowleft:"left",a:"left",arrowright:"right",d:"right"};
     if(map[k]){e.preventDefault();storyExploreKeys.add(map[k]);}
-    const attack=(window.controlKeys&&window.controlKeys.attack||"e").toLowerCase();
-    if(k===" "||k==="spacebar"||k===attack){e.preventDefault();if(!e.repeat)storyExploreInteract();}
+    const attack=String((window.controlKeys&&window.controlKeys.attack)||"e").toLowerCase();
+    const attackExtras=Array.isArray(window.attackExtraKeys)?window.attackExtraKeys.map(v=>String(v).toLowerCase()):[];
+    if(k===" "||k==="spacebar"||k===attack||attackExtras.includes(k)){e.preventDefault();if(!e.repeat)storyExploreInteract();}
     if(k==="escape"&&storyExploreConfirmStage)storyExploreCloseConfirm();
   });
   document.addEventListener("keyup",function(e){

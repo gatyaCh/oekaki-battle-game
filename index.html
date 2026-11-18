@@ -3648,7 +3648,7 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 .story-explore-top span{font-size:12px;color:#cbd5e1}
 .story-explore-viewport{position:absolute;inset:48px 0 0;overflow:auto;scrollbar-width:none;overscroll-behavior:contain}
 .story-explore-viewport::-webkit-scrollbar{display:none}
-.story-explore-world{position:relative;width:3000px;height:1500px;overflow:hidden;background:linear-gradient(90deg,#64748b 0 20.5%,#a3a78b 20.5% 31.5%,#76a85b 31.5% 76%,#101522 76% 100%)}
+.story-explore-world{position:relative;width:3000px;height:1500px;overflow:hidden;background:linear-gradient(90deg,#76a85b 0 76%,#101522 76% 100%)}
 .story-explore-rift-zone{left:2290px!important;background:#31205de8;border:1px solid #b69cff;box-shadow:0 0 18px #9b5cff}
 .story-explore-dark-zone{left:2540px!important;background:#050711eF;border:1px solid #64748b}
 .story-explore-rift-art{position:absolute;z-index:2;left:2280px;top:170px;width:170px;height:1180px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:linear-gradient(90deg,transparent,#7c3aed33 20%,#a78bfa99 48%,#312e8133 80%,transparent);border-left:3px solid #a78bfa;border-right:3px solid #7c3aed;box-shadow:0 0 35px #8b5cf6,inset 0 0 35px #8b5cf655}
@@ -3660,7 +3660,7 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 @keyframes storyExploreRiftPulse{from{transform:scaleY(.88);filter:drop-shadow(0 0 12px #8b5cf6)}to{transform:scaleY(1.08);filter:drop-shadow(0 0 28px #c4b5fd)}}
 @keyframes storyExploreDarkFloat{from{transform:translateY(-16px) scale(.94);opacity:.45}to{transform:translateY(18px) scale(1.06);opacity:.9}}
 .story-explore-zone{position:absolute;top:20px;padding:8px 18px;border-radius:20px;background:#0f172acc;color:#fff;font-size:24px;font-weight:900;letter-spacing:4px}
-.story-explore-city{left:180px}.story-explore-suburbs{left:790px}.story-explore-grass{left:1530px}
+.story-explore-grass{left:1320px}
 .story-explore-road{position:absolute;background:#555b60;border:5px solid #d6d3c1;box-shadow:0 0 0 2px #333}
 .story-explore-road-main{left:-80px;top:690px;width:2400px;height:150px;transform:rotate(-7deg)}
 .story-explore-road-branch{left:510px;top:250px;width:125px;height:760px;transform:rotate(8deg)}
@@ -4421,20 +4421,11 @@ body {
   </div>
   <div id="storyExploreViewport" class="story-explore-viewport">
     <div id="storyExploreWorld" class="story-explore-world">
-      <div class="story-explore-zone story-explore-city">街</div>
-      <div class="story-explore-zone story-explore-suburbs">郊外</div>
       <div class="story-explore-zone story-explore-grass">草原</div>
       <div class="story-explore-zone story-explore-rift-zone" style="left:2290px">時空の裂け目</div>
       <div class="story-explore-zone story-explore-dark-zone" style="left:2540px">闇の空間</div>
       <div class="story-explore-rift-art" aria-hidden="true"><span>🌀</span><small>空間がゆがんでいる……</small></div>
       <div class="story-explore-dark-art" aria-hidden="true"><span>🌑</span><span>⚫</span><span>🌑</span><small>光の届かない未知の領域</small></div>
-      <div class="story-explore-road story-explore-road-main"></div>
-      <div class="story-explore-road story-explore-road-branch"></div>
-      <div class="story-explore-building story-explore-lab">🚀<br>宇宙研究施設</div>
-      <div class="story-explore-building story-explore-house" style="left:190px;top:330px">🏠</div>
-      <div class="story-explore-building story-explore-house" style="left:530px;top:250px">🏢</div>
-      <div class="story-explore-building story-explore-house" style="left:650px;top:760px">🏠</div>
-      <div class="story-explore-building story-explore-house" style="left:360px;top:990px">🏬</div>
       <div class="story-explore-tree" style="left:900px;top:260px">🌳</div>
       <div class="story-explore-tree" style="left:1050px;top:880px">🌲</div>
       <div class="story-explore-tree" style="left:1240px;top:440px">🌳</div>
@@ -4442,7 +4433,7 @@ body {
       <div class="story-explore-tree" style="left:1750px;top:360px">🌳</div>
       <div class="story-explore-tree" style="left:1920px;top:850px">🌲</div>
       <div id="storyExploreStageEntrances" class="story-explore-stage-layer" aria-label="ステージ入口"></div>
-      <button type="button" id="storySecretShopDoor" class="story-secret-shop" style="left:760px;top:420px" aria-label="隠しショップ入口"><span>🚪</span><span class="story-secret-shop-label">？？？</span></button>
+      <button type="button" id="storySecretShopDoor" class="story-secret-shop" style="left:1760px;top:710px" aria-label="隠しショップ入口"><span>🚪</span><span class="story-secret-shop-label">？？？</span></button>
       <div id="storyExplorePlayer" class="story-explore-player" aria-label="プレイヤー">🧑‍🚀</div>
     </div>
   </div>

@@ -4695,7 +4695,7 @@ body {
 <div id="upgradeShopModal" class="hidden">
   <div class="shop-container">
     <h2 style="color:#a78bfa;margin-bottom:8px;">✨ 自己強化ショップ</h2>
-    <p style="font-size:14px;color:#cbd5e1;">所持コイン: <b id="upgradeShopCoin" style="color:#ffd700;">0</b> G　|　強化はこのゲーム中ずっと有効</p>
+    <p style="font-size:14px;color:#cbd5e1;">所持コイン: <b id="upgradeShopCoin" style="color:#ffd700;">0</b> G　｜　💎 MAダイヤ: <b id="upgradeShopDiamondCount" style="color:#67e8f9;">0</b> 個<br>強化はこのゲーム中ずっと有効</p>
     <div id="upgradeShopItems" class="shop-grid"></div>
     <div style="margin-top:12px;">
       <button id="upgradeRouletteEntry" onclick="openShopRoulette('upgrade')" style="background:#f59e0b;color:#111;font-weight:bold;">🎰 ルーレット（30 G）</button>
@@ -6080,6 +6080,13 @@ let tutorialDelayTimer = null;
 let tutorialSpecialUsed = false;
 let stage = 1;
 let coins = 0;
+// MAダイヤ：所持数を保存。報酬処理から window.addMADiamonds() で追加できる。
+const MA_DIAMOND_STORAGE_KEY="oekakiBattleMADiamondsV1";
+let maDiamonds=0;
+try{maDiamonds=Math.max(0,Math.floor(Number(localStorage.getItem(MA_DIAMOND_STORAGE_KEY))||0));}catch(e){}
+function saveMADiamonds(){try{localStorage.setItem(MA_DIAMOND_STORAGE_KEY,String(maDiamonds));}catch(e){}}
+window.addMADiamonds=(amount=1)=>{const n=Math.max(0,Math.floor(Number(amount)||0));maDiamonds+=n;saveMADiamonds();if(typeof renderUpgradeShop==="function")renderUpgradeShop();return maDiamonds;};
+window.getMADiamonds=()=>maDiamonds;
 let p = { x: 100, y: 250, hp: 150, max: 150, r: 20, invincibility: 0 };
 // Boss specs for 8 Stages
 const stageBosses = [
@@ -7140,6 +7147,7 @@ function renderUpgradeShop() {
   const root=document.getElementById("upgradeShopItems");
   if(!root)return;
   document.getElementById("upgradeShopCoin").textContent=coins;
+  const diamondCount=document.getElementById("upgradeShopDiamondCount");if(diamondCount)diamondCount.textContent=maDiamonds;
   const defs=[
     ["atk","💪 攻撃力","攻撃力 +4% / Lv（最大1.4倍）",10],
     ["speed","👟 移動速度","移動速度 +5% / Lv",10],
@@ -7151,7 +7159,9 @@ function renderUpgradeShop() {
   ];
   root.innerHTML=defs.map(([k,label,desc,max])=>{
     const lv=upgradeLevels[k], price=getUpgradePrice(k,lv), capped=lv>=max;
-    return '<div class="shop-card"><h3>'+label+'</h3><p style="font-size:12px;margin:4px 0;">'+desc+'</p><p style="color:#c4b5fd;">Lv '+lv+' / '+max+'</p><p style="color:#ffd700;font-weight:bold;">'+(capped?'MAX':price+' G')+'</p><button '+(capped||coins<price?'disabled':'')+' onclick="buyUpgrade(\''+k+'\')">'+(capped?'MAX':'強化する')+'</button></div>';
+    const diamondCosts={atk:2,defense:1,points:5};const diamondCost=diamondCosts[k];
+    const diamondButton=diamondCost?'<button style="background:#0891b2;border:1px solid #67e8f9;color:#fff;" '+(capped||maDiamonds<diamondCost?'disabled':'')+' onclick="buyUpgradeWithDiamond(\''+k+'\')">💎 ×'+diamondCost+'</button>':'';
+    return '<div class="shop-card"><h3>'+label+'</h3><p style="font-size:12px;margin:4px 0;">'+desc+'</p><p style="color:#c4b5fd;">Lv '+lv+' / '+max+'</p><p style="color:#ffd700;font-weight:bold;">'+(capped?'MAX':price+' G')+'</p><div style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap;"><button '+(capped||coins<price?'disabled':'')+' onclick="buyUpgrade(\''+k+'\')">'+(capped?'MAX':'🪙 強化')+'</button>'+diamondButton+'</div></div>';
   }).join("");
   const rb=document.getElementById("upgradeRouletteEntry");
   if(rb){rb.classList.toggle("hidden",rouletteWon);rb.disabled=coins<30;}
@@ -7163,6 +7173,14 @@ function buyUpgrade(key) {
   if(price==null||upgradeLevels[key]>=caps[key]||coins<price)return;
   coins-=price; upgradeLevels[key]++;
   if(key==="hp"){p.max+=10;p.hp+=10;}
+  if(upgradeLevels[key]>=caps[key]&&typeof window.unlockGameSkin==="function")window.unlockGameSkin("gamer");
+  renderUpgradeShop();
+}
+function buyUpgradeWithDiamond(key){
+  const costs={atk:2,defense:1,points:5};
+  const cost=costs[key],caps={atk:10,speed:10,defense:10,points:10,heal:10,special:8,hp:10};
+  if(!cost||!(key in upgradeLevels)||upgradeLevels[key]>=caps[key]||maDiamonds<cost)return;
+  maDiamonds-=cost;saveMADiamonds();upgradeLevels[key]++;
   if(upgradeLevels[key]>=caps[key]&&typeof window.unlockGameSkin==="function")window.unlockGameSkin("gamer");
   renderUpgradeShop();
 }

@@ -4582,7 +4582,7 @@ body {
     <span id="specialGaugePercent">0%</span>
   </div>
   <div style="margin: 8px 0;">
-    HP:<span id="hp">150</span>/<span id="maxHpText">150</span> 敵HP:<span id="ehp">200</span> 💰:<span id="coinText">0</span> 攻撃×<span id="atkText">1.0</span> 🛡️:<span id="shieldText">0.0s</span> 🗿:<span id="reviveText">なし</span>
+    HP:<span id="hp">150</span>/<span id="maxHpText">150</span> 敵HP:<span id="ehp">200</span> 💰:<span id="coinText">0</span> <span id="diamondHud" style="color:#67e8f9;font-weight:800;">💎:<span id="diamondText">0</span></span> 攻撃×<span id="atkText">1.0</span> 🛡️:<span id="shieldText">0.0s</span> 🗿:<span id="reviveText">なし</span>
   </div>
   <div id="chargeContainer">Charge <progress id="charge" max="150" value="0" style="width: 200px; height: 20px;"></progress></div>
 <div id="sougoHammerHud" class="hidden" style="position:fixed;top:64px;left:8px;z-index:99988;background:rgba(35,12,60,.94);border:2px solid #c084fc;border-radius:12px;padding:8px 12px;color:#fff;min-width:210px;box-shadow:0 0 12px #9333ea;font-size:14px">
@@ -4864,7 +4864,7 @@ body {
     <button data-a="autoHeal">❤️ 自動回復</button>
     <button data-a="attackMax">⚔️ 攻撃力MAX</button>
     <button id="admHeal">❤️ 全回復</button>
-    <button id="admAddCoin">💰 +500 コイン</button><hr style="margin: 4px 0;">
+    <button id="admAddCoin">💰 +500 コイン</button><button id="admAddDiamond">💎 ×10</button><hr style="margin: 4px 0;">
     <button id="admOpenShop">🛒 ショップを今すぐ起動</button>
     <button id="admClearStage">🏆 ステージ即時クリア</button>
     <button id="admMaxSpecial">⚡ ゲージMAX</button>
@@ -8616,6 +8616,8 @@ function loop() {
   if (hudMaxHp && p) hudMaxHp.textContent = Math.floor(p.max);
   if (hudEnemyHp && enemy) hudEnemyHp.textContent = Math.max(0, Math.floor(enemy.hp));
   if (hudCoins) hudCoins.textContent = coins;
+  const hudDiamonds=document.getElementById("diamondText");
+  if(hudDiamonds)hudDiamonds.textContent=maDiamonds;
   if (hudAtk) hudAtk.textContent = (atkBuff * (kizuku2Active ? 2.0 : 1)).toFixed(1);
   if (hudShield) hudShield.textContent = shieldEquipped ? Math.max(0, shieldRemainingTime).toFixed(1) + "s" : "なし";
   if (hudRevive) hudRevive.textContent = revive ? "所持" : "なし";
@@ -8742,6 +8744,7 @@ loop();
   });
   document.getElementById("admHeal").onclick = () => { p.hp = p.max; };
   document.getElementById("admAddCoin").onclick = () => { coins += 500; msg.textContent = "💰 コイン +500 追加！"; };
+  document.getElementById("admAddDiamond").onclick = () => { window.addMADiamonds(10); msg.textContent = "💎 MAダイヤを10個追加！"; };
   document.getElementById("admOpenShop").onclick = () => { openShop(1, false); };
   document.getElementById("admClearStage").onclick = () => { enemy.hp = 0; nextStage(); };
   document.getElementById("admMaxSpecial").onclick = () => {

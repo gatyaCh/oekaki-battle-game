@@ -56,15 +56,36 @@
     body[data-theme="black"] a { color:#d1d5db; }
     body[data-theme="black"] hr { background:linear-gradient(90deg,transparent,#777,transparent); }
     body[data-theme="black"] .qr-card { background:linear-gradient(155deg,rgba(38,38,38,.96),rgba(15,15,15,.96)); border-color:#555; }
-    /* GATYA：カプセルとガチャマシンをイメージした限定背景 */
-    body[data-theme="gatya"] { color:#fff9ff; background:radial-gradient(circle at 12% 18%,rgba(255,105,180,.30),transparent 24%),radial-gradient(circle at 88% 20%,rgba(255,210,70,.27),transparent 25%),radial-gradient(circle at 50% 100%,rgba(125,75,255,.32),transparent 42%),linear-gradient(135deg,#241044 0%,#542078 48%,#171b49 100%); }
-    body[data-theme="gatya"]::before { opacity:.30; background-image:radial-gradient(circle at 18px 18px,rgba(255,255,255,.28) 0 2px,transparent 3px),radial-gradient(circle at 54px 54px,rgba(255,220,120,.24) 0 3px,transparent 4px),linear-gradient(135deg,transparent 48%,rgba(255,255,255,.07) 49% 51%,transparent 52%); background-size:72px 72px,108px 108px,48px 48px; mask-image:linear-gradient(to bottom,black,transparent 96%); }
-    body[data-theme="gatya"]::after { width:460px; height:460px; right:-130px; bottom:-240px; background:radial-gradient(circle,rgba(255,190,70,.28) 0 18%,rgba(255,90,180,.20) 19% 32%,rgba(120,90,255,.18) 33% 48%,transparent 70%); filter:blur(12px); }
-    body[data-theme="gatya"] h1, body[data-theme="gatya"] h2 { color:#fff; text-shadow:0 0 10px rgba(255,120,210,.85),0 0 24px rgba(255,205,90,.48); }
-    body[data-theme="gatya"] a { color:#ffe18a; }
-    body[data-theme="gatya"] hr { height:2px; background:linear-gradient(90deg,transparent,#ff75c8,#ffe17a,#8eeaff,transparent); box-shadow:0 0 16px rgba(255,115,205,.45); }
-    body[data-theme="gatya"] .qr-card { background:linear-gradient(150deg,rgba(74,32,112,.94),rgba(27,28,78,.96)); border-color:#f4b6e8; box-shadow:0 0 22px rgba(255,105,195,.18),inset 0 0 20px rgba(255,210,100,.08); }
-    body[data-theme="gatya"] .qr-card a { color:#ffe18a; }
+    /* ギャラクシー：星雲と星空 */
+    body[data-theme="galaxy"] { color:#f5f0ff; background:radial-gradient(ellipse at 16% 20%,rgba(100,80,255,.45),transparent 34%),radial-gradient(ellipse at 82% 28%,rgba(220,70,210,.30),transparent 35%),radial-gradient(ellipse at 52% 88%,rgba(30,170,255,.22),transparent 42%),linear-gradient(135deg,#080b2c,#21104c 48%,#080d27); }
+    body[data-theme="galaxy"]::before { opacity:.55; background-image:radial-gradient(circle,#fff 0 1px,transparent 1.8px),radial-gradient(circle,rgba(150,210,255,.9) 0 1px,transparent 2px); background-size:47px 47px,83px 83px; }
+    body[data-theme="galaxy"]::after { width:460px; height:460px; right:-130px; bottom:-240px; background:radial-gradient(circle,rgba(100,120,255,.26),rgba(220,70,220,.14) 42%,transparent 70%); filter:blur(24px); }
+    body[data-theme="galaxy"] h1, body[data-theme="galaxy"] h2 { color:#fff; text-shadow:0 0 10px #8b7bff,0 0 24px rgba(210,100,255,.65); }
+    body[data-theme="galaxy"] a { color:#b9c7ff; }
+    body[data-theme="galaxy"] hr { height:2px; background:linear-gradient(90deg,transparent,#65d9ff,#b18cff,#ff79d5,transparent); box-shadow:0 0 16px rgba(115,130,255,.4); }
+    body[data-theme="galaxy"] .qr-card { background:linear-gradient(150deg,rgba(30,32,92,.94),rgba(48,20,82,.96)); border-color:#8c8bff; box-shadow:0 0 22px rgba(120,110,255,.18); }
+    body[data-theme="galaxy"] .qr-card a { color:#c6d5ff; }
+    /* GATYA：カプセルが詰まったガチャマシンを背景に配置 */
+    .gatya-machine-art { display:none; }
+    body[data-theme="gatya"] .gatya-machine-art { display:block; position:fixed; z-index:-1; pointer-events:none; left:clamp(8px,5vw,72px); bottom:-34px; width:230px; height:330px; opacity:.34; filter:drop-shadow(0 10px 22px rgba(0,0,0,.35)); }
+    .gatya-machine-dome { position:absolute; left:20px; top:0; width:190px; height:190px; overflow:hidden; border:8px solid rgba(255,255,255,.72); border-bottom-width:12px; border-radius:50% 50% 20% 20% / 48% 48% 14% 14%; background:linear-gradient(135deg,rgba(255,255,255,.32),rgba(255,90,190,.22) 42%,rgba(80,180,255,.22)); box-shadow:inset 0 0 22px rgba(255,255,255,.4),0 0 18px rgba(255,110,205,.35); }
+    .gatya-capsule { position:absolute; width:48px; height:48px; border:3px solid rgba(255,255,255,.8); border-radius:50%; background:linear-gradient(145deg,#ff7ab9 0 48%,#f7d5ec 49% 55%,#a44dff 56%); box-shadow:inset -5px -6px 9px rgba(0,0,0,.2),inset 5px 5px 8px rgba(255,255,255,.5); }
+    .gatya-capsule:nth-child(1){left:12px;top:96px;background:linear-gradient(145deg,#ffcf54 0 48%,#fff0b0 49% 55%,#ff8c32 56%)}
+    .gatya-capsule:nth-child(2){left:68px;top:112px;background:linear-gradient(145deg,#5ee6ff 0 48%,#d8fbff 49% 55%,#258bff 56%)}
+    .gatya-capsule:nth-child(3){left:119px;top:92px;background:linear-gradient(145deg,#ff7ab9 0 48%,#ffe0ef 49% 55%,#d83b91 56%)}
+    .gatya-capsule:nth-child(4){left:42px;top:53px;background:linear-gradient(145deg,#a9ff79 0 48%,#eaffd8 49% 55%,#35bb78 56%)}
+    .gatya-capsule:nth-child(5){left:104px;top:38px;background:linear-gradient(145deg,#b99aff 0 48%,#eee5ff 49% 55%,#7043d9 56%)}
+    .gatya-machine-base { position:absolute; left:7px; top:165px; width:216px; height:160px; border:5px solid rgba(255,255,255,.75); border-radius:18px 18px 24px 24px; background:linear-gradient(100deg,#ff5a9e,#8c42d8 48%,#426de0); box-shadow:inset 0 8px 15px rgba(255,255,255,.3); }
+    .gatya-machine-label { position:absolute; left:25px; top:185px; width:180px; padding:7px 4px; border:2px solid rgba(255,255,255,.85); border-radius:8px; color:#fff; background:rgba(55,25,100,.75); font-size:17px; font-weight:900; letter-spacing:2px; text-shadow:0 2px 5px #35104d; }
+    .gatya-machine-slot { position:absolute; left:78px; top:237px; width:76px; height:13px; border-radius:8px; background:#25123e; box-shadow:inset 0 2px 4px #000; }
+    .gatya-machine-knob { position:absolute; right:27px; top:258px; width:34px; height:34px; border:5px solid #ffe9a3; border-radius:50%; background:radial-gradient(circle at 35% 30%,#fff,#ffbd43 42%,#e66a32 75%); box-shadow:0 0 10px rgba(255,220,100,.7); }
+    body[data-theme="gatya"] { color:#fff8fc; background:radial-gradient(ellipse at 80% 12%,rgba(255,105,180,.26),transparent 38%),radial-gradient(ellipse at 55% 85%,rgba(255,195,70,.18),transparent 42%),linear-gradient(135deg,#28103e,#5a205e 50%,#211044); }
+    body[data-theme="gatya"]::before { opacity:.24; background-image:radial-gradient(circle,rgba(255,240,190,.9) 0 2px,transparent 3px),radial-gradient(circle,rgba(255,120,200,.7) 0 5px,transparent 6px); background-size:64px 64px,112px 112px; }
+    body[data-theme="gatya"] h1, body[data-theme="gatya"] h2 { color:#fff; text-shadow:0 0 10px rgba(255,110,190,.8),0 0 22px rgba(255,200,90,.55); }
+    body[data-theme="gatya"] a { color:#ffe29b; }
+    body[data-theme="gatya"] hr { height:2px; background:linear-gradient(90deg,transparent,#ff75b9,#ffe18b,#a78bfa,transparent); box-shadow:0 0 14px rgba(255,110,190,.4); }
+    body[data-theme="gatya"] .qr-card { background:linear-gradient(150deg,rgba(80,35,95,.95),rgba(42,22,72,.96)); border-color:#f3a8d6; box-shadow:0 0 20px rgba(255,100,190,.2); }
+    body[data-theme="gatya"] .qr-card a { color:#ffe29b; }
     body[data-theme="neon"] { color:#f5f7ff; background:radial-gradient(ellipse at 12% 12%,rgba(0,255,245,.25),transparent 38%),radial-gradient(ellipse at 88% 18%,rgba(255,0,190,.23),transparent 40%),radial-gradient(ellipse at 50% 100%,rgba(120,60,255,.2),transparent 45%),linear-gradient(135deg,#070817,#14102e 52%,#080817); }
     body[data-theme="neon"]::before { opacity:.25; background-image:linear-gradient(rgba(0,255,245,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(255,0,190,.16) 1px,transparent 1px); }
     body[data-theme="neon"] h1, body[data-theme="neon"] h2 { color:#fff; text-shadow:0 0 10px #00eaff,0 0 22px #bd42ff; }
@@ -111,6 +132,7 @@
 </style>
 </head>
 <body data-theme="white">
+  <div class="gatya-machine-art" aria-hidden="true"><div class="gatya-machine-dome"><span class="gatya-capsule"></span><span class="gatya-capsule"></span><span class="gatya-capsule"></span><span class="gatya-capsule"></span><span class="gatya-capsule"></span></div><div class="gatya-machine-base"></div><div class="gatya-machine-label">GATYA CAPSULE</div><div class="gatya-machine-slot"></div><div class="gatya-machine-knob"></div></div>
   <h1>🎨 お絵かきバトルVer1.00</h1>
   <details class="appearance-settings" id="appearanceSettings">
     <summary>⚙️ 背景・色の設定</summary>
@@ -119,6 +141,7 @@
       <button type="button" data-theme-choice="red" aria-pressed="false">🔴 赤</button>
       <button type="button" data-theme-choice="blue" aria-pressed="false">🔵 青</button>
       <button type="button" data-theme-choice="black" aria-pressed="false">⚫ 黒</button>
+      <button type="button" data-theme-choice="galaxy" aria-pressed="false">🌌 ギャラクシー仕様</button>
       <button type="button" data-theme-choice="gatya" aria-pressed="false">🎰 GATYA仕様</button>
       <button type="button" data-theme-choice="neon" aria-pressed="false">✨ ネオン仕様</button>
     </div>
@@ -177,7 +200,7 @@
 </div>
 <script>
 (()=>{
-  const allowed=["white","red","blue","black","neon","gatya"];
+  const allowed=["white","red","blue","black","neon","galaxy","gatya"];
   const buttons=[...document.querySelectorAll("[data-theme-choice]")];
   function applyTheme(theme){
     if(!allowed.includes(theme)) theme="white";
@@ -187,6 +210,7 @@
   }
   let saved="white";
   try{saved=localStorage.getItem("playPageTheme")||"white"}catch(e){}
+  if(saved==="gatya") saved="galaxy"; // 以前のGATYAテーマ設定はギャラクシーへ引き継ぐ
   applyTheme(saved);
   buttons.forEach(b=>b.addEventListener("click",()=>applyTheme(b.dataset.themeChoice)));
 

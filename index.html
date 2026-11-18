@@ -4464,7 +4464,7 @@ body {
     <div class="story-explore-confirm-card">
       <h2 id="storyExploreConfirmTitle">ステージに入りますか？</h2>
       <p id="storyExploreConfirmText"></p>
-      <div><button type="button" id="storyExploreConfirmYes">プレイする</button><button type="button" id="storyExploreConfirmNo">やめる</button></div>
+      <div><button type="button" id="storyExploreConfirmYes" onclick="window.storyExploreConfirmPlay()">プレイする</button><button type="button" id="storyExploreConfirmNo" onclick="window.storyExploreConfirmCancel()">やめる</button></div>
     </div>
   </div>
   <button type="button" id="storyExploreAction" class="story-explore-action">調べる</button>
@@ -5738,12 +5738,9 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     if(storyExploreNearbyStage){storyExploreOpenConfirm(storyExploreNearbyStage);return;}
     if(storySecretShopFound&&Math.hypot(storyExplorePosition.x-1799,storyExplorePosition.y-744)<90){openStorySecretShop();}
   }
-  const storyExploreYes=$story("storyExploreConfirmYes"),storyExploreNo=$story("storyExploreConfirmNo"),storyExploreAction=$story("storyExploreAction");
-  function handleStoryExploreConfirmYes(e){if(e){e.preventDefault();e.stopPropagation();}if(storyExploreConfirmWorld2){launchStoryWorld2ExploreStage(storyExploreConfirmWorld2);return;}if(storyExploreConfirmStage){launchStoryExploreStage(storyExploreConfirmStage);return;}}
-  function handleStoryExploreConfirmNo(e){if(e){e.preventDefault();e.stopPropagation();}storyExploreCloseConfirm();}
-  if(storyExploreYes){storyExploreYes.onclick=handleStoryExploreConfirmYes;storyExploreYes.addEventListener("pointerup",handleStoryExploreConfirmYes,true);}
-  if(storyExploreNo){storyExploreNo.onclick=handleStoryExploreConfirmNo;storyExploreNo.addEventListener("pointerup",handleStoryExploreConfirmNo,true);}
-  document.addEventListener("click",function(e){const yes=e.target&&e.target.closest?e.target.closest("#storyExploreConfirmYes"):null;const no=e.target&&e.target.closest?e.target.closest("#storyExploreConfirmNo"):null;if(yes){handleStoryExploreConfirmYes(e);}else if(no){handleStoryExploreConfirmNo(e);}},true);
+  const storyExploreAction=$story("storyExploreAction");
+  window.storyExploreConfirmPlay=function(){if(storyExploreConfirmWorld2){launchStoryWorld2ExploreStage(storyExploreConfirmWorld2);return;}if(storyExploreConfirmStage){launchStoryExploreStage(storyExploreConfirmStage);return;}const title=$story("storyExploreConfirmTitle");if(title)title.textContent="ステージ入口をもう一度調べてね";};
+  window.storyExploreConfirmCancel=function(){storyExploreCloseConfirm();};
   if(storyExploreAction)storyExploreAction.addEventListener("click",storyExploreInteract);
   function storyExploreDraw(){
     const player=$story("storyExplorePlayer"),view=$story("storyExploreViewport");

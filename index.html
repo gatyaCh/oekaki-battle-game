@@ -5457,13 +5457,15 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   function showStory(id){const el=$story(id);if(el)el.classList.remove("hidden");}
   const STORY_TEST_CODE="Story";
   let storyWorld2Authorized=false;
+  function storyWorld2IsUnlocked(){try{return storyWorld2Authorized||localStorage.getItem("story15Cleared")==="1";}catch(e){return storyWorld2Authorized;}}
+  function syncStoryWorld2Unlock(){if(storyWorld2IsUnlocked())storyWorld2Authorized=true;return storyWorld2Authorized;}
   let storyCodeGateReturnToExplore=false;
   window.openStoryCodeGate=function(fromExplore=false){storyCodeGateReturnToExplore=!!fromExplore;if(fromExplore&&storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}if(!fromExplore){hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");hideStory("storyWorld2StageScreen");}const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(input)input.value="";if(message)message.textContent="";showStory("storyCodeGate");if(input)input.focus();};
   window.closeStoryCodeGate=function(){hideStory("storyCodeGate");if(storyCodeGateReturnToExplore){showStory("storyExploreScreen");storyExplorePosition.x=Math.min(storyExplorePosition.x,2180);storyExploreKeys.clear();storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);}else showStory("storyWorldScreen");storyCodeGateReturnToExplore=false;};
   window.submitStoryTestCode=function(){const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(!input||!message)return;if(input.value!==STORY_TEST_CODE){message.textContent="❌ コードが違います。";input.select();return;}storyWorld2Authorized=true;hideStory("storyCodeGate");input.value="";if(storyCodeGateReturnToExplore){storyCodeGateReturnToExplore=false;showStory("storyExploreScreen");storyExploreKeys.clear();storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);}else window.openStoryWorld2Stages();};
-  window.openStoryWorlds=function(){hideStory("storyCodeGate");hideStory("storyStageScreen");hideStory("storyWorld2StageScreen");hideStory("storyEpisodeScreen");hideStory("storyExploreScreen");const map=$story("mapSelect");if(map)map.classList.add("hidden");showStory("storyWorldScreen");};
-  window.openStoryWorld2Stages=function(){if(!storyWorld2Authorized){window.openStoryCodeGate();return;}hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");renderStoryWorld2Stages();showStory("storyWorld2StageScreen");};
-  function renderStoryWorld2Stages(){const grid=$story("storyWorld2StageGrid");if(!grid)return;grid.innerHTML="";[["2-1","次元の裂け目"],["2-2","赤い結晶"],["2-3","緑の結晶"],["2-4","水色の結晶"],["2-5","黒い結晶"]].forEach(([id,name])=>{let done=false;try{done=localStorage.getItem(id==="2-1"?"storyWorld2Stage1Cleared":"story"+id.replace("-","")+"Cleared")==="1"}catch(e){}const card=document.createElement("div");card.className="story-stage-card"+(done?" cleared":" unlocked");const title=document.createElement("strong");title.textContent=id;card.appendChild(title);const label=document.createElement("div");label.style.cssText="font-size:12px;margin-top:4px";label.textContent=name;card.appendChild(label);const status=document.createElement("div");status.style.cssText="font-size:12px;margin-top:5px";status.textContent=done?"✅ クリア":"プレイ可能";card.appendChild(status);const btn=document.createElement("button");btn.type="button";btn.textContent=done?"もう一度見る":"プレイ";btn.addEventListener("click",()=>id==="2-1"?window.startStoryWorld2Intro():window.startStoryBattle(id));card.appendChild(btn);grid.appendChild(card);});};
+  window.openStoryWorlds=function(){syncStoryWorld2Unlock();hideStory("storyCodeGate");hideStory("storyStageScreen");hideStory("storyWorld2StageScreen");hideStory("storyEpisodeScreen");hideStory("storyExploreScreen");const map=$story("mapSelect");if(map)map.classList.add("hidden");const card=$story("storyWorldScreen")?.querySelectorAll(".story-world-card")[1];if(card){const status=card.querySelector("p"),button=card.querySelector("button");if(status)status.textContent=storyWorld2Authorized?"✅ 1-5クリアで解放済み":"🔒 1-5クリアで解放";if(button)button.textContent=storyWorld2Authorized?"ワールドに入る":"1-5をクリアすると解放";}showStory("storyWorldScreen");};
+  window.openStoryWorld2Stages=function(){if(!syncStoryWorld2Unlock()){window.openStoryWorlds();return;}hideStory("storyCodeGate");hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");renderStoryWorld2Stages();showStory("storyWorld2StageScreen");};
+  function renderStoryWorld2Stages(){const grid=$story("storyWorld2StageGrid");if(!grid)return;grid.innerHTML="";[["2-1","次元の裂け目"],["2-2","赤い結晶"],["2-3","緑の結晶"],["2-4","水色の結晶"],["2-5","黒い結晶"],["2-6","結晶のゲート"]].forEach(([id,name])=>{let done=false;try{done=localStorage.getItem(id==="2-1"?"storyWorld2Stage1Cleared":"story"+id.replace("-","")+"Cleared")==="1"}catch(e){}const card=document.createElement("div");card.className="story-stage-card"+(done?" cleared":" unlocked");const title=document.createElement("strong");title.textContent=id;card.appendChild(title);const label=document.createElement("div");label.style.cssText="font-size:12px;margin-top:4px";label.textContent=name;card.appendChild(label);const status=document.createElement("div");status.style.cssText="font-size:12px;margin-top:5px";status.textContent=done?"✅ クリア":"プレイ可能";card.appendChild(status);const btn=document.createElement("button");btn.type="button";btn.textContent=done?"もう一度見る":"プレイ";btn.addEventListener("click",()=>id==="2-1"?window.startStoryWorld2Intro():window.startStoryBattle(id));card.appendChild(btn);grid.appendChild(card);});};
 
   let storyExploreFrame=0;
   const storyExplorePosition={x:420,y:760};
@@ -5701,14 +5703,14 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
       if(dist<best){best=dist;nearest=i;}
     }
     storyExploreNearbyStage=best<=115?nearest:0;
-    storyExploreNearRift=!storyWorld2Authorized&&storyExplorePosition.x>=2100&&storyExplorePosition.x<=2600&&storyExplorePosition.y>=80&&storyExplorePosition.y<=1460;
+    storyExploreNearRift=storyExplorePosition.x>=2100&&storyExplorePosition.x<=2600&&storyExplorePosition.y>=80&&storyExplorePosition.y<=1460;
     const prompt=$story("storyExplorePrompt"),action=$story("storyExploreAction"),label=$story("storyExplorePromptText");
     const canInteract=!!(storyExploreNearbyStage||storyExploreNearbyWorld2||storyExploreNearRift);
     if(prompt)prompt.classList.toggle("hidden",!canInteract||!!storyExploreConfirmStage||!!storyExploreConfirmWorld2);
     if(action)action.classList.toggle("is-visible",canInteract&&!storyExploreConfirmStage&&!storyExploreConfirmWorld2);
-    if(label&&storyExploreNearRift)label.textContent="時空の裂け目：攻撃ボタン / スペースキーでコード入力";
+    if(label&&storyExploreNearRift)label.textContent=syncStoryWorld2Unlock()?"時空の裂け目：攻撃ボタンでワールド2へ進む":"時空の裂け目：ワールド1の1-5をクリアすると通れる";
     else if(label&&(storyExploreNearbyStage||storyExploreNearbyWorld2))label.textContent=storyExploreNearbyWorld2?storyExploreNearbyWorld2+" の入口：スペースキー / 攻撃キーで調べる":"1-"+storyExploreNearbyStage+" の入口：スペースキー / 攻撃キーで調べる";
-    if(action)action.textContent=storyExploreNearRift?"⚔️ 攻撃・コード入力":"調べる";
+    if(action)action.textContent=storyExploreNearRift?(storyWorld2IsUnlocked()?"🌌 ワールド2へ進む":"🔒 1-5クリアで解放"):"調べる";
     const shopDist=Math.hypot(storyExplorePosition.x-1799,storyExplorePosition.y-744);
     if(shopDist<90&&!storySecretShopFound){
       storySecretShopFound=true;const door=$story("storySecretShopDoor");
@@ -5724,7 +5726,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     if(!storyExploreVisible())return;
     if(!$story("storyExploreShopModal").classList.contains("hidden"))return;
     if(storyExploreConfirmStage||storyExploreConfirmWorld2){storyExploreCloseConfirm();storyExploreConfirmWorld2="";return;}
-    if(storyExploreNearRift&&!storyWorld2Authorized){storyExploreKeys.clear();window.openStoryCodeGate(true);return;}
+    if(storyExploreNearRift){if(!syncStoryWorld2Unlock()){const label=$story("storyExplorePromptText");if(label)label.textContent="🔒 先にワールド1の1-5をクリアしよう";return;}storyWorld2Authorized=true;storyExplorePosition.x=2600;storyExploreKeys.clear();storyExploreDraw();return;}
     if(storyExploreNearbyWorld2){storyWorld2ExploreOpenConfirm(storyExploreNearbyWorld2);return;}
     if(storyExploreNearbyStage){storyExploreOpenConfirm(storyExploreNearbyStage);return;}
     if(storySecretShopFound&&Math.hypot(storyExplorePosition.x-1799,storyExplorePosition.y-744)<90){openStorySecretShop();}
@@ -5764,7 +5766,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);
   };
   window.openStoryWorld2Explore=function(){
-    if(!storyWorld2Authorized){window.openStoryCodeGate();return;}
+    if(!syncStoryWorld2Unlock()){window.openStoryWorlds();return;}
     hideStory("storyWorld2StageScreen");hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");
     renderStoryStages();renderStoryExploreEntrances();renderStoryWorld2ExploreEntrances();showStory("storyExploreScreen");
     const top=document.querySelector("#storyExploreScreen .story-explore-top strong");
@@ -5788,7 +5790,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     if(map[k]){e.preventDefault();storyExploreKeys.add(map[k]);}
     const attack=String((window.controlKeys&&window.controlKeys.attack)||"e").toLowerCase();
     const attackExtras=Array.isArray(window.attackExtraKeys)?window.attackExtraKeys.map(v=>String(v).toLowerCase()):[];
-    if(k===" "||k==="spacebar"||k===attack||attackExtras.includes(k)){e.preventDefault();if(!e.repeat)storyExploreInteract();}
+    if(k===" "||k==="spacebar"||k===attack||attackExtras.includes(k)||k==="enter"){e.preventDefault();if(!e.repeat)storyExploreInteract();}
     if(k==="escape"&&storyExploreConfirmStage)storyExploreCloseConfirm();
   });
   document.addEventListener("keyup",function(e){

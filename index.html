@@ -10107,6 +10107,66 @@ return origUpdate.apply(this,arguments)};
 </script>
 
 
+<style id="player-title-profile-style">
+#playerTitleProfile{width:100%;box-sizing:border-box;margin:4px 0 10px;padding:12px;border:2px solid #64748b;border-radius:14px;background:linear-gradient(145deg,#172554,#111827);color:#fff;text-align:center}
+#playerTitleProfile h3{margin:0 0 9px;font-size:17px;color:#fde68a}
+#playerTitleSkin{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;padding:9px;border-radius:10px;background:#0b1220;border:1px solid #475569}
+#playerTitleSkinIcon{font-size:42px;line-height:1.2}
+#playerTitleSkinName{font-size:12px;color:#cbd5e1}
+#playerTitleSlots{display:grid;grid-template-columns:1fr;gap:6px}
+.player-title-slot{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:38px;padding:6px 9px;border:1px dashed #64748b;border-radius:8px;background:#1e293b;color:#e2e8f0;text-align:left;font-size:13px}
+.player-title-slot button{margin:0;padding:5px 9px;background:#334155;border:1px solid #94a3b8}
+#playerTitleManage{width:100%;margin:9px 0 0;background:#1d4ed8;border:1px solid #93c5fd;font-weight:800}
+#playerTitleDialog{position:fixed;inset:0;z-index:1000005;display:flex;align-items:center;justify-content:center;padding:16px;background:#000b;box-sizing:border-box}
+#playerTitleDialog.hidden{display:none!important}
+#playerTitleDialog .player-title-dialog-card{width:min(440px,100%);max-height:80vh;overflow:auto;padding:20px;border:2px solid #60a5fa;border-radius:16px;background:#111827;color:#fff;text-align:center}
+#playerTitleDialog h3{margin:0 0 8px;color:#fde68a}
+#playerTitleDialog button{margin:6px}
+@media(max-width:600px){#playerTitleProfile{padding:9px}#playerTitleSkinIcon{font-size:36px}}
+</style>
+<div id="playerTitleDialog" class="hidden" role="dialog" aria-modal="true" aria-labelledby="playerTitleDialogHeading">
+ <div class="player-title-dialog-card"><h3 id="playerTitleDialogHeading">🏅 称号一覧</h3><p id="playerTitleDialogMessage">称号はまだ獲得していません。</p><div id="playerTitleEarnedList"></div><button id="playerTitleDialogClose" type="button">閉じる</button></div>
+</div>
+<script id="player-title-profile-script">
+(function(){
+ const KEY='oekakiBattleEquippedTitlesV1';
+ const $=id=>document.getElementById(id);
+ const read=()=>{try{const a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a.filter(x=>typeof x==='string').slice(0,3):[];}catch(e){return [];}};
+ const save=a=>{try{localStorage.setItem(KEY,JSON.stringify(a.slice(0,3)));}catch(e){}};
+ function render(){
+  const icon=$('playerTitleSkinIcon'),name=$('playerTitleSkinName'),slots=$('playerTitleSlots');
+  if(icon)icon.textContent=typeof window.getSelectedSkinEmoji==='function'?window.getSelectedSkinEmoji():'🙂';
+  if(name)name.textContent='現在使用中のスキン';
+  if(!slots)return;
+  const equipped=read();slots.innerHTML='';
+  for(let i=0;i<3;i++){
+   const value=equipped[i]||'未設定';
+   const row=document.createElement('div');row.className='player-title-slot';
+   const label=document.createElement('span');label.textContent=(i+1)+'：'+value;
+   row.appendChild(label);
+   if(equipped[i]){const remove=document.createElement('button');remove.type='button';remove.textContent='外す';remove.addEventListener('click',()=>{const a=read();a.splice(i,1);save(a);render();});row.appendChild(remove);}
+   slots.appendChild(row);
+  }
+ }
+ function open(){const d=$('playerTitleDialog');if(!d)return;const list=$('playerTitleEarnedList');if(list)list.textContent='獲得した称号がここに表示されます。';d.classList.remove('hidden');}
+ function close(){$('playerTitleDialog')?.classList.add('hidden');}
+ function init(){
+  const right=$('drawActionColumn');if(!right||$('playerTitleProfile'))return;
+  const panel=document.createElement('section');panel.id='playerTitleProfile';
+  panel.innerHTML='<h3>👤 プレイヤー</h3><div id="playerTitleSkin"><span id="playerTitleSkinIcon">🙂</span><span id="playerTitleSkinName">現在使用中のスキン</span></div><div id="playerTitleSlots"></div><button id="playerTitleManage" type="button">🏅 称号を設定（最大3つ）</button>';
+  const skin=$('skinControls');if(skin&&skin.parentNode===right)skin.insertAdjacentElement('afterend',panel);else right.prepend(panel);
+  $('playerTitleManage')?.addEventListener('click',open);$('playerTitleDialogClose')?.addEventListener('click',close);
+  $('playerTitleDialog')?.addEventListener('click',e=>{if(e.target.id==='playerTitleDialog')close();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+  render();
+  const toggle=$('skinToggleBtn');toggle?.addEventListener('click',()=>setTimeout(render,0));
+  window.addEventListener('storage',render);
+  window.renderPlayerTitleProfile=render;
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+
 <style id="skin-category-sections-style">
 .skin-category-nav{display:grid;grid-template-columns:52px minmax(0,1fr) 52px;align-items:center;gap:10px;margin-bottom:8px}
 .skin-category-nav h4{text-align:center!important;margin:0!important}

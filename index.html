@@ -5327,7 +5327,10 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   ];
   const STORY_GEAR_PROGRESS_KEY="storyWorld1GearProgress";
   const STORY_GEAR_EQUIPPED_KEY="storyWorld1EquippedGear";
+  const STORY_STAGE_EXP_BUDGET_KEY="storyWorld1StageExpBudgetV1";
   let storyStageExpBudget=0;
+  try{storyStageExpBudget=Math.max(0,Math.floor(Number(localStorage.getItem(STORY_STAGE_EXP_BUDGET_KEY))||0));}catch(e){}
+  function saveStoryStageExpBudget(){try{localStorage.setItem(STORY_STAGE_EXP_BUDGET_KEY,String(storyStageExpBudget));}catch(e){}}
   function getStoryGearProgress(){
     let saved={};try{saved=JSON.parse(localStorage.getItem(STORY_GEAR_PROGRESS_KEY)||"{}")||{};}catch(e){}
     const result={};
@@ -5361,16 +5364,16 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     if(storyStageExpBudget<10)return false;
     if(type==="shop"&&getStoryShopLevel(id)<=0)return false;
     const data=getStoryGearProgress(),item=data[id];if(!item||item[type].level>=3)return false;
-    storyStageExpBudget-=10;item[type].exp+=10;
+    storyStageExpBudget-=10;saveStoryStageExpBudget();item[type].exp+=10;
     const need=storyGearThreshold(type,item[type].level);
     if(item[type].exp>=need){item[type].exp-=need;item[type].level=Math.min(3,item[type].level+1);if(item[type].level>=3)item[type].exp=0;}
     saveStoryGearProgress(data);renderStoryInventory();renderStoryExpAllocation();return true;
   }
   window.getStoryEquippedGear=getStoryEquippedGear;
   window.getStoryBattleStat=(id,score)=>getStoryGearStat(id,getStoryEquippedGear(id),score);
-  window.addStoryStageExp=amount=>{storyStageExpBudget+=Math.max(0,Number(amount)||0);renderStoryExpAllocation();};
+  window.addStoryStageExp=amount=>{storyStageExpBudget+=Math.max(0,Math.floor(Number(amount)||0));saveStoryStageExpBudget();renderStoryExpAllocation();};
   window.getStoryStageExpBudget=()=>storyStageExpBudget;
-  window.clearStoryStageExpBudget=()=>{storyStageExpBudget=0;renderStoryExpAllocation();};
+  window.clearStoryStageExpBudget=()=>{storyStageExpBudget=0;saveStoryStageExpBudget();renderStoryExpAllocation();};
   function renderStoryInventory(){
     const gear=$story("storyInventoryGear"),owned=$story("storyInventoryOwned");if(!gear||!owned)return;
     gear.innerHTML="";owned.innerHTML="";const progress=getStoryGearProgress();
@@ -5406,7 +5409,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
       const btn=document.createElement("button");btn.type="button";btn.textContent=d.level>=3?"MAX":"10 EXP 振り込む";btn.disabled=d.level>=3||storyStageExpBudget<10;btn.addEventListener("click",()=>spendStoryGearExp(item.id,type));
       card.append(title,detail,bar,btn);root.appendChild(card);
     }
-    const note=$story("storyExpNote");if(note)note.textContent=storyStageExpBudget>0?"このステージで獲得したEXPだけを使用できます。次のステージ開始時に残りEXPは失効します。":"現在振り分けできるEXPはありません。";
+    const note=$story("storyExpNote");if(note)note.textContent=storyStageExpBudget>0?"これまでの戦闘で獲得したEXPをいつでも振り分けできます。ステージ移動や再起動後も残ります。":"現在振り分けできるEXPはありません。";
   }
   window.openStoryExpAllocation=function(){renderStoryExpAllocation();const modal=$story("storyExpModal");if(modal)modal.classList.remove("hidden");};
   const expClose=$story("storyExpClose");if(expClose)expClose.addEventListener("click",()=>$story("storyExpModal").classList.add("hidden"));
@@ -11749,7 +11752,6 @@ body.special-code-open #adminAbuseDialogue.active{
  function advanceIntro(){if(introIndex<introLines.length-1){introIndex++;showIntroLine()}else beginBattle()}
  function start(id){
   if(!cfg[id])return;
-  if(typeof window.clearStoryStageExpBudget==="function")window.clearStoryStageExpBudget();
   stageEarnedExp=0;expAwarded=false;if(expOpenBtn)expOpenBtn.classList.add("hidden");
   stage=id;hp=300;target=0;playerGuard=0;playerDodge=0;turnBusy=false;rewardShown=false;absorptionTriggered=false;
   enemies=cfg[id].enemies.map(e=>({name:e[0],hp:e[1],max:e[1],attack:e[2],crystal:e[3]||"",ability:e[4]||"",guard:0,dodge:0,absorbed:false}));

@@ -5498,7 +5498,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     {id:"2-4",name:"水色の結晶",x:4250,y:480},
     {id:"2-5",name:"黒い結晶",x:4750,y:850},
     {id:"2-6",name:"結晶のゲート",x:4580,y:1260},
-    {id:"2-7",name:"黒い影の正体",x:4610,y:1260}
+    {id:"2-7",name:"黒い影の正体",x:4200,y:1320}
   ];
   window.returnStoryWorld2ExploreAfterStage=function(stageId){
     const info=storyWorld2ExploreStageInfo.find(item=>item.id===stageId);
@@ -5625,7 +5625,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
         #${id} .w27-scene.throw{background:radial-gradient(ellipse at 50% 42%,#30204b,#090914 65%,#020207)}
         #${id} .w27-stars{position:absolute;inset:0;background-image:radial-gradient(#fff 1px,transparent 1.8px),radial-gradient(#9cc9ff 1px,transparent 2px);background-size:73px 67px,113px 97px;opacity:.55;animation:w27Stars 18s linear infinite}
         #${id} .w27-ground{position:absolute;left:-5%;right:-5%;bottom:20%;height:17%;background:linear-gradient(#536477,#172231);clip-path:polygon(0 25%,18% 0,36% 22%,57% 5%,77% 20%,100% 0,100% 100%,0 100%)}
-        #${id} .w27-ruin{position:absolute;bottom:34%;left:12%;font-size:clamp(42px,8vw,82px);opacity:.72;filter:drop-shadow(0 0 12px #93c5fd)}
+        #${id} .w27-ruin{display:none}
         #${id} .w27-island{position:absolute;bottom:25%;width:30%;height:70px;background:linear-gradient(165deg,#64748b,#27364c 55%,#101827);clip-path:polygon(0 0,100% 0,76% 48%,60% 100%,30% 70%,18% 100%);animation:w27Float 5s ease-in-out infinite}
         #${id} .w27-island.left{left:-4%}#${id} .w27-island.right{right:-4%;bottom:38%;transform:scale(.7)}
         #${id} .w27-rift{position:absolute;left:50%;top:12%;width:clamp(120px,23vw,220px);height:clamp(210px,38vw,330px);transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,#010106 0 30%,#251b3d 43%,#8b5cf6 49%,transparent 69%);box-shadow:0 0 35px #8b5cf699;animation:w27Rift 3s ease-in-out infinite}
@@ -5651,22 +5651,23 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
         @media(prefers-reduced-motion:reduce){#${id} *{animation:none!important;transition:none!important}}
       </style>
       <div class="w27-scene city" role="dialog" aria-modal="true" aria-label="2-7 黒い影の正体">
-        <div class="w27-stars"></div><div class="w27-ground"></div><div class="w27-island left"></div><div class="w27-island right"></div><div class="w27-ruin">🏚️</div>
+        <div class="w27-stars"></div><div class="w27-ground"></div><div class="w27-island left"></div><div class="w27-island right"></div>
         <div class="w27-rift"></div><div class="w27-shadow">🌪️</div><div class="w27-eyes">● ●</div><div class="w27-crystal">⬛</div><div class="w27-flash"></div>
         <div class="w27-dialog"><div class="w27-speaker" id="w27Speaker"></div><div class="w27-line" id="w27Line"></div><div class="w27-controls"><span class="w27-count" id="w27Count"></span><div><button type="button" class="secondary" id="w27Skip">スキップ</button> <button type="button" id="w27Next">次へ ▶</button></div></div></div>
       </div>`;
     document.body.appendChild(root);
     const scenes=[
-      {speaker:"ナレーション",line:"闇の空間の奥。足元に、崩れた浮遊都市の景色がぼんやりと浮かび上がった。",place:"city"},
-      {speaker:"主人公",line:"ここは……さっきのゲートの向こうなのか？",place:"city"},
-      {speaker:"ナレーション",line:"遠くの空に、巨大な次元の裂け目が開いていく。",place:"rift"},
-      {speaker:"主人公",line:"裂け目の向こうに、何かいる……。",place:"rift"},
+      {speaker:"ナレーション",line:"黒煙が晴れると、そこは音のない暗黒の空間だった。足元に、かすかな光の道が伸びている。",place:"void"},
+      {speaker:"主人公",line:"この道は……どこにつながっているんだ？",place:"void"},
+      {speaker:"ナレーション",line:"光の道の先に、小さな次元の裂け目が浮かび上がる。",place:"rift"},
+      {speaker:"主人公",line:"あの裂け目の向こうに、何かいる……。",place:"rift"},
       {speaker:"ナレーション",line:"裂け目から黒い竜巻が現れた。渦の奥で、黄色い目だけがこちらを見ている。",place:"void",shadow:true},
       {speaker:"黒い影",line:"……見つけたぞ。",place:"void",shadow:true},
       {speaker:"ナレーション",line:"影の前に、黒い煙をまとった結晶が浮かび上がる。",place:"throw",shadow:true,crystal:true},
       {speaker:"主人公",line:"あの結晶を、裂け目へ投げ込むつもりか……！",place:"throw",shadow:true,crystal:true},
       {speaker:"ナレーション",line:"黒い影が結晶を裂け目へ放つ。結晶は光を残しながら、闇の奥へ吸い込まれていった。",place:"throw",shadow:true,crystal:true,flash:true},
-      {speaker:"ナレーション",line:"裂け目が一瞬だけ強く輝き、闇の空間に静寂が戻った。主人公は、その先に何が起きるのかをまだ知らない。",place:"rift"}
+      {speaker:"ナレーション",line:"結晶が裂け目に触れた瞬間、向こう側に大きな光が走った。裂け目は閉じず、さらに奥へ続く道が開いていく。",place:"rift",flash:true},
+      {speaker:"主人公",line:"待って！この先に何があるのか、確かめないと……！",place:"rift"}
     ];
     let index=0,ended=false;
     const scene=root.querySelector(".w27-scene"),speaker=root.querySelector("#w27Speaker"),line=root.querySelector("#w27Line"),count=root.querySelector("#w27Count"),next=root.querySelector("#w27Next");
@@ -5681,7 +5682,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
       if(ended)return;ended=true;
       try{localStorage.setItem("story27Cleared","1");}catch(e){}
       const dialog=root.querySelector(".w27-dialog");
-      dialog.innerHTML='<div class="w27-speaker">2-7 クリア</div><div class="w27-line">黒い影と黒い結晶は、裂け目の奥へ消えた。物語はまだ続いている……。</div><div class="w27-controls"><span class="w27-count">✅ ステージクリア</span><button type="button" id="w27Return">探索フィールドに戻る</button></div>';
+      dialog.innerHTML='<div class="w27-speaker">2-7 クリア</div><div class="w27-line">裂け目の奥に、新しい道が現れた。主人公は、その先へ進む手がかりを探すことにした。</div><div class="w27-controls"><span class="w27-count">✅ ステージクリア</span><button type="button" id="w27Return">探索フィールドに戻る</button></div>';
       dialog.querySelector("#w27Return").addEventListener("click",()=>{root.remove();if(typeof window.returnStoryWorld2ExploreAfterStage==="function")window.returnStoryWorld2ExploreAfterStage("2-7");});
     }
     next.addEventListener("click",()=>{if(ended)return;if(index<scenes.length-1){index++;render();}else finish();});

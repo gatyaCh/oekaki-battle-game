@@ -5498,7 +5498,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     {id:"2-4",name:"水色の結晶",x:4250,y:480},
     {id:"2-5",name:"黒い結晶",x:4750,y:850},
     {id:"2-6",name:"結晶のゲート",x:4580,y:1260},
-    {id:"2-7",name:"黒い影の正体",x:4900,y:1260}
+    {id:"2-7",name:"黒い影の正体",x:4610,y:1260}
   ];
   window.returnStoryWorld2ExploreAfterStage=function(stageId){
     const info=storyWorld2ExploreStageInfo.find(item=>item.id===stageId);
@@ -5514,7 +5514,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
       try{return localStorage.getItem("story25Cleared")==="1";}catch(e){return false;}
     }
     if(storyWorld2ExploreStageInfo[index].id==="2-7"){
-      try{return localStorage.getItem("story26Cleared")==="1";}catch(e){return false;}
+      try{return localStorage.getItem("story26Cleared")==="1"&&localStorage.getItem("story26BlackSmokeFound")==="1";}catch(e){return false;}
     }
     const previous=storyWorld2ExploreStageInfo[index-1].id;
     const key=previous==="2-1"?"storyWorld2Stage1Cleared":"story"+previous.replace("-","")+"Cleared";
@@ -5554,6 +5554,52 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     else if(id==="2-7")window.startStoryWorld27Intro();
     else window.startStoryBattle(id);
   }
+  window.startStoryWorld26BlackSmokeEvent=function(){
+    if(window.storyWorld2BlackSmokeEventRunning)return;
+    window.storyWorld2BlackSmokeEventRunning=true;
+    storyExploreKeys.clear();
+    if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}
+    hideStory("storyExploreScreen");hideStory("storyExploreConfirm");
+    const id="storyWorld26BlackSmokeCinematic";
+    let root=$story(id);if(root)root.remove();
+    root=document.createElement("div");root.id=id;
+    root.innerHTML=`
+      <style>
+        #${id}{position:fixed;inset:0;z-index:1000012;display:grid;place-items:center;padding:14px;box-sizing:border-box;background:radial-gradient(ellipse,#242039,#05050b 75%);color:#fff;font-family:inherit}
+        #${id} .s26b-card{position:relative;width:min(900px,96vw);min-height:min(570px,88vh);overflow:hidden;border:1px solid #786b9e;border-radius:20px;background:linear-gradient(160deg,#1b1930,#080912);box-shadow:0 20px 70px #000c}
+        #${id} .s26b-sky{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 44%,#51416b55,transparent 45%),repeating-radial-gradient(ellipse at 50% 50%,transparent 0 35px,#8b5cf622 37px 39px);animation:s26bPulse 5s ease-in-out infinite}
+        #${id} .s26b-crystal{position:absolute;left:50%;top:36%;transform:translate(-50%,-50%);font-size:clamp(70px,13vw,120px);filter:drop-shadow(0 0 25px #a78bfa);animation:s26bFloat 2.5s ease-in-out infinite alternate}
+        #${id} .s26b-smoke{position:absolute;left:50%;top:36%;width:190px;height:210px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(ellipse,#111 10%,#31234f99 42%,transparent 72%);filter:blur(13px);animation:s26bSmoke 3s linear infinite}
+        #${id} .s26b-dialog{position:absolute;left:3%;right:3%;bottom:3%;padding:16px;border:1px solid #8b7acb;border-radius:14px;background:#080914ed}
+        #${id} .s26b-speaker{font-weight:900;color:#c4b5fd;margin-bottom:8px}
+        #${id} .s26b-line{min-height:3em;line-height:1.7}
+        #${id} .s26b-controls{display:flex;justify-content:flex-end;margin-top:12px}
+        #${id} button{border:0;border-radius:9px;padding:10px 18px;background:#6d28d9;color:white;font-weight:900;cursor:pointer}
+        @keyframes s26bPulse{50%{filter:brightness(1.8);transform:scale(1.05)}}
+        @keyframes s26bFloat{to{transform:translate(-50%,-65%) rotate(8deg)}}
+        @keyframes s26bSmoke{to{transform:translate(-50%,-50%) rotate(360deg) scale(1.2)}}
+        @media(prefers-reduced-motion:reduce){#${id} *{animation:none!important}}
+      </style>
+      <div class="s26b-card"><div class="s26b-sky"></div><div class="s26b-smoke"></div><div class="s26b-crystal">⬛</div><div class="s26b-dialog"><div class="s26b-speaker" id="s26bSpeaker"></div><div class="s26b-line" id="s26bLine"></div><div class="s26b-controls"><button type="button" id="s26bNext">次へ ▶</button></div></div></div>`;
+    document.body.appendChild(root);
+    const scenes=[
+      ["ナレーション","門を開いたあと、探索を続けていた主人公は、草むらの奥に黒い煙をまとった結晶を見つけた。"],
+      ["主人公","こんな結晶、さっきまでなかった……。"],
+      ["ナレーション","結晶に触れた瞬間、黒い煙が主人公の周りを包み込む。"],
+      ["主人公","うわっ……景色が、消えていく……！"],
+      ["ナレーション","光も音もない、謎の闇の空間。結晶だけがかすかに光っていた。"]
+    ];
+    let i=0;
+    const speaker=root.querySelector("#s26bSpeaker"),line=root.querySelector("#s26bLine"),btn=root.querySelector("#s26bNext");
+    function render(){speaker.textContent=scenes[i][0];line.textContent=scenes[i][1];btn.textContent=i===scenes.length-1?"闇の空間へ進む ▶":"次へ ▶";}
+    function finish(){
+      try{localStorage.setItem("story26BlackSmokeFound","1");}catch(e){}
+      window.storyWorld2BlackSmokeEventRunning=false;root.remove();
+      if(typeof window.openStoryWorld2Explore==="function")window.openStoryWorld2Explore(4760,1120);
+    }
+    btn.addEventListener("click",()=>{if(i<scenes.length-1){i++;render();}else finish();});
+    render();
+  };
   window.startStoryWorld27Intro=function(){
     storyExploreKeys.clear();
     if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}
@@ -5563,84 +5609,78 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     root=document.createElement("div");root.id=id;
     root.innerHTML=`
       <style>
-        #${id}{position:fixed;inset:0;z-index:1000010;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;background:radial-gradient(ellipse at 50% 42%,#263451 0%,#10182c 48%,#050914 100%);color:#fff;font-family:inherit;overflow:hidden}
-        #${id} .w27-scene{position:relative;width:min(960px,96vw);height:min(610px,88vh);min-height:420px;overflow:hidden;border:1px solid #64748b;border-radius:22px;background:linear-gradient(#182b4a 0%,#111b31 52%,#090f1d 100%);box-shadow:0 20px 80px #000b}
-        #${id} .w27-stars{position:absolute;inset:0;background-image:radial-gradient(#fff 1px,transparent 1.8px),radial-gradient(#9cc9ff 1px,transparent 2px);background-size:73px 67px,113px 97px;background-position:0 0,35px 20px;opacity:.65;animation:w27Stars 18s linear infinite}
-        #${id} .w27-island{position:absolute;bottom:25%;width:34%;height:90px;background:linear-gradient(165deg,#64748b,#27364c 55%,#101827);clip-path:polygon(0 0,100% 0,76% 48%,60% 100%,30% 70%,18% 100%);filter:drop-shadow(0 8px 12px #0009);animation:w27Float 5s ease-in-out infinite}
-        #${id} .w27-island.left{left:-3%}#${id} .w27-island.right{right:-5%;bottom:34%;transform:scale(.7);animation-delay:-2s}
-        #${id} .w27-ruin{position:absolute;bottom:34%;left:17%;font-size:clamp(38px,7vw,76px);opacity:.55;filter:drop-shadow(0 0 12px #93c5fd)}
-        #${id} .w27-rift{position:absolute;left:50%;top:19%;width:clamp(110px,20vw,190px);height:clamp(180px,32vw,290px);transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,#03040a 0 28%,#111827 42%,#475569 48%,transparent 68%);box-shadow:0 0 35px #64748b99;animation:w27Rift 3s ease-in-out infinite}
-        #${id} .w27-shadow{position:absolute;left:50%;top:21%;transform:translateX(-50%);font-size:clamp(90px,18vw,170px);filter:brightness(.08) drop-shadow(0 0 24px #02040a);animation:w27Shadow 4s ease-in-out infinite;z-index:2}
-        #${id} .w27-eyes{position:absolute;left:50%;top:35%;transform:translateX(-50%);font-size:clamp(22px,4vw,38px);letter-spacing:clamp(10px,3vw,25px);color:#facc15;text-shadow:0 0 10px #f59e0b,0 0 28px #ef4444;z-index:3;animation:w27Eyes 1.7s ease-in-out infinite alternate}
-        #${id} .w27-crystal{position:absolute;left:50%;top:57%;transform:translate(-50%,-50%);font-size:clamp(42px,8vw,76px);opacity:0;z-index:4;filter:drop-shadow(0 0 20px #a78bfa);transition:all 1s}
-        #${id} .w27-crystal.show{opacity:1;top:54%;animation:w27Crystal 2s ease-in-out infinite alternate}
+        #${id}{position:fixed;inset:0;z-index:1000010;display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;background:#050711;color:#fff;font-family:inherit;overflow:hidden}
+        #${id} .w27-scene{position:relative;width:min(960px,96vw);height:min(610px,88vh);min-height:390px;overflow:hidden;border:1px solid #64748b;border-radius:20px;box-shadow:0 20px 80px #000b;transition:background 1s}
+        #${id} .w27-scene.city{background:linear-gradient(#263c58 0%,#17253a 55%,#080f1d 100%)}
+        #${id} .w27-scene.rift{background:radial-gradient(ellipse at 50% 36%,#51406d,#10101d 45%,#03040a 100%)}
+        #${id} .w27-scene.void{background:radial-gradient(ellipse at 50% 40%,#21133d,#080610 60%,#020207)}
+        #${id} .w27-scene.throw{background:radial-gradient(ellipse at 50% 42%,#30204b,#090914 65%,#020207)}
+        #${id} .w27-stars{position:absolute;inset:0;background-image:radial-gradient(#fff 1px,transparent 1.8px),radial-gradient(#9cc9ff 1px,transparent 2px);background-size:73px 67px,113px 97px;opacity:.55;animation:w27Stars 18s linear infinite}
+        #${id} .w27-ground{position:absolute;left:-5%;right:-5%;bottom:20%;height:17%;background:linear-gradient(#536477,#172231);clip-path:polygon(0 25%,18% 0,36% 22%,57% 5%,77% 20%,100% 0,100% 100%,0 100%)}
+        #${id} .w27-ruin{position:absolute;bottom:34%;left:12%;font-size:clamp(42px,8vw,82px);opacity:.72;filter:drop-shadow(0 0 12px #93c5fd)}
+        #${id} .w27-island{position:absolute;bottom:25%;width:30%;height:70px;background:linear-gradient(165deg,#64748b,#27364c 55%,#101827);clip-path:polygon(0 0,100% 0,76% 48%,60% 100%,30% 70%,18% 100%);animation:w27Float 5s ease-in-out infinite}
+        #${id} .w27-island.left{left:-4%}#${id} .w27-island.right{right:-4%;bottom:38%;transform:scale(.7)}
+        #${id} .w27-rift{position:absolute;left:50%;top:12%;width:clamp(120px,23vw,220px);height:clamp(210px,38vw,330px);transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,#010106 0 30%,#251b3d 43%,#8b5cf6 49%,transparent 69%);box-shadow:0 0 35px #8b5cf699;animation:w27Rift 3s ease-in-out infinite}
+        #${id} .w27-shadow{position:absolute;left:50%;top:15%;transform:translateX(-50%);font-size:clamp(100px,19vw,180px);filter:brightness(.07) drop-shadow(0 0 24px #02040a);z-index:2;opacity:0;transition:opacity 1.2s,transform 1.2s}
+        #${id} .w27-eyes{position:absolute;left:50%;top:31%;transform:translateX(-50%);font-size:clamp(22px,4vw,38px);letter-spacing:clamp(10px,3vw,25px);color:#facc15;text-shadow:0 0 10px #f59e0b,0 0 28px #ef4444;z-index:3;opacity:0;transition:opacity 1s}
+        #${id} .w27-crystal{position:absolute;left:50%;top:58%;transform:translate(-50%,-50%) scale(.35);font-size:clamp(48px,9vw,88px);opacity:0;z-index:4;filter:drop-shadow(0 0 20px #a78bfa);transition:all 1.2s}
+        #${id} .w27-crystal.show{opacity:1;transform:translate(-50%,-50%) scale(1);animation:w27Crystal 2s ease-in-out infinite alternate}
         #${id} .w27-flash{position:absolute;inset:0;background:#dbeafe;opacity:0;pointer-events:none;z-index:5}
-        #${id} .w27-flash.on{animation:w27Flash .65s ease-out}
-        #${id} .w27-dialog{position:absolute;left:3%;right:3%;bottom:3%;z-index:6;padding:16px 18px;border:1px solid #94a3b8;border-radius:15px;background:linear-gradient(135deg,#07111feF,#17243bea);box-shadow:0 8px 30px #0009}
+        #${id} .w27-flash.on{animation:w27Flash .8s ease-out}
+        #${id} .w27-dialog{position:absolute;left:3%;right:3%;bottom:3%;z-index:6;padding:14px 16px;border:1px solid #94a3b8;border-radius:14px;background:linear-gradient(135deg,#07111fee,#17243bee);box-shadow:0 8px 30px #0009}
         #${id} .w27-speaker{font-weight:900;color:#93c5fd;margin-bottom:7px}
-        #${id} .w27-line{min-height:3em;line-height:1.7;font-size:clamp(14px,2vw,18px)}
-        #${id} .w27-controls{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px}
-        #${id} button{border:0;border-radius:9px;padding:10px 18px;background:#2563eb;color:white;font-weight:800;cursor:pointer}
+        #${id} .w27-line{min-height:3em;line-height:1.65;font-size:clamp(14px,2vw,18px)}
+        #${id} .w27-controls{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px}
+        #${id} button{border:0;border-radius:9px;padding:10px 16px;background:#2563eb;color:white;font-weight:800;cursor:pointer}
         #${id} button.secondary{background:#475569}
         #${id} .w27-count{font-size:12px;color:#cbd5e1}
         @keyframes w27Stars{to{background-position:73px 67px,-78px 97px}}
         @keyframes w27Float{50%{transform:translateY(-13px)}}
-        @keyframes w27Rift{50%{transform:translateX(-50%) scale(1.08);filter:brightness(1.4)}}
-        @keyframes w27Shadow{50%{transform:translate(-50%,-9px) scale(1.05)}}
-        @keyframes w27Eyes{to{opacity:.35;filter:blur(1px)}}
+        @keyframes w27Rift{50%{transform:translateX(-50%) scale(1.08);filter:brightness(1.5)}}
         @keyframes w27Crystal{to{transform:translate(-50%,-65%) scale(1.12)}}
-        @keyframes w27Flash{0%{opacity:.9}100%{opacity:0}}
-        @media(max-width:560px){#${id} .w27-scene{min-height:460px}#${id} .w27-dialog{padding:12px}#${id} .w27-island{height:60px}}
+        @keyframes w27Flash{0%{opacity:.85}100%{opacity:0}}
+        @media(max-width:560px){#${id} .w27-scene{min-height:430px}#${id} .w27-dialog{padding:11px}}
         @media(prefers-reduced-motion:reduce){#${id} *{animation:none!important;transition:none!important}}
       </style>
-      <div class="w27-scene" role="dialog" aria-modal="true" aria-label="2-7 黒い影の正体">
-        <div class="w27-stars"></div><div class="w27-rift"></div>
-        <div class="w27-island left"></div><div class="w27-island right"></div><div class="w27-ruin">🏚️</div>
-        <div class="w27-shadow">🌪️</div><div class="w27-eyes">● ●</div><div class="w27-crystal">⬛</div><div class="w27-flash"></div>
-        <div class="w27-dialog"><div class="w27-speaker" id="w27Speaker">ナレーション</div><div class="w27-line" id="w27Line"></div><div class="w27-controls"><span class="w27-count" id="w27Count"></span><div><button type="button" class="secondary" id="w27Skip">スキップ</button><button type="button" id="w27Next">次へ ▶</button></div></div></div>
+      <div class="w27-scene city" role="dialog" aria-modal="true" aria-label="2-7 黒い影の正体">
+        <div class="w27-stars"></div><div class="w27-ground"></div><div class="w27-island left"></div><div class="w27-island right"></div><div class="w27-ruin">🏚️</div>
+        <div class="w27-rift"></div><div class="w27-shadow">🌪️</div><div class="w27-eyes">● ●</div><div class="w27-crystal">⬛</div><div class="w27-flash"></div>
+        <div class="w27-dialog"><div class="w27-speaker" id="w27Speaker"></div><div class="w27-line" id="w27Line"></div><div class="w27-controls"><span class="w27-count" id="w27Count"></span><div><button type="button" class="secondary" id="w27Skip">スキップ</button> <button type="button" id="w27Next">次へ ▶</button></div></div></div>
       </div>`;
     document.body.appendChild(root);
-    const lines=[
-      ["ナレーション","結晶のゲートの奥。崩れかけた浮遊都市のさらに深い場所へ、主人公は足を踏み入れた。"],
-      ["主人公","ここがゲートの向こう側……。空気まで重く感じる。"],
-      ["ナレーション","そのとき、空の裂け目が大きく揺れ始めた。"],
-      ["主人公","また裂け目が反応している……！？"],
-      ["ナレーション","黒い渦が裂け目からゆっくりと姿を現す。"],
-      ["主人公","あれは……今までの敵とは違う。"],
-      ["黒い影","……ようやく、ここまで来たか。"],
-      ["主人公","しゃべった……！？お前はいったい何者なんだ！"],
-      ["黒い影","我は、この世界の裂け目に眠るもの。結晶は、我を目覚めさせる鍵にすぎぬ。"],
-      ["ナレーション","黒い影の手元に、黒い結晶が浮かび上がった。"],
-      ["主人公","その結晶は……！みんなが集めた結晶と同じものなのか？"],
-      ["黒い影","これは始まりにすぎぬ。すべてをひとつに戻す時が来る。"],
-      ["ナレーション","黒い影が黒い結晶を、次元の裂け目へ向けて投げ放った！"],
-      ["主人公","待て！それを裂け目に入れたら何が起きるんだ！"],
-      ["ナレーション","結晶は光を放ちながら、裂け目の奥へと吸い込まれていった。"],
-      ["黒い影","次に会う時こそ、すべての答えを見せてやろう……。"],
-      ["ナレーション","黒い影は渦となって消え、裂け目だけが不気味に輝き続けた。"],
-      ["主人公","黒い結晶を追わないと……。この先に、まだ何かが隠されている！"]
+    const scenes=[
+      {speaker:"ナレーション",line:"闇の空間の奥。足元に、崩れた浮遊都市の景色がぼんやりと浮かび上がった。",place:"city"},
+      {speaker:"主人公",line:"ここは……さっきのゲートの向こうなのか？",place:"city"},
+      {speaker:"ナレーション",line:"遠くの空に、巨大な次元の裂け目が開いていく。",place:"rift"},
+      {speaker:"主人公",line:"裂け目の向こうに、何かいる……。",place:"rift"},
+      {speaker:"ナレーション",line:"裂け目から黒い竜巻が現れた。渦の奥で、黄色い目だけがこちらを見ている。",place:"void",shadow:true},
+      {speaker:"黒い影",line:"……見つけたぞ。",place:"void",shadow:true},
+      {speaker:"ナレーション",line:"影の前に、黒い煙をまとった結晶が浮かび上がる。",place:"throw",shadow:true,crystal:true},
+      {speaker:"主人公",line:"あの結晶を、裂け目へ投げ込むつもりか……！",place:"throw",shadow:true,crystal:true},
+      {speaker:"ナレーション",line:"黒い影が結晶を裂け目へ放つ。結晶は光を残しながら、闇の奥へ吸い込まれていった。",place:"throw",shadow:true,crystal:true,flash:true},
+      {speaker:"ナレーション",line:"裂け目が一瞬だけ強く輝き、闇の空間に静寂が戻った。主人公は、その先に何が起きるのかをまだ知らない。",place:"rift"}
     ];
     let index=0,ended=false;
-    const speaker=root.querySelector("#w27Speaker"),line=root.querySelector("#w27Line"),count=root.querySelector("#w27Count"),next=root.querySelector("#w27Next");
-    const crystal=root.querySelector(".w27-crystal"),flash=root.querySelector(".w27-flash");
+    const scene=root.querySelector(".w27-scene"),speaker=root.querySelector("#w27Speaker"),line=root.querySelector("#w27Line"),count=root.querySelector("#w27Count"),next=root.querySelector("#w27Next");
+    const shadow=root.querySelector(".w27-shadow"),eyes=root.querySelector(".w27-eyes"),crystal=root.querySelector(".w27-crystal"),flash=root.querySelector(".w27-flash");
     function render(){
-      const item=lines[index];speaker.textContent=item[0];line.textContent=item[1];count.textContent=(index+1)+" / "+lines.length;
-      if(index===9){crystal.classList.add("show");}
-      if(index===12){flash.classList.remove("on");void flash.offsetWidth;flash.classList.add("on");}
-      if(index>=lines.length-1)next.textContent="2-7を完了する ▶";
+      const item=scenes[index];scene.className="w27-scene "+item.place;speaker.textContent=item.speaker;line.textContent=item.line;count.textContent=(index+1)+" / "+scenes.length;
+      shadow.style.opacity=item.shadow?"1":"0";eyes.style.opacity=item.shadow?"1":"0";crystal.classList.toggle("show",!!item.crystal);
+      if(item.flash){flash.classList.remove("on");void flash.offsetWidth;flash.classList.add("on");}
+      next.textContent=index===scenes.length-1?"2-7を完了する ▶":"次へ ▶";
     }
     function finish(){
       if(ended)return;ended=true;
       try{localStorage.setItem("story27Cleared","1");}catch(e){}
       const dialog=root.querySelector(".w27-dialog");
-      dialog.innerHTML='<div class="w27-speaker">2-7「黒い影の正体」</div><div class="w27-line">黒い結晶は次元の裂け目へ消えていった。主人公は、その先に待つ真実を追うことを決意した。</div><div class="w27-controls"><span class="w27-count">✅ ステージクリア</span><button type="button" id="w27Return">探索フィールドに戻る</button></div>';
+      dialog.innerHTML='<div class="w27-speaker">2-7 クリア</div><div class="w27-line">黒い影と黒い結晶は、裂け目の奥へ消えた。物語はまだ続いている……。</div><div class="w27-controls"><span class="w27-count">✅ ステージクリア</span><button type="button" id="w27Return">探索フィールドに戻る</button></div>';
       dialog.querySelector("#w27Return").addEventListener("click",()=>{root.remove();if(typeof window.returnStoryWorld2ExploreAfterStage==="function")window.returnStoryWorld2ExploreAfterStage("2-7");});
     }
-    next.addEventListener("click",()=>{if(ended)return;if(index<lines.length-1){index++;render();}else finish();});
+    next.addEventListener("click",()=>{if(ended)return;if(index<scenes.length-1){index++;render();}else finish();});
     root.querySelector("#w27Skip").addEventListener("click",finish);
     render();
   };
-  function startStoryWorld26Puzzle(){
+    function startStoryWorld26Puzzle(){
     storyExploreKeys.clear();
     if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}
     hideStory("storyExploreConfirm");hideStory("storyExploreScreen");
@@ -5753,7 +5793,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     }
     function returnToExplore(){
       root.remove();showStory("storyExploreScreen");
-      storyExplorePosition.x=4760;storyExplorePosition.y=1240;
+      storyExplorePosition.x=4760;storyExplorePosition.y=1120;
       const view=$story("storyExploreViewport");if(view){view.scrollLeft=Math.max(0,storyExplorePosition.x-view.clientWidth/2);view.scrollTop=Math.max(0,storyExplorePosition.y-view.clientHeight/2);}
       storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);
     }
@@ -5832,13 +5872,17 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     }
     storyExploreNearbyStage=best<=115?nearest:0;
     storyExploreNearRift=storyExplorePosition.x>=2100&&storyExplorePosition.x<=2600&&storyExplorePosition.y>=80&&storyExplorePosition.y<=1460;
+    let nearBlackSmokeCrystal=false;
+    try{nearBlackSmokeCrystal=localStorage.getItem("story26Cleared")==="1"&&localStorage.getItem("story26BlackSmokeFound")!=="1"&&Math.hypot(storyExplorePosition.x-4760,storyExplorePosition.y-1120)<125;}catch(e){}
+    window.storyWorld2NearBlackSmokeCrystal=nearBlackSmokeCrystal;
     const prompt=$story("storyExplorePrompt"),action=$story("storyExploreAction"),label=$story("storyExplorePromptText");
-    const canInteract=!!(storyExploreNearbyStage||storyExploreNearbyWorld2||storyExploreNearRift);
+    const canInteract=!!(storyExploreNearbyStage||storyExploreNearbyWorld2||storyExploreNearRift||nearBlackSmokeCrystal);
     if(prompt)prompt.classList.toggle("hidden",!canInteract||!!storyExploreConfirmStage||!!storyExploreConfirmWorld2);
     if(action)action.classList.toggle("is-visible",canInteract&&!storyExploreConfirmStage&&!storyExploreConfirmWorld2);
-    if(label&&storyExploreNearRift)label.textContent=!storyWorld2HasStoryClear()?"時空の裂け目：ワールド1の1-5をクリアすると通れる":(storyWorld2IsUnlocked()?"時空の裂け目：攻撃ボタンでワールド2へ進む":"時空の裂け目：攻撃ボタンでコードを入力");
+    if(label&&nearBlackSmokeCrystal)label.textContent="黒煙をまとった結晶を発見した！スペースキー / 攻撃キーで拾う";
+    else if(label&&storyExploreNearRift)label.textContent=!storyWorld2HasStoryClear()?"時空の裂け目：ワールド1の1-5をクリアすると通れる":(storyWorld2IsUnlocked()?"時空の裂け目：攻撃ボタンでワールド2へ進む":"時空の裂け目：攻撃ボタンでコードを入力");
     else if(label&&(storyExploreNearbyStage||storyExploreNearbyWorld2))label.textContent=storyExploreNearbyWorld2?storyExploreNearbyWorld2+" の入口：スペースキー / 攻撃キーで調べる":"1-"+storyExploreNearbyStage+" の入口：スペースキー / 攻撃キーで調べる";
-    if(action)action.textContent=storyExploreNearRift?(!storyWorld2HasStoryClear()?"🔒 1-5クリアで解放":(storyWorld2IsUnlocked()?"🌌 ワールド2へ進む":"🔐 コードを入力")):"調べる";
+    if(action)action.textContent=nearBlackSmokeCrystal?"⬛ 結晶を拾う":(storyExploreNearRift?(!storyWorld2HasStoryClear()?"🔒 1-5クリアで解放":(storyWorld2IsUnlocked()?"🌌 ワールド2へ進む":"🔐 コードを入力")):"調べる");
     const shopDist=Math.hypot(storyExplorePosition.x-1799,storyExplorePosition.y-744);
     if(shopDist<90&&!storySecretShopFound){
       storySecretShopFound=true;const door=$story("storySecretShopDoor");
@@ -5854,6 +5898,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     if(!storyExploreVisible())return;
     if(!$story("storyExploreShopModal").classList.contains("hidden"))return;
     if(storyExploreConfirmStage||storyExploreConfirmWorld2){storyExploreCloseConfirm();storyExploreConfirmWorld2="";return;}
+    if(window.storyWorld2NearBlackSmokeCrystal){window.startStoryWorld26BlackSmokeEvent();return;}
     if(storyExploreNearRift){if(!storyWorld2HasStoryClear()){const label=$story("storyExplorePromptText");if(label)label.textContent="🔒 先にワールド1の1-5をクリアしよう";return;}storyExplorePosition.x=2600;storyExploreKeys.clear();storyExploreDraw();return;}
     if(storyExploreNearbyWorld2){storyWorld2ExploreOpenConfirm(storyExploreNearbyWorld2);return;}
     if(storyExploreNearbyStage){storyExploreOpenConfirm(storyExploreNearbyStage);return;}

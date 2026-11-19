@@ -5788,8 +5788,11 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     renderStoryStages();renderStoryExploreEntrances();renderStoryWorld2ExploreEntrances();showStory("storyExploreScreen");
     const top=document.querySelector("#storyExploreScreen .story-explore-top strong");if(top)top.textContent="🌍 全ワールド共通探索フィールド";
     const hint=document.querySelector("#storyExploreScreen .story-explore-hint");if(hint)hint.textContent="街から草原へ進み、時空の裂け目の先にはコード認証が必要なワールド2が広がっている。";
-    storyExplorePosition.x=420;storyExplorePosition.y=760;
-    const view=$story("storyExploreViewport");if(view){view.scrollLeft=0;view.scrollTop=0;}
+    // ワールド1（1-5）クリア済みなら、次元の裂け目の手前から探索を再開する。
+    const world1Cleared=storyWorld2HasStoryClear();
+    storyExplorePosition.x=world1Cleared?2100:420;storyExplorePosition.y=world1Cleared?750:760;
+    storyExploreKeys.clear();storyExploreNearbyStage=0;storyExploreNearbyWorld2="";storyExploreNearRift=false;
+    const view=$story("storyExploreViewport");if(view){view.scrollLeft=world1Cleared?Math.max(0,storyExplorePosition.x-view.clientWidth/2):0;view.scrollTop=world1Cleared?Math.max(0,storyExplorePosition.y-view.clientHeight/2):0;}
     storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);
   };
   window.openStoryWorld2Explore=function(returnX,returnY){

@@ -5534,6 +5534,14 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
       small.textContent=available?"近づいて調べる":"前のステージをクリアすると解放";
       node.appendChild(small);layer.appendChild(node);
     });
+    let showBlackSmoke=false;try{showBlackSmoke=localStorage.getItem("story26Cleared")==="1"&&localStorage.getItem("story26BlackSmokeFound")!=="1";}catch(e){}
+    if(showBlackSmoke){
+      const crystal=document.createElement("div");crystal.className="story-explore-stage story-world2-black-smoke-crystal";
+      crystal.style.cssText="left:4760px;top:1120px;min-width:0;width:58px;height:58px;padding:0;border:2px solid #a78bfa;border-radius:50%;background:radial-gradient(circle,#31204f,#080711);font-size:34px;display:grid;place-items:center;box-shadow:0 0 22px #8b5cf6;animation:storyBlackCrystalFloat 2s ease-in-out infinite alternate;pointer-events:none";
+      crystal.textContent="⬛";crystal.title="黒煙をまとった結晶";
+      layer.appendChild(crystal);
+      if(!$story("story-black-crystal-keyframes")){const style=document.createElement("style");style.id="story-black-crystal-keyframes";style.textContent="@keyframes storyBlackCrystalFloat{to{transform:translateY(-10px);filter:brightness(1.5)}}";document.head.appendChild(style);}
+    }
   }
   function storyWorld2ExploreOpenConfirm(id){
     const info=storyWorld2ExploreStageInfo.find(x=>x.id===id);if(!info)return;

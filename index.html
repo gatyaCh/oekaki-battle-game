@@ -5546,7 +5546,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     let owned=[];
     try{owned=JSON.parse(localStorage.getItem("storyWorld2CrystalsV1")||"[]");}catch(e){}
     if(!Array.isArray(owned))owned=[];
-    [["2-2","red"],["2-3","green"],["2-4","cyan"]].forEach(([id,color])=>{
+    [["2-2","red"],["2-3","green"],["2-4","cyan"],["2-5","black"]].forEach(([id,color])=>{
       try{if(localStorage.getItem("story"+id.replace("-","")+"Cleared")==="1"&&!owned.includes(color))owned.push(color);}catch(e){}
     });
     const crystals=[
@@ -5554,6 +5554,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
       {id:"green",name:"緑の結晶",symbol:"🟢",color:"#4ade80"},
       {id:"cyan",name:"水色の結晶",symbol:"🔹",color:"#67e8f9"}
     ].filter(item=>owned.includes(item.id));
+    const hasBlackCrystal=owned.includes("black");
     const styleId="story-world26-puzzle-style";
     if(!$story(styleId)){
       const style=document.createElement("style");style.id=styleId;
@@ -5591,9 +5592,21 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     let root=$story("storyWorld26Puzzle");
     if(!root){root=document.createElement("div");root.id="storyWorld26Puzzle";document.body.appendChild(root);}
     root.classList.remove("s26-shake");
-    root.innerHTML='<div class="s26-card"><h1>2-6「色付き結晶と黒い結晶」</h1><p class="s26-desc">手持ちの結晶をドラッグして、同じ色の台座に置こう。スマホでは結晶をタップして選び、置きたい台座をタップしてね。<br>3つすべて正しい場所に置くと、ゲートが開く。</p><div class="s26-gate" id="s26Gate"><div class="s26-socket" data-color="red" style="color:#ff4b55">◇<small>赤</small></div><div class="s26-socket" data-color="green" style="color:#4ade80">◇<small>緑</small></div><div class="s26-socket" data-color="cyan" style="color:#67e8f9">◇<small>水色</small></div></div><h3>🎒 手持ちの結晶</h3><div class="s26-tray" id="s26Tray"></div><div class="s26-note" id="s26Status">結晶をそれぞれ同じ色の台座へ置いてね。</div></div>';
+    root.innerHTML='<div class="s26-card"><h1>2-6「色付き結晶と黒い結晶」</h1><p class="s26-desc">まず黒い結晶を使ってゲートの封印を解除しよう。そのあと、赤・緑・水色の結晶を同じ色の台座に置いてね。スマホでは結晶をタップして選び、台座をタップしてね。</p><div class="s26-gate" id="s26Gate"><div class="s26-socket" data-color="red" style="color:#ff4b55">◇<small>赤</small></div><div class="s26-socket" data-color="green" style="color:#4ade80">◇<small>緑</small></div><div class="s26-socket" data-color="cyan" style="color:#67e8f9">◇<small>水色</small></div></div><h3>🎒 手持ちの結晶</h3><div class="s26-tray" id="s26Tray"></div><div class="s26-note" id="s26Status">結晶をそれぞれ同じ色の台座へ置いてね。</div></div>';
     const tray=root.querySelector("#s26Tray"),sockets=[...root.querySelectorAll(".s26-socket")];
     let selected="",placed=new Set(),ended=false;
+    let blackUsed=false;
+    if(hasBlackCrystal){
+      const blackBtn=document.createElement("button");blackBtn.type="button";blackBtn.className="s26-crystal";blackBtn.style.color="#c4b5fd";blackBtn.textContent="⬛ 黒い結晶（封印解除）";
+      blackBtn.addEventListener("click",()=>{
+        if(ended||blackUsed)return;
+        blackUsed=true;blackBtn.remove();
+        root.querySelector("#s26Gate").style.borderColor="#c4b5fd";
+        root.querySelector("#s26Gate").style.boxShadow="0 0 28px #a78bfa";
+        root.querySelector("#s26Status").textContent="黒い結晶が輝き、ゲートの封印が解除された！色付きの台座に結晶を置こう。";
+      });
+      tray.appendChild(blackBtn);
+    }
     crystals.forEach(item=>{
       const btn=document.createElement("button");btn.type="button";btn.className="s26-crystal";btn.draggable=true;btn.dataset.color=item.id;btn.style.color=item.color;btn.textContent=item.symbol+" "+item.name;
       btn.addEventListener("click",()=>{if(ended)return;selected=item.id;tray.querySelectorAll("button").forEach(b=>b.classList.toggle("selected",b===btn));root.querySelector("#s26Status").textContent=item.name+"を選択中。対応する色の台座を選んでね。";});
@@ -5608,15 +5621,16 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     function showSuccess(){
       if(ended)return;ended=true;
       const gate=root.querySelector("#s26Gate");gate.classList.add("open");
-      try{localStorage.setItem("story26Cleared","1");localStorage.setItem("storyWorld2BlackCrystalObtained","1");}catch(e){}
+      try{localStorage.setItem("story26Cleared","1");}catch(e){}
       setTimeout(()=>{
         if(!root.isConnected)return;
-        root.querySelector(".s26-card").innerHTML='<h1>ゲートが開いた！</h1><p class="s26-desc">3つの結晶が正しく反応し、封印が解除された。</p><div class="s26-black">⬛</div><h2>黒い結晶を回収した！</h2><p class="s26-desc">ゲートの奥には、さらに深い闇が続いている……。</p><button type="button" class="s26-primary" id="s26SuccessReturn">探索フィールドへ進む</button>';
+        root.querySelector(".s26-card").innerHTML='<h1>ゲートが開いた！</h1><p class="s26-desc">3つの結晶が正しく反応し、封印が解除された。</p><p class="s26-desc">黒い結晶で封印を解除し、3つの結晶を正しく配置した。ゲートの奥には、さらに深い闇が続いている……。</p><button type="button" class="s26-primary" id="s26SuccessReturn">探索フィールドへ進む</button>';
         root.querySelector("#s26SuccessReturn").addEventListener("click",returnToExplore);
       },1450);
     }
     function place(color,socket){
       if(ended||!color||socket.classList.contains("filled"))return;
+      if(!blackUsed){root.querySelector("#s26Status").textContent="先に黒い結晶を使ってゲートの封印を解除してね。";return;}
       if(socket.dataset.color!==color){showGameOver();return;}
       const item=crystals.find(x=>x.id===color);if(!item)return;
       socket.classList.add("filled");socket.textContent=item.symbol;
@@ -5624,16 +5638,17 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
       socket.style.background="#172b25";placed.add(color);selected="";
       tray.querySelectorAll("button").forEach(b=>{if(b.dataset.color===color)b.remove();b.classList.remove("selected");});
       root.querySelector("#s26Status").textContent="正解！ "+item.name+"が台座にはまった。";
-      if(placed.size===3)showSuccess();
+      if(placed.size===3&&blackUsed)showSuccess();
     }
     sockets.forEach(socket=>{
       socket.addEventListener("click",()=>place(selected,socket));
       socket.addEventListener("dragover",e=>e.preventDefault());
       socket.addEventListener("drop",e=>{e.preventDefault();place(e.dataTransfer.getData("text/plain")||selected,socket);});
     });
-    if(crystals.length!==3){
-      root.querySelector("#s26Status").textContent="必要な結晶がそろっていないよ。2-2・2-3・2-4をクリアして結晶を集めよう。";
+    if(crystals.length!==3||!hasBlackCrystal){
+      root.querySelector("#s26Status").textContent="必要な結晶がそろっていないよ。2-2・2-3・2-4・2-5をクリアして4つの結晶を集めよう。";
       sockets.forEach(socket=>socket.style.opacity=".45");
+      tray.querySelectorAll("button").forEach(button=>button.disabled=true);
     }
     function returnToExplore(){
       root.remove();showStory("storyExploreScreen");
@@ -11695,7 +11710,7 @@ body.special-code-open #adminAbuseDialogue.active{
   }
   playerGuard=0;playerDodge=0;return messages;
  }
- function showWorld2Reward(){if(rewardShown||!stage.startsWith("2-"))return;rewardShown=true;const data={"2-2":["赤","🔴","#ff4545"],"2-3":["緑","🟢","#4ade80"],"2-4":["水色","🔹","#67e8f9"],"2-5":["黒","⬛","#64748b"]}[stage];if(!data)return;try{localStorage.setItem("story"+stage.replace("-","")+"Cleared","1");if(["2-2","2-3","2-4"].includes(stage)){const owned=JSON.parse(localStorage.getItem("storyWorld2CrystalsV1")||"[]");const color={"2-2":"red","2-3":"green","2-4":"cyan"}[stage];if(!owned.includes(color))owned.push(color);localStorage.setItem("storyWorld2CrystalsV1",JSON.stringify(owned));}}catch(e){}const overlay=document.createElement("div");overlay.className="story2-reward-overlay";overlay.innerHTML='<div class="story2-reward-card"><div class="story2-reward-label">CRYSTAL ACQUIRED</div><div class="story2-reward-gem" style="--gem-color:'+data[2]+'">'+data[1]+'</div><h2>'+data[0]+'色の結晶を入手！</h2><p>結晶が淡く輝き、主人公の手元へゆっくりと浮かび上がった。</p><button type="button" class="story2-exp-open">✨ EXPを振り分ける（'+stageEarnedExp+' EXP）</button><button type="button" class="story2-return">ステージ選択へ戻る</button></div>';$("storyBattleScreen").appendChild(overlay);overlay.querySelector(".story2-exp-open").onclick=()=>window.openStoryExpAllocation&&window.openStoryExpAllocation();overlay.querySelector(".story2-return").onclick=()=>{overlay.remove();$("storyBattleScreen").classList.add("hidden");$("storyWorld2StageScreen").classList.remove("hidden");renderStoryWorld2Stages();};}
+ function showWorld2Reward(){if(rewardShown||!stage.startsWith("2-"))return;rewardShown=true;const data={"2-2":["赤","🔴","#ff4545"],"2-3":["緑","🟢","#4ade80"],"2-4":["水色","🔹","#67e8f9"],"2-5":["黒","⬛","#64748b"]}[stage];if(!data)return;try{localStorage.setItem("story"+stage.replace("-","")+"Cleared","1");const owned=JSON.parse(localStorage.getItem("storyWorld2CrystalsV1")||"[]");const color={"2-2":"red","2-3":"green","2-4":"cyan","2-5":"black"}[stage];if(color&&!owned.includes(color))owned.push(color);localStorage.setItem("storyWorld2CrystalsV1",JSON.stringify(owned));if(stage==="2-5")localStorage.setItem("storyWorld2BlackCrystalObtained","1");}catch(e){}const overlay=document.createElement("div");overlay.className="story2-reward-overlay";overlay.innerHTML='<div class="story2-reward-card"><div class="story2-reward-label">CRYSTAL ACQUIRED</div><div class="story2-reward-gem" style="--gem-color:'+data[2]+'">'+data[1]+'</div><h2>'+data[0]+'色の結晶を入手！</h2><p>結晶が淡く輝き、主人公の手元へゆっくりと浮かび上がった。</p><button type="button" class="story2-exp-open">✨ EXPを振り分ける（'+stageEarnedExp+' EXP）</button><button type="button" class="story2-return">ステージ選択へ戻る</button></div>';$("storyBattleScreen").appendChild(overlay);overlay.querySelector(".story2-exp-open").onclick=()=>window.openStoryExpAllocation&&window.openStoryExpAllocation();overlay.querySelector(".story2-return").onclick=()=>{overlay.remove();$("storyBattleScreen").classList.add("hidden");$("storyWorld2StageScreen").classList.remove("hidden");renderStoryWorld2Stages();};}
  function startBlackAbsorption(){if(absorptionTriggered)return;const boss=enemies.find(e=>e.crystal==="black");if(!boss||boss.hp>50)return;absorptionTriggered=true;turnBusy=true;$("storyDrawPanel").classList.remove("active");boss.hp=Math.max(1,boss.hp);const victims=enemies.filter(e=>e!==boss&&e.hp>0),stolen=victims.reduce((sum,e)=>sum+e.hp,0);const overlay=document.createElement("div");overlay.className="story2-absorb-overlay";overlay.innerHTML='<div class="story2-absorb-card"><div class="story2-smoke"></div><div class="story2-absorb-crystal">⬛</div><h2>黒い結晶が反応した……！</h2><p>黒い敵「……すべて、ひとつに。」</p><p>周囲の敵が黒い結晶へ吸い込まれていく！</p><button type="button">演出を進める</button></div>';$("storyBattleScreen").appendChild(overlay);overlay.querySelector("button").onclick=()=>{victims.forEach(e=>{e.hp=0;e.absorbed=true});boss.max+=stolen;boss.hp+=stolen;boss.absorbed=true;overlay.remove();log("黒い結晶が仲間を吸収！残りHPの合計 "+stolen+" を取り込み、最大HPが "+boss.max+" に増加した！");fx("⬛ HP +"+stolen,"heal");turnBusy=false;render();finish();};}
  function finish(){
   render();

@@ -210,7 +210,6 @@
   }
   let saved="white";
   try{saved=localStorage.getItem("playPageTheme")||"white"}catch(e){}
-  if(saved==="gatya") saved="galaxy"; // 以前のGATYAテーマ設定はギャラクシーへ引き継ぐ
   applyTheme(saved);
   buttons.forEach(b=>b.addEventListener("click",()=>applyTheme(b.dataset.themeChoice)));
 

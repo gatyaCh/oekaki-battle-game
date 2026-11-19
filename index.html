@@ -5494,10 +5494,14 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     {id:"2-3",name:"緑の結晶",x:3750,y:1050},
     {id:"2-4",name:"水色の結晶",x:4250,y:480},
     {id:"2-5",name:"黒い結晶",x:4750,y:850},
-    {id:"2-6",name:"結晶のゲート",x:4800,y:1240}
+    {id:"2-6",name:"結晶のゲート",x:4580,y:1260}
   ];
   function storyWorld2ExploreStageAvailable(index){
     if(index===0)return true;
+    // 2-6は2-5「黒い結晶」をクリアすると探索フィールドに出現する。
+    if(storyWorld2ExploreStageInfo[index].id==="2-6"){
+      try{return localStorage.getItem("story25Cleared")==="1";}catch(e){return false;}
+    }
     const previous=storyWorld2ExploreStageInfo[index-1].id;
     const key=previous==="2-1"?"storyWorld2Stage1Cleared":"story"+previous.replace("-","")+"Cleared";
     try{return localStorage.getItem(key)==="1";}catch(e){return false;}
@@ -5508,8 +5512,9 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     storyWorld2ExploreStageInfo.forEach((info,index)=>{
       const available=storyWorld2ExploreStageAvailable(index);
       const node=document.createElement("div");
-      node.className="story-explore-stage"+(available?"":" story-explore-locked");
+      node.className="story-explore-stage"+(available?"":" story-explore-locked")+(info.id==="2-6"?" story-explore-stage-final":"");
       node.style.left=info.x+"px";node.style.top=info.y+"px";
+      if(info.id==="2-6"){node.style.borderColor="#c4b5fd";node.style.background="linear-gradient(135deg,#31205d,#111827)";node.style.boxShadow="0 0 24px #a78bfa99";}
       node.textContent=(available?"🌌 ":"🔒 ")+info.id+" "+info.name;
       const small=document.createElement("small");
       small.textContent=available?"近づいて調べる":"前のステージをクリアすると解放";

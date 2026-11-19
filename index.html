@@ -5470,11 +5470,11 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   let storyWorld2PendingStage="";
   window.openStoryCodeGate=function(fromExplore=false){storyCodeGateReturnToExplore=!!fromExplore;if(fromExplore){hideStory("storyExploreConfirm");}else{hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");hideStory("storyWorld2StageScreen");}if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}const gate=$story("storyCodeGate"),input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(input)input.value="";if(message)message.textContent="";if(gate){gate.classList.remove("hidden");gate.style.position="fixed";gate.style.inset="0";gate.style.zIndex="2147483647";gate.style.visibility="visible";gate.style.opacity="1";gate.style.pointerEvents="auto";gate.style.display="";gate.style.alignItems="center";gate.style.justifyContent="center";}if(input){input.focus();}};
   window.closeStoryCodeGate=function(){hideStory("storyCodeGate");if(storyCodeGateReturnToExplore){showStory("storyExploreScreen");storyExplorePosition.x=Math.min(storyExplorePosition.x,2600);storyExploreKeys.clear();storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);}else if(storyWorld2PendingStage){showStory("storyWorld2StageScreen");}else{showStory("storyWorldScreen");}storyWorld2Authorized=false;storyCodeGateReturnToExplore=false;storyWorld2PendingStage="";};
-  window.submitStoryTestCode=function(){const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(!input||!message)return;const enteredCode=String(input.value||"").normalize("NFKC").replace(/[\s\u200B-\u200D\uFEFF]/g,"").toLowerCase();const expectedCode=String(STORY_TEST_CODE).normalize("NFKC").replace(/[\s\u200B-\u200D\uFEFF]/g,"").toLowerCase();if(enteredCode!==expectedCode){message.textContent="❌ コードが違います。入力内容を確認してください。";input.select();return;}storyWorld2Authorized=true;hideStory("storyCodeGate");input.value="";const pending=storyWorld2PendingStage;storyWorld2PendingStage="";if(pending){if(storyCodeGateReturnToExplore)launchStoryWorld2ExploreStage(pending);else{hideStory("storyWorld2StageScreen");if(pending==="2-1")window.startStoryWorld2Intro();else if(pending==="2-6")window.startStoryWorld26Puzzle();else if(pending==="2-7")window.startStoryWorld27Intro();else window.startStoryBattle(pending);}storyCodeGateReturnToExplore=false;return;}if(storyCodeGateReturnToExplore){storyCodeGateReturnToExplore=false;showStory("storyExploreScreen");storyExplorePosition.x=2600;storyExploreKeys.clear();storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);}else window.openStoryWorld2Stages();};
+  window.submitStoryTestCode=function(){const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(!input||!message)return;const enteredCode=String(input.value||"").normalize("NFKC").replace(/[\s\u200B-\u200D\uFEFF]/g,"").toLowerCase();const expectedCode=String(STORY_TEST_CODE).normalize("NFKC").replace(/[\s\u200B-\u200D\uFEFF]/g,"").toLowerCase();if(enteredCode!==expectedCode){message.textContent="❌ コードが違います。入力内容を確認してください。";input.select();return;}storyWorld2Authorized=true;hideStory("storyCodeGate");input.value="";const pending=storyWorld2PendingStage;storyWorld2PendingStage="";if(pending){if(storyCodeGateReturnToExplore)launchStoryWorld2ExploreStage(pending);else{hideStory("storyWorld2StageScreen");if(pending==="2-1")window.startStoryWorld2Intro();else if(pending==="2-6")window.startStoryWorld26Puzzle();else if(pending==="2-7")window.startStoryWorld27Intro();else if(pending==="2-8")window.startStoryWorld28Intro();else window.startStoryBattle(pending);}storyCodeGateReturnToExplore=false;return;}if(storyCodeGateReturnToExplore){storyCodeGateReturnToExplore=false;showStory("storyExploreScreen");storyExplorePosition.x=2600;storyExploreKeys.clear();storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);}else window.openStoryWorld2Stages();};
   window.openStoryWorlds=function(){syncStoryWorld2Unlock();hideStory("storyCodeGate");hideStory("storyStageScreen");hideStory("storyWorld2StageScreen");hideStory("storyEpisodeScreen");hideStory("storyExploreScreen");const map=$story("mapSelect");if(map)map.classList.add("hidden");const card=$story("storyWorldScreen")?.querySelectorAll(".story-world-card")[1];if(card){const status=card.querySelector("p"),button=card.querySelector("button");if(status)status.textContent=storyWorld2HasStoryClear()?"✅ 1-5クリア済み":"🔒 1-5クリアで解放";if(button)button.textContent=storyWorld2HasStoryClear()?"ワールド2を見る":"1-5をクリアすると解放";if(button)button.disabled=!storyWorld2HasStoryClear();if(button&&storyWorld2HasStoryClear())button.onclick=window.openStoryWorld2Stages;}showStory("storyWorldScreen");};
   window.openStoryWorld2CodeGate=function(){if(!storyWorld2HasStoryClear()){window.openStoryWorlds();return;}window.openStoryWorld2Stages();};
   window.openStoryWorld2Stages=function(){if(!storyWorld2HasStoryClear()){window.openStoryWorlds();return;}hideStory("storyCodeGate");hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");renderStoryWorld2Stages();showStory("storyWorld2StageScreen");};
-  function renderStoryWorld2Stages(){const grid=$story("storyWorld2StageGrid");if(!grid)return;grid.innerHTML="";[["2-1","次元の裂け目"],["2-2","赤い結晶"],["2-3","緑の結晶"],["2-4","水色の結晶"],["2-5","黒い結晶"],["2-6","結晶のゲート"],["2-7","黒い影の正体"]].forEach(([id,name])=>{let done=false,unlocked=true;try{done=localStorage.getItem(id==="2-1"?"storyWorld2Stage1Cleared":"story"+id.replace("-","")+"Cleared")==="1";if(id==="2-7")unlocked=localStorage.getItem("story26Cleared")==="1";}catch(e){if(id==="2-7")unlocked=false;}const card=document.createElement("div");card.className="story-stage-card"+(done?" cleared":unlocked?" unlocked":"");const title=document.createElement("strong");title.textContent=id;card.appendChild(title);const label=document.createElement("div");label.style.cssText="font-size:12px;margin-top:4px";label.textContent=name;card.appendChild(label);const status=document.createElement("div");status.style.cssText="font-size:12px;margin-top:5px";status.textContent=done?"✅ クリア":unlocked?"プレイ可能":"🔒 2-6クリアで解放";card.appendChild(status);const btn=document.createElement("button");btn.type="button";btn.textContent=done?"もう一度見る":unlocked?"プレイ":"ロック中";btn.disabled=!unlocked;btn.addEventListener("click",()=>{if(!unlocked)return;storyWorld2PendingStage=id;window.openStoryCodeGate(false);});card.appendChild(btn);grid.appendChild(card);});};
+  function renderStoryWorld2Stages(){const grid=$story("storyWorld2StageGrid");if(!grid)return;grid.innerHTML="";[["2-1","次元の裂け目"],["2-2","赤い結晶"],["2-3","緑の結晶"],["2-4","水色の結晶"],["2-5","黒い結晶"],["2-6","結晶のゲート"],["2-7","黒い影の正体"],["2-8","崩壊した浮遊都市"]].forEach(([id,name])=>{let done=false,unlocked=true;try{done=localStorage.getItem(id==="2-1"?"storyWorld2Stage1Cleared":"story"+id.replace("-","")+"Cleared")==="1";if(id==="2-7")unlocked=localStorage.getItem("story26Cleared")==="1";if(id==="2-8")unlocked=localStorage.getItem("story27Cleared")==="1";}catch(e){if(id==="2-7")unlocked=false;}const card=document.createElement("div");card.className="story-stage-card"+(done?" cleared":unlocked?" unlocked":"");const title=document.createElement("strong");title.textContent=id;card.appendChild(title);const label=document.createElement("div");label.style.cssText="font-size:12px;margin-top:4px";label.textContent=name;card.appendChild(label);const status=document.createElement("div");status.style.cssText="font-size:12px;margin-top:5px";status.textContent=done?"✅ クリア":unlocked?"プレイ可能":id==="2-8"?"🔒 2-7クリアで解放":"🔒 2-6クリアで解放";card.appendChild(status);const btn=document.createElement("button");btn.type="button";btn.textContent=done?"もう一度見る":unlocked?"プレイ":"ロック中";btn.disabled=!unlocked;btn.addEventListener("click",()=>{if(!unlocked)return;storyWorld2PendingStage=id;window.openStoryCodeGate(false);});card.appendChild(btn);grid.appendChild(card);});};
 
   let storyExploreFrame=0;
   const storyExplorePosition={x:420,y:760};
@@ -5498,7 +5498,8 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     {id:"2-4",name:"水色の結晶",x:4250,y:480},
     {id:"2-5",name:"黒い結晶",x:4750,y:850},
     {id:"2-6",name:"結晶のゲート",x:4580,y:1260},
-    {id:"2-7",name:"黒い影の正体",x:4200,y:1320}
+    {id:"2-7",name:"黒い影の正体",x:4200,y:1320},
+    {id:"2-8",name:"崩壊した浮遊都市",x:3850,y:1370}
   ];
   window.returnStoryWorld2ExploreAfterStage=function(stageId){
     const info=storyWorld2ExploreStageInfo.find(item=>item.id===stageId);
@@ -5515,6 +5516,9 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     }
     if(storyWorld2ExploreStageInfo[index].id==="2-7"){
       try{return localStorage.getItem("story26Cleared")==="1"&&localStorage.getItem("story26BlackSmokeFound")==="1";}catch(e){return false;}
+    }
+    if(storyWorld2ExploreStageInfo[index].id==="2-8"){
+      try{return localStorage.getItem("story27Cleared")==="1";}catch(e){return false;}
     }
     const previous=storyWorld2ExploreStageInfo[index-1].id;
     const key=previous==="2-1"?"storyWorld2Stage1Cleared":"story"+previous.replace("-","")+"Cleared";
@@ -5560,6 +5564,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     if(id==="2-1")window.startStoryWorld2Intro();
     else if(id==="2-6")window.startStoryWorld26Puzzle();
     else if(id==="2-7")window.startStoryWorld27Intro();
+    else if(id==="2-8")window.startStoryWorld28Intro();
     else window.startStoryBattle(id);
   }
   window.startStoryWorld26BlackSmokeEvent=function(){
@@ -5689,7 +5694,110 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     root.querySelector("#w27Skip").addEventListener("click",finish);
     render();
   };
-    function startStoryWorld26Puzzle(){
+    window.startStoryWorld28Intro=function(){
+    storyExploreKeys.clear();
+    if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}
+    hideStory("storyExploreConfirm");hideStory("storyExploreScreen");hideStory("storyWorld2StageScreen");
+    const id="storyWorld28Cinematic";
+    let root=$story(id);if(root)root.remove();
+    root=document.createElement("div");root.id=id;
+    root.innerHTML=`
+      <style>
+        #storyWorld28Cinematic{position:fixed;inset:0;z-index:1000011;display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;background:#050711;color:#fff;font-family:inherit;overflow:hidden}
+        #storyWorld28Cinematic .w28-scene{position:relative;width:min(980px,96vw);height:min(630px,89vh);min-height:410px;overflow:hidden;border:1px solid #64748b;border-radius:20px;box-shadow:0 20px 80px #000b;isolation:isolate;transition:background 1s}
+        #storyWorld28Cinematic .w28-scene.absorb{background:radial-gradient(ellipse at 50% 40%,#39264e,#100d1b 55%,#020207)}
+        #storyWorld28Cinematic .w28-scene.wake{background:linear-gradient(#111b32,#27334b 60%,#101827)}
+        #storyWorld28Cinematic .w28-scene.city{background:linear-gradient(#80b5d0 0%,#d6d9b1 48%,#587b55 49%,#263c31 100%)}
+        #storyWorld28Cinematic .w28-scene.crystal{background:radial-gradient(ellipse at 50% 55%,#4a3760,#101321 65%,#03040a)}
+        #storyWorld28Cinematic .w28-scene.scroll{background:linear-gradient(#17233b,#43536b 48%,#243d36 49%,#101b1b)}
+        #storyWorld28Cinematic .w28-stars{position:absolute;inset:0;opacity:.55;background-image:radial-gradient(#fff 1px,transparent 2px),radial-gradient(#c4b5fd 1px,transparent 2px);background-size:57px 63px,91px 83px;animation:w28Stars 20s linear infinite}
+        #storyWorld28Cinematic .w28-rift{position:absolute;left:50%;top:8%;width:clamp(130px,25vw,250px);height:clamp(200px,40vw,350px);transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,#020207 0 32%,#32204a 45%,#a78bfa 50%,transparent 70%);filter:drop-shadow(0 0 22px #8b5cf6);opacity:0;transition:opacity 1s}
+        #storyWorld28Cinematic .w28-shadow{position:absolute;left:50%;top:17%;transform:translateX(-50%);font-size:clamp(100px,19vw,190px);filter:brightness(.05) drop-shadow(0 0 22px #000);opacity:0;z-index:3;transition:all 1s}
+        #storyWorld28Cinematic .w28-eyes{position:absolute;left:50%;top:32%;transform:translateX(-50%);font-size:clamp(20px,4vw,38px);letter-spacing:clamp(12px,3vw,26px);color:#facc15;text-shadow:0 0 12px #f59e0b,0 0 30px #ef4444;opacity:0;z-index:4}
+        #storyWorld28Cinematic .w28-crystal{position:absolute;left:50%;top:57%;transform:translate(-50%,-50%) scale(.5);font-size:clamp(70px,13vw,125px);filter:drop-shadow(0 0 22px #a78bfa);opacity:0;z-index:5;transition:all 1s}
+        #storyWorld28Cinematic .w28-hero{position:absolute;left:50%;bottom:22%;transform:translateX(-50%);font-size:clamp(48px,8vw,76px);z-index:4;opacity:0;filter:drop-shadow(0 5px 6px #0008);transition:all .8s}
+        #storyWorld28Cinematic .w28-ground{position:absolute;left:-5%;right:-5%;bottom:0;height:29%;background:linear-gradient(165deg,#8eb56c,#426744 55%,#203c31);clip-path:polygon(0 25%,18% 7%,36% 22%,57% 0,77% 18%,100% 5%,100% 100%,0 100%);opacity:0;transition:opacity 1s}
+        #storyWorld28Cinematic .w28-island{position:absolute;bottom:20%;width:36%;height:90px;background:linear-gradient(165deg,#8da1ad,#3c5262 60%,#182635);clip-path:polygon(0 0,100% 0,78% 42%,60% 100%,30% 72%,18% 100%);opacity:0;transition:opacity 1s}
+        #storyWorld28Cinematic .w28-island.left{left:-7%}#storyWorld28Cinematic .w28-island.right{right:-7%;bottom:35%;transform:scale(.72)}
+        #storyWorld28Cinematic .w28-ruins{position:absolute;left:8%;bottom:28%;font-size:clamp(40px,8vw,80px);opacity:0;filter:drop-shadow(0 5px 6px #0007);transition:opacity 1s}
+        #storyWorld28Cinematic .w28-grass{position:absolute;bottom:22%;left:12%;font-size:clamp(25px,5vw,48px);opacity:0;transition:opacity 1s}
+        #storyWorld28Cinematic .w28-scroll{position:absolute;left:50%;top:53%;transform:translate(-50%,-50%) rotate(-16deg) scale(.3);font-size:clamp(70px,13vw,120px);opacity:0;z-index:6;filter:drop-shadow(0 0 20px #fbbf24);transition:all 1s}
+        #storyWorld28Cinematic .w28-rays{position:absolute;inset:-30%;background:repeating-conic-gradient(from 0deg at 50% 52%,#fef3c722 0deg 5deg,transparent 5deg 15deg);opacity:0;z-index:2;animation:w28Spin 24s linear infinite}
+        #storyWorld28Cinematic .w28-flash{position:absolute;inset:0;background:#fff7d6;opacity:0;pointer-events:none;z-index:8}
+        #storyWorld28Cinematic .w28-flash.on{animation:w28Flash .9s ease-out}
+        #storyWorld28Cinematic .w28-dialog{position:absolute;left:3%;right:3%;bottom:3%;z-index:10;padding:13px 16px;border:1px solid #a5b4c7;border-radius:14px;background:linear-gradient(135deg,#07111fee,#17243bee);box-shadow:0 8px 30px #0009}
+        #storyWorld28Cinematic .w28-speaker{font-weight:900;color:#fde68a;margin-bottom:7px}
+        #storyWorld28Cinematic .w28-line{min-height:3em;line-height:1.65;font-size:clamp(14px,2vw,18px)}
+        #storyWorld28Cinematic .w28-controls{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px}
+        #storyWorld28Cinematic .w28-count{font-size:12px;color:#cbd5e1}
+        #storyWorld28Cinematic button{border:0;border-radius:9px;padding:10px 16px;background:#7c3aed;color:white;font-weight:800;cursor:pointer}
+        #storyWorld28Cinematic button.secondary{background:#475569}
+        #storyWorld28Cinematic .w28-scene.absorb .w28-rift,#storyWorld28Cinematic .w28-scene.absorb .w28-shadow,#storyWorld28Cinematic .w28-scene.absorb .w28-crystal{opacity:1}
+        #storyWorld28Cinematic .w28-scene.absorb .w28-eyes{opacity:1;animation:w28Eyes 1.2s ease-in-out infinite alternate}
+        #storyWorld28Cinematic .w28-scene.absorb .w28-crystal{animation:w28Float 2s ease-in-out infinite alternate}
+        #storyWorld28Cinematic .w28-scene.wake .w28-hero{opacity:1;animation:w28Wake 1.4s ease-out}
+        #storyWorld28Cinematic .w28-scene.city .w28-ground,#storyWorld28Cinematic .w28-scene.scroll .w28-ground{opacity:1}
+        #storyWorld28Cinematic .w28-scene.city .w28-island,#storyWorld28Cinematic .w28-scene.scroll .w28-island,#storyWorld28Cinematic .w28-scene.city .w28-ruins,#storyWorld28Cinematic .w28-scene.scroll .w28-ruins,#storyWorld28Cinematic .w28-scene.city .w28-grass,#storyWorld28Cinematic .w28-scene.scroll .w28-grass{opacity:1}
+        #storyWorld28Cinematic .w28-scene.city .w28-hero,#storyWorld28Cinematic .w28-scene.scroll .w28-hero{opacity:1}
+        #storyWorld28Cinematic .w28-scene.crystal .w28-crystal,#storyWorld28Cinematic .w28-scene.scroll .w28-scroll{opacity:1;transform:translate(-50%,-50%) rotate(-8deg) scale(1)}
+        #storyWorld28Cinematic .w28-scene.crystal .w28-rays,#storyWorld28Cinematic .w28-scene.scroll .w28-rays{opacity:1}
+        #storyWorld28Cinematic .w28-scene.scroll .w28-crystal{opacity:.2;transform:translate(-50%,-50%) scale(1.15)}
+        @keyframes w28Stars{to{background-position:130px 90px,-100px 130px}}
+        @keyframes w28Spin{to{transform:rotate(360deg)}}
+        @keyframes w28Eyes{to{filter:brightness(2);transform:translateX(-50%) scale(1.2)}}
+        @keyframes w28Float{to{transform:translate(-50%,-65%) rotate(9deg)}}
+        @keyframes w28Wake{0%{transform:translate(-50%,35px) scale(.7);opacity:0}100%{transform:translate(-50%,0) scale(1);opacity:1}}
+        @keyframes w28Flash{0%{opacity:.9}100%{opacity:0}}
+        @media(max-width:560px){#storyWorld28Cinematic .w28-scene{min-height:430px}#storyWorld28Cinematic .w28-dialog{padding:11px}}
+        @media(prefers-reduced-motion:reduce){#storyWorld28Cinematic *{animation:none!important;transition:none!important}}
+      </style>
+      <div class="w28-scene absorb" role="dialog" aria-modal="true" aria-label="2-8 崩壊した浮遊都市">
+        <div class="w28-stars"></div><div class="w28-rift"></div><div class="w28-rays"></div>
+        <div class="w28-island left"></div><div class="w28-island right"></div><div class="w28-ground"></div>
+        <div class="w28-ruins">🏚️</div><div class="w28-grass">🌿 🌾 🌱</div>
+        <div class="w28-shadow">🌪️</div><div class="w28-eyes">● ●</div><div class="w28-crystal">⬛</div>
+        <div class="w28-hero">🧑‍🚀</div><div class="w28-scroll">📜</div><div class="w28-flash"></div>
+        <div class="w28-dialog"><div class="w28-speaker" id="w28Speaker"></div><div class="w28-line" id="w28Line"></div><div class="w28-controls"><span class="w28-count" id="w28Count"></span><div><button type="button" class="secondary" id="w28Skip">スキップ</button> <button type="button" id="w28Next">次へ ▶</button></div></div></div>
+      </div>`;
+    document.body.appendChild(root);
+    const scenes=[
+      {speaker:"ナレーション",line:"黒い結晶が、次元の裂け目の前で強く光り始めた。",place:"absorb"},
+      {speaker:"主人公",line:"結晶が光ってる……！ いったい何が起きるんだ？",place:"absorb"},
+      {speaker:"ナレーション",line:"結晶から黒い光が広がり、黒い影の体を少しずつ包み込んでいく。",place:"absorb",flash:true},
+      {speaker:"主人公",line:"影が結晶に吸い込まれていく……！",place:"absorb"},
+      {speaker:"ナレーション",line:"影の姿が消えると、結晶の光も静かに消えていった。",place:"crystal"},
+      {speaker:"ナレーション",line:"――しばらくして。主人公は、やわらかな風の音で目を覚ました。",place:"wake"},
+      {speaker:"主人公",line:"うっ……ここは？ さっきの闇の空間じゃない……。",place:"wake"},
+      {speaker:"ナレーション",line:"目の前には、空に浮かぶ島々。草原の向こうには、崩れた建物が見える。",place:"city"},
+      {speaker:"主人公",line:"ここが……崩壊した浮遊都市？ どうしてこんな場所に？",place:"city"},
+      {speaker:"ナレーション",line:"足元に、黒い結晶が落ちている。表面には、細かなひびが広がっていた。",place:"crystal"},
+      {speaker:"主人公",line:"さっきの結晶だ！ でも、今にも壊れそうだ……。",place:"crystal"},
+      {speaker:"ナレーション",line:"結晶がまばゆく輝き、細かな光のかけらとなって砕け散った。",place:"crystal",flash:true},
+      {speaker:"ナレーション",line:"結晶の中から、一つの古びた巻物が現れた。",place:"scroll"},
+      {speaker:"主人公",line:"巻物……？ 何か大切なことが書かれているのかもしれない。",place:"scroll"},
+      {speaker:"ナレーション",line:"主人公は巻物を手に取った。そこには、まだ知らない世界へつながる手がかりが記されていた。",place:"scroll"},
+      {speaker:"主人公",line:"この先に何が待っているのか……。この謎を解くために、もっと調べてみよう。",place:"scroll"}
+    ];
+    let index=0,ended=false;
+    const scene=root.querySelector(".w28-scene"),speaker=root.querySelector("#w28Speaker"),line=root.querySelector("#w28Line"),count=root.querySelector("#w28Count"),next=root.querySelector("#w28Next"),flash=root.querySelector(".w28-flash");
+    function render(){
+      const item=scenes[index];scene.className="w28-scene "+item.place;
+      speaker.textContent=item.speaker;line.textContent=item.line;count.textContent=(index+1)+" / "+scenes.length;
+      if(item.flash){flash.classList.remove("on");void flash.offsetWidth;flash.classList.add("on");}
+      next.textContent=index===scenes.length-1?"ワールド2クリア ▶":"次へ ▶";
+    }
+    function finish(){
+      if(ended)return;ended=true;
+      try{localStorage.setItem("story28Cleared","1");localStorage.setItem("storyWorld2Cleared","1");}catch(e){}
+      const dialog=root.querySelector(".w28-dialog");
+      dialog.innerHTML='<div class="w28-speaker">🌌 ワールド2クリア！</div><div class="w28-line">黒い影の謎を追い、崩壊した浮遊都市で古びた巻物を見つけた。巻物に記された謎は、まだ続いている……。</div><div class="w28-controls"><span class="w28-count">✅ 2-8 クリア</span><button type="button" id="w28Return">探索フィールドに戻る</button></div>';
+      dialog.querySelector("#w28Return").addEventListener("click",()=>{root.remove();if(typeof window.returnStoryWorld2ExploreAfterStage==="function")window.returnStoryWorld2ExploreAfterStage("2-8");});
+    }
+    next.addEventListener("click",()=>{if(ended)return;if(index<scenes.length-1){index++;render();}else finish();});
+    root.querySelector("#w28Skip").addEventListener("click",finish);
+    render();
+  };
+  function startStoryWorld26Puzzle(){
     storyExploreKeys.clear();
     if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}
     hideStory("storyExploreConfirm");hideStory("storyExploreScreen");

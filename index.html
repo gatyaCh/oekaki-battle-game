@@ -5467,11 +5467,11 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   let storyWorld2PendingStage="";
   window.openStoryCodeGate=function(fromExplore=false){storyCodeGateReturnToExplore=!!fromExplore;if(fromExplore){hideStory("storyExploreConfirm");}else{hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");hideStory("storyWorld2StageScreen");}if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}const gate=$story("storyCodeGate"),input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(input)input.value="";if(message)message.textContent="";if(gate){gate.classList.remove("hidden");gate.style.position="fixed";gate.style.inset="0";gate.style.zIndex="2147483647";gate.style.visibility="visible";gate.style.opacity="1";gate.style.pointerEvents="auto";gate.style.display="";gate.style.alignItems="center";gate.style.justifyContent="center";}if(input){input.focus();}};
   window.closeStoryCodeGate=function(){hideStory("storyCodeGate");if(storyCodeGateReturnToExplore){showStory("storyExploreScreen");storyExplorePosition.x=Math.min(storyExplorePosition.x,2600);storyExploreKeys.clear();storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);}else if(storyWorld2PendingStage){showStory("storyWorld2StageScreen");}else{showStory("storyWorldScreen");}storyWorld2Authorized=false;storyCodeGateReturnToExplore=false;storyWorld2PendingStage="";};
-  window.submitStoryTestCode=function(){const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(!input||!message)return;const enteredCode=String(input.value||"").normalize("NFKC").replace(/[\s\u200B-\u200D\uFEFF]/g,"").toLowerCase();const expectedCode=String(STORY_TEST_CODE).normalize("NFKC").replace(/[\s\u200B-\u200D\uFEFF]/g,"").toLowerCase();if(enteredCode!==expectedCode){message.textContent="❌ コードが違います。入力内容を確認してください。";input.select();return;}storyWorld2Authorized=true;hideStory("storyCodeGate");input.value="";const pending=storyWorld2PendingStage;storyWorld2PendingStage="";if(pending){if(storyCodeGateReturnToExplore)launchStoryWorld2ExploreStage(pending);else{hideStory("storyWorld2StageScreen");if(pending==="2-1")window.startStoryWorld2Intro();else if(pending==="2-6")window.startStoryWorld26Puzzle();else window.startStoryBattle(pending);}storyCodeGateReturnToExplore=false;return;}if(storyCodeGateReturnToExplore){storyCodeGateReturnToExplore=false;showStory("storyExploreScreen");storyExplorePosition.x=2600;storyExploreKeys.clear();storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);}else window.openStoryWorld2Stages();};
+  window.submitStoryTestCode=function(){const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(!input||!message)return;const enteredCode=String(input.value||"").normalize("NFKC").replace(/[\s\u200B-\u200D\uFEFF]/g,"").toLowerCase();const expectedCode=String(STORY_TEST_CODE).normalize("NFKC").replace(/[\s\u200B-\u200D\uFEFF]/g,"").toLowerCase();if(enteredCode!==expectedCode){message.textContent="❌ コードが違います。入力内容を確認してください。";input.select();return;}storyWorld2Authorized=true;hideStory("storyCodeGate");input.value="";const pending=storyWorld2PendingStage;storyWorld2PendingStage="";if(pending){if(storyCodeGateReturnToExplore)launchStoryWorld2ExploreStage(pending);else{hideStory("storyWorld2StageScreen");if(pending==="2-1")window.startStoryWorld2Intro();else if(pending==="2-6")window.startStoryWorld26Puzzle();else if(pending==="2-7")window.startStoryWorld27Intro();else window.startStoryBattle(pending);}storyCodeGateReturnToExplore=false;return;}if(storyCodeGateReturnToExplore){storyCodeGateReturnToExplore=false;showStory("storyExploreScreen");storyExplorePosition.x=2600;storyExploreKeys.clear();storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);}else window.openStoryWorld2Stages();};
   window.openStoryWorlds=function(){syncStoryWorld2Unlock();hideStory("storyCodeGate");hideStory("storyStageScreen");hideStory("storyWorld2StageScreen");hideStory("storyEpisodeScreen");hideStory("storyExploreScreen");const map=$story("mapSelect");if(map)map.classList.add("hidden");const card=$story("storyWorldScreen")?.querySelectorAll(".story-world-card")[1];if(card){const status=card.querySelector("p"),button=card.querySelector("button");if(status)status.textContent=storyWorld2HasStoryClear()?"✅ 1-5クリア済み":"🔒 1-5クリアで解放";if(button)button.textContent=storyWorld2HasStoryClear()?"ワールド2を見る":"1-5をクリアすると解放";if(button)button.disabled=!storyWorld2HasStoryClear();if(button&&storyWorld2HasStoryClear())button.onclick=window.openStoryWorld2Stages;}showStory("storyWorldScreen");};
   window.openStoryWorld2CodeGate=function(){if(!storyWorld2HasStoryClear()){window.openStoryWorlds();return;}window.openStoryWorld2Stages();};
   window.openStoryWorld2Stages=function(){if(!storyWorld2HasStoryClear()){window.openStoryWorlds();return;}hideStory("storyCodeGate");hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");renderStoryWorld2Stages();showStory("storyWorld2StageScreen");};
-  function renderStoryWorld2Stages(){const grid=$story("storyWorld2StageGrid");if(!grid)return;grid.innerHTML="";[["2-1","次元の裂け目"],["2-2","赤い結晶"],["2-3","緑の結晶"],["2-4","水色の結晶"],["2-5","黒い結晶"],["2-6","結晶のゲート"]].forEach(([id,name])=>{let done=false;try{done=localStorage.getItem(id==="2-1"?"storyWorld2Stage1Cleared":"story"+id.replace("-","")+"Cleared")==="1"}catch(e){}const card=document.createElement("div");card.className="story-stage-card"+(done?" cleared":" unlocked");const title=document.createElement("strong");title.textContent=id;card.appendChild(title);const label=document.createElement("div");label.style.cssText="font-size:12px;margin-top:4px";label.textContent=name;card.appendChild(label);const status=document.createElement("div");status.style.cssText="font-size:12px;margin-top:5px";status.textContent=done?"✅ クリア":"プレイ可能";card.appendChild(status);const btn=document.createElement("button");btn.type="button";btn.textContent=done?"もう一度見る":"プレイ";btn.addEventListener("click",()=>{storyWorld2PendingStage=id;window.openStoryCodeGate(false);});card.appendChild(btn);grid.appendChild(card);});};
+  function renderStoryWorld2Stages(){const grid=$story("storyWorld2StageGrid");if(!grid)return;grid.innerHTML="";[["2-1","次元の裂け目"],["2-2","赤い結晶"],["2-3","緑の結晶"],["2-4","水色の結晶"],["2-5","黒い結晶"],["2-6","結晶のゲート"],["2-7","黒い影の正体"]].forEach(([id,name])=>{let done=false,unlocked=true;try{done=localStorage.getItem(id==="2-1"?"storyWorld2Stage1Cleared":"story"+id.replace("-","")+"Cleared")==="1";if(id==="2-7")unlocked=localStorage.getItem("story26Cleared")==="1";}catch(e){if(id==="2-7")unlocked=false;}const card=document.createElement("div");card.className="story-stage-card"+(done?" cleared":unlocked?" unlocked":"");const title=document.createElement("strong");title.textContent=id;card.appendChild(title);const label=document.createElement("div");label.style.cssText="font-size:12px;margin-top:4px";label.textContent=name;card.appendChild(label);const status=document.createElement("div");status.style.cssText="font-size:12px;margin-top:5px";status.textContent=done?"✅ クリア":unlocked?"プレイ可能":"🔒 2-6クリアで解放";card.appendChild(status);const btn=document.createElement("button");btn.type="button";btn.textContent=done?"もう一度見る":unlocked?"プレイ":"ロック中";btn.disabled=!unlocked;btn.addEventListener("click",()=>{if(!unlocked)return;storyWorld2PendingStage=id;window.openStoryCodeGate(false);});card.appendChild(btn);grid.appendChild(card);});};
 
   let storyExploreFrame=0;
   const storyExplorePosition={x:420,y:760};
@@ -5494,13 +5494,17 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     {id:"2-3",name:"緑の結晶",x:3750,y:1050},
     {id:"2-4",name:"水色の結晶",x:4250,y:480},
     {id:"2-5",name:"黒い結晶",x:4750,y:850},
-    {id:"2-6",name:"結晶のゲート",x:4580,y:1260}
+    {id:"2-6",name:"結晶のゲート",x:4580,y:1260},
+    {id:"2-7",name:"黒い影の正体",x:4900,y:1260}
   ];
   function storyWorld2ExploreStageAvailable(index){
     if(index===0)return true;
     // 2-6は2-5「黒い結晶」をクリアすると探索フィールドに出現する。
     if(storyWorld2ExploreStageInfo[index].id==="2-6"){
       try{return localStorage.getItem("story25Cleared")==="1";}catch(e){return false;}
+    }
+    if(storyWorld2ExploreStageInfo[index].id==="2-7"){
+      try{return localStorage.getItem("story26Cleared")==="1";}catch(e){return false;}
     }
     const previous=storyWorld2ExploreStageInfo[index-1].id;
     const key=previous==="2-1"?"storyWorld2Stage1Cleared":"story"+previous.replace("-","")+"Cleared";
@@ -5537,8 +5541,95 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}
     if(id==="2-1")window.startStoryWorld2Intro();
     else if(id==="2-6")window.startStoryWorld26Puzzle();
+    else if(id==="2-7")window.startStoryWorld27Intro();
     else window.startStoryBattle(id);
   }
+  window.startStoryWorld27Intro=function(){
+    storyExploreKeys.clear();
+    if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}
+    hideStory("storyExploreConfirm");hideStory("storyExploreScreen");hideStory("storyWorld2StageScreen");
+    const id="storyWorld27Cinematic";
+    let root=$story(id);if(root)root.remove();
+    root=document.createElement("div");root.id=id;
+    root.innerHTML=`
+      <style>
+        #${id}{position:fixed;inset:0;z-index:1000010;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;background:radial-gradient(ellipse at 50% 42%,#263451 0%,#10182c 48%,#050914 100%);color:#fff;font-family:inherit;overflow:hidden}
+        #${id} .w27-scene{position:relative;width:min(960px,96vw);height:min(610px,88vh);min-height:420px;overflow:hidden;border:1px solid #64748b;border-radius:22px;background:linear-gradient(#182b4a 0%,#111b31 52%,#090f1d 100%);box-shadow:0 20px 80px #000b}
+        #${id} .w27-stars{position:absolute;inset:0;background-image:radial-gradient(#fff 1px,transparent 1.8px),radial-gradient(#9cc9ff 1px,transparent 2px);background-size:73px 67px,113px 97px;background-position:0 0,35px 20px;opacity:.65;animation:w27Stars 18s linear infinite}
+        #${id} .w27-island{position:absolute;bottom:25%;width:34%;height:90px;background:linear-gradient(165deg,#64748b,#27364c 55%,#101827);clip-path:polygon(0 0,100% 0,76% 48%,60% 100%,30% 70%,18% 100%);filter:drop-shadow(0 8px 12px #0009);animation:w27Float 5s ease-in-out infinite}
+        #${id} .w27-island.left{left:-3%}#${id} .w27-island.right{right:-5%;bottom:34%;transform:scale(.7);animation-delay:-2s}
+        #${id} .w27-ruin{position:absolute;bottom:34%;left:17%;font-size:clamp(38px,7vw,76px);opacity:.55;filter:drop-shadow(0 0 12px #93c5fd)}
+        #${id} .w27-rift{position:absolute;left:50%;top:19%;width:clamp(110px,20vw,190px);height:clamp(180px,32vw,290px);transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,#03040a 0 28%,#111827 42%,#475569 48%,transparent 68%);box-shadow:0 0 35px #64748b99;animation:w27Rift 3s ease-in-out infinite}
+        #${id} .w27-shadow{position:absolute;left:50%;top:21%;transform:translateX(-50%);font-size:clamp(90px,18vw,170px);filter:brightness(.08) drop-shadow(0 0 24px #02040a);animation:w27Shadow 4s ease-in-out infinite;z-index:2}
+        #${id} .w27-eyes{position:absolute;left:50%;top:35%;transform:translateX(-50%);font-size:clamp(22px,4vw,38px);letter-spacing:clamp(10px,3vw,25px);color:#facc15;text-shadow:0 0 10px #f59e0b,0 0 28px #ef4444;z-index:3;animation:w27Eyes 1.7s ease-in-out infinite alternate}
+        #${id} .w27-crystal{position:absolute;left:50%;top:57%;transform:translate(-50%,-50%);font-size:clamp(42px,8vw,76px);opacity:0;z-index:4;filter:drop-shadow(0 0 20px #a78bfa);transition:all 1s}
+        #${id} .w27-crystal.show{opacity:1;top:54%;animation:w27Crystal 2s ease-in-out infinite alternate}
+        #${id} .w27-flash{position:absolute;inset:0;background:#dbeafe;opacity:0;pointer-events:none;z-index:5}
+        #${id} .w27-flash.on{animation:w27Flash .65s ease-out}
+        #${id} .w27-dialog{position:absolute;left:3%;right:3%;bottom:3%;z-index:6;padding:16px 18px;border:1px solid #94a3b8;border-radius:15px;background:linear-gradient(135deg,#07111feF,#17243bea);box-shadow:0 8px 30px #0009}
+        #${id} .w27-speaker{font-weight:900;color:#93c5fd;margin-bottom:7px}
+        #${id} .w27-line{min-height:3em;line-height:1.7;font-size:clamp(14px,2vw,18px)}
+        #${id} .w27-controls{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px}
+        #${id} button{border:0;border-radius:9px;padding:10px 18px;background:#2563eb;color:white;font-weight:800;cursor:pointer}
+        #${id} button.secondary{background:#475569}
+        #${id} .w27-count{font-size:12px;color:#cbd5e1}
+        @keyframes w27Stars{to{background-position:73px 67px,-78px 97px}}
+        @keyframes w27Float{50%{transform:translateY(-13px)}}
+        @keyframes w27Rift{50%{transform:translateX(-50%) scale(1.08);filter:brightness(1.4)}}
+        @keyframes w27Shadow{50%{transform:translate(-50%,-9px) scale(1.05)}}
+        @keyframes w27Eyes{to{opacity:.35;filter:blur(1px)}}
+        @keyframes w27Crystal{to{transform:translate(-50%,-65%) scale(1.12)}}
+        @keyframes w27Flash{0%{opacity:.9}100%{opacity:0}}
+        @media(max-width:560px){#${id} .w27-scene{min-height:460px}#${id} .w27-dialog{padding:12px}#${id} .w27-island{height:60px}}
+        @media(prefers-reduced-motion:reduce){#${id} *{animation:none!important;transition:none!important}}
+      </style>
+      <div class="w27-scene" role="dialog" aria-modal="true" aria-label="2-7 黒い影の正体">
+        <div class="w27-stars"></div><div class="w27-rift"></div>
+        <div class="w27-island left"></div><div class="w27-island right"></div><div class="w27-ruin">🏚️</div>
+        <div class="w27-shadow">🌪️</div><div class="w27-eyes">● ●</div><div class="w27-crystal">⬛</div><div class="w27-flash"></div>
+        <div class="w27-dialog"><div class="w27-speaker" id="w27Speaker">ナレーション</div><div class="w27-line" id="w27Line"></div><div class="w27-controls"><span class="w27-count" id="w27Count"></span><div><button type="button" class="secondary" id="w27Skip">スキップ</button><button type="button" id="w27Next">次へ ▶</button></div></div></div>
+      </div>`;
+    document.body.appendChild(root);
+    const lines=[
+      ["ナレーション","結晶のゲートの奥。崩れかけた浮遊都市のさらに深い場所へ、主人公は足を踏み入れた。"],
+      ["主人公","ここがゲートの向こう側……。空気まで重く感じる。"],
+      ["ナレーション","そのとき、空の裂け目が大きく揺れ始めた。"],
+      ["主人公","また裂け目が反応している……！？"],
+      ["ナレーション","黒い渦が裂け目からゆっくりと姿を現す。"],
+      ["主人公","あれは……今までの敵とは違う。"],
+      ["黒い影","……ようやく、ここまで来たか。"],
+      ["主人公","しゃべった……！？お前はいったい何者なんだ！"],
+      ["黒い影","我は、この世界の裂け目に眠るもの。結晶は、我を目覚めさせる鍵にすぎぬ。"],
+      ["ナレーション","黒い影の手元に、黒い結晶が浮かび上がった。"],
+      ["主人公","その結晶は……！みんなが集めた結晶と同じものなのか？"],
+      ["黒い影","これは始まりにすぎぬ。すべてをひとつに戻す時が来る。"],
+      ["ナレーション","黒い影が黒い結晶を、次元の裂け目へ向けて投げ放った！"],
+      ["主人公","待て！それを裂け目に入れたら何が起きるんだ！"],
+      ["ナレーション","結晶は光を放ちながら、裂け目の奥へと吸い込まれていった。"],
+      ["黒い影","次に会う時こそ、すべての答えを見せてやろう……。"],
+      ["ナレーション","黒い影は渦となって消え、裂け目だけが不気味に輝き続けた。"],
+      ["主人公","黒い結晶を追わないと……。この先に、まだ何かが隠されている！"]
+    ];
+    let index=0,ended=false;
+    const speaker=root.querySelector("#w27Speaker"),line=root.querySelector("#w27Line"),count=root.querySelector("#w27Count"),next=root.querySelector("#w27Next");
+    const crystal=root.querySelector(".w27-crystal"),flash=root.querySelector(".w27-flash");
+    function render(){
+      const item=lines[index];speaker.textContent=item[0];line.textContent=item[1];count.textContent=(index+1)+" / "+lines.length;
+      if(index===9){crystal.classList.add("show");}
+      if(index===12){flash.classList.remove("on");void flash.offsetWidth;flash.classList.add("on");}
+      if(index>=lines.length-1)next.textContent="2-7を完了する ▶";
+    }
+    function finish(){
+      if(ended)return;ended=true;
+      try{localStorage.setItem("story27Cleared","1");}catch(e){}
+      const dialog=root.querySelector(".w27-dialog");
+      dialog.innerHTML='<div class="w27-speaker">2-7「黒い影の正体」</div><div class="w27-line">黒い結晶は次元の裂け目へ消えていった。主人公は、その先に待つ真実を追うことを決意した。</div><div class="w27-controls"><span class="w27-count">✅ ステージクリア</span><button type="button" id="w27Return">ワールド2のステージ選択へ</button></div>';
+      dialog.querySelector("#w27Return").addEventListener("click",()=>{root.remove();window.openStoryWorld2Stages();});
+    }
+    next.addEventListener("click",()=>{if(ended)return;if(index<lines.length-1){index++;render();}else finish();});
+    root.querySelector("#w27Skip").addEventListener("click",finish);
+    render();
+  };
   function startStoryWorld26Puzzle(){
     storyExploreKeys.clear();
     if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}

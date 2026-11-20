@@ -7491,7 +7491,7 @@ function resetGame() {
   clearCanvas();
 }
 function nextStage() {
-  if (step2Mode.active) { advanceStep2Mode(); return; }
+  if (typeof step2Mode !== "undefined" && step2Mode.active) { advanceStep2Mode(); return; }
   stageClear = true;
   // いずれか1ステージを被ダメージ0でクリアすれば実績解除。
   if (typeof totalDamageTaken !== "undefined" && totalDamageTaken === stageDamageStartTotal && typeof window.unlockGameAchievement === "function") {
@@ -8205,7 +8205,7 @@ const halloweenSoulCosts = [2,4,6,8,10,13,16,20,25,30];
 let halloweenShieldFrames = 0, halloweenStartBanner = 0, halloweenResultShown = false;
 let halloweenPlayerBullets = [], halloweenEnemyBullets = [], halloweenMagicOrbs = [];
 function update() {
-  if (step2Mode.active) { updateStep2Mode(); return; }
+  if (typeof step2Mode !== "undefined" && step2Mode.active) { updateStep2Mode(); return; }
   if (window.gameSavePaused) return;
   // タイトル・描画・カウントダウン中は、マップの種類に関係なく戦闘処理を停止。
   if (currentScreen !== "game") return;
@@ -8559,7 +8559,7 @@ function update() {
   if (slashTimer > 0) slashTimer--;
 }
 function draw() {
-  if (step2Mode.active) { drawStep2Mode(); return; }
+  if (typeof step2Mode !== "undefined" && step2Mode.active) { drawStep2Mode(); return; }
   // ダメージ表示の寿命は描画ループ側で管理し、更新処理の一時停止で数字が残り続けないようにする。
   dmgText = dmgText.filter(t => { t.y -= 1; t.life--; return t.life > 0; });
   // 描画状態が前フレームの演出に残されても、毎フレーム通常状態へ戻す。

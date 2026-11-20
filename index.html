@@ -13433,10 +13433,10 @@ function hide(e){e&&e.classList.add("hidden")}function show(e){e&&e.classList.re
 function say(t,sec){const d=$("adminAbuseDialogue");if(!d)return;if(d.parentElement!==document.body)document.body.appendChild(d);token++;d.classList.remove("speaker-admin2","speaker-gacha");const admin2=sec>=410&&sec<=692||String(t).startsWith("ADMIN2：");d.classList.add(admin2?"speaker-admin2":"speaker-gacha");d.textContent=t;d.classList.add("active")}
 function setBoost(v){boost=Object.assign(boost,v);["luck","attack","speed","soul","points"].forEach(k=>boost[k]=Number(boost[k])||1);window.adminAbuseLuckMultiplier=boost.luck;window.adminAbuseAttackMultiplier=boost.attack;window.adminAbuseSpeedMultiplier=boost.speed;window.adminAbuseSoulMultiplier=boost.soul;window.adminAbuseRankPointMultiplier=boost.points;const ids={luck:"adminAbuseLuckV2",attack:"adminAbuseAttackV2",speed:"adminAbuseSpeedV2",soul:"adminAbuseCoinV2",points:"adminAbusePointsV2"};Object.entries(ids).forEach(([k,id])=>{if($(id))$(id).textContent="×"+boost[k]});if($("adminAbuseBoostHUD"))$("adminAbuseBoostHUD").classList.add("active")}
 function later(t,fn){scheduled.push(setTimeout(()=>{if(active)fn()},Math.max(0,(t-(Date.now()-startAt)/1000)*1000)))}
-function spawnBoxes(n,item="🎃"){if(!Array.isArray(boxes))return;for(let i=0;i<n;i++)boxes.push({x:100+Math.random()*700,y:80+Math.random()*340,item})}
+function spawnBoxes(n,item="🎃"){if(!Array.isArray(boxes))return;for(let i=0;i<n;i++){const reward=item==="🎁"?(typeof weightedItem==="function"?weightedItem():"❤"):item;boxes.push({x:100+Math.random()*700,y:80+Math.random()*340,item:reward,adminGift:item==="🎁"})}}
 function spawnSatelliteBoxes(n){if(!Array.isArray(boxes))return;for(let i=0;i<n;i++)boxes.push({x:90+Math.random()*720,y:70+Math.random()*360,item:"🛰️"})}
 function invincible(sec){window.adminAbuseEventInvincibleUntil=Date.now()+Math.max(0,sec)*1000}
-function giveGatling(){const inv=window.gameItemInventory||(window.gameItemInventory={normal:{},halloween:{},step2:{}});inv.normal=inv.normal||{};inv.normal.tripleGatling=(Number(inv.normal.tripleGatling)||0)+2;try{localStorage.setItem("oekakiBattleGameItemInventoryV1",JSON.stringify(inv))}catch(e){}const m=$("msg");if(m)m.textContent="🔫 オートガトリングを2個、アイテム保管庫に追加！"}
+function giveGatling(){if(typeof window.addInventoryItem==="function"){window.addInventoryItem("tripleGatling");window.addInventoryItem("tripleGatling")}else{const inv=window.gameItemInventory||(window.gameItemInventory={normal:{},halloween:{},step2:{}});inv.normal=inv.normal||{};inv.normal.tripleGatling=(Number(inv.normal.tripleGatling)||0)+2}const m=$("msg");if(m)m.textContent="🔫 オートガトリングを2個、アイテム保管庫に追加！"}
 function giveDiamonds(){if(typeof window.addMADiamonds==="function")window.addMADiamonds(10);const m=$("msg");if(m)m.textContent="💎 10個を配布しました！所持数は保存されています。"}
 function releaseFinalBoost(){setBoost({luck:2,attack:2,speed:2,soul:2,points:2});invincible(Math.max(0,duration-(Date.now()-startAt)/1000))}
 const lines=[
@@ -13510,7 +13510,7 @@ if(originalUse&&!originalUse.__adminAbuseNov21){
     try{localStorage.setItem("adminAbuseFusionSkipCreditsV1",String(credits+1));localStorage.setItem(key,"true")}catch(e){}
     if($("msg"))$("msg").textContent="⚗️ ヒューズマシンのスキップ権を1回獲得！ヒューズ画面で使用できます。";
    }else{
-    if(typeof window.unlockGameSkin!=="function"||!window.unlockGameSkin("santa")){if($("msg"))$("msg").textContent="⚠️ Santaスキンを解放できませんでした";return false}
+    if(typeof window.unlockGameSkin!=="function"){if($("msg"))$("msg").textContent="⚠️ Santaスキン機能を読み込めませんでした";return false}window.unlockGameSkin("santa");
     try{localStorage.setItem(key,"true")}catch(e){}
     if($("msg"))$("msg").textContent="🎄 Santaスキンを解放しました！期間限定枠を確認してね！";
    }
@@ -13527,7 +13527,7 @@ function refreshFusionSkipButton(){
  let credits=0;try{credits=Number(localStorage.getItem(fusionCreditKey))||0}catch(e){}
  let button=$("adminAbuseFusionSkipBtn");
  if(!button){button=document.createElement("button");button.id="adminAbuseFusionSkipBtn";button.type="button";button.style.cssText="display:block;width:100%;margin-top:8px;padding:10px;border:1px solid #facc15;border-radius:9px;background:#713f12;color:#fff;font-weight:900";cooldown.insertAdjacentElement("afterend",button)}
- button.textContent="🎟️ ADMIN ABUSEスキップ権を使う（残り："+credits+"回）";button.style.display=credits>0?"block":"none";
+ const label="🎟️ ADMIN ABUSEスキップ権を使う（残り："+credits+"回）";if(button.textContent!==label)button.textContent=label;button.style.display=credits>0?"block":"none";
  button.onclick=()=>{let n=0;try{n=Number(localStorage.getItem(fusionCreditKey))||0}catch(e){}if(n<1||typeof window.skipFusionCooldown!=="function"||!window.skipFusionCooldown()){if($("msg"))$("msg").textContent="⚠️ スキップできるヒューズ合成がありません。";return}n--;try{localStorage.setItem(fusionCreditKey,String(n))}catch(e){}refreshFusionSkipButton();if($("msg"))$("msg").textContent="⚗️ ADMIN ABUSEスキップ権を1回使用しました！"};
 }
 const fusionObserver=new MutationObserver(refreshFusionSkipButton);const fusionRoot=$("fusionMainScreen");if(fusionRoot)fusionObserver.observe(fusionRoot,{childList:true,subtree:true});refreshFusionSkipButton();setInterval(refreshFusionSkipButton,1000);

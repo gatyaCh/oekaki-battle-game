@@ -4853,11 +4853,11 @@ body {
   if(!content)return;
   const expireAt=Date.parse("2026-11-23T21:00:00+09:00");
   const key="adminAbuseMissions_20261121";
-  function read(){try{return JSON.parse(localStorage.getItem(key)||"{}")||{}}catch(e){return {}}}
+  function read(){try{return JSON.parse(localStorage.getItem(window.adminAbuseTestMode?key+"_test":key)||"{}")||{}}catch(e){return {}}}
   function refresh(){
     if(Date.now()>=expireAt){content.textContent="⌛ 11月23日 21:00に公開期間終了";return;}
     const m=read(),parts=[];
-    let used1=false,used2=false;try{used1=localStorage.getItem("adminAbuseCodeUsed_1225")==="true";used2=localStorage.getItem("adminAbuseCodeUsed_santa")==="true"}catch(e){}
+    let used1=false,used2=false;const suffix=window.adminAbuseTestMode?"_test":"";try{used1=localStorage.getItem("adminAbuseCodeUsed_1225"+suffix)==="true";used2=localStorage.getItem("adminAbuseCodeUsed_santa"+suffix)==="true"}catch(e){}
     if(m.one&&!used1)parts.push('ミッション1　<strong>1225</strong>');
     if(m.two&&!used2)parts.push('ミッション2　<strong>santa</strong>');
     content.innerHTML=parts.length?parts.join("<br>"):"🔒 ミッションをクリアすると、ここにコードが公開されます。";
@@ -13388,9 +13388,10 @@ let active=false,startAt=0,interval=null,scheduled=[],token=0,boost={luck:1,atta
 const from=Date.parse("2026-11-21T22:10:00+09:00"),until=Date.parse("2026-11-21T22:30:00+09:00"),duration=1200,expireAt=Date.parse("2026-11-23T21:00:00+09:00");
 const missionKey="adminAbuseMissions_20261121";
 let mission={one:false,two:false,oneFailed:false,twoFailed:false,oneState:"waiting",twoState:"waiting",oneEnd:0,twoEnd:0,itemCount:0};
+function activeMissionKey(){return window.adminAbuseTestMode?missionKey+"_test":missionKey}
 window.adminAbuseApplySoulMultiplier=amount=>Math.round((Number(amount)||0)*(window.adminAbuseActive?Math.max(1,Number(window.adminAbuseSoulMultiplier)||1):1));
-function missionLoad(){try{const v=JSON.parse(localStorage.getItem(missionKey)||"{}");mission.one=!!v.one;mission.two=!!v.two;mission.oneFailed=!!v.oneFailed;mission.twoFailed=!!v.twoFailed;mission.oneState=mission.one?"clear":mission.oneFailed?"failed":"waiting";mission.twoState=mission.two?"clear":mission.twoFailed?"failed":"waiting"}catch(e){}}
-function missionSave(){try{localStorage.setItem(missionKey,JSON.stringify({one:mission.one,two:mission.two,oneFailed:mission.oneFailed,twoFailed:mission.twoFailed}))}catch(e){}}
+function missionLoad(){try{const v=JSON.parse(localStorage.getItem(activeMissionKey())||"{}");mission.one=!!v.one;mission.two=!!v.two;mission.oneFailed=!!v.oneFailed;mission.twoFailed=!!v.twoFailed;mission.oneState=mission.one?"clear":mission.oneFailed?"failed":"waiting";mission.twoState=mission.two?"clear":mission.twoFailed?"failed":"waiting"}catch(e){}}
+function missionSave(){try{localStorage.setItem(activeMissionKey(),JSON.stringify({one:mission.one,two:mission.two,oneFailed:mission.oneFailed,twoFailed:mission.twoFailed}))}catch(e){}}
 function missionPanel(){let el=$("adminAbuseMissionHUD");if(!el){el=document.createElement("div");el.id="adminAbuseMissionHUD";el.style.cssText="position:fixed;top:280px;right:8px;z-index:1000020;background:#111d;color:white;border:2px solid #facc15;border-radius:12px;padding:9px 11px;font-weight:900;text-align:left;max-width:min(340px,48vw);box-sizing:border-box;pointer-events:none;white-space:pre-line;line-height:1.55;font-size:clamp(12px,1.5vw,16px)";document.body.appendChild(el)}return el}
 function missionStatus(){
  const el=missionPanel(),parts=[];
@@ -13503,18 +13504,16 @@ if(originalUse&&!originalUse.__adminAbuseNov21){
   const c=String(code||"").trim().toLowerCase();
   if(c==="1225"||c==="santa"){
    if(Date.now()>=expireAt){if($("msg"))$("msg").textContent="⌛ ADMIN ABUSEコードの期限は終了しました";return false}
-   let data={};try{data=JSON.parse(localStorage.getItem(missionKey)||"{}")||{}}catch(e){}
-   const earned=c==="1225"?!!data.one:!!data.two,key="adminAbuseCodeUsed_"+c;
+   const testing=!!window.adminAbuseTestMode,activeKey=testing?missionKey+"_test":missionKey;let data={};try{data=JSON.parse(localStorage.getItem(activeKey)||"{}")||{}}catch(e){}
+   const earned=c==="1225"?!!data.one:!!data.two,key="adminAbuseCodeUsed_"+c+(testing?"_test":"");
    if(!earned){if($("msg"))$("msg").textContent="🔒 このミッションをクリアした人だけが使用できます。";return false}
    try{if(localStorage.getItem(key)==="true"){if($("msg"))$("msg").textContent="⚠️ このコードは使用済みです";return false}}catch(e){}
    if(c==="1225"){
-    let credits=0;try{credits=Number(localStorage.getItem("adminAbuseFusionSkipCreditsV1"))||0}catch(e){}
-    try{localStorage.setItem("adminAbuseFusionSkipCreditsV1",String(credits+1));localStorage.setItem(key,"true")}catch(e){}
-    if($("msg"))$("msg").textContent="⚗️ ヒューズマシンのスキップ権を1回獲得！ヒューズ画面で使用できます。";
+    if(testing){try{localStorage.setItem(key,"true")}catch(e){}if($("msg"))$("msg").textContent="🧪 テスト確認OK：ヒューズマシン1回スキップの報酬コードです。"}
+    else{let credits=0;try{credits=Number(localStorage.getItem("adminAbuseFusionSkipCreditsV1"))||0}catch(e){}try{localStorage.setItem("adminAbuseFusionSkipCreditsV1",String(credits+1));localStorage.setItem(key,"true")}catch(e){}if($("msg"))$("msg").textContent="⚗️ ヒューズマシンのスキップ権を1回獲得！ヒューズ画面で使用できます。"}
    }else{
-    if(typeof window.unlockGameSkin!=="function"){if($("msg"))$("msg").textContent="⚠️ Santaスキン機能を読み込めませんでした";return false}window.unlockGameSkin("santa");
-    try{localStorage.setItem(key,"true")}catch(e){}
-    if($("msg"))$("msg").textContent="🎄 Santaスキンを解放しました！期間限定枠を確認してね！";
+    if(testing){try{localStorage.setItem(key,"true")}catch(e){}if($("msg"))$("msg").textContent="🧪 テスト確認OK：Santaスキン解放の報酬コードです。"}
+    else{if(typeof window.unlockGameSkin!=="function"){if($("msg"))$("msg").textContent="⚠️ Santaスキン機能を読み込めませんでした";return false}window.unlockGameSkin("santa");try{localStorage.setItem(key,"true")}catch(e){}if($("msg"))$("msg").textContent="🎄 Santaスキンを解放しました！期間限定枠を確認してね！"}
    }
    const content=$("adminAbuseLimitedCodesContent");if(content){content.textContent="コードを使用しました。";setTimeout(()=>{const ev=new Event("storage");window.dispatchEvent(ev)},10)}
    return true;

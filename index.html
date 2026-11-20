@@ -4359,10 +4359,10 @@ body {
   <h2 style="margin-bottom:16px;">遊ぶ端末を選択してください</h2>
   <button onclick="chooseDevice('pc')" style="font-size:20px; padding:14px 28px;">💻 PC版</button>
   <button onclick="chooseDevice('mobile')" style="font-size:20px; padding:14px 28px;">📱 スマホ版</button>
-  <div style="margin-top:14px;"><button type="button" id="adminAbuseOpenBtn" style="display:block;width:min(560px,95%);margin:0 auto;padding:12px 16px;border:3px solid #6b7280;border-radius:12px;background:#e5e7eb;color:#374151;font-weight:900;font-size:clamp(16px,2.5vw,21px);line-height:1.4;text-shadow:none;box-shadow:0 3px 10px #0003;filter:none">👑 ADMIN ABUSE　11/14　22:10〜22:30</button></div>
+  <div style="margin-top:14px;"><button type="button" id="adminAbuseOpenBtn" style="display:block;width:min(560px,95%);margin:0 auto;padding:12px 16px;border:3px solid #6b7280;border-radius:12px;background:#e5e7eb;color:#374151;font-weight:900;font-size:clamp(16px,2.5vw,21px);line-height:1.4;text-shadow:none;box-shadow:0 3px 10px #0003;filter:none">👑 ADMIN ABUSE　11/21　22:10〜22:30</button><button type="button" id="adminAbuseTestOpenBtn" style="display:block;width:min(560px,95%);margin:9px auto 0;padding:10px 14px;border:2px solid #0e7490;border-radius:11px;background:#cffafe;color:#164e63;font-weight:900;font-size:16px;">🧪 ADMIN ABUSE テストプレイ</button></div>
 </div>
 
-<div id="adminAbuseConfirmScreen" class="hidden" role="dialog" aria-modal="true"><div class="admin-abuse-card"><h2>👑 ADMIN ABUSEをしますか？</h2><p>25分間の特別イベントを開始します。</p><button type="button" id="adminAbuseYesV2">はい、プレイする</button><button type="button" id="adminAbuseNoV2">いいえ</button></div></div><div id="adminAbuseEndScreen" class="hidden" role="dialog" aria-modal="true"><div class="admin-abuse-card"><h2>⌛ ADMIN ABUSE終了</h2><p>イベント時間が終了しました。イベント専用効果はリセットされました。</p><button type="button" id="adminAbuseEndOkV2">タイトルへ戻る</button></div></div><div id="adminAbuseTimer" aria-live="polite">👑 ADMIN ABUSE　20:00</div><div id="adminAbuseDialogue" aria-live="polite"></div><div id="adminAbuseBoostHUD" aria-label="ADMIN ABUSE強化状況"><div>☘️ <b id="adminAbuseLuckV2">×1</b></div><div>⚔️ <b id="adminAbuseAttackV2">×1</b></div><div>👟 <b id="adminAbuseSpeedV2">×1</b></div><div>💫 ソウル <b id="adminAbuseCoinV2">×1</b></div><div>✨️ ポイント <b id="adminAbusePointsV2">×1</b></div></div><div id="mapSelect" class="hidden" aria-label="マップ選択">
+<div id="adminAbuseTestCodeScreen" class="hidden" role="dialog" aria-modal="true" style="position:fixed;inset:0;z-index:2000001;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(4,7,18,.96);color:white;"><div class="admin-abuse-card"><h2>🧪 ADMIN ABUSE テストコード</h2><p>テストコードを入力してください。</p><input id="adminAbuseTestCodeInput" type="password" inputmode="numeric" autocomplete="off" placeholder="テストコード"><p id="adminAbuseTestCodeMessage" aria-live="polite" style="min-height:24px;color:#fca5a5"></p><button type="button" id="adminAbuseTestCodeSubmit">認証する</button><button type="button" id="adminAbuseTestCodeCancel">戻る</button></div></div><div id="adminAbuseConfirmScreen" class="hidden" role="dialog" aria-modal="true"><div class="admin-abuse-card"><h2>👑 ADMIN ABUSEをしますか？</h2><p>25分間の特別イベントを開始します。</p><button type="button" id="adminAbuseYesV2">はい、プレイする</button><button type="button" id="adminAbuseNoV2">いいえ</button></div></div><div id="adminAbuseEndScreen" class="hidden" role="dialog" aria-modal="true"><div class="admin-abuse-card"><h2>⌛ ADMIN ABUSE終了</h2><p>イベント時間が終了しました。イベント専用効果はリセットされました。</p><button type="button" id="adminAbuseEndOkV2">タイトルへ戻る</button></div></div><div id="adminAbuseTimer" aria-live="polite">👑 ADMIN ABUSE　20:00</div><div id="adminAbuseDialogue" aria-live="polite"></div><div id="adminAbuseBoostHUD" aria-label="ADMIN ABUSE強化状況"><div>☘️ <b id="adminAbuseLuckV2">×1</b></div><div>⚔️ <b id="adminAbuseAttackV2">×1</b></div><div>👟 <b id="adminAbuseSpeedV2">×1</b></div><div>💫 ソウル <b id="adminAbuseCoinV2">×1</b></div><div>✨️ ポイント <b id="adminAbusePointsV2">×1</b></div></div><div id="mapSelect" class="hidden" aria-label="マップ選択">
   <div class="map-select-card">
     <h1>🗺️ マップ選択</h1><p>遊びたいマップを選んでね！</p>
     <div class="map-options">
@@ -4842,29 +4842,27 @@ body {
       <p>4　<strong>1031</strong>（ソウル101以上行ったことがある人のみ適応）</p>
     </div>
     <div class="public-special-code-panel" id="adminAbuseLimitedCodesPanel" style="border:2px solid #c9a227;background:linear-gradient(145deg,#211b0b,#33270d);color:#ffe8a3">
-      <h3>👑 ADMIN ABUSE限定コード　11/15 21:00まで</h3>
+      <h3>👑 ADMIN ABUSE公開</h3>
       <p id="adminAbuseLimitedCodesContent">🔒 ADMIN ABUSEで公開</p>
     </div>
   </div>
 </div>
-<script>
+<script id="admin-abuse-public-code-panel">
 (function(){
-  const panel=document.getElementById("adminAbuseLimitedCodesPanel");
   const content=document.getElementById("adminAbuseLimitedCodesContent");
-  if(!panel||!content)return;
-  const releaseAt=Date.parse("2026-11-14T22:10:00+09:00");
-  const expireAt=Date.parse("2026-11-15T21:00:00+09:00");
+  if(!content)return;
+  const expireAt=Date.parse("2026-11-23T21:00:00+09:00");
+  const key="adminAbuseMissions_20261121";
+  function read(){try{return JSON.parse(localStorage.getItem(key)||"{}")||{}}catch(e){return {}}}
   function refresh(){
-    const now=Date.now();
-    if(now>=expireAt){content.textContent="⌛ 公開期間は終了しました";return;}
-    if(now>=releaseAt){
-      content.innerHTML='1　<strong>2026</strong><br>2　<strong>skin</strong>';
-    }else{
-      content.textContent="🔒 ADMIN ABUSEで公開";
-    }
+    if(Date.now()>=expireAt){content.textContent="⌛ 11月23日 21:00に公開期間終了";return;}
+    const m=read(),parts=[];
+    let used1=false,used2=false;try{used1=localStorage.getItem("adminAbuseCodeUsed_1225")==="true";used2=localStorage.getItem("adminAbuseCodeUsed_santa")==="true"}catch(e){}
+    if(m.one&&!used1)parts.push('ミッション1　<strong>1225</strong>');
+    if(m.two&&!used2)parts.push('ミッション2　<strong>santa</strong>');
+    content.innerHTML=parts.length?parts.join("<br>"):"🔒 ミッションをクリアすると、ここにコードが公開されます。";
   }
-  refresh();
-  setInterval(refresh,1000);
+  refresh();setInterval(refresh,1000);
 })();
 </script>
 <div id="adminPanel" class="hidden">
@@ -8524,6 +8522,12 @@ function update() {
     const box = boxes[i];
     if (Math.hypot(p.x - box.x, p.y - box.y) < 45) {
       if (box.item === "🎃") { boxes.splice(i, 1); window.startHalloweenRoulette && window.startHalloweenRoulette(); continue; }
+      if (box.item === "🛰️") {
+        const inv=window.gameItemInventory||(window.gameItemInventory={normal:{},halloween:{},step2:{}});inv.step2=inv.step2||{};
+        const pool=[["酸素ボンベ",50],["ロケット",30],["無重力",10],["UFO",6],["ブラックホール",3],["銀河",1]];let roll=Math.random()*100,got=pool[0][0];for(const [name,rate] of pool){roll-=rate;if(roll<0){got=name;break;}}
+        if(typeof window.addInventoryItem==="function")window.addInventoryItem("🛰️:"+got);else inv.step2[got]=(Number(inv.step2[got])||0)+1;
+        showBattlePickupNotice("🛰️ "+got+" GET！アイテム保管庫に追加");boxes.splice(i,1);continue;
+      }
       if (typeof window.addInventoryItem === "function") {
         window.addInventoryItem(box.item);
         showBattlePickupNotice((box.item === "tripleGatling" ? "🔫 トリプルガトリング" : box.item) + " GET！🗄️保管庫に追加");
@@ -8697,7 +8701,7 @@ function draw() {
     ctx.fillStyle = `hsl(${hue}, 100%, 50%)`; ctx.fillRect(barX, barY, barW * ratio, barH);
   });
   ctx.font = "32px serif";
-  boxes.forEach(box => ctx.fillText(box.item === "🎃" ? "🎃" : "🎁", box.x, box.y));
+  boxes.forEach(box => ctx.fillText(box.item === "🎃" ? "🎃" : (box.item === "🛰️" ? "🛰️" : "🎁"), box.x, box.y));
   /* 🌪️ リーフ・テンペスト：軽量な強風エフェクト（ゲーム停止防止） */
   if (bossSpecialState && bossSpecialState.stage === 1 && bossSpecialState.phase === "active") {
     const wt = bossSpecialState.elapsed;
@@ -9199,7 +9203,7 @@ loop();
       msg.textContent="👑 ADMIN ABUSEコード確認！次の試合開始時に攻撃力＆スピード2倍（30秒間）";return;
     }
     if (code === "0303") { codeInput.value = ""; codeMsg.textContent = ""; codeBox.classList.add("hidden");if(window.gameSavePaused&&currentScreen==="game"&&window.returnToBattlePauseMenu)window.returnToBattlePauseMenu(); document.getElementById("weaponCodeChoice").classList.remove("hidden"); return; }
-    if (code === "hp20" || code === "lucky boost" || code === "ryokutya" || code === "special code" || code === "skip" || code === "1101" || code === "carracing" || code === "skin" || code === "2026" || code === "1108" || code === "retry" || code === "kabocha") {
+    if (code === "hp20" || code === "lucky boost" || code === "ryokutya" || code === "special code" || code === "skip" || code === "1101" || code === "carracing" || code === "skin" || code === "2026" || code === "1108" || code === "retry" || code === "kabocha" || code === "1225" || code === "santa") {
       if (typeof window.useSpecialCode === "function" && window.useSpecialCode(code)) {
         codeInput.value = "";
         codeMsg.textContent = "✅ コードが承認されました！";
@@ -10393,6 +10397,7 @@ return origUpdate.apply(this,arguments)};
    {id:'streamer_capsule',name:'GATYAカプセル',icon:'🫧',condition:'ランクGATYAに到達すると解放！',category:'ストリーマー'},
    {id:'carracing',name:'カーレース',icon:'🏎️',condition:'ADMIN ABUSE配布コード carracing で解放！',category:'限定スキン2'},
    {id:'retry',name:'リトライ',icon:'🔄',condition:'二日目のADMIN ABUSE配布コード retry で解放！',category:'限定スキン2'},
+   {id:'santa',name:'Santa',icon:'🎄',condition:'ADMIN ABUSEミッション2のコード santa で解放！',category:'期間限定'},
    {id:'fuse_egg',name:'エッグ',icon:'🥚',condition:'ヒューズで🥚を引くと獲得！',category:'ヒューズ限定'},
    {id:'fuse_tree',name:'ツリー',icon:'🌲',condition:'ヒューズで🌲を引くと獲得！',category:'ヒューズ限定'},
    {id:'fuse_otter',name:'ラッコ',icon:'🦦',condition:'ヒューズで🦦を引くと獲得！',category:'ヒューズ限定'},
@@ -11328,12 +11333,13 @@ body.mobile-mode #battlePickupNotice {
     if(tab==="step2"){
       if(!step2Mode.active){if(typeof msg!=="undefined")msg.textContent="⚠️ STEP 2プレイ中に使用できるアイテムだよ。";return;}
       if(!Number.isFinite(inv.step2[id])||inv.step2[id]<1)return;
-      inv.step2[id]--;step2Mode.inventory=id;step2UseItem();render();return;
+      inv.step2[id]--;if(typeof window.adminAbuseOnItemUsed==='function')window.adminAbuseOnItemUsed(id);step2Mode.inventory=id;step2UseItem();render();return;
     }
     if(!Number.isFinite(bag[key])||bag[key]<1)return;
     if(id==="🗿"&&revive)return;
     bag[key]--;
     if(typeof window.recordGameAchievementEvent==='function')window.recordGameAchievementEvent('itemUsed',String(id));
+    if(typeof window.adminAbuseOnItemUsed==='function')window.adminAbuseOnItemUsed(id);
     pendingUses.push({tab,id});
     const names={ "❤":"❤ 回復アイテム","💪":"💪 攻撃力アップ","🛡️":"🛡️ シールド","🗿":"🗿 復活","👻":"👻 ゴースト","🔮":"🔮 弾幕","⚡️":"⚡️ 雷撃",tripleGatling:"🔫 トリプルガトリング",horse:"👻 ゴーストライダー",candy:"🍬 キャンディー",bat:"🦇 コウモリシールド",allies:"🍭 トリック・オア・トリート",zombie:"🧟 イモータルゾンビ",potionLarge:"🧙 大回復薬",potionSmall:"🧙 小回復薬"};
     showUsedNotice(names[id]||id);
@@ -13377,577 +13383,155 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
 <script id="admin-abuse-v2-script">(function(){
 "use strict";
 const $=id=>document.getElementById(id),confirm=$("adminAbuseConfirmScreen"),end=$("adminAbuseEndScreen");
-let active=false,startAt=0,interval=null,scheduled=[],token=0,boost={luck:1,attack:1,speed:1,soul:1,points:1},skinGetter=null,skinDrawer=null,originalEventDamagePlayer=null;
-const releasedCodes=new Set();
+let active=false,startAt=0,interval=null,scheduled=[],token=0,boost={luck:1,attack:1,speed:1,soul:1,points:1},skinGetter=null,skinDrawer=null,originalEventDamagePlayer=null,testMode=false,missionTimer=null;
+const from=Date.parse("2026-11-21T22:10:00+09:00"),until=Date.parse("2026-11-21T22:30:00+09:00"),duration=1200,expireAt=Date.parse("2026-11-23T21:00:00+09:00");
+const missionKey="adminAbuseMissions_20261121";
+let mission={one:false,two:false,oneFailed:false,twoFailed:false,oneState:"waiting",twoState:"waiting",oneEnd:0,twoEnd:0,itemCount:0};
 window.adminAbuseApplySoulMultiplier=amount=>Math.round((Number(amount)||0)*(window.adminAbuseActive?Math.max(1,Number(window.adminAbuseSoulMultiplier)||1):1));
-function releaseCode(code){releasedCodes.add(code);try{localStorage.setItem("adminAbuseCodeReleased_"+code,"true")}catch(e){}}
-function isCodeReleased(code){if(releasedCodes.has(code))return true;try{return localStorage.getItem("adminAbuseCodeReleased_"+code)==="true"}catch(e){return false}}
-const from=Date.parse("2026-11-14T22:10:00+09:00"),until=Date.parse("2026-11-14T22:30:00+09:00"),lines=[[0,"がちゃ：活動再開したがちゃだー！"],[7,"ADMIN：無敵（30秒間）＆全ブースト3分間！（全部2倍）"],[14,"yout◯beの活動も再開して"],[21,"ゲームもだんだん進化してきたことだし！"],[28,"今日も派手にやるぞ！！"],[35,"え？カーレースじゃないのかって？"],[42,"それは〜"],[47,"ストーリーモードで我慢してくれ😅"],[53,"だってカーレース不具合多すぎて公開できなんだよ〜"],[60,"一旦前から追加したかったストーリーモードを追加した！"],[67,"まぁまだワールド１のみ何だけどね"],[73,"次の週にワールド２を公開します！"],[80,"今日は20分間行います！"],[87,"一旦これ召喚しまーす"],[93,"🎃ボックスを3個召喚！"],[100,"管理者イベントでは期間限定ものも自由にだすことができる！"],[107,"もちろん今日もコード配布を行うよ！"],[114,"今日はちょっとしたミニゲームも用意しています！"],[121,"それをクリアすると…"],[128,"それはクリアしてからのお楽しみ！"],[140,"実績確認の場所UI変えたの見た？"],[147,"トロフィー部屋にしたよ！"],[153,"こっちのほうがなんかよくない？"],[160,"で、そろそろ通常マップに新ステージを追加します！"],[167,"なにか案があったら言ってほしい！"],[173,"今のところ宇宙をテーマに考えているよ！"],[180,"そのタイミングかそのあとに新ランクを追加！"],[187,"調整が大変だよ〜"],[200,"無敵を1分間！"],[207,"前回は無敵時間少なかったから"],[214,"今回は多めにやる！"],[221,"ストーリーモードはどう？"],[228,"結構即席で作ったからそこまでクオリティーは高くないかも"],[235,"影とか⚫️が今回のメインだね"],[242,"カーレースは遅くとも今月中には追加します！"],[249,"カーレースでの実装予定のカードがどんな感じかって？"],[256,"見せたいけどまだ調整中だから無理なんだよね〜"],[280,"じゃあミニゲーム発動しますか！"],[287,"発動！！ミニミッション！"],[294,"これをクリアするとマシンスキップコードがゲットできるぞ！"],[303,"攻撃力ブースト1.5倍を3分間！！"],[310,"ブーストの使い方難しいな"],[317,"移動速度3倍を2分間！"],[324,"そのうち変異とか属性とかもうまく登場させたいな"],[331,"じゃんけん機能とかはどう？"],[338,"お絵かきバトル要素があるミニゲームもほしいね"],[346,"必殺技はもう少し待ってください！！"],[352,"1ステージ目のボスの必殺技こないのももう少し待ってください！"],[359,"やることが山積みすぎる…"],[365,"だれかに手伝ってもらおうかな😏"],[373,"ストーリーモードが終わったらサバイバルモードもありか…？"],[380,"今頭に浮かんだだけだけどね"],[387,"そろそろみんなミッションクリアしたかな？"],[393,"今回はミッションあと一回します！"],[400,"そん時はスキン配布かな…😏"],[420,"アプデ情報見やすくなったのって言った？"],[427,"まぁどっちでもいいか！"],[434,"アプデ情報をカレンダー化しました！"],[440,"こっちのほうが楽だしね"],[447,"ヒューズマシンの最高ランクスキンゲットした？"],[454,"俺はまだだけどいくらでも召喚できるからな〜"],[460,"え？ずるいって？"],[467,"管理者だからべつにいいだろ！😡"],[474,"クリスマスは今のところ新マップの制作は考えてるけど"],[481,"制作が間に合うかどうか…"],[489,"今のカーレースマップを放置していいんだったら間に合うけど"],[497,"ストーリーモードあるし、、、"],[504,"ああああああああああああ！！！！！！"],[511,"誰かたすけてー！"],[530,"ADMIN2：……まったく、また仕事を増やしましたね。"],[537,"ADMIN2：がちゃの代わりに、ここからは私が進行します。"],[544,"ADMIN2：皆さん、よろしくお願いします。"],[551,"ADMIN2：それにしても、今回のアップデート量はなかなかですね。"],[558,"ADMIN2：ストーリーモードに、装備システムに、EXPシステム……"],[565,"ADMIN2：一気に増やしすぎではありませんか？"],[572,"ADMIN2：まあ、プレイヤーが楽しめるなら問題ありません。"],[579,"ADMIN2：ところで、皆さんはストーリーモードを遊びましたか？"],[586,"ADMIN2：まだワールド１だけですが、これからどんどん広げていく予定です。"],[593,"ADMIN2：次はワールド２ですね。"],[600,"ADMIN2：新しい敵、新しいステージ、そして新しい謎……"],[607,"ADMIN2：私も少し楽しみにしています。"],[614,"ADMIN2：そういえば、装備の育成システムも追加されましたね。"],[621,"ADMIN2：敵を倒してEXPを集め、自分の装備を強化できます。"],[628,"ADMIN2：攻撃、防御、回復、回避……どれを優先するかは皆さん次第です。"],[635,"ADMIN2：装備によって育成に必要なEXPも違います。"],[642,"ADMIN2：お気に入りの装備を見つけて、育ててみてください。"],[649,"ADMIN2：ただし、EXPの使いすぎには注意してくださいね。"],[656,"ADMIN2：さて、そろそろ今回のイベントも後半に入ります。"],[663,"ADMIN2：まだミッションをクリアしていない方は、急いだほうがいいですよ。"],[670,"ADMIN2：報酬を受け取れるチャンスを逃さないように。"],[677,"ADMIN2：……あ、がちゃから連絡が来ました。"],[684,"ADMIN2：え？また何か追加するんですか？"],[691,"ADMIN2：今からですか！？準備ができていませんよ！"],[698,"ADMIN2：……まったく、自由な管理者ですね。"],[705,"ADMIN2：皆さん、突然何かが起きても驚かないでください。"],[712,"ADMIN2：このゲームはまだまだ進化していきます。"],[719,"ADMIN2：新しいステージも、新しいモードも、これから増えていくでしょう。"],[726,"ADMIN2：もちろん、不具合の修正も忘れてはいけません。"],[733,"ADMIN2：開発チーム……というより、がちゃにも頑張ってもらわないとですね。"],[740,"ADMIN2：さて、残り時間も少なくなってきました。"],[747,"ADMIN2：最後までイベントを楽しんでいってください。"],[754,"ADMIN2：まだ何かサプライズがあるかもしれませんよ。"],[761,"ADMIN2：それでは、引き続きADMIN ABUSEをお楽しみください。"],[768,"ADMIN2：……あれ？がちゃ、また何か始めるつもりですか？"],[775,"ADMIN2：ちょっと待ってください！まだ私の進行中です！"],[782,"ADMIN2：はぁ……最後まで落ち着かないイベントですね。"],[789,"ADMIN2：それでは、残り時間もよろしくお願いします！"],[800,"ADMIN2：進行をがちゃに戻します。"],[803,"がちゃ：休憩もしたことだし！"],[810,"がちゃ：もう一個のミッション発動しましかーー！！"],[820,"がちゃ：ミッション発動！！"],[827,"がちゃ：これクリアするとスキンゲットできるよーー"],[834,"がちゃ：どう？ミッション結構いいと思うんだけど"],[841,"がちゃ：え？「こんなこと追加しなくていいからマップつくれ」って？？"],[848,"がちゃ：😡😡😡😡"],[855,"がちゃ：じゃあ敵の移動速度2倍！！"],[862,"がちゃ：プレイヤーの移動速度0.8倍！！"],[869,"がちゃ：俺を怒らせたなーーー！！"],[876,"ADMIN2：なにしてんですかっ！ﾄﾞﾝ"],[883,"ADMIN2：ごめんなさーい"],[890,"ADMIN2：ちょっとこの人もらいますねー"],[897,"ADMIN2：これをあけておいてください！"],[930,"ADMINが謝罪の気持ちで無敵時間2分間発動させた"],[937,"がちゃ：タイヘンモウシワケアリマセンデシタ"],[944,"がちゃ：そろそろクリスマス関係について話していくよーー"],[951,"がちゃ：クリスマスマップは12月の上旬中には公開できるように頑張ります！"],[958,"がちゃ：どんなマップがいいか最新動画にコメントして教えてねー"],[965,"がちゃ：今日スキップコード配ったっけ？"],[972,"がちゃ：ミッションのときだけか"],[979,"がちゃ：0301 これでスキップできるよーー"],[986,"がちゃ：みんなも飽きてくるよね通常マップだけだと"],[990,"がちゃ：まぁ今は目の前の修正をするしかないか"],[997,"がちゃ：チュートリアルも更新してあるよ！"],[1004,"がちゃ：あと三分くらい？"],[1020,"がちゃ：全ブーストをイベント終了まで！！"],[1027,"がちゃ：無敵をイベント終了まで！"],[1034,"がちゃ：今回も来てくれてありがとう！！"],[1041,"がちゃ：次はなんかのイベントでADMIN ABUSE開催してるかも？w"],[1048,"がちゃ：まぁ0.0000001％くらいの確率だけどね"],[1055,"がちゃ：まぁこれでも受け取って！"],[1062,"がちゃ：オートガトリングをアイテム保管庫に2個召喚！"],[1069,"がちゃ：保管庫確認してみて！"],[1076,"がちゃ：これ結構強いよね！"],[1083,"がちゃ：新ステージ専用ボックスあり？"],[1090,"がちゃ：新ステージ専用強化カードあり？"],[1097,"がちゃ：いろんなことが頭に出てくる！"],[1104,"がちゃ：まぁ追加するのはまだ先かも・・・？"],[1111,"がちゃ：とりあえず追加・修正はまってくれ！"],[1118,"がちゃ：ずいじ追加・修正予定！！"],[1125,"がちゃ：自分のyout◯beもどんどん更新していくよ！"],[1132,"がちゃ：そこに追加・修正してほしいところをコメントして教えてくれ！"],[1150,"がちゃ：とにかく！"],[1155,"がちゃ：どんどん新しいものにチャレンジしていく！"],[1162,"がちゃ：そのたびに修正が生まれる…"],[1169,"がちゃ：その時は気長に待ってくれ！"],[1176,"がちゃ：そろそろ終わりかな"],[1183,"がちゃ：今日も遊んでくれてありがとう！"],[1191,"がちゃ：また来週！コードの期限はスペシャルコードを打つところに書いておく！"],[1198,"がちゃ：ばいばーい！"]];
-
-// 11/14ミッション：ローカル保存で各プレイヤー個別進行（サーバー共有なし）
-let mission={one:false,two:false,twoActive:false,boss:null,enemies:[],kills:0,spawnTick:0,hitTick:0};
-const missionKey="adminAbuseMissions_20261114";
-function missionSave(){try{localStorage.setItem(missionKey,JSON.stringify({one:mission.one,two:mission.two,kills:mission.kills}))}catch(e){}}
-function missionLoad(){try{const v=JSON.parse(localStorage.getItem(missionKey)||"{}");mission.one=!!v.one;mission.two=!!v.two;mission.kills=Number(v.kills)||0}catch(e){}}
-function missionPanel(){let el=$("adminAbuseMissionHUD");if(!el){el=document.createElement("div");el.id="adminAbuseMissionHUD";el.style.cssText="position:fixed;top:280px;right:8px;left:auto;bottom:auto;transform:none;z-index:1000020;background:#111d;color:white;border:2px solid #facc15;border-radius:12px;padding:8px 10px;font-weight:900;text-align:center;max-width:46vw;box-sizing:border-box;pointer-events:none;white-space:pre-line";document.body.appendChild(el)}return el}
-mission.revealed=false;mission.twoRevealed=false;
+function missionLoad(){try{const v=JSON.parse(localStorage.getItem(missionKey)||"{}");mission.one=!!v.one;mission.two=!!v.two;mission.oneFailed=!!v.oneFailed;mission.twoFailed=!!v.twoFailed;mission.oneState=mission.one?"clear":mission.oneFailed?"failed":"waiting";mission.twoState=mission.two?"clear":mission.twoFailed?"failed":"waiting"}catch(e){}}
+function missionSave(){try{localStorage.setItem(missionKey,JSON.stringify({one:mission.one,two:mission.two,oneFailed:mission.oneFailed,twoFailed:mission.twoFailed}))}catch(e){}}
+function missionPanel(){let el=$("adminAbuseMissionHUD");if(!el){el=document.createElement("div");el.id="adminAbuseMissionHUD";el.style.cssText="position:fixed;top:280px;right:8px;z-index:1000020;background:#111d;color:white;border:2px solid #facc15;border-radius:12px;padding:9px 11px;font-weight:900;text-align:left;max-width:min(340px,48vw);box-sizing:border-box;pointer-events:none;white-space:pre-line;line-height:1.55;font-size:clamp(12px,1.5vw,16px)";document.body.appendChild(el)}return el}
 function missionStatus(){
- const el=missionPanel();
- if(!mission.revealed){el.textContent="📋 ミッション：未定";}
- else{
-  const lines=[];
-  if(mission.one)lines.push("🏆 ミッション1：コード「2026」獲得");
-  else if(mission.boss)lines.push("🕶️ ミッション1：ボスHP "+Math.max(0,Math.ceil(mission.boss.hp))+"/"+mission.boss.max+"（近距離で攻撃）");
-  else lines.push("🕶️ ミッション1：未クリア");
-  if(mission.twoRevealed){
-   if(mission.two)lines.push("🏆 ミッション2：コード「skin」獲得");
-   else lines.push("😈 ミッション2：撃破 "+mission.kills+"/10");
-  }
-  el.textContent=lines.join("\n");
- }
- el.style.whiteSpace="pre-line";el.style.display="block";
+ const el=missionPanel(),parts=[];
+ const row=(n,title,state,remaining,count)=>{let line="🎯 ミッション"+n+"："+title;if(state==="running")line+="\n残り時間："+String(Math.max(0,Math.ceil(remaining))).padStart(2,"0")+"秒"+(n===2?"\n使用回数："+count+"/5":"");else if(state==="clear")line+="\n✅ クリア！スペシャルコードを使おう！";else if(state==="failed")line+="\n❌ 失敗！再挑戦はできません";else line+="\n開始待ち";parts.push(line)};
+ row(1,"敵の攻撃を30秒間受けるな！",mission.oneState,mission.oneEnd?mission.oneEnd-Date.now():0,0);
+ row(2,"30秒以内にアイテムを5回使え！",mission.twoState,mission.twoEnd?mission.twoEnd-Date.now():0,mission.itemCount);
+ el.textContent=parts.join("\n\n");el.style.display=active?"block":"none";
 }
-function startMissionOne(){mission.revealed=true;missionLoad();if(mission.one){missionStatus();return}const hard=stage>=5;mission.boss={x:Math.min(CANVAS_WIDTH-80,Math.max(80,p.x+150)),y:Math.min(CANVAS_HEIGHT-80,Math.max(80,p.y-80)),hp:hard?500:300,max:hard?500:300,atk:hard?40:20,cool:0};missionStatus()}
-function startMissionTwo(){mission.revealed=true;mission.twoRevealed=true;missionLoad();if(mission.two){mission.twoActive=false;missionStatus();return}mission.twoActive=true;mission.twoCleared=false;mission.enemies=[];mission.kills=0;mission.spawnTick=0;missionStatus()}
-function missionWin(which){if(which===1){mission.one=true;mission.boss=null}else{mission.two=true;mission.twoActive=false;mission.twoCleared=true;mission.enemies=[]}missionSave();missionStatus();const m=$("msg");if(m)m.textContent=which===1?"🏆 ミッション1クリア！スペシャルコード「2026」を獲得！":"🏆 ミッション2クリア！スペシャルコード「skin」を獲得！"}
-missionLoad();
-function missionUpdate(){if(!active||currentScreen!=="game"||gameOver)return;
- if(mission.boss){const b=mission.boss,dx=p.x-b.x,dy=p.y-b.y,d=Math.hypot(dx,dy)||1;b.x+=dx/d*1.15;b.y+=dy/d*1.15;if(d<58){b.cool++;if(b.cool>=90){b.cool=0;damagePlayer(b.atk)}}}
- if(mission.twoActive&&!mission.twoCleared){mission.spawnTick++;if(mission.spawnTick>=90&&mission.enemies.length<8){mission.spawnTick=0;mission.enemies.push({x:CANVAS_WIDTH-30,y:50+Math.random()*(CANVAS_HEIGHT-100),hp:30,max:30,cool:0})}
- mission.enemies.forEach(e=>{const dx=p.x-e.x,dy=p.y-e.y,d=Math.hypot(dx,dy)||1;e.x+=dx/d*1.2;e.y+=dy/d*1.2;if(d<45){e.cool++;if(e.cool>=90){e.cool=0;damagePlayer(stage>=5?20:10)}}});mission.enemies=mission.enemies.filter(e=>e.hp>0)}
- missionStatus()}
-const origAttack=attack;attack=function(){const r=origAttack.apply(this,arguments);if(!active||currentScreen!=="game")return r;const range=105,base=(10+(Number(charge)||0)/8)*(Number(atkBuff)||1)*(1+(Number(drawAttackBonus)||0))*(window.adminAbuseActive?Math.max(1,Number(window.adminAbuseAttackMultiplier)||1):1);if(mission.boss&&Math.hypot(p.x-mission.boss.x,p.y-mission.boss.y)<range){mission.boss.hp-=base;if(mission.boss.hp<=0)missionWin(1)}if(mission.twoActive&&!mission.twoCleared){mission.enemies.forEach(e=>{if(e.hp>0&&Math.hypot(p.x-e.x,p.y-e.y)<range)e.hp-=base});const before=mission.kills;mission.enemies=mission.enemies.filter(e=>{if(e.hp<=0){mission.kills++;return false}return true});if(mission.kills>=10)missionWin(2);else if(before!==mission.kills)missionSave()}missionStatus();return r};
-const origMissionUpdate=update;update=function(){const r=origMissionUpdate.apply(this,arguments);missionUpdate();return r};
-const origMissionDraw=draw;draw=function(){const r=origMissionDraw.apply(this,arguments);if(active&&currentScreen==="game"){ctx.save();ctx.textAlign="center";ctx.textBaseline="middle";if(mission.boss){ctx.font="54px serif";ctx.fillText("🕶️",mission.boss.x,mission.boss.y);ctx.fillStyle="#111";ctx.fillRect(mission.boss.x-45,mission.boss.y-42,90,7);ctx.fillStyle="#ef4444";ctx.fillRect(mission.boss.x-45,mission.boss.y-42,90*Math.max(0,mission.boss.hp/mission.boss.max),7)}mission.enemies.forEach(e=>{ctx.font="30px serif";ctx.fillText("👾",e.x,e.y);ctx.fillStyle="#111";ctx.fillRect(e.x-16,e.y-22,32,4);ctx.fillStyle="#22c55e";ctx.fillRect(e.x-16,e.y-22,32*Math.max(0,e.hp/e.max),4)});ctx.restore()}return r};
-const origUse=window.useSpecialCode;if(origUse&&!origUse.__missionGate){const gated=function(c){c=String(c||"").trim().toLowerCase();if(c==="2026"||c==="skin"){if(Date.now()>=Date.parse("2026-11-15T21:00:00+09:00")){if($("msg"))$("msg").textContent="⌛ このコードの期限は終了しました";return false}}return origUse.apply(this,arguments)};gated.__missionGate=true;window.useSpecialCode=gated}
-
+function finishMission(which,success){
+ if(which===1){if(mission.oneState!=="running")return;mission.oneState=success?"clear":"failed";mission.one=!!success;mission.oneFailed=!success}
+ else{if(mission.twoState!=="running")return;mission.twoState=success?"clear":"failed";mission.two=!!success;mission.twoFailed=!success}
+ missionSave();missionStatus();
+ const m=$("msg");if(m)m.textContent=success?(which===1?"🏆 ミッション1クリア！スペシャルコード公開欄に「1225」が表示されました！":"🏆 ミッション2クリア！スペシャルコード公開欄に「santa」が表示されました！"):"❌ ミッション"+which+"失敗！再挑戦はできません。";
+}
+function startMissionOne(){
+ if(mission.one||mission.oneFailed)return;
+ mission.oneState="running";mission.oneEnd=Date.now()+30000;missionStatus();
+}
+function startMissionTwo(){
+ if(mission.two||mission.twoFailed)return;
+ mission.twoState="running";mission.twoEnd=Date.now()+30000;mission.itemCount=0;missionStatus();
+}
+function missionTick(){
+ if(!active)return;
+ if(mission.oneState==="running"&&Date.now()>=mission.oneEnd)finishMission(1,true);
+ if(mission.twoState==="running"){
+   if(mission.itemCount>=5)finishMission(2,true);
+   else if(Date.now()>=mission.twoEnd)finishMission(2,false);
+ }
+ missionStatus();
+}
+window.adminAbuseOnItemUsed=function(){
+ if(!active||mission.twoState!=="running")return;
+ mission.itemCount=Math.min(5,mission.itemCount+1);
+ if(mission.itemCount>=5)finishMission(2,true);else missionStatus();
+};
+function missionDamageCheck(before,after){
+ if(active&&mission.oneState==="running"&&after<before)finishMission(1,false);
+}
 function hide(e){e&&e.classList.add("hidden")}function show(e){e&&e.classList.remove("hidden")}
-function say(t,sec){const d=$("adminAbuseDialogue");if(!d)return;if(d.parentElement!==document.body)document.body.appendChild(d);token++;d.classList.remove("speaker-admin2","speaker-gacha");const admin2=(sec>=530&&sec<=800)||(sec>=876&&sec<=897)||String(t).startsWith("ADMIN2：");d.classList.add(admin2?"speaker-admin2":"speaker-gacha");d.textContent=t;d.classList.add("active")}
+function say(t,sec){const d=$("adminAbuseDialogue");if(!d)return;if(d.parentElement!==document.body)document.body.appendChild(d);token++;d.classList.remove("speaker-admin2","speaker-gacha");const admin2=sec>=410&&sec<=692||String(t).startsWith("ADMIN2：");d.classList.add(admin2?"speaker-admin2":"speaker-gacha");d.textContent=t;d.classList.add("active")}
 function setBoost(v){boost=Object.assign(boost,v);["luck","attack","speed","soul","points"].forEach(k=>boost[k]=Number(boost[k])||1);window.adminAbuseLuckMultiplier=boost.luck;window.adminAbuseAttackMultiplier=boost.attack;window.adminAbuseSpeedMultiplier=boost.speed;window.adminAbuseSoulMultiplier=boost.soul;window.adminAbuseRankPointMultiplier=boost.points;const ids={luck:"adminAbuseLuckV2",attack:"adminAbuseAttackV2",speed:"adminAbuseSpeedV2",soul:"adminAbuseCoinV2",points:"adminAbusePointsV2"};Object.entries(ids).forEach(([k,id])=>{if($(id))$(id).textContent="×"+boost[k]});if($("adminAbuseBoostHUD"))$("adminAbuseBoostHUD").classList.add("active")}
 function later(t,fn){scheduled.push(setTimeout(()=>{if(active)fn()},Math.max(0,(t-(Date.now()-startAt)/1000)*1000)))}
-function spawnBoxes(n){if(!Array.isArray(boxes))return;for(let i=0;i<n;i++)boxes.push({x:100+Math.random()*700,y:80+Math.random()*340,item:"🎃"})}
-function invincible(sec){window.adminAbuseEventInvincibleUntil=Date.now()+sec*1000}
-function giveGatling(){const inv=window.gameItemInventory||(window.gameItemInventory={normal:{},halloween:{}});inv.normal=inv.normal||{};inv.normal.tripleGatling=(Number(inv.normal.tripleGatling)||0)+2;const m=$("msg");if(m)m.textContent="🔫 オートガトリングを2個、アイテム保管庫に追加！"}
-function crown(){
-  if(typeof window.getSelectedSkinEmoji==="function"){
-    if(!skinGetter)skinGetter=window.getSelectedSkinEmoji;
-    window.getSelectedSkinEmoji=()=>"👑";
-  }
-  if(typeof window.drawSelectedSkin==="function"){
-    if(!skinDrawer)skinDrawer=window.drawSelectedSkin;
-    window.drawSelectedSkin=()=>false;
-  }
-}
-function restoreCrown(){
-  if(skinGetter){window.getSelectedSkinEmoji=skinGetter;skinGetter=null}
-  if(skinDrawer){window.drawSelectedSkin=skinDrawer;skinDrawer=null}
-}
-function finish(){active=false;clearInterval(interval);scheduled.forEach(clearTimeout);scheduled=[];restoreCrown();if(originalEventDamagePlayer){damagePlayer=originalEventDamagePlayer;originalEventDamagePlayer=null;}mission.twoActive=false;mission.boss=null;mission.enemies=[];window.adminAbuseActive=false;window.adminAbuseEventInvincibleUntil=0;window.adminAbuseEnemySpeedMultiplier=1;window.adminAbusePlayerSpeedMultiplier=1;window.adminAbuseLuckMultiplier=window.adminAbuseAttackMultiplier=window.adminAbuseSpeedMultiplier=window.adminAbuseSoulMultiplier=window.adminAbuseRankPointMultiplier=1;if($("adminAbuseBoostHUD"))$("adminAbuseBoostHUD").classList.remove("active");if($("adminAbuseTimer"))$("adminAbuseTimer").classList.remove("active");if($("adminAbuseDialogue"))$("adminAbuseDialogue").classList.remove("active");document.body.classList.remove("admin-abuse-result-lock");hide(confirm);show(end)}
-function tick(){const left=Math.max(0,1200-Math.floor((Date.now()-startAt)/1000));if($("adminAbuseTimer"))$("adminAbuseTimer").textContent="👑 ADMIN ABUSE　"+String(Math.floor(left/60)).padStart(2,"0")+":"+String(left%60).padStart(2,"0");if(!left)finish()}
-function eventCode(c){
-  c=String(c||"").trim().toLowerCase();
-  if(!["1108","retry","kabocha"].includes(c))return false;
-  if(Date.now()>Date.parse("2026-11-09T22:00:00+09:00")){if($("msg"))$("msg").textContent="⌛ このイベントコードの有効期限は終了しました";return true}
-  if(!isCodeReleased(c)){
-    if($("msg"))$("msg").textContent="🔒 このコードはまだ公開されていません。イベントの発表を待ってね！";
-    return true;
-  }
-  try{localStorage.setItem("adminAbuseCode_"+c,"true")}catch(e){}
-  if(c==="1108"){
-    window.dayTwoInvinciblePending=true;
-    if($("msg"))$("msg").textContent="🛡️ 1108コードを受け付けました！次のゲーム開始から7秒間無敵になります。";
-  }else if(c==="retry"){
-    if(typeof window.unlockGameSkin==="function")window.unlockGameSkin("retry");
-    if($("msg"))$("msg").textContent="🔄 リトライスキンを解放しました！";
-  }else if(c==="kabocha"){
-    window.dayTwoPumpkinBoxesEnabled=true;
-    if(Array.isArray(boxes)){
-      for(let i=0;i<3;i++)boxes.push({x:100+Math.random()*700,y:80+Math.random()*340,item:"🎃"});
-    }
-    if($("msg"))$("msg").textContent="🎃 KABOCHAコード発動！今のステージと今後の全ステージで🎃ボックスを3個ずつ召喚します！";
-  }
-  return true;
-}
+function spawnBoxes(n,item="🎃"){if(!Array.isArray(boxes))return;for(let i=0;i<n;i++)boxes.push({x:100+Math.random()*700,y:80+Math.random()*340,item})}
+function spawnSatelliteBoxes(n){if(!Array.isArray(boxes))return;for(let i=0;i<n;i++)boxes.push({x:90+Math.random()*720,y:70+Math.random()*360,item:"🛰️"})}
+function invincible(sec){window.adminAbuseEventInvincibleUntil=Date.now()+Math.max(0,sec)*1000}
+function giveGatling(){const inv=window.gameItemInventory||(window.gameItemInventory={normal:{},halloween:{},step2:{}});inv.normal=inv.normal||{};inv.normal.tripleGatling=(Number(inv.normal.tripleGatling)||0)+2;try{localStorage.setItem("oekakiBattleGameItemInventoryV1",JSON.stringify(inv))}catch(e){}const m=$("msg");if(m)m.textContent="🔫 オートガトリングを2個、アイテム保管庫に追加！"}
+function giveDiamonds(){if(typeof window.addMADiamonds==="function")window.addMADiamonds(10);const m=$("msg");if(m)m.textContent="💎 10個を配布しました！所持数は保存されています。"}
+function releaseFinalBoost(){setBoost({luck:2,attack:2,speed:2,soul:2,points:2});invincible(Math.max(0,duration-(Date.now()-startAt)/1000))}
+const lines=[
+[0,"がちゃ：全ブーストと無敵を発動！！（三分間）"],[7,"今日はいきなりスタート！"],[14,"今週は結構アプデをさせていただきました！"],[21,"色々変わったところがある！"],[28,"一つずつ紹介していくぞ！"],[35,"アプデ１つ目！「通常マップに新ステージ・新ステップを追加！」"],[42,"新ステップってなにって言う人いると思う！"],[49,"ADMIN側のマップの名前だ！"],[56,"特に気にしなくていいぞ！"],[63,"で、新ステージのないようなんだが…"],[70,"今回は太陽系をモチーフにさせてもらった！"],[77,"今回は難易度が馬鹿みたいに高いので最初は4ステージのみの追加だ！"],[84,"そのステージではそのステージしかない限定ボックスがあるぞ！"],[91,"８ステージをクリアしてステップ２のステージを楽しんでくれ！"],[98,"２つ目のアプデ！「称号＆プロフィール」"],[105,"称号はまだだがプロフィールはすぐにできた！"],[112,"プロフィールは自分が選んでいるスキンをひと目でわかるようにした！"],[119,"称号は来週追加予定！"],[126,"３つ目のアプデ「ストーリーモードワールド２の解放」"],[133,"ストーリーモードの新ワールドを公開した！"],[140,"それといちいちステージ選択していたら面白くないだろ？"],[147,"全部探索フィールドにした！"],[154,"こっちのほうがよくないか？"],[161,"アプデはこんなもんか？"],[168,"じゃあADMIN ABUSEっぽい事していきますか！"],[180,"ミッション発動！！"],[187,"前回うまくいってた？"],[195,"前回はおれが参加できなくてわかんないんだよな😅"],[202,"今回は参加するつもりだから"],[209,"修正はできるな！"],[216,"今回のADMIN ABUSEは動画化する予定だ！"],[223,"みんなみてくれよ？"],[230,"どうだ？ミッション終わったか？"],[237,"今回もコードがもらえるようになってるぞ！"],[244,"そうだ！大事なこと言い忘れてた！"],[251,"今週のアプデでクリスマスイベントに向けたものも追加した！"],[258,"強化ショップにある💎はその規定の数を使うとレベルがMAXになるぞ！"],[265,"来週に正式実装を行います！"],[272,"それとトロフィー部屋の隣に毎日報酬と特定日数カレンダーがあると思うけど"],[279,"それはその日になってからのお楽しみ！"],[286,"もうすぐでクリスマスだな〜"],[293,"でも、俺には関係のない話し、、、"],[300,"😭😭😭😭😭😭😭😭😭😭"],[307,"がちゃが悲しみのあまりステップ２専用の🛰️ボックスを３個召喚した"],[314,"しまった！これは召喚しないと思ってたのに！😏"],[321,"してしまったことは仕方ない！諦めよう！😏😏"],[328,"無敵を３０秒間！"],[342,"そろそろヒューズマシンの隠しスキンを追加します！"],[349,"だんだんみんなもスキンゲットできてきた頃なんじゃない？"],[356,"なに？全然ゲットできてないだと？"],[363,"それに、レア物も消えていっただけだと？"],[370,"仕方ない・・・"],[377,"スキンをランダムで３個解放！"],[384,"これでまた合成ができるね！"],[391,"最初で話しすぎた…"],[399,"話すことがなくなってきた…"],[406,"ここからはADMIN2にやってもらおう！"],
+[410,"ADMIN2：変わりました！（全ブースト＆無敵を2分間）"],[417,"僕ももうレギュラーメンバーですね！"],[424,"僕はがちゃさんみたいに配布とかはしないですが…"],[431,"アプデの詳細をはなして行きます！"],[438,"まず１つ目ですね"],[445,"新ステップ・新ステージの詳細です！"],[452,"新ステップはこちらの呼び方なのであまり気にしないで大丈夫です！"],[459,"新ステージは全部で４つ！"],[466,"月・火星・水星・木星　です！"],[473,"なにか見覚えがないですか？"],[480,"そうです！曜日ですね！"],[487,"正解者にはこれを召喚いたしましょう！"],[494,"🎁を１０個召喚！"],[501,"マップにはそれぞれ特殊な能力をもつ敵がいます！"],[508,"月だったら…"],[515,"まぁこれは実際に行ってみて確かめてください！"],[522,"２つ目は称号とプロフィールですね！"],[529,"これは特に話すことはないんですが"],[536,"称号は簡単に言うと功績、資格みたいなもですね"],[543,"条件をクリアするともらえるものです！"],[550,"今のところ💎もそこに関係があるかも…？"],[557,"これはあくまで予定なのでね"],[564,"まだそんなに詳しくは伝えれません！"],[571,"次はプロフィールですね！"],[578,"プロフィール自分の選んでいるスキンを表示する機能ですね！"],[585,"これは特に言うことはないですね"],[592,"次はストーリーモードのワールド２解放ですかね"],[599,"前回は1-5という短い内容でしたが今回は"],[606,"2-8まであります！"],[613,"多いですよね💦"],[620,"今週はここ最近で久々に忙しくしました"],[627,"で、最後４つ目はクリスマス関係ですね！"],[635,"トロフィー部屋の左に謎の灰色のやつがあると思います！"],[642,"それはクリスマスのみ開催するログイン報酬です！"],[649,"簡単に言えばそうですね"],[656,"連続記録専用だったり、"],[663,"毎日報酬だったり、"],[670,"中身は結構豊富ですよ！"],[671,"この中にも💎が合ったりして…？"],[678,"おっとこれは機密情報でした"],[685,"そろそろ時間ですね"],[692,"進行をお返ししますね！皆さんゲームを楽しんでください！"],
+[710,"がちゃ：結構説明してくれてる…"],[717,"俺の出番ないじゃん😭"],[724,"じゃあ俺はみんなを楽しませますか！"],[731,"まず最初！"],[738,"🎃ボックス＆🎁を３個召喚"],[745,"まだまだいくぜ！"],[762,"ミッション発動！"],[769,"いい忘れてたけど"],[776,"ミッションをクリアしたらスペシャルコードがもらえるぞ！"],[783,"無敵を３分間！"],[790,"今回のミッションはこれで最後だよー"],[797,"もう少ししたら🛰️ボックス召喚しようかな？"],[804,"🛰️ボックスのアイテムはアイテム保管庫の一番奥にアイテムが収納されるぞ！"],[811,"ミッション終わったか？"],[818,"簡単だった？"],[825,"じゃあ召喚行くぜ！"],[832,"🛰️ボックスを3個召喚！"],[839,"本来は自分たちの実力で行くもんだからな？"],[846,"特別だぞ？😏"],[853,"ADMIN ABUSEこんなんもやる！"],[860,"もう残り時間すくないな、、、"],[867,"今後のことを話す前にこれを出すぞ！"],[874,"オートガトリングをアイテム保管庫に２個召喚！"],[880,"全ブースト＆無敵をイベント終了まで！"],[887,"これでみんな死ぬことはないな！"],[894,"今後のことについて話していくぞー！"],[901,"来週の予定は新ランクとストーリーモードワールド３とクリスマス関係の予定！"],[908,"来週も盛りだくさん…"],[915,"もしかしたらストーリーモードが間に合わない可能性がある！"],[922,"その場合は完成しているストーリー部分だけ公開する！"],[929,"新ランクは今の考えだとURとGATYAの間かなと思ってる！"],[936,"なに？まだGATYAランクすら行ったことないって？"],[943,"もしかしたら少し簡単になるかもしれない！"],[950,"そこに関しては期待しておいてくれ！"],[957,"クリスマス関係はヒューズマシンを調整だ！"],[964,"クリスマス限定ヒューズマシンを追加予定！"],[973,"クラフトマシーンか普通のヒューズマシンどっちがいい？"],[980,"そこはまだ考え中だ！"],[987,"クリスマス限定ヒューズマシンは12月の最初らへんで公開！"],[995,"で、のちのち色んなものを公開していくって感じだ！"],[1002,"機種選択の前のQRコードとかがある画面あるだろ？"],[1009,"そこの背景を変える機能をだいぶ前から実装した！"],[1016,"で、ハロウィンをけしてギャラクシーとGATYAを追加した！"],[1023,"クリスマス仕様もそろそろ追加！"],[1030,"この時期はやることが多すぎる…"],[1037,"ストリーマーのスキンたちみた？"],[1044,"まだ俺の分しかない、、、"],[1051,"てことで！"],[1058,"スキン募集を開始します！（こないと思うけど）"],[1065,"明日中にこのADMIN ABUSEの動画を上げるのでそのコメントに"],[1072,"スキン化してほしいです！とかいて"],[1079,"このゲームの動画を投稿するだけOK"],[1086,"基本的にコメントはなんの動画にしてもOK"],[1093,"期間は特に決めてないのでいつでも大歓迎！"],[1100,"でも、こんなクソゲーやってる人いないか〜"],[1107,"普通にショート動画でも宣伝しまくりますか！"],[1114,"このゲームを宣伝してくれた人には超特別なコードも用意…😏"],[1121,"そういうこうとなのでみんな宣伝よろしく！"],[1128,"そろそろ今日も終わりだな〜"],[1135,"コードの期限は23日の21時だ！"],[1142,"今回は少し長めです！"],[1149,"動画も見てくれよ！"],[1156,"じゃあみんなこれからもこのゲームをよろしくね〜！"],[1180,"あれ？まだいたの？"],[1187,"じゃあこれだね"],[1194,"💎を10個配布"],[1198,"内緒ね🤫"]
+];
 function begin(){
-  if(active||Date.now()<from||Date.now()>=until)return;
-  hide(confirm);hide(end);active=true;window.adminAbuseActive=true;startAt=Date.now();
-  releasedCodes.clear();
-  ["1108","retry","kabocha"].forEach(code=>{try{localStorage.removeItem("adminAbuseCodeReleased_"+code)}catch(e){}});
-  setBoost({luck:1,attack:1,speed:1,soul:1,points:1});
-  if($("adminAbuseTimer"))$("adminAbuseTimer").classList.add("active");
-  interval=setInterval(tick,250);tick();
-  if(typeof window.useSpecialCode==="function"&&!window.useSpecialCode.__eventCodes){
-    const orig=window.useSpecialCode,wrapped=function(c){return eventCode(c)||orig.apply(this,arguments)};
-    wrapped.__eventCodes=true;window.useSpecialCode=wrapped;
-  }
-  if(!originalEventDamagePlayer){originalEventDamagePlayer=damagePlayer;damagePlayer=function(dmg){
-    if(active&&Date.now()<Number(window.adminAbuseEventInvincibleUntil||0))return;
-    return originalEventDamagePlayer.apply(this,arguments);
-  };}
-  lines.forEach(([t,line],i)=>later(t,()=>{
-    say(line,t);
-    const my=token,next=lines[i+1],duration=next?Math.max(2,next[0]-t):8;
-    scheduled.push(setTimeout(()=>{if(active&&token===my&&$("adminAbuseDialogue"))$("adminAbuseDialogue").classList.remove("active")},duration*1000));
-  }));
-  later(7,()=>{invincible(30);setBoost({luck:2,attack:2,speed:2,soul:2,points:2});});
-  later(187,()=>setBoost({luck:1,attack:1,speed:1,soul:1,points:1}));
-  later(93,()=>spawnBoxes(3));
-  later(200,()=>invincible(60));
-  later(287,()=>startMissionOne());
-   later(303,()=>setBoost({luck:1,attack:1.5,speed:1,soul:1,points:1}));
-  later(483,()=>setBoost({luck:1,attack:1,speed:1,soul:1,points:1}));
-  later(317,()=>setBoost({luck:boost.luck,attack:boost.attack,speed:3,soul:boost.soul,points:boost.points}));
-  later(437,()=>setBoost({luck:1,attack:boost.attack,speed:1,soul:1,points:1}));
-  later(497,()=>{});
-  later(820,()=>startMissionTwo());
-   later(855,()=>{window.adminAbuseEnemySpeedMultiplier=2;setTimeout(()=>window.adminAbuseEnemySpeedMultiplier=1,20000)});
-  later(862,()=>{window.adminAbusePlayerSpeedMultiplier=0.8;setTimeout(()=>window.adminAbusePlayerSpeedMultiplier=1,10000)});
-  later(897,()=>spawnBoxes(5));
-  later(930,()=>invincible(120));
-  later(1020,()=>setBoost({luck:2,attack:2,speed:2,soul:2,points:2}));
-  later(1027,()=>{invincible(Math.max(0,1200-(Date.now()-startAt)/1000));});
-  later(1062,giveGatling);
+ if(active||(!testMode&&(Date.now()<from||Date.now()>=until)))return;
+ hide(confirm);hide(end);hide($("adminAbuseTestCodeScreen"));active=true;window.adminAbuseActive=true;window.adminAbuseTestMode=testMode;startAt=Date.now();missionLoad();missionStatus();
+ setBoost({luck:1,attack:1,speed:1,soul:1,points:1});
+ if($("adminAbuseTimer"))$("adminAbuseTimer").classList.add("active");
+ interval=setInterval(tick,250);missionTimer=setInterval(missionTick,200);tick();
+ if(!originalEventDamagePlayer){originalEventDamagePlayer=damagePlayer;damagePlayer=function(dmg){const before=Number(p.hp)||0;originalEventDamagePlayer.apply(this,arguments);missionDamageCheck(before,Number(p.hp)||0)}}
+ lines.forEach(([t,line],i)=>later(t,()=>{say(line,t);const my=token,next=lines[i+1],d=next?Math.max(2,next[0]-t):8;scheduled.push(setTimeout(()=>{if(active&&token===my&&$("adminAbuseDialogue"))$("adminAbuseDialogue").classList.remove("active")},d*1000))}));
+ later(0,()=>{setBoost({luck:2,attack:2,speed:2,soul:2,points:2});invincible(180)});
+ later(180,startMissionOne);
+ later(307,()=>spawnSatelliteBoxes(3));
+ later(328,()=>invincible(30));
+ later(410,()=>{setBoost({luck:2,attack:2,speed:2,soul:2,points:2});invincible(120)});
+ later(494,()=>spawnBoxes(10,"🎁"));
+ later(738,()=>{spawnBoxes(3,"🎃");spawnBoxes(3,"🎁")});
+ later(762,startMissionTwo);
+ later(783,()=>invincible(180));
+ later(832,()=>spawnSatelliteBoxes(3));
+ later(874,giveGatling);
+ later(880,releaseFinalBoost);
+ later(1194,giveDiamonds);
 }
-function start(){if(Date.now()<from||Date.now()>=until)return;hide(confirm);hide(end);window.adminAbusePending=false;window.halloweenWaveActive=false;window.halloweenWaveTestRequested=false;if(typeof window.chooseDevice==="function")window.chooseDevice("pc");if(typeof window.selectNormalMap==="function")window.selectNormalMap();mission.revealed=false;missionStatus();window.adminAbuseCountdownPending=true;}
-window.adminAbuseStartOnCountdown=function(){
-  if(window.adminAbuseCountdownPending&&!active){
-    window.adminAbuseCountdownPending=false;
-    begin();
-  }
-};
+function tick(){const left=Math.max(0,duration-Math.floor((Date.now()-startAt)/1000));if($("adminAbuseTimer"))$("adminAbuseTimer").textContent="👑 ADMIN ABUSE　"+String(Math.floor(left/60)).padStart(2,"0")+":"+String(left%60).padStart(2,"0");if(!left)finish()}
+function finish(){
+ active=false;clearInterval(interval);clearInterval(missionTimer);interval=missionTimer=null;scheduled.forEach(clearTimeout);scheduled=[];if(originalEventDamagePlayer){damagePlayer=originalEventDamagePlayer;originalEventDamagePlayer=null}
+ window.adminAbuseActive=false;window.adminAbuseEventInvincibleUntil=0;window.adminAbuseEnemySpeedMultiplier=1;window.adminAbusePlayerSpeedMultiplier=1;window.adminAbuseLuckMultiplier=window.adminAbuseAttackMultiplier=window.adminAbuseSpeedMultiplier=window.adminAbuseSoulMultiplier=window.adminAbuseRankPointMultiplier=1;
+ if($("adminAbuseBoostHUD"))$("adminAbuseBoostHUD").classList.remove("active");if($("adminAbuseTimer"))$("adminAbuseTimer").classList.remove("active");if($("adminAbuseDialogue"))$("adminAbuseDialogue").classList.remove("active");if($("adminAbuseMissionHUD"))$("adminAbuseMissionHUD").style.display="none";document.body.classList.remove("admin-abuse-result-lock");hide(confirm);show(end);window.adminAbuseTestMode=false;testMode=false;
+}
+function start(isTest=false){
+ if(!isTest&&(Date.now()<from||Date.now()>=until))return;
+ testMode=!!isTest;window.adminAbuseTestMode=testMode;hide(confirm);hide(end);hide($("adminAbuseTestCodeScreen"));window.adminAbusePending=false;window.halloweenWaveActive=false;window.halloweenWaveTestRequested=false;
+ if(typeof window.chooseDevice==="function")window.chooseDevice("pc");if(typeof window.selectNormalMap==="function")window.selectNormalMap();
+ missionLoad();missionStatus();window.adminAbuseCountdownPending=true;
+}
+window.adminAbuseStartOnCountdown=function(){if(window.adminAbuseCountdownPending&&!active){window.adminAbuseCountdownPending=false;begin()}};
 function updateButton(){
-  const b=$("adminAbuseOpenBtn");if(!b)return;
-  const now=Date.now(),open=now>=from&&now<until,ended=now>=until;
-  b.disabled=!open;
-  b.textContent=open?"👑 ADMIN ABUSE　開催中":ended?"👑 ADMIN ABUSE　終了":"👑 ADMIN ABUSE　開催前";
-  b.title=open?"開催中！クリックして参加":ended?"今回の開催時間は終了しました":"開催時刻（22:10）までお待ちください";
-  b.style.background=open?"linear-gradient(135deg,#a5f3fc,#67e8f9)":"linear-gradient(135deg,#e5e7eb,#9ca3af)";
-  b.style.borderColor=open?"#0891b2":"#6b7280";
-  b.style.color=open?"#164e63":"#374151";
-  b.style.opacity=open?"1":"0.65";b.style.cursor=open?"pointer":"not-allowed";
+ const b=$("adminAbuseOpenBtn");if(!b)return;const now=Date.now(),open=now>=from&&now<until,ended=now>=until;b.disabled=!open;b.textContent=open?"👑 ADMIN ABUSE　開催中":ended?"👑 ADMIN ABUSE　終了":"👑 ADMIN ABUSE　11/21 22:10〜22:30";b.title=open?"開催中！クリックして参加":ended?"今回の開催時間は終了しました":"開催時刻までお待ちください";b.style.background=open?"linear-gradient(135deg,#a5f3fc,#67e8f9)":"linear-gradient(135deg,#e5e7eb,#9ca3af)";b.style.borderColor=open?"#0891b2":"#6b7280";b.style.color=open?"#164e63":"#374151";b.style.opacity=open?"1":"0.65";b.style.cursor=open?"pointer":"not-allowed";
 }
-updateButton();setInterval(updateButton,250);if($("adminAbuseScheduleTimer"))$("adminAbuseScheduleTimer").style.display="none";
-$("adminAbuseOpenBtn")?.addEventListener("click",()=>{
-  const now=Date.now();
-  if(now<from||now>=until)return;
-  show(confirm);
-});
-$("adminAbuseYesV2")?.addEventListener("click",()=>{const now=Date.now();if(now<from||now>=until){hide(confirm);updateButton();return;}start();});
-$("adminAbuseNoV2")?.addEventListener("click",()=>hide(confirm));$("adminAbuseEndOkV2")?.addEventListener("click",()=>location.reload());
+$("adminAbuseTestOpenBtn")?.addEventListener("click",()=>{const sc=$("adminAbuseTestCodeScreen");if(sc)show(sc);const input=$("adminAbuseTestCodeInput");if(input){input.value="";input.focus()}});
+$("adminAbuseTestCodeCancel")?.addEventListener("click",()=>hide($("adminAbuseTestCodeScreen")));
+$("adminAbuseTestCodeSubmit")?.addEventListener("click",()=>{const input=$("adminAbuseTestCodeInput"),message=$("adminAbuseTestCodeMessage");if(!input||!message)return;if(input.value.trim()!=="1121"){message.textContent="❌ テストコードが違います";input.select();return;}message.textContent="✅ 認証しました！";testMode=true;window.adminAbuseTestMode=true;hide($("adminAbuseTestCodeScreen"));show(confirm)});
+$("adminAbuseTestCodeInput")?.addEventListener("keydown",e=>{if(e.key==="Enter")$("adminAbuseTestCodeSubmit")?.click()});
+updateButton();setInterval(updateButton,1000);if($("adminAbuseScheduleTimer"))$("adminAbuseScheduleTimer").style.display="none";
+$("adminAbuseOpenBtn")?.addEventListener("click",()=>{const now=Date.now();if(now<from||now>=until)return;testMode=false;show(confirm)});
+$("adminAbuseYesV2")?.addEventListener("click",()=>start(testMode));
+$("adminAbuseNoV2")?.addEventListener("click",()=>{hide(confirm);testMode=false;window.adminAbuseTestMode=false});
+$("adminAbuseEndOkV2")?.addEventListener("click",()=>location.reload());
 const originalShow=window.showResult;if(typeof originalShow==="function")window.showResult=function(){const r=originalShow.apply(this,arguments);if(active){document.body.classList.add("admin-abuse-result-lock");const retry=$("resultToTitle"),back=$("resultBackBtn");if(retry){retry.textContent="🔄 リトライ";retry.onclick=e=>{e?.preventDefault();if(typeof window.retryFromGameOver==="function")window.retryFromGameOver()}}if(back)back.classList.add("hidden")}return r};
-window.addEventListener("beforeunload",()=>{clearInterval(interval);scheduled.forEach(clearTimeout)});
-})();
-/* STEP 2：惑星編。STEP 1とは独立した敵・ギミック・進行状態で動作する。 */
-const step2Mode = {
-  active:false, index:1, elapsed:0, windTimer:0, windBurst:0, bossAttack:0, rangedTimer:0,
-  pits:[], hazards:[], bullets:[], craters:[], windX:0, windY:0, windDirTimer:0,
-  boxes:[], inventory:null, itemCooldowns:{}, effects:{rocket:0,gravity:0,blackhole:0,galaxy:0,ufo:0},
-  stages:[
-    {name:"🌙 STEP 2-1：月",boss:"🌙",hp:1600,minionHp:320,count:4,kind:"moon",bg:"#777b86"},
-    {name:"👽 STEP 2-2：火星",boss:"👽",hp:1700,minionHp:357,count:4,kind:"mars",bg:"#a33b25"},
-    {name:"🌑 STEP 2-3：水星",boss:"🌑",hp:1800,minionHp:396,count:4,kind:"mercury",bg:"#59636d"},
-    {name:"☠ STEP 2-4：木星",boss:"☠",hp:1900,minionHp:285,count:2,kind:"jupiter",bg:"#b89a45"}
-  ]
-};
-function setupStep2Stage(n){
-  const cfg=step2Mode.stages[n-1]; step2Mode.index=n; stage=n;
-  step2Mode.elapsed=0;step2Mode.windTimer=0;step2Mode.windBurst=0;step2Mode.bossAttack=0;step2Mode.rangedTimer=0;
-  step2Mode.pits=[];step2Mode.hazards=[];step2Mode.bullets=[];step2Mode.windDirTimer=0;
-  // STEP 2専用🛰️ボックス。障害物と敵の初期位置を避けた3地点。
-  step2Mode.boxes=[{x:270,y:80,active:true,cooldown:0},{x:470,y:420,active:true,cooldown:0},{x:830,y:420,active:true,cooldown:0}];
-  step2Mode.inventory=null;step2Mode.itemCooldowns={};step2Mode.effects={rocket:0,gravity:0,blackhole:0,galaxy:0,ufo:0};step2Mode.ufoTimer=0;step2Mode.blackholeTick=0;
-  step2EnsureItemButton();
-  // 月・水星のクレーターは通過可能な減速エリア。火星の山だけ通常障害物として衝突する。
-  const step2ObstacleLayout=[
-    {x:150,y:145,w:50,h:50},{x:350,y:105,w:50,h:50},{x:580,y:75,w:50,h:50},
-    {x:720,y:205,w:50,h:50},{x:390,y:350,w:50,h:50},{x:135,y:355,w:50,h:50}
-  ];
-  step2Mode.craters=(cfg.kind==="moon"||cfg.kind==="mercury")?step2ObstacleLayout.map(o=>({...o})):[];
-  enemy.x=700;enemy.y=250;enemy.maxHp=cfg.hp;enemy.hp=cfg.hp;enemy.r=30;
-  minions=[];
-  for(let i=0;i<cfg.count;i++){
-    const angle=Math.PI*2*i/cfg.count;
-    minions.push({x:620+Math.cos(angle)*70,y:250+Math.sin(angle)*145,hp:cfg.minionHp,maxHp:cfg.minionHp,atk:cfg.kind==="mars"?10:10,r:19,type:cfg.kind==="mars"||cfg.kind==="jupiter"?"step2_turret":"step2_melee",shot:0,cool:0});
-  }
-  // STEP 2では現在の強化・特殊コードによる最大HPを維持しつつ、
-  // 不正値やHP上限超過を防ぐ。各惑星への移動時は全回復。
-  // STEP 1で確定した最大HPをそのまま共有し、STEP 2独自の上限変更はしない。
-  p.max=Number.isFinite(Number(p.max))&&Number(p.max)>0?Number(p.max):150;
-  p.hp=p.max;p.x=100;p.y=250;p.invincibility=0;
-  enemyBullets=[];magmaZones=[];boxes=[];dmgText=[];
-  treasureChest={x:450,y:250,opened:false,progress:0,maxProgress:100,r:20};
-  // STEP 2は専用の惑星フィールド。通常ステージ1の障害物データを
-  // 読み込むと、描画されない障害物だけが残って透明な壁になるため、
-  // STEP 2の各ステージでは通常マップの障害物判定を使わない。
-  obstacles=cfg.kind==="mars"?step2ObstacleLayout.map(o=>({...o,type:"⛰️"})):[];
-  document.getElementById("stageLabel").textContent=cfg.name;
-  document.getElementById("ehp").textContent=cfg.hp;
-  document.getElementById("hp").textContent=Math.floor(p.hp);
-  document.getElementById("maxHpText").textContent=Math.floor(p.max);
-  msg.textContent=cfg.name+"　敵を全員倒そう！";
-  gameOver=false;stageClear=false;charging=false;charge=0;attackCooldown=0;
-}
-function startStep2Mode(n){
-  // STEP 1の保管庫・ポーズ画面から移動してもSTEP 2の戦闘更新が停止しないよう解除。
-  window.gameSavePaused=false;keys={};charging=false;charge=0;window.adminPanelInteracting=false;
-  step2Mode.active=true;
-  document.body.classList.add("step2-admin-enabled");
-  resetStep2BattleStats();
-  setupStep2Stage(n);
-  currentScreen="game";syncScreenVisibility();
-  document.getElementById("title").classList.add("hidden");
-  document.getElementById("draw").classList.add("hidden");
-  document.getElementById("count").classList.add("hidden");
-  document.getElementById("gameArea").classList.remove("hidden");
-  const mc=document.getElementById("mobileControls");
-  if(mc){mc.style.display=deviceMode==="mobile"?"block":"none";mc.style.pointerEvents="auto";}
-  if(typeof updateSpecialGauge==="function")updateSpecialGauge();
-}
-function resetStep2BattleStats(){
-  p.hp=p.max;p.x=100;p.y=250;p.invincibility=0;
-  enemyBullets=[];bulletHellBullets=[];magicOrbs=[];specialGaugeDamage=0;specialGaugeMaxed=false;
-  attackCooldown=0;slowDebuffTimer=0;bossSpecialState=null;isPausedForSpecial=false;
-}
-function step2Move(obj,dx,dy,r){
-  const nx=Math.max(r,Math.min(CANVAS_WIDTH-r,obj.x+dx));
-  const ny=Math.max(r,Math.min(CANVAS_HEIGHT-r,obj.y+dy));
-  if(!positionBlocked(nx,obj.y,r))obj.x=nx;
-  if(!positionBlocked(obj.x,ny,r))obj.y=ny;
-}
-function step2DamagePlayer(amount){
-  // STEP2はチュートリアル状態に左右されず、敵の攻撃を専用処理で受ける。
-  // STEP1共通のdamagePlayerラッパーやチュートリアル判定に遮られないようにする。
-  if(Date.now()<(Number(window.adminAbuseEventInvincibleUntil)||0))return false;
-  if(p.invincibility>0||shieldActive||ghost||admin.invincible||admin.god)return false;
-  if(adminRankAbility==="guard"&&adminGuardBlocksLeft>0){
-    adminGuardBlocksLeft--;
-    p.invincibility=0.18;
-    msg.textContent="🛡️ ADMINガード！ 攻撃を無効化（残り "+adminGuardBlocksLeft+"回）";
-    return false;
-  }
-  const rawDamage=Math.max(0,Number(amount)||0);
-  const actual=Math.max(0,Math.min(p.hp,rawDamage*(1-upgradeLevels.defense*0.05)));
-  if(actual<=0)return false;
-  p.hp-=actual;
-  if(window.halloweenEffects&&window.halloweenEffects.bat>0)p.hp=Math.min(p.max,p.hp+actual*0.3);
-  totalDamageTaken+=actual;
-  p.invincibility=0.5;
-  return true;
-}
-function step2DotDamage(amount){
-  if(p.invincibility>0||shieldActive||ghost||admin.invincible||admin.god)return;
-  const actual=Math.max(0,Math.min(p.hp,Number(amount)||0));
-  p.hp-=actual;totalDamageTaken+=actual;
-  if(window.halloweenEffects&&window.halloweenEffects.bat>0)p.hp=Math.min(p.max,p.hp+actual*0.3);
-  p.invincibility=0;
-}
-function step2Fire(x,y,emoji,damage,speed,slow){
-  const dx=p.x-x,dy=p.y-y,d=Math.hypot(dx,dy)||1;
-  step2Mode.bullets.push({x,y,vx:dx/d*speed,vy:dy/d*speed,emoji,damage,slow});
-}
-function updateStep2Mode(){
-  if(window.gameSavePaused||currentScreen!=="game"||gameOver||stageClear)return;
-  const dt=1/60,cfg=step2Mode.stages[step2Mode.index-1];step2Mode.elapsed+=dt;
-  step2Mode.boxes.forEach(b=>{if(!b.active&&!b.adminSummoned){b.cooldown=Math.max(0,b.cooldown-dt);if(b.cooldown<=0)b.active=true;}});
-  for(const k of Object.keys(step2Mode.effects))step2Mode.effects[k]=Math.max(0,step2Mode.effects[k]-dt);
-  if(step2Mode.effects.blackhole>0){step2Mode.blackholeTick+=dt;if(step2Mode.blackholeTick>=0.3){step2Mode.blackholeTick-=0.3;[enemy,...minions].forEach(t=>{if(t.hp<=0)return;const d=Math.hypot(p.x-t.x,p.y-t.y)||1;if(t===enemy)damageEnemy(5);else damageMinion(t,5);t.x+=(p.x-t.x)/d*5;t.y+=(p.y-t.y)/d*5;});}}
-  if(step2Mode.effects.ufo>0){step2Mode.ufoTimer+=dt;if(step2Mode.ufoTimer>=1){step2Mode.ufoTimer=0;const targets=[enemy,...minions].filter(t=>t.hp>0).slice(0,3);targets.forEach(t=>{if(t===enemy)damageEnemy(6);else damageMinion(t,6);});}}
-  if(attackCooldown>0)attackCooldown=Math.max(0,attackCooldown-dt);
-  if(wandCooldown>0)wandCooldown=Math.max(0,wandCooldown-dt);
-  if(slashTimer>0)slashTimer=Math.max(0,slashTimer-1);
-  if(p.invincibility>0)p.invincibility-=dt;
-   if(charging&&window.specialCodes?.kakeru){
-     const now=performance.now();
-     if(now>=(window.kakeruNextAttackAt||0)){charge=0;attack();window.kakeruNextAttackAt=now+150;}
+window.addEventListener("beforeunload",()=>{clearInterval(interval);clearInterval(missionTimer);scheduled.forEach(clearTimeout)});
+missionLoad();missionStatus();
+// Mission rewards are personal, single-use, and expire at 2026-11-23 21:00 JST.
+const originalUse=window.useSpecialCode;
+if(originalUse&&!originalUse.__adminAbuseNov21){
+ const wrapped=function(code){
+  const c=String(code||"").trim().toLowerCase();
+  if(c==="1225"||c==="santa"){
+   if(Date.now()>=expireAt){if($("msg"))$("msg").textContent="⌛ ADMIN ABUSEコードの期限は終了しました";return false}
+   let data={};try{data=JSON.parse(localStorage.getItem(missionKey)||"{}")||{}}catch(e){}
+   const earned=c==="1225"?!!data.one:!!data.two,key="adminAbuseCodeUsed_"+c;
+   if(!earned){if($("msg"))$("msg").textContent="🔒 このミッションをクリアした人だけが使用できます。";return false}
+   try{if(localStorage.getItem(key)==="true"){if($("msg"))$("msg").textContent="⚠️ このコードは使用済みです";return false}}catch(e){}
+   if(c==="1225"){
+    let credits=0;try{credits=Number(localStorage.getItem("adminAbuseFusionSkipCreditsV1"))||0}catch(e){}
+    try{localStorage.setItem("adminAbuseFusionSkipCreditsV1",String(credits+1));localStorage.setItem(key,"true")}catch(e){}
+    if($("msg"))$("msg").textContent="⚗️ ヒューズマシンのスキップ権を1回獲得！ヒューズ画面で使用できます。";
+   }else{
+    if(typeof window.unlockGameSkin!=="function"||!window.unlockGameSkin("santa")){if($("msg"))$("msg").textContent="⚠️ Santaスキンを解放できませんでした";return false}
+    try{localStorage.setItem(key,"true")}catch(e){}
+    if($("msg"))$("msg").textContent="🎄 Santaスキンを解放しました！期間限定枠を確認してね！";
    }
-  // STEP 1の既存攻撃で生成される魔法弾・弾幕をSTEP 2でも同じ配列から処理する。
-  for(let i=magicOrbs.length-1;i>=0;i--){
-    const orb=magicOrbs[i];orb.life-=dt;if(orb.life<=0){magicOrbs.splice(i,1);continue;}
-    if(orb.homing){
-      const targets=minions.filter(m=>m.hp>0).map(m=>({x:m.x,y:m.y}));if(enemy&&enemy.hp>0)targets.push({x:enemy.x,y:enemy.y});
-      if(targets.length){let target=targets[0],best=Infinity;for(const t of targets){const dist=Math.hypot(t.x-orb.x,t.y-orb.y);if(dist<best){best=dist;target=t;}}
-        const dx=target.x-orb.x,dy=target.y-orb.y,dist=Math.hypot(dx,dy)||1,speed=orb.homingSpeed||3.8;
-        orb.vx+=(dx/dist*speed-orb.vx)*0.12;orb.vy+=(dy/dist*speed-orb.vy)*0.12;const v=Math.hypot(orb.vx,orb.vy)||1;orb.vx=orb.vx/v*speed;orb.vy=orb.vy/v*speed;}
-    }
-    orb.x+=orb.vx;orb.y+=orb.vy;let hit=false;
-    for(const m of minions){if(m.hp>0&&Math.hypot(orb.x-m.x,orb.y-m.y)<25){damageMinion(m,orb.dmg);hit=true;break;}}
-    if(!hit&&Math.hypot(orb.x-enemy.x,orb.y-enemy.y)<30){if(orb.special||Math.random()<=0.75)damageEnemy(orb.dmg);hit=true;}
-    if(hit||orb.x<0||orb.x>CANVAS_WIDTH||orb.y<0||orb.y>CANVAS_HEIGHT)magicOrbs.splice(i,1);
+   const content=$("adminAbuseLimitedCodesContent");if(content){content.textContent="コードを使用しました。";setTimeout(()=>{const ev=new Event("storage");window.dispatchEvent(ev)},10)}
+   return true;
   }
-  for(let i=bulletHellBullets.length-1;i>=0;i--){
-    const b=bulletHellBullets[i];b.x+=b.vx;b.y+=b.vy;let hit=false;
-    for(const m of minions){if(m.hp>0&&Math.hypot(b.x-m.x,b.y-m.y)<25){damageMinion(m,b.dmg);hit=true;break;}}
-    if(!hit&&Math.hypot(b.x-enemy.x,b.y-enemy.y)<30){damageEnemy(b.dmg);hit=true;}
-    if(hit||b.x<0||b.x>CANVAS_WIDTH||b.y<0||b.y>CANVAS_HEIGHT)bulletHellBullets.splice(i,1);
-  }
-  // 既存の車ダッシュ移動もSTEP 2のプレイヤーに適用。
-  if(dashTimer>0){step2Move(p,dashVX*(kizuku2Active?2:1),dashVY*(kizuku2Active?2:1),p.r);dashTimer--;
-    if(!carHitThisDash&&Math.hypot(p.x-enemy.x,p.y-enemy.y)<55){damageEnemy(getDamage());carHitThisDash=true;}
-  }
-  if(slowDebuffTimer>0)slowDebuffTimer=Math.max(0,slowDebuffTimer-dt);
-  let dx=0,dy=0;const ck=window.controlKeys||{};
-  if(keys[String(ck.up||"w").toLowerCase()])dy--;
-  if(keys[String(ck.down||"s").toLowerCase()])dy++;
-  if(keys[String(ck.left||"a").toLowerCase()])dx--;
-  if(keys[String(ck.right||"d").toLowerCase()])dx++;
-  if(deviceMode==="mobile"){if(keys.arrowup)dy--;if(keys.arrowdown)dy++;if(keys.arrowleft)dx--;if(keys.arrowright)dx++;}
-  const len=Math.hypot(dx,dy)||1;
-  const onCrater=(cfg.kind==="moon"||cfg.kind==="mercury")&&step2Mode.craters.some(o=>{
-    const cx=o.x+o.w/2,cy=o.y+o.h/2;
-    return Math.hypot(p.x-cx,p.y-cy)<Math.max(o.w,o.h)/2+p.r;
-  });
-  let speed=3.2*(1+upgradeLevels.speed*0.05)*(slowDebuffTimer>0?0.8:1)*(onCrater?0.7:1)*(step2Mode.effects.rocket>0?3:1);
-  if(cfg.kind==="jupiter"&&step2Mode.windBurst>0)speed*=0.12;
-  step2Move(p,dx/len*speed,dy/len*speed,p.r);
-  if(cfg.kind==="jupiter"){
-    // 5秒ごとに強風が始まり、7秒間続く。風向きは吹いている間もランダムに変化。
-    step2Mode.windTimer+=dt;
-    if(step2Mode.windTimer>=5){
-      step2Mode.windTimer-=5;
-      step2Mode.windBurst=7;
-      step2Mode.windDirTimer=0;
-      const a=Math.random()*Math.PI*2;
-      step2Mode.windX=Math.cos(a);step2Mode.windY=Math.sin(a);
-      msg.textContent="🌪️ 強風！風向きが次々に変わる！";
-    }
-    if(step2Mode.windBurst>0){
-      step2Mode.windBurst=Math.max(0,step2Mode.windBurst-dt);
-      step2Mode.windDirTimer+=dt;
-      if(step2Mode.windDirTimer>=1){
-        step2Mode.windDirTimer=0;
-        const a=Math.random()*Math.PI*2;
-        step2Mode.windX=Math.cos(a);step2Mode.windY=Math.sin(a);
-      }
-      step2Move(p,step2Mode.windX*3.4,step2Mode.windY*3.4,p.r);
-    }
-  }
-  // 🛰️接触したボックスだけ消え、20秒後に同じ場所へ復活。
-  step2Mode.boxes.forEach(b=>{if(!b.active)return;if(Math.hypot(p.x-b.x,p.y-b.y)<p.r+22){
-    const pool=[["酸素ボンベ",50],["ロケット",30],["無重力",10],["UFO",6],["ブラックホール",3],["銀河",1]];
-    let roll=Math.random()*100,got=pool[0][0];for(const [name,rate] of pool){roll-=rate;if(roll<0){got=name;break;}}
-    const inv=window.gameItemInventory||(window.gameItemInventory={normal:{},halloween:{},step2:{}});if(!inv.step2)inv.step2={};const before=Number(inv.step2[got])||0;if(typeof window.addInventoryItem==="function")window.addInventoryItem("🛰️:"+got);if((Number(inv.step2[got])||0)<=before)inv.step2[got]=before+1;b.active=false;b.cooldown=b.adminSummoned?0:20;msg.textContent="🛰️ "+got+"を獲得！アイテム保管庫の「🛰️ ボックス」に追加したよ！"+(b.adminSummoned?" 管理者召喚ボックスは消滅しました。":" 20秒後に復活します。");
-  }});
-  // 子分：月・水星は接近、火星・木星は固定砲台。
-  minions.forEach(m=>{
-    if(m.hp<=0)return;
-    if(step2Mode.effects.gravity>0)return;
-    const d=Math.hypot(p.x-m.x,p.y-m.y)||1;
-    if(m.type==="step2_turret"){
-      m.shot+=dt;const interval=cfg.kind==="mars"?0.8:0.4;
-      if(m.shot>=interval){m.shot=0;step2Fire(m.x,m.y,"🔴",cfg.kind==="mars"?10:7,4,false);}
-    }else{
-      let mx=(p.x-m.x)/d*1.05,my=(p.y-m.y)/d*1.05;
-      if(cfg.kind==="jupiter"&&step2Mode.windBurst>0){mx*=0.12;my*=0.12;step2Move(m,step2Mode.windX*2.2,step2Mode.windY*2.2,m.r);}
-      step2Move(m,mx,my,m.r);
-      m.cool+=dt;if(d<48&&m.cool>=0.5){m.cool=0;step2DamagePlayer(10);}
-    }
-  });
-  // ボスの基本移動と近接攻撃。
-  const bd=Math.hypot(p.x-enemy.x,p.y-enemy.y)||1;
-  if(cfg.kind!=="mars"&&step2Mode.effects.gravity<=0){
-    const windFactor=cfg.kind==="jupiter"&&step2Mode.windBurst>0?0.12:1;
-    step2Move(enemy,(p.x-enemy.x)/bd*0.75*windFactor,(p.y-enemy.y)/bd*0.75*windFactor,enemy.r);
-    if(cfg.kind==="jupiter"&&step2Mode.windBurst>0)step2Move(enemy,step2Mode.windX*2.6,step2Mode.windY*2.6,enemy.r);
-  }
-  step2Mode.bossAttack+=dt;
-  if(cfg.kind==="moon"&&step2Mode.bossAttack>=0.5&&bd<62){step2Mode.bossAttack=0;step2DamagePlayer(20);}
-  if(cfg.kind==="mars"){
-    if(bd<125&&step2Mode.bossAttack>=0.9){step2Mode.bossAttack=0;step2Mode.hazards.push({x:enemy.x,y:enemy.y,r:62,life:1.4,kind:"🔥"});}
-    step2Mode.rangedTimer+=dt;if(step2Mode.rangedTimer>=2){step2Mode.rangedTimer=0;step2Fire(enemy.x,enemy.y,"🔥",30,3.1,true);}
-  }
-  if(cfg.kind==="mercury"){
-    if(bd<68&&step2Mode.bossAttack>=0.8){step2Mode.bossAttack=0;step2DamagePlayer(30);}
-    if(Math.floor(step2Mode.elapsed*0.5)!==Math.floor((step2Mode.elapsed-dt)*0.5)&&step2Mode.hazards.length<6){
-      step2Mode.hazards.push({x:70+Math.random()*(CANVAS_WIDTH-140),y:60+Math.random()*(CANVAS_HEIGHT-120),r:34,life:999,kind:"🌋",cool:0});
-    }
-  }
-  if(cfg.kind==="jupiter"&&bd<68&&step2Mode.bossAttack>=0.5){step2Mode.bossAttack=0;step2DamagePlayer(20);}
-  if(cfg.kind==="moon"&&step2Mode.elapsed>=10&&Math.floor(step2Mode.elapsed/10)!==Math.floor((step2Mode.elapsed-dt)/10)&&step2Mode.pits.length<5){
-    step2Mode.pits.push({x:enemy.x,y:enemy.y,r:22,emoji:"🕳️"});
-  }
-  step2Mode.hazards.forEach(h=>{
-    h.life-=dt;if(h.kind==="🔥"&&Math.hypot(p.x-h.x,p.y-h.y)<h.r){h.cool=(h.cool||0)+dt;if(h.cool>=0.3){h.cool=0;step2DotDamage(5);}}
-    if(h.kind==="🌋"&&Math.hypot(p.x-h.x,p.y-h.y)<h.r){h.cool=(h.cool||0)+dt;if(h.cool>=0.4){h.cool=0;step2DotDamage(5);}}
-  });
-  step2Mode.hazards=step2Mode.hazards.filter(h=>h.life>0);
-  step2Mode.pits=step2Mode.pits.filter(h=>{if(Math.hypot(p.x-h.x,p.y-h.y)<h.r+p.r+6){slowDebuffTimer=Math.max(slowDebuffTimer,10);msg.textContent="🕳️ 月の落とし穴！移動速度が10秒間低下！";return false;}return true;});
-  // STEP 1と同じ弓の攻撃が使う既存 enemyBullets をSTEP 2でも処理する。
-  for(let i=enemyBullets.length-1;i>=0;i--){
-    const b=enemyBullets[i];
-    if(b.enemy)continue;
-    b.x+=b.vx;b.y+=b.vy;
-    if(Math.hypot(enemy.x-b.x,enemy.y-b.y)<enemy.r+12){damageEnemy(b.dmg);enemyBullets.splice(i,1);continue;}
-    const target=minions.find(m=>m.hp>0&&Math.hypot(m.x-b.x,m.y-b.y)<m.r+12);
-    if(target){damageMinion(target,b.dmg);enemyBullets.splice(i,1);continue;}
-    if(b.x<-30||b.x>CANVAS_WIDTH+30||b.y<-30||b.y>CANVAS_HEIGHT+30)enemyBullets.splice(i,1);
-  }
-  step2Mode.bullets.forEach(b=>{
-    if(step2Mode.effects.galaxy>0&&!b.player){b.vx=-b.vx;b.vy=-b.vy;b.player=true;b.damage=b.damage||10;b.emoji="✨";}
-    b.x+=b.vx;b.y+=b.vy;
-    if(b.player){
-      if(Math.hypot(enemy.x-b.x,enemy.y-b.y)<enemy.r+20){damageEnemy(b.damage);b.dead=true;}
-      else{const target=minions.find(m=>m.hp>0&&Math.hypot(m.x-b.x,m.y-b.y)<m.r+20);if(target){damageMinion(target,b.damage);b.dead=true;}}
-    }else if(Math.hypot(p.x-b.x,p.y-b.y)<p.r+13){step2DamagePlayer(b.damage);if(b.slow)slowDebuffTimer=Math.max(slowDebuffTimer,5);b.dead=true;}
-  });
-  step2Mode.bullets=step2Mode.bullets.filter(b=>!b.dead&&b.x>-30&&b.x<CANVAS_WIDTH+30&&b.y>-30&&b.y<CANVAS_HEIGHT+30);
-  step2Mode.bullets.forEach(b=>{if(!b.player||b.dead)return;if(Math.hypot(enemy.x-b.x,enemy.y-b.y)<enemy.r+16){damageEnemy(b.damage);b.dead=true;}else{const t=minions.find(m=>m.hp>0&&Math.hypot(m.x-b.x,m.y-b.y)<m.r+16);if(t){damageMinion(t,b.damage);b.dead=true;}}});
-  step2Mode.bullets=step2Mode.bullets.filter(b=>!b.dead);
-  if(enemy.hp<=0){enemy.hp=0;nextStage();return;}
-  if(p.hp<=0){p.hp=0;gameOver=true;step2Mode.active=false;document.body.classList.remove("step2-admin-enabled");const ib=document.getElementById("step2UseItem");if(ib)ib.style.display="none";showResult(false);return;}
-  step2EnsureItemButton();
-  document.getElementById("hp").textContent=Math.floor(p.hp);
-  document.getElementById("maxHpText").textContent=Math.floor(p.max);
-  document.getElementById("ehp").textContent=Math.floor(enemy.hp);
+  return originalUse.apply(this,arguments);
+ };
+ wrapped.__adminAbuseNov21=true;window.useSpecialCode=wrapped;
 }
-function attackStep2Mode(){
-  if(gameOver||stageClear||attackCooldown>0||window.adminPanelInteracting)return;
-  if(["🪃","⚡️","🚨"].includes(weapon)&&typeof window.step2NewWeaponAttack==="function"){
-    window.step2NewWeaponAttack();
-    attackCooldown=window.adminNoCooldown?0:0.3;
-    return;
-  }
-  if(weapon==="🪄"&&!window.specialCodes?.kakeru&&!window.specialCodes?.sougo){
-    if(wandCooldown<=0){fireWandMagic();wandCooldown=window.adminNoCooldown?0:1.7;}
-    else msg.textContent="⏳ 魔法の杖クールタイム中... ("+wandCooldown.toFixed(1)+"s)";
-    return;
-  }
-  const damage=getDamage();
-  let range=weapon==="⚔️"?72+charge/2:weapon==="拳"?108:90;
-  let specialDamage=damage,cooldown=0.3;
-  if(window.specialCodes?.kakeru){
-    range=108;
-    specialDamage=4*atkBuff*(1+drawAttackBonus)*(kizuku2Active?2:1)*(window.sougoBoostActive?3:1)*(adminRankAbility==="damage4"?4:1)*((window.halloweenEffects||{}).candy>0?1.8:1)*((window.halloweenEffects||{}).zombie>0?2.3:1)*(1+upgradeLevels.atk*0.04);
-    cooldown=0;
-  }else if(window.specialCodes?.sougo){
-    const hammerCharge=Math.max(0,Math.min(150,charge))/150,hammerBaseDamage=20+30*hammerCharge,halloweenFx=window.halloweenEffects||{};
-    specialDamage=hammerBaseDamage*atkBuff*(1+drawAttackBonus)*1.03*(kizuku2Active?2:1)*(window.sougoBoostActive?3:1)*(adminRankAbility==="damage4"?4:1)*(halloweenFx.candy>0?1.8:1)*(halloweenFx.zombie>0?2.3:1)*(1+upgradeLevels.atk*0.04);
-    range=(72+charge/2)*3;cooldown=3+4*hammerCharge;
-  }
-  slashTimer=window.specialCodes?.sougo?20:12;
-  const hit=(x,y)=>Math.hypot(p.x-x,p.y-y)<range;
-  let did=false;
-  minions.forEach(m=>{if(m.hp>0&&hit(m.x,m.y)){damageMinion(m,specialDamage);did=true;}});
-  if(enemy.hp>0&&hit(enemy.x,enemy.y)){damageEnemy(specialDamage);did=true;}
-  attackCooldown=window.adminNoCooldown?0:cooldown;
-  msg.textContent=did?"⚔️ STEP 2 攻撃命中！":"⚔️ STEP 2 攻撃！敵に近づいてね";
+const fusionCreditKey="adminAbuseFusionSkipCreditsV1";
+function refreshFusionSkipButton(){
+ const cooldown=$("fusionCooldown");if(!cooldown)return;
+ let credits=0;try{credits=Number(localStorage.getItem(fusionCreditKey))||0}catch(e){}
+ let button=$("adminAbuseFusionSkipBtn");
+ if(!button){button=document.createElement("button");button.id="adminAbuseFusionSkipBtn";button.type="button";button.style.cssText="display:block;width:100%;margin-top:8px;padding:10px;border:1px solid #facc15;border-radius:9px;background:#713f12;color:#fff;font-weight:900";cooldown.insertAdjacentElement("afterend",button)}
+ button.textContent="🎟️ ADMIN ABUSEスキップ権を使う（残り："+credits+"回）";button.style.display=credits>0?"block":"none";
+ button.onclick=()=>{let n=0;try{n=Number(localStorage.getItem(fusionCreditKey))||0}catch(e){}if(n<1||typeof window.skipFusionCooldown!=="function"||!window.skipFusionCooldown()){if($("msg"))$("msg").textContent="⚠️ スキップできるヒューズ合成がありません。";return}n--;try{localStorage.setItem(fusionCreditKey,String(n))}catch(e){}refreshFusionSkipButton();if($("msg"))$("msg").textContent="⚗️ ADMIN ABUSEスキップ権を1回使用しました！"};
 }
-function drawStep2Mode(){
-  ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation="source-over";ctx.filter="none";ctx.clearRect(0,0,c.width,c.height);
-  const cfg=step2Mode.stages[step2Mode.index-1];
-  const backgrounds=step2Mode.stages.map(v=>v.bg);
-  ctx.fillStyle=cfg.bg||backgrounds[step2Mode.index-1];ctx.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
-  ctx.textAlign="center";ctx.textBaseline="middle";
-  // 惑星らしい地形と星空。
-  ctx.fillStyle="rgba(255,255,255,.28)";for(let i=0;i<34;i++){const x=(i*137+41)%CANVAS_WIDTH,y=(i*83+19)%CANVAS_HEIGHT;ctx.fillRect(x,y,2,2);}
-  // 月・水星のクレーター（50×50）。灰色の縁と暗いくぼみで背景から見分けやすくする。
-  step2Mode.craters.forEach(o=>{
-    const cx=o.x+o.w/2,cy=o.y+o.h/2;
-    ctx.save();
-    ctx.fillStyle="rgba(35,40,48,.42)";ctx.beginPath();ctx.ellipse(cx,cy,25,20,0,0,Math.PI*2);ctx.fill();
-    ctx.strokeStyle="#aeb4bd";ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(cx,cy,24,19,0,0,Math.PI*2);ctx.stroke();
-    ctx.fillStyle="rgba(20,24,30,.38)";ctx.beginPath();ctx.ellipse(cx-2,cy+2,16,12,0,0,Math.PI*2);ctx.fill();
-    ctx.strokeStyle="rgba(235,239,244,.55)";ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(cx-4,cy-4,16,10,-.12,Math.PI*1.05,Math.PI*1.85);ctx.stroke();
-    ctx.restore();
-  });
-  // 火星の山は他マップと同じ50×50サイズの通常障害物。
-  if(cfg.kind==="mars"){ctx.font="36px serif";obstacles.forEach(o=>ctx.fillText("⛰️",o.x+o.w/2,o.y+o.h/2));}
-  step2Mode.boxes.forEach(b=>{if(!b.active)return;ctx.save();ctx.fillStyle="rgba(8,35,65,.9)";ctx.strokeStyle="#7dd3fc";ctx.lineWidth=3;ctx.beginPath();ctx.arc(b.x,b.y,23,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.font="30px serif";ctx.fillStyle="#fff";ctx.fillText("🛰️",b.x,b.y);ctx.restore();});
-  step2Mode.pits.forEach(h=>{ctx.save();ctx.strokeStyle="rgba(20,20,30,.9)";ctx.lineWidth=3;ctx.beginPath();ctx.arc(h.x,h.y,h.r+5,0,Math.PI*2);ctx.stroke();ctx.font="34px serif";ctx.fillText("🕳️",h.x,h.y);ctx.restore();});
-  step2Mode.hazards.forEach(h=>{ctx.save();ctx.globalAlpha=1;ctx.fillStyle=h.kind==="🌋"?"rgba(255,70,0,.58)":"rgba(255,80,0,.48)";ctx.beginPath();ctx.arc(h.x,h.y,h.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle=h.kind==="🌋"?"#ffb000":"#ff3b18";ctx.lineWidth=3;ctx.stroke();ctx.font="bold 30px serif";ctx.fillStyle="#fff";ctx.strokeStyle="#7c1d0b";ctx.lineWidth=3;ctx.strokeText(h.kind,h.x,h.y);ctx.fillText(h.kind,h.x,h.y);ctx.restore();});
-  // 木星は金色の縞模様、水星は暗い岩場＋溶岩で、惑星ごとの違いを明確にする。
-  if(cfg.kind==="jupiter"){
-    ctx.save();ctx.globalAlpha=1;
-    for(let k=0;k<5;k++){ctx.fillStyle=k%2===0?"rgba(92,48,116,.16)":"rgba(255,230,160,.18)";ctx.fillRect(0,75+k*105,CANVAS_WIDTH,24);}
-    ctx.restore();
-  }
-  minions.forEach(m=>{if(m.hp<=0)return;
-    // 敵の近距離攻撃が届く範囲を常時表示（予告アニメーションは追加しない）。
-    if(m.type!=="step2_turret"){ctx.beginPath();ctx.arc(m.x,m.y,48,0,Math.PI*2);ctx.fillStyle="rgba(255,60,60,.10)";ctx.fill();ctx.strokeStyle="rgba(255,80,80,.65)";ctx.lineWidth=2;ctx.stroke();}
-    ctx.save();ctx.globalAlpha=1;ctx.shadowColor="#111";ctx.shadowBlur=7;
-    ctx.beginPath();ctx.arc(m.x,m.y,23,0,Math.PI*2);ctx.fillStyle="rgba(20,24,35,.82)";ctx.fill();
-    ctx.font="30px serif";ctx.lineWidth=2;ctx.strokeStyle="#fff";ctx.strokeText("😈",m.x,m.y);ctx.fillStyle="#fff";ctx.fillText("😈",m.x,m.y);ctx.restore();
-    ctx.fillStyle="#111";ctx.fillRect(m.x-20,m.y-32,40,6);ctx.fillStyle="#4ade80";ctx.fillRect(m.x-20,m.y-32,40*Math.max(0,m.hp/m.maxHp),6);});
-  // ボスの近距離攻撃範囲も常時表示。
-  if(cfg.kind!=="mars"){const bossRange=cfg.kind==="moon"?62:cfg.kind==="mercury"||cfg.kind==="jupiter"?68:125;ctx.beginPath();ctx.arc(enemy.x,enemy.y,bossRange,0,Math.PI*2);ctx.fillStyle="rgba(255,40,40,.09)";ctx.fill();ctx.strokeStyle="rgba(255,70,70,.65)";ctx.lineWidth=2;ctx.stroke();}
-  ctx.save();ctx.globalAlpha=1;ctx.shadowColor="#111";ctx.shadowBlur=10;
-  ctx.beginPath();ctx.arc(enemy.x,enemy.y,34,0,Math.PI*2);ctx.fillStyle="rgba(20,24,35,.78)";ctx.fill();
-  ctx.font="48px serif";ctx.lineWidth=2;ctx.strokeStyle="#fff";ctx.strokeText(cfg.boss,enemy.x,enemy.y);ctx.fillStyle="#fff";ctx.fillText(cfg.boss,enemy.x,enemy.y);ctx.restore();
-  ctx.fillStyle="#111";ctx.fillRect(enemy.x-42,enemy.y-43,84,8);ctx.fillStyle="#ef4444";ctx.fillRect(enemy.x-42,enemy.y-43,84*Math.max(0,enemy.hp/enemy.maxHp),8);
-  // STEP 1共通の弓で発射した既存弾も同じ見た目で描画する。
-  enemyBullets.forEach(b=>{if(!b.enemy){ctx.font="24px serif";ctx.fillText("🏹",b.x,b.y);}});
-  step2Mode.bullets.forEach(b=>{ctx.font="24px serif";ctx.fillText(b.emoji,b.x,b.y);});
-  ctx.font="34px serif";ctx.fillText(typeof window.getSelectedSkinEmoji==="function"?window.getSelectedSkinEmoji():"🙂",p.x,p.y);
-  // STEP 1と同じ既存の攻撃範囲リング・武器絵文字をSTEP 2でも表示。
-  if(slashTimer>0){ctx.strokeStyle="yellow";ctx.lineWidth=6;ctx.beginPath();ctx.arc(p.x,p.y,72+charge/2,0,Math.PI*2);ctx.stroke();ctx.lineWidth=1;ctx.font="24px serif";ctx.fillText(weapon,p.x+25,p.y+28);}
-  ctx.fillStyle="#111";ctx.fillRect(p.x-22,p.y-31,44,5);ctx.fillStyle="#22c55e";ctx.fillRect(p.x-22,p.y-31,44*Math.max(0,p.hp/p.max),5);
-  if(cfg.kind==="jupiter"&&step2Mode.windBurst>0){ctx.save();ctx.globalAlpha=1;ctx.strokeStyle="rgba(255,255,255,.95)";ctx.lineWidth=5;for(let i=0;i<10;i++){const x=25+i*95,y=45+(i%3)*170;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+step2Mode.windX*95,y+step2Mode.windY*95);ctx.stroke();}ctx.fillStyle="#fff";ctx.font="bold 24px sans-serif";ctx.strokeStyle="#5b3b12";ctx.lineWidth=4;ctx.strokeText("🌪️ 強風！",CANVAS_WIDTH/2,35);ctx.fillText("🌪️ 強風！",CANVAS_WIDTH/2,35);ctx.restore();}
-  // STEP 1と同じダメージ表示（黒フチ＋黄色文字）に統一。
-  dmgText=dmgText.filter(t=>{ctx.save();ctx.globalAlpha=1;ctx.font="bold 20px sans-serif";ctx.lineWidth=5;ctx.strokeStyle="#000";ctx.strokeText(t.t,t.x,t.y);ctx.fillStyle="#ffeb00";ctx.fillText(t.t,t.x,t.y);ctx.restore();t.y-=1;t.life--;return t.life>0;});
-
-  // 前段の描画状態に左右されないよう、戦闘キャラクターと攻撃エフェクトを最前面に再描画する。
-  ctx.save();
-  ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation="source-over";ctx.filter="none";
-  ctx.textAlign="center";ctx.textBaseline="middle";ctx.shadowBlur=0;
-  minions.forEach(m=>{
-    if(m.hp<=0)return;
-    ctx.beginPath();ctx.arc(m.x,m.y,24,0,Math.PI*2);ctx.fillStyle="#202938";ctx.fill();
-    ctx.lineWidth=3;ctx.strokeStyle="#fff";ctx.stroke();
-    ctx.font="32px serif";ctx.fillStyle="#fff";ctx.fillText("😈",m.x,m.y);
-    ctx.fillStyle="#111";ctx.fillRect(m.x-21,m.y-34,42,6);
-    ctx.fillStyle="#4ade80";ctx.fillRect(m.x-21,m.y-34,42*Math.max(0,m.hp/Math.max(1,m.maxHp)),6);
-  });
-  ctx.beginPath();ctx.arc(enemy.x,enemy.y,36,0,Math.PI*2);ctx.fillStyle="#241b36";ctx.fill();
-  ctx.lineWidth=4;ctx.strokeStyle="#fff";ctx.stroke();
-  ctx.font="50px serif";ctx.fillStyle="#fff";ctx.fillText(cfg.boss,enemy.x,enemy.y);
-  ctx.fillStyle="#111";ctx.fillRect(enemy.x-43,enemy.y-48,86,9);
-  ctx.fillStyle="#ef4444";ctx.fillRect(enemy.x-43,enemy.y-48,86*Math.max(0,enemy.hp/Math.max(1,enemy.maxHp)),9);
-  ctx.beginPath();ctx.arc(p.x,p.y,25,0,Math.PI*2);ctx.fillStyle="#0e7490";ctx.fill();
-  ctx.lineWidth=3;ctx.strokeStyle="#fff";ctx.stroke();
-  ctx.font="38px serif";ctx.fillStyle="#fff";
-  ctx.fillText(typeof window.getSelectedSkinEmoji==="function"?window.getSelectedSkinEmoji():"🙂",p.x,p.y);
-  if(step2Mode.effects.rocket>0){ctx.font="24px serif";ctx.fillText("🚀",p.x,p.y+30);}
-  if(step2Mode.effects.blackhole>0){ctx.font="44px serif";ctx.fillText("🌀",p.x,p.y-65);}
-  if(step2Mode.effects.galaxy>0){ctx.beginPath();ctx.arc(p.x,p.y,52,0,Math.PI*2);ctx.strokeStyle="#a78bfa";ctx.lineWidth=5;ctx.stroke();}
-  ctx.fillStyle="#111";ctx.fillRect(p.x-25,p.y-37,50,7);
-  ctx.fillStyle="#22c55e";ctx.fillRect(p.x-25,p.y-37,50*Math.max(0,p.hp/Math.max(1,p.max)),7);
-  if(slashTimer>0){
-    ctx.beginPath();ctx.arc(p.x,p.y,72+charge/2,0,Math.PI*2);
-    ctx.strokeStyle="#fff200";ctx.lineWidth=8;ctx.stroke();
-    ctx.strokeStyle="#111";ctx.lineWidth=2;ctx.stroke();
-    ctx.font="28px serif";ctx.fillStyle="#fff";ctx.fillText(weapon,p.x+30,p.y+30);
-  }
-  ctx.restore();
-}
-function step2EnsureItemButton(){
-  let btn=document.getElementById("step2UseItem");
-  if(!btn){btn=document.createElement("button");btn.id="step2UseItem";btn.type="button";btn.style.cssText="position:fixed;z-index:960010;left:50%;bottom:18px;transform:translateX(-50%);padding:12px 20px;border:2px solid #7dd3fc;border-radius:12px;background:#082f49;color:white;font-weight:bold;font-size:16px;display:none;";document.body.appendChild(btn);btn.addEventListener("click",step2UseItem);}
-  btn.style.display=step2Mode.active?"block":"none";btn.textContent=step2Mode.inventory?"🎒 "+step2Mode.inventory+" を使用":"🎒 アイテムなし";btn.disabled=!step2Mode.inventory;
-}
-function step2UseItem(){
-  const item=step2Mode.inventory;if(!step2Mode.active||!item)return;
-  if(item==="酸素ボンベ"){p.hp=Math.min(p.max,p.hp+75);msg.textContent="🧪 HPを75回復！";}
-  if(item==="ロケット"){step2Mode.effects.rocket=7;msg.textContent="🚀 7秒間スピード3倍！";}
-  if(item==="無重力"){step2Mode.effects.gravity=5;msg.textContent="🫧 敵が5秒間、動けなくなった！";}
-  if(item==="UFO"){step2Mode.effects.ufo=5;step2Mode.ufoTimer=0;msg.textContent="🛸 UFO3体が5秒間ビーム攻撃！";}
-  if(item==="ブラックホール"){step2Mode.effects.blackhole=3;step2Mode.blackholeTick=0;msg.textContent="🌀 ブラックホール発動！";}
-  if(item==="銀河"){step2Mode.effects.galaxy=5;msg.textContent="🌌 5秒間、攻撃を反射！";}
-  step2Mode.inventory=null;step2EnsureItemButton();
-}
-function advanceStep2Mode(){
-  stageClear=true;step2Mode.index++;
-  if(step2Mode.index>4){
-    // STEP2の4ステージをすべてクリアしたら、専用オーバーレイではなく通常の戦績画面を表示。
-    step2Mode.active=false;
-    document.body.classList.remove("step2-admin-enabled");
-    const ib=document.getElementById("step2UseItem");if(ib)ib.style.display="none";
-    gameOver=false;stageClear=false;
-    showResult(true);
-    return;
-  }
-  setupStep2Stage(step2Mode.index);stageClear=false;
-}
-
-</script>
+const fusionObserver=new MutationObserver(refreshFusionSkipButton);const fusionRoot=$("fusionMainScreen");if(fusionRoot)fusionObserver.observe(fusionRoot,{childList:true,subtree:true});refreshFusionSkipButton();setInterval(refreshFusionSkipButton,1000);
+})();</script>
 
 <style id="final-ui-fixes">
 #gameSaveOpenBtn{position:fixed!important;top:12px!important;right:12px!important;left:auto!important;bottom:auto!important;z-index:1000000!important;display:flex!important;align-items:center!important;justify-content:center!important;width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;padding:0!important;border:2px solid #facc15!important;border-radius:12px!important;background:#172033!important;color:#fff!important;font-size:27px!important;box-shadow:0 3px 12px #0009!important;cursor:pointer!important}

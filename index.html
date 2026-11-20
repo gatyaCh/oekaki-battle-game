@@ -9112,36 +9112,30 @@ function loop() {
       if(damageText)damageText.textContent="予想ダメージ："+Math.round(20+30*c/150);
     }
   }
-  // 戦闘画面が隠れている間は、戦闘更新・HUD同期・Canvas描画を止めて負荷を抑える。
-  // 画面が再表示された次のフレームから従来どおり更新する。
-  const battleVisible = !gameArea.classList.contains("hidden");
-  if (battleVisible) {
-    try { update(); }
-    catch (err) { console.error("[OekakiBattle] update error:", err); }
+  // 描画の取りこぼしを避けるため、Canvas描画は従来どおり毎フレーム実行する。
+  // update()側でタイトル画面・描画画面などの戦闘外処理は停止判定する。
+  try { update(); }
+  catch (err) { console.error("[OekakiBattle] update error:", err); }
 
-    // HUDは戦闘処理の早期returnやポーズ中でも毎フレーム最新状態に同期する。
-    // 通常マップ・ハロウィンマップ共通で、HP/敵HP/コイン/強化状態を表示する。
-    const hudHp = document.getElementById("hp");
-    const hudMaxHp = document.getElementById("maxHpText");
-    const hudEnemyHp = document.getElementById("ehp");
-    const hudCoins = document.getElementById("coinText");
-    const hudAtk = document.getElementById("atkText");
-    const hudShield = document.getElementById("shieldText");
-    const hudRevive = document.getElementById("reviveText");
-    if (hudHp && p) hudHp.textContent = Math.max(0, Math.floor(p.hp));
-    if (hudMaxHp && p) hudMaxHp.textContent = Math.floor(p.max);
-    if (hudEnemyHp && enemy) hudEnemyHp.textContent = Math.max(0, Math.floor(enemy.hp));
-    if (hudCoins) hudCoins.textContent = coins;
-    const hudDiamonds=document.getElementById("diamondText");
-    if(hudDiamonds)hudDiamonds.textContent=maDiamonds;
-    if (hudAtk) hudAtk.textContent = (atkBuff * (kizuku2Active ? 2.0 : 1)).toFixed(1);
-    if (hudShield) hudShield.textContent = shieldEquipped ? Math.max(0, shieldRemainingTime).toFixed(1) + "s" : "なし";
-    if (hudRevive) hudRevive.textContent = revive ? "所持" : "なし";
-    try { updateSpecialGauge(); } catch (err) { console.error("[OekakiBattle] special gauge error:", err); }
-    try { draw(); } catch (err) {
-      console.error("[OekakiBattle] draw error:", err);
-      // 描画に失敗したフレームでも次のフレームを予約して、ゲーム全体が停止しないようにする。
-    }
+  const hudHp = document.getElementById("hp");
+  const hudMaxHp = document.getElementById("maxHpText");
+  const hudEnemyHp = document.getElementById("ehp");
+  const hudCoins = document.getElementById("coinText");
+  const hudAtk = document.getElementById("atkText");
+  const hudShield = document.getElementById("shieldText");
+  const hudRevive = document.getElementById("reviveText");
+  if (hudHp && p) hudHp.textContent = Math.max(0, Math.floor(p.hp));
+  if (hudMaxHp && p) hudMaxHp.textContent = Math.floor(p.max);
+  if (hudEnemyHp && enemy) hudEnemyHp.textContent = Math.max(0, Math.floor(enemy.hp));
+  if (hudCoins) hudCoins.textContent = coins;
+  const hudDiamonds=document.getElementById("diamondText");
+  if(hudDiamonds)hudDiamonds.textContent=maDiamonds;
+  if (hudAtk) hudAtk.textContent = (atkBuff * (kizuku2Active ? 2.0 : 1)).toFixed(1);
+  if (hudShield) hudShield.textContent = shieldEquipped ? Math.max(0, shieldRemainingTime).toFixed(1) + "s" : "なし";
+  if (hudRevive) hudRevive.textContent = revive ? "所持" : "なし";
+  try { updateSpecialGauge(); } catch (err) { console.error("[OekakiBattle] special gauge error:", err); }
+  try { draw(); } catch (err) {
+    console.error("[OekakiBattle] draw error:", err);
   }
   requestAnimationFrame(loop);
 }

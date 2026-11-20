@@ -9973,7 +9973,9 @@ loop();
     const el=document.getElementById(id);
     if(el) observer.observe(el,{attributes:true,attributeFilter:["class","style"]});
   });
-  setInterval(sync,100);
+  // STEP2の許可状態はbodyのclassで切り替わるため、bodyも監視する。
+  observer.observe(document.body,{attributes:true,attributeFilter:["class"]});
+  // 表示状態の変更はMutationObserverで即時反映するため、100msごとの定期確認は不要。
   sync();
 })();
 

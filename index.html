@@ -13400,10 +13400,10 @@ function missionSave(){try{localStorage.setItem(activeMissionKey(),JSON.stringif
 function missionPanel(){let el=$("adminAbuseMissionHUD");if(!el){el=document.createElement("div");el.id="adminAbuseMissionHUD";el.style.cssText="position:fixed;top:280px;right:8px;z-index:1000020;background:#111d;color:white;border:2px solid #facc15;border-radius:12px;padding:9px 11px;font-weight:900;text-align:left;max-width:min(340px,48vw);box-sizing:border-box;pointer-events:none;white-space:pre-line;line-height:1.55;font-size:clamp(12px,1.5vw,16px)";document.body.appendChild(el)}return el}
 function missionStatus(){
  const el=missionPanel(),parts=[];
- const row=(n,title,state,remaining,count)=>{let line="🎯 ミッション"+n+"："+title;if(state==="running")line+="\n残り時間："+String(Math.max(0,Math.ceil(remaining))).padStart(2,"0")+"秒"+(n===2?"\n使用回数："+count+"/5":"");else if(state==="clear")line+="\n✅ クリア！スペシャルコードを使おう！";else if(state==="failed")line+="\n❌ 失敗！再挑戦はできません";else line+="\n開始待ち";parts.push(line)};
+ const row=(n,title,state,remaining,count)=>{if(state==="waiting")return;let line="🎯 ミッション"+n+"："+title;if(state==="running")line+="\\n残り時間："+String(Math.max(0,Math.ceil(remaining))).padStart(2,"0")+"秒"+(n===2?"\\n使用回数："+count+"/5":"");else if(state==="clear")line+="\\n✅ クリア！スペシャルコードを使おう！";else if(state==="failed")line+="\\n❌ 失敗！再挑戦はできません";parts.push(line)};
  row(1,"敵の攻撃を30秒間受けるな！",mission.oneState,mission.oneEnd?mission.oneEnd-Date.now():0,0);
  row(2,"30秒以内にアイテムを5回使え！",mission.twoState,mission.twoEnd?mission.twoEnd-Date.now():0,mission.itemCount);
- el.textContent=parts.join("\n\n");el.style.display=active?"block":"none";
+ el.textContent=parts.join("\\n\\n");el.style.display=active&&parts.length?"block":"none";
 }
 function finishMission(which,success){
  if(which===1){if(mission.oneState!=="running")return;mission.oneState=success?"clear":"failed";mission.one=!!success;mission.oneFailed=!success}

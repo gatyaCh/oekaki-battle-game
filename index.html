@@ -9136,6 +9136,9 @@ function loop() {
   try { updateSpecialGauge(); } catch (err) { console.error("[OekakiBattle] special gauge error:", err); }
   try { draw(); } catch (err) {
     console.error("[OekakiBattle] draw error:", err);
+    // 描画失敗の原因を画面上でも確認できるようにする（調査用）。
+    window.__oekakiLastDrawError = String(err && (err.stack || err.message) || err);
+    if (msg) msg.textContent = "描画エラー：" + String(err && err.message || err);
   }
   requestAnimationFrame(loop);
 }

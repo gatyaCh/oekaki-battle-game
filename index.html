@@ -3665,6 +3665,7 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 .story-explore-road-main{left:-80px;top:690px;width:2400px;height:150px;transform:rotate(-7deg)}
 .story-explore-road-branch{left:510px;top:250px;width:125px;height:760px;transform:rotate(8deg)}
 .story-explore-building{position:absolute;z-index:2;display:flex;align-items:center;justify-content:center;text-align:center;border:4px solid #334155;border-radius:12px;background:linear-gradient(145deg,#dbeafe,#64748b);box-shadow:0 8px 18px #0006;color:#102033;font-weight:900}
+.story-explore-space-station{left:12px;top:560px;width:145px;height:132px;font-size:18px;background:linear-gradient(145deg,#e0f2fe,#64748b);border-color:#38bdf8;color:#082f49}
 .story-explore-lab{left:300px;top:570px;width:190px;height:125px;font-size:21px;background:linear-gradient(145deg,#dbeafe,#60a5fa);border-color:#1e40af}
 .story-explore-house{width:105px;height:85px;font-size:44px}
 .story-explore-tree{position:absolute;z-index:2;font-size:48px;filter:drop-shadow(0 5px 3px #0005)}
@@ -4394,7 +4395,7 @@ body {
     <div class="story-world-grid">
       <div class="story-world-card available"><h2>🌍 第1ワールド</h2><h3>惑星衝突の謎</h3><p>全5ステージ</p><button type="button" onclick="openStoryStages()">ワールドに入る</button></div>
       <div class="story-world-card available"><h2>🌌 第2ワールド</h2><h3>崩壊した浮遊都市</h3><p>🌌 ワールド1の1-5クリアで解放</p><button type="button" onclick="openStoryWorld2CodeGate()">ワールド2を見る</button></div>
-      <div class="story-world-card"><h2>⚙️ 第3ワールド</h2><p>？？？</p><button type="button" disabled>未解放</button></div>
+      <div class="story-world-card" id="storyWorld3Card"><h2>🚀 第3ワールド</h2><h3>宇宙への出発</h3><p id="storyWorld3LockText">🔒 ワールド1・2クリア＆コード入力で解放</p><button type="button" onclick="openStoryWorld3Gate()">ワールド3を見る</button></div>
       <div class="story-world-card"><h2>🌊 第4ワールド</h2><p>？？？</p><button type="button" disabled>未解放</button></div>
       <div class="story-world-card"><h2>🌑 第5ワールド</h2><p>？？？</p><button type="button" disabled>未解放</button></div>
     </div>
@@ -4412,6 +4413,8 @@ body {
   </div>
 </div>
 <div id="storyWorld2StageScreen" class="story-screen hidden" aria-label="第2ワールドのステージ選択"><div class="story-panel"><h1>🌌 第2ワールド：崩壊した浮遊都市</h1><p>結晶に覆われた島々を探索し、謎の敵に立ち向かおう。</p><div class="story-stage-grid" id="storyWorld2StageGrid"></div><p>まずは2-1の導入を見て、浮島の謎を追おう。</p><button type="button" class="story-action" onclick="openStoryWorld2Explore()">🧭 ワールド2を自由に探索</button><button type="button" class="story-action story-back" onclick="openStoryWorlds()">ワールド選択に戻る</button></div></div>
+<div id="storyWorld3CodeGate" class="story-screen hidden" role="dialog" aria-modal="true" aria-label="ワールド3認証"><div class="story-panel" style="max-width:430px"><h2>🚀 ワールド3 認証</h2><p>ワールド1・2をクリアしたうえで、コードを入力してください。</p><input id="storyWorld3CodeInput" type="password" autocomplete="off" spellcheck="false" placeholder="コードを入力" style="box-sizing:border-box;width:100%;padding:13px;border-radius:9px;border:1px solid #64748b;background:#0f172a;color:white;font-size:18px"><p id="storyWorld3CodeMessage" role="status" aria-live="polite" style="min-height:24px;color:#fca5a5"></p><button type="button" class="story-action" onclick="submitStoryWorld3Code()">認証する</button><button type="button" class="story-action story-back" onclick="closeStoryWorld3Gate()">戻る</button></div></div>
+<div id="storyWorld3StageScreen" class="story-screen hidden" aria-label="第3ワールドのステージ一覧"><div class="story-panel"><h1>🚀 第3ワールド：宇宙への出発</h1><p>巻物に記された過去を知り、地球を襲う敵を突破して宇宙へ向かおう。</p><div class="story-stage-grid" id="storyWorld3StageGrid"></div><p>ステージ本編は順番に実装していくよ。</p><button type="button" class="story-action story-back" onclick="openStoryWorlds()">ワールド選択に戻る</button></div></div>
 
 <div id="storyExploreScreen" class="story-explore-screen hidden" aria-label="ワールド1探索フィールド">
   <div class="story-explore-top">
@@ -4431,6 +4434,7 @@ body {
       <div id="storyWorld2StageEntrances" class="story-explore-stage-layer" aria-label="ワールド2ステージ入口"></div>
       <div class="story-explore-road story-explore-road-main"></div>
       <div class="story-explore-road story-explore-road-branch"></div>
+      <div class="story-explore-building story-explore-space-station" title="ワールド3 宇宙ステーション">🛰️<br>宇宙ステーション</div>
       <div class="story-explore-building story-explore-lab">🚀<br>宇宙研究施設</div>
       <div class="story-explore-building story-explore-house" style="left:190px;top:330px">🏠</div>
       <div class="story-explore-building story-explore-house" style="left:530px;top:250px">🏢</div>
@@ -5458,20 +5462,26 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   function showStory(id){const el=$story(id);if(el)el.classList.remove("hidden");}
   const STORY_TEST_CODE="utor";
   let storyWorld2Authorized=false;
+  let storyWorld3Authorized=false;
+  function storyWorld3HasPrerequisites(){try{return localStorage.getItem("story15Cleared")==="1"&&localStorage.getItem("storyWorld2Cleared")==="1";}catch(e){return false;}}
   function storyWorld2HasStoryClear(){try{return localStorage.getItem("story15Cleared")==="1";}catch(e){return false;}}
   function storyWorld2IsUnlocked(){return storyWorld2HasStoryClear()||storyWorld2Authorized;}
   function syncStoryWorld2Unlock(){storyWorld2Authorized=storyWorld2HasStoryClear()||storyWorld2Authorized;return storyWorld2Authorized;}
   // ワールド1の1-5をクリア済みならワールド2はコード不要。未クリアの場合のみテストコード認証を要求。
-  window.addEventListener("pagehide",function(){storyWorld2Authorized=false;});
-  window.addEventListener("pageshow",function(){storyWorld2Authorized=false;});
+  window.addEventListener("pagehide",function(){storyWorld2Authorized=false;storyWorld3Authorized=false;});
+  window.addEventListener("pageshow",function(){storyWorld2Authorized=false;storyWorld3Authorized=false;});
   let storyCodeGateReturnToExplore=false;
   let storyWorld2PendingStage="";
   window.openStoryCodeGate=function(fromExplore=false){if(storyWorld2HasStoryClear()){storyWorld2Authorized=true;const pending=storyWorld2PendingStage;storyWorld2PendingStage="";if(pending){if(fromExplore)launchStoryWorld2ExploreStage(pending);else{hideStory("storyWorld2StageScreen");if(pending==="2-1")window.startStoryWorld2Intro();else if(pending==="2-6")window.startStoryWorld26Puzzle();else if(pending==="2-7")window.startStoryWorld27Intro();else if(pending==="2-8")window.startStoryWorld28Intro();else window.startStoryBattle(pending);}}else if(fromExplore){hideStory("storyExploreConfirm");showStory("storyExploreScreen");storyExplorePosition.x=2600;storyExploreKeys.clear();storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);}else window.openStoryWorld2Stages();return;}storyCodeGateReturnToExplore=!!fromExplore;if(fromExplore){hideStory("storyExploreConfirm");}else{hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");hideStory("storyWorld2StageScreen");}if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}const gate=$story("storyCodeGate"),input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(input)input.value="";if(message)message.textContent="";if(gate){gate.classList.remove("hidden");gate.style.position="fixed";gate.style.inset="0";gate.style.zIndex="2147483647";gate.style.visibility="visible";gate.style.opacity="1";gate.style.pointerEvents="auto";gate.style.display="";gate.style.alignItems="center";gate.style.justifyContent="center";}if(input){input.focus();}};
   window.closeStoryCodeGate=function(){hideStory("storyCodeGate");if(storyCodeGateReturnToExplore){showStory("storyExploreScreen");storyExplorePosition.x=Math.min(storyExplorePosition.x,2600);storyExploreKeys.clear();storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);}else if(storyWorld2PendingStage){showStory("storyWorld2StageScreen");}else{showStory("storyWorldScreen");}storyWorld2Authorized=false;storyCodeGateReturnToExplore=false;storyWorld2PendingStage="";};
   window.submitStoryTestCode=function(){const input=$story("storyTestCodeInput"),message=$story("storyTestCodeMessage");if(!input||!message)return;const enteredCode=String(input.value||"").normalize("NFKC").replace(/[\s\u200B-\u200D\uFEFF]/g,"").toLowerCase();const expectedCode=String(STORY_TEST_CODE).normalize("NFKC").replace(/[\s\u200B-\u200D\uFEFF]/g,"").toLowerCase();if(enteredCode!==expectedCode){message.textContent="❌ コードが違います。入力内容を確認してください。";input.select();return;}storyWorld2Authorized=true;hideStory("storyCodeGate");input.value="";const pending=storyWorld2PendingStage;storyWorld2PendingStage="";if(pending){if(storyCodeGateReturnToExplore)launchStoryWorld2ExploreStage(pending);else{hideStory("storyWorld2StageScreen");if(pending==="2-1")window.startStoryWorld2Intro();else if(pending==="2-6")window.startStoryWorld26Puzzle();else if(pending==="2-7")window.startStoryWorld27Intro();else if(pending==="2-8")window.startStoryWorld28Intro();else window.startStoryBattle(pending);}storyCodeGateReturnToExplore=false;return;}if(storyCodeGateReturnToExplore){storyCodeGateReturnToExplore=false;showStory("storyExploreScreen");storyExplorePosition.x=2600;storyExploreKeys.clear();storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);}else window.openStoryWorld2Stages();};
-  window.openStoryWorlds=function(){syncStoryWorld2Unlock();hideStory("storyCodeGate");hideStory("storyStageScreen");hideStory("storyWorld2StageScreen");hideStory("storyEpisodeScreen");hideStory("storyExploreScreen");const map=$story("mapSelect");if(map)map.classList.add("hidden");const card=$story("storyWorldScreen")?.querySelectorAll(".story-world-card")[1];if(card){const status=card.querySelector("p"),button=card.querySelector("button");if(status)status.textContent=storyWorld2HasStoryClear()?"✅ 1-5クリア済み":"🔒 1-5クリアで解放";if(button)button.textContent=storyWorld2HasStoryClear()?"ワールド2を見る":"1-5をクリアすると解放";if(button)button.disabled=!storyWorld2HasStoryClear();if(button&&storyWorld2HasStoryClear())button.onclick=window.openStoryWorld2Stages;}showStory("storyWorldScreen");};
+  window.openStoryWorlds=function(){syncStoryWorld2Unlock();hideStory("storyCodeGate");hideStory("storyWorld3CodeGate");hideStory("storyWorld3StageScreen");hideStory("storyStageScreen");hideStory("storyWorld2StageScreen");hideStory("storyEpisodeScreen");hideStory("storyExploreScreen");const map=$story("mapSelect");if(map)map.classList.add("hidden");const cards=$story("storyWorldScreen")?.querySelectorAll(".story-world-card");const card=cards&&cards[1];if(card){const status=card.querySelector("p"),button=card.querySelector("button");if(status)status.textContent=storyWorld2HasStoryClear()?"✅ クリア済み":"🔒 ワールド1の1-5クリアで解放";if(button)button.textContent=storyWorld2HasStoryClear()?"ワールド2を見る":"1-5をクリアすると解放";if(button)button.disabled=!storyWorld2HasStoryClear();if(button&&storyWorld2HasStoryClear())button.onclick=window.openStoryWorld2Stages;}const world3Card=cards&&cards[2];if(world3Card){const status=$story("storyWorld3LockText"),button=world3Card.querySelector("button"),ready=storyWorld3HasPrerequisites();if(status)status.textContent=ready?(storyWorld3Authorized?"✅ 認証済み":"🔐 コード utor が必要"):"🔒 ワールド1・2のクリアが必要";if(button){button.disabled=!ready;button.textContent=ready?"ワールド3を見る":"クリア後に解放";button.onclick=window.openStoryWorld3Gate;}}showStory("storyWorldScreen");};
   window.openStoryWorld2CodeGate=function(){if(!storyWorld2HasStoryClear()){window.openStoryWorlds();return;}window.openStoryWorld2Stages();};
   window.openStoryWorld2Stages=function(){if(!storyWorld2HasStoryClear()){window.openStoryWorlds();return;}hideStory("storyCodeGate");hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");renderStoryWorld2Stages();showStory("storyWorld2StageScreen");};
+  window.openStoryWorld3Gate=function(){if(!storyWorld3HasPrerequisites()){const msg=$story("storyWorld3LockText");if(msg)msg.textContent="🔒 ワールド1・2をクリアすると挑戦できる";window.openStoryWorlds();return;}if(storyWorld3Authorized){window.openStoryWorld3Stages();return;}hideStory("storyWorldScreen");hideStory("storyExploreScreen");const input=$story("storyWorld3CodeInput"),message=$story("storyWorld3CodeMessage");if(input)input.value="";if(message)message.textContent="";showStory("storyWorld3CodeGate");if(input)input.focus();};
+  window.closeStoryWorld3Gate=function(){hideStory("storyWorld3CodeGate");window.openStoryWorlds();};
+  window.submitStoryWorld3Code=function(){const input=$story("storyWorld3CodeInput"),message=$story("storyWorld3CodeMessage");if(!input||!message)return;if(!storyWorld3HasPrerequisites()){message.textContent="先にワールド1・2をクリアしてください。";return;}const entered=String(input.value||"").normalize("NFKC").replace(/[\s\u200B-\u200D\uFEFF]/g,"").toLowerCase();if(entered!=="utor"){message.textContent="❌ コードが違います。";input.select();return;}storyWorld3Authorized=true;input.value="";hideStory("storyWorld3CodeGate");window.openStoryWorld3Stages();};
+  window.openStoryWorld3Stages=function(){if(!storyWorld3HasPrerequisites()||!storyWorld3Authorized){window.openStoryWorld3Gate();return;}hideStory("storyWorldScreen");hideStory("storyWorld3CodeGate");const grid=$story("storyWorld3StageGrid");if(grid){grid.innerHTML="";const stages=[["3-1","浮島の昔の話"],["3-2","宇宙船への道"],["3-3","黒結晶隕石との戦闘"],["3-4","黒結晶隕石との戦闘"],["3-5","黒結晶隕石との戦闘"],["3-6","黒結晶隕石との戦闘"],["3-7","宇宙船の起動"],["3-8","闇の空間"]];stages.forEach(([id,name])=>{const card=document.createElement("div");card.className="story-stage-card";const title=document.createElement("strong");title.textContent=id;card.appendChild(title);const label=document.createElement("div");label.style.cssText="font-size:12px;margin-top:4px";label.textContent=name;card.appendChild(label);const status=document.createElement("div");status.style.cssText="font-size:12px;margin-top:5px";status.textContent="本編の実装待ち";card.appendChild(status);const btn=document.createElement("button");btn.type="button";btn.disabled=true;btn.textContent="準備中";card.appendChild(btn);grid.appendChild(card);});}showStory("storyWorld3StageScreen");};
   function renderStoryWorld2Stages(){const grid=$story("storyWorld2StageGrid");if(!grid)return;grid.innerHTML="";[["2-1","次元の裂け目"],["2-2","赤い結晶"],["2-3","緑の結晶"],["2-4","水色の結晶"],["2-5","黒い結晶"],["2-6","結晶のゲート"],["2-7","黒い影の正体"],["2-8","崩壊した浮遊都市"]].forEach(([id,name])=>{let done=false,unlocked=true;try{done=localStorage.getItem(id==="2-1"?"storyWorld2Stage1Cleared":"story"+id.replace("-","")+"Cleared")==="1";if(id==="2-7")unlocked=localStorage.getItem("story26Cleared")==="1";if(id==="2-8")unlocked=localStorage.getItem("story27Cleared")==="1";}catch(e){if(id==="2-7")unlocked=false;}const card=document.createElement("div");card.className="story-stage-card"+(done?" cleared":unlocked?" unlocked":"");const title=document.createElement("strong");title.textContent=id;card.appendChild(title);const label=document.createElement("div");label.style.cssText="font-size:12px;margin-top:4px";label.textContent=name;card.appendChild(label);const status=document.createElement("div");status.style.cssText="font-size:12px;margin-top:5px";status.textContent=done?"✅ クリア":unlocked?"プレイ可能":id==="2-8"?"🔒 2-7クリアで解放":"🔒 2-6クリアで解放";card.appendChild(status);const btn=document.createElement("button");btn.type="button";btn.textContent=done?"もう一度見る":unlocked?"プレイ":"ロック中";btn.disabled=!unlocked;btn.addEventListener("click",()=>{if(!unlocked)return;storyWorld2PendingStage=id;window.openStoryCodeGate(false);});card.appendChild(btn);grid.appendChild(card);});};
 
   let storyExploreFrame=0;
@@ -5487,6 +5497,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     5:{title:"1-5「惑星のものではない」",x:2020,y:620}
   };
   let storyExploreNearbyStage=0,storyExploreConfirmStage=0;
+  let storyExploreNearWorld3Station=false;
   let storyExploreNearbyWorld2="",storyExploreConfirmWorld2="";
   let storyExploreNearRift=false;
   const storyWorld2ExploreStageInfo=[
@@ -5991,13 +6002,15 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     try{nearBlackSmokeCrystal=localStorage.getItem("story26Cleared")==="1"&&localStorage.getItem("story26BlackSmokeFound")!=="1"&&Math.hypot(storyExplorePosition.x-4760,storyExplorePosition.y-1120)<125;}catch(e){}
     window.storyWorld2NearBlackSmokeCrystal=nearBlackSmokeCrystal;
     const prompt=$story("storyExplorePrompt"),action=$story("storyExploreAction"),label=$story("storyExplorePromptText");
-    const canInteract=!!(storyExploreNearbyStage||storyExploreNearbyWorld2||storyExploreNearRift||nearBlackSmokeCrystal);
+    storyExploreNearWorld3Station=storyWorld3HasPrerequisites()&&Math.hypot(storyExplorePosition.x-84,storyExplorePosition.y-626)<135;
+    const canInteract=!!(storyExploreNearbyStage||storyExploreNearbyWorld2||storyExploreNearRift||nearBlackSmokeCrystal||storyExploreNearWorld3Station);
     if(prompt)prompt.classList.toggle("hidden",!canInteract||!!storyExploreConfirmStage||!!storyExploreConfirmWorld2);
     if(action)action.classList.toggle("is-visible",canInteract&&!storyExploreConfirmStage&&!storyExploreConfirmWorld2);
-    if(label&&nearBlackSmokeCrystal)label.textContent="黒煙をまとった結晶を発見した！スペースキー / 攻撃キーで拾う";
+    if(label&&storyExploreNearWorld3Station)label.textContent=storyWorld3Authorized?"宇宙ステーション：ワールド3のステージを見る":"宇宙ステーション：コード utor を入力してワールド3へ";
+    else if(label&&nearBlackSmokeCrystal)label.textContent="黒煙をまとった結晶を発見した！スペースキー / 攻撃キーで拾う";
     else if(label&&storyExploreNearRift)label.textContent=!storyWorld2HasStoryClear()?"時空の裂け目：ワールド1の1-5をクリアすると通れる":(storyWorld2IsUnlocked()?"時空の裂け目：攻撃ボタンでワールド2へ進む":"時空の裂け目：攻撃ボタンでコードを入力");
     else if(label&&(storyExploreNearbyStage||storyExploreNearbyWorld2))label.textContent=storyExploreNearbyWorld2?storyExploreNearbyWorld2+" の入口：スペースキー / 攻撃キーで調べる":"1-"+storyExploreNearbyStage+" の入口：スペースキー / 攻撃キーで調べる";
-    if(action)action.textContent=nearBlackSmokeCrystal?"⬛ 結晶を拾う":(storyExploreNearRift?(!storyWorld2HasStoryClear()?"🔒 1-5クリアで解放":(storyWorld2IsUnlocked()?"🌌 ワールド2へ進む":"🔐 コードを入力")):"調べる");
+    if(action)action.textContent=storyExploreNearWorld3Station?(storyWorld3Authorized?"🚀 ワールド3を見る":"🔐 コードを入力"):(nearBlackSmokeCrystal?"⬛ 結晶を拾う":(storyExploreNearRift?(!storyWorld2HasStoryClear()?"🔒 1-5クリアで解放":(storyWorld2IsUnlocked()?"🌌 ワールド2へ進む":"🔐 コードを入力")):"調べる"));
     const shopDist=Math.hypot(storyExplorePosition.x-1799,storyExplorePosition.y-744);
     if(shopDist<90&&!storySecretShopFound){
       storySecretShopFound=true;const door=$story("storySecretShopDoor");
@@ -6014,6 +6027,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     if(!$story("storyExploreShopModal").classList.contains("hidden"))return;
     if(storyExploreConfirmStage||storyExploreConfirmWorld2){storyExploreCloseConfirm();storyExploreConfirmWorld2="";return;}
     if(window.storyWorld2NearBlackSmokeCrystal){window.startStoryWorld26BlackSmokeEvent();return;}
+    if(storyExploreNearWorld3Station){window.openStoryWorld3Gate();return;}
     if(storyExploreNearRift){if(!storyWorld2HasStoryClear()){const label=$story("storyExplorePromptText");if(label)label.textContent="🔒 先にワールド1の1-5をクリアしよう";return;}storyExplorePosition.x=2600;storyExploreKeys.clear();storyExploreDraw();return;}
     if(storyExploreNearbyWorld2){storyWorld2ExploreOpenConfirm(storyExploreNearbyWorld2);return;}
     if(storyExploreNearbyStage){storyExploreOpenConfirm(storyExploreNearbyStage);return;}
@@ -6045,7 +6059,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     storyExploreFrame=requestAnimationFrame(storyExploreTick);
   }
   window.openStoryExplore=function(){
-    hideStory("storyWorldScreen");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");hideStory("storyWorld2StageScreen");
+    hideStory("storyWorldScreen");hideStory("storyWorld3StageScreen");hideStory("storyWorld3CodeGate");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");hideStory("storyWorld2StageScreen");
     renderStoryStages();renderStoryExploreEntrances();renderStoryWorld2ExploreEntrances();showStory("storyExploreScreen");
     const top=document.querySelector("#storyExploreScreen .story-explore-top strong");if(top)top.textContent="🌍 全ワールド共通探索フィールド";
     const hint=document.querySelector("#storyExploreScreen .story-explore-hint");if(hint)hint.textContent="街から草原へ進み、時空の裂け目の先にはコード認証が必要なワールド2が広がっている。";
@@ -6069,7 +6083,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);
   };
   window.closeStoryExplore=function(){
-    hideStory("storyExploreScreen");hideStory("storyExploreConfirm");storyExploreKeys.clear();storyExploreConfirmStage=0;
+    hideStory("storyExploreScreen");hideStory("storyExploreConfirm");hideStory("storyWorld3StageScreen");hideStory("storyWorld3CodeGate");storyExploreKeys.clear();storyExploreConfirmStage=0;
     if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}
     const map=$story("mapSelect");if(map)map.classList.remove("hidden");
   };

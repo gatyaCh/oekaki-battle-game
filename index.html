@@ -7785,7 +7785,7 @@ function closeShop() {
   if (shopNeedsAdvance) {
     shopNeedsAdvance = false;
     if ((stage === 4 || stage === 7) && !window.specialCodes?.kakeru) openUpgradeShop(true);
-    else if (stage === 8 && !step2Mode.active && window.step2EntryFromStep1Clear) {
+    else if (stage === 8 && !(typeof step2Mode !== "undefined" && step2Mode && step2Mode.active) && window.step2EntryFromStep1Clear) {
       window.step2EntryFromStep1Clear = false;
       startStep2Countdown();
     }

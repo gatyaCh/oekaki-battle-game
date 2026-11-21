@@ -4359,10 +4359,10 @@ body {
   <h2 style="margin-bottom:16px;">遊ぶ端末を選択してください</h2>
   <button onclick="chooseDevice('pc')" style="font-size:20px; padding:14px 28px;">💻 PC版</button>
   <button onclick="chooseDevice('mobile')" style="font-size:20px; padding:14px 28px;">📱 スマホ版</button>
-  <div style="margin-top:14px;"><button type="button" id="adminAbuseOpenBtn" style="display:block;width:min(560px,95%);margin:0 auto;padding:12px 16px;border:3px solid #6b7280;border-radius:12px;background:#e5e7eb;color:#374151;font-weight:900;font-size:clamp(16px,2.5vw,21px);line-height:1.4;text-shadow:none;box-shadow:0 3px 10px #0003;filter:none">👑 ADMIN ABUSE　11/21　22:10〜22:30</button><button type="button" id="adminAbuseTestOpenBtn" style="display:block;width:min(560px,95%);margin:9px auto 0;padding:10px 14px;border:2px solid #0e7490;border-radius:11px;background:#cffafe;color:#164e63;font-weight:900;font-size:16px;">🧪 ADMIN ABUSE テストプレイ</button></div>
+  <div style="margin-top:14px;"><button type="button" id="adminAbuseOpenBtn" style="display:block;width:min(560px,95%);margin:0 auto;padding:12px 16px;border:3px solid #6b7280;border-radius:12px;background:#e5e7eb;color:#374151;font-weight:900;font-size:clamp(16px,2.5vw,21px);line-height:1.4;text-shadow:none;box-shadow:0 3px 10px #0003;filter:none">👑 ADMIN ABUSE　11/21　21:50〜22:30</button></div>
 </div>
 
-<div id="adminAbuseTestCodeScreen" class="hidden" role="dialog" aria-modal="true" style="position:fixed;inset:0;z-index:2000001;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(4,7,18,.96);color:white;"><div class="admin-abuse-card"><h2>🧪 ADMIN ABUSE テストコード</h2><p>テストコードを入力してください。</p><input id="adminAbuseTestCodeInput" type="password" inputmode="numeric" autocomplete="off" placeholder="テストコード"><p id="adminAbuseTestCodeMessage" aria-live="polite" style="min-height:24px;color:#fca5a5"></p><button type="button" id="adminAbuseTestCodeSubmit">認証する</button><button type="button" id="adminAbuseTestCodeCancel">戻る</button></div></div><div id="adminAbuseConfirmScreen" class="hidden" role="dialog" aria-modal="true"><div class="admin-abuse-card"><h2>👑 ADMIN ABUSEをしますか？</h2><p>20分間の特別イベントを開始します。</p><button type="button" id="adminAbuseYesV2">はい、プレイする</button><button type="button" id="adminAbuseNoV2">いいえ</button></div></div><div id="adminAbuseEndScreen" class="hidden" role="dialog" aria-modal="true"><div class="admin-abuse-card"><h2>⌛ ADMIN ABUSE終了</h2><p>イベント時間が終了しました。イベント専用効果はリセットされました。</p><button type="button" id="adminAbuseEndOkV2">タイトルへ戻る</button></div></div><div id="adminAbuseTimer" aria-live="polite">👑 ADMIN ABUSE　20:00</div><div id="adminAbuseDialogue" aria-live="polite"></div><div id="adminAbuseBoostHUD" aria-label="ADMIN ABUSE強化状況"><div>☘️ <b id="adminAbuseLuckV2">×1</b></div><div>⚔️ <b id="adminAbuseAttackV2">×1</b></div><div>👟 <b id="adminAbuseSpeedV2">×1</b></div><div>🛡️ 無敵 <b id="adminAbuseInvincibleTimer">00:00</b></div><div>✨️ ポイント <b id="adminAbusePointsV2">×1</b></div></div><div id="mapSelect" class="hidden" aria-label="マップ選択">
+<div id="adminAbuseConfirmScreen" class="hidden" role="dialog" aria-modal="true"><div class="admin-abuse-card"><h2>👑 ADMIN ABUSEをしますか？</h2><p>40分間の特別イベントを開始します。</p><button type="button" id="adminAbuseYesV2">はい、プレイする</button><button type="button" id="adminAbuseNoV2">いいえ</button></div></div><div id="adminAbuseEndScreen" class="hidden" role="dialog" aria-modal="true"><div class="admin-abuse-card"><h2>⌛ ADMIN ABUSE終了</h2><p>イベント時間が終了しました。イベント専用効果はリセットされました。</p><button type="button" id="adminAbuseEndOkV2">タイトルへ戻る</button></div></div><div id="adminAbuseTimer" aria-live="polite">👑 ADMIN ABUSE　40:00</div><div id="adminAbuseDialogue" aria-live="polite"></div><div id="adminAbuseBoostHUD" aria-label="ADMIN ABUSE強化状況"><div>☘️ <b id="adminAbuseLuckV2">×1</b></div><div>⚔️ <b id="adminAbuseAttackV2">×1</b></div><div>👟 <b id="adminAbuseSpeedV2">×1</b></div><div>🛡️ 無敵 <b id="adminAbuseInvincibleTimer">00:00</b></div><div>✨️ ポイント <b id="adminAbusePointsV2">×1</b></div></div><div id="mapSelect" class="hidden" aria-label="マップ選択">
   <div class="map-select-card">
     <h1>🗺️ マップ選択</h1><p>遊びたいマップを選んでね！</p>
     <div class="map-options">
@@ -4853,11 +4853,11 @@ body {
   if(!content)return;
   const expireAt=Date.parse("2026-11-23T21:00:00+09:00");
   const key="adminAbuseMissions_20261121";
-  function read(){try{return JSON.parse(localStorage.getItem(window.adminAbuseTestMode?key+"_test":key)||"{}")||{}}catch(e){return {}}}
+  function read(){try{return JSON.parse(localStorage.getItem(key)||"{}")||{}}catch(e){return {}}}
   function refresh(){
     if(Date.now()>=expireAt){content.textContent="⌛ 11月23日 21:00に公開期間終了";return;}
     const m=read(),parts=[];
-    let used1=false,used2=false;const suffix=window.adminAbuseTestMode?"_test":"";try{used1=localStorage.getItem("adminAbuseCodeUsed_1225"+suffix)==="true";used2=localStorage.getItem("adminAbuseCodeUsed_santa"+suffix)==="true"}catch(e){}
+    let used1=false,used2=false;try{used1=localStorage.getItem("adminAbuseCodeUsed_1225")==="true";used2=localStorage.getItem("adminAbuseCodeUsed_santa")==="true"}catch(e){}
     if(m.one&&!used1)parts.push('ミッション1　<strong>1225</strong>');
     if(m.two&&!used2)parts.push('ミッション2　<strong>santa</strong>');
     content.innerHTML=parts.length?parts.join("<br>"):"🔒 ミッションをクリアすると、ここにコードが公開されます。";
@@ -13388,11 +13388,11 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
 <script id="admin-abuse-v2-script">(function(){
 "use strict";
 const $=id=>document.getElementById(id),confirm=$("adminAbuseConfirmScreen"),end=$("adminAbuseEndScreen");
-let active=false,startAt=0,interval=null,scheduled=[],token=0,boost={luck:1,attack:1,speed:1,soul:1,points:1},skinGetter=null,skinDrawer=null,originalEventDamagePlayer=null,testMode=false,missionTimer=null;
+let active=false,startAt=0,interval=null,scheduled=[],token=0,boost={luck:1,attack:1,speed:1,soul:1,points:1},skinGetter=null,skinDrawer=null,originalEventDamagePlayer=null,missionTimer=null;
 const from=Date.parse("2026-11-21T21:50:00+09:00"),until=Date.parse("2026-11-21T22:30:00+09:00"),duration=2400,expireAt=Date.parse("2026-11-23T21:00:00+09:00");
 const missionKey="adminAbuseMissions_20261121";
 let mission={one:false,two:false,oneFailed:false,twoFailed:false,oneState:"waiting",twoState:"waiting",oneEnd:0,twoEnd:0,itemCount:0};
-function activeMissionKey(){return window.adminAbuseTestMode?missionKey+"_test":missionKey}
+function activeMissionKey(){return missionKey}
 window.adminAbuseApplySoulMultiplier=amount=>Math.round((Number(amount)||0)*(window.adminAbuseActive?Math.max(1,Number(window.adminAbuseSoulMultiplier)||1):1));
 function missionLoad(){try{const v=JSON.parse(localStorage.getItem(activeMissionKey())||"{}");mission.one=!!v.one;mission.two=!!v.two;mission.oneFailed=!!v.oneFailed;mission.twoFailed=!!v.twoFailed;mission.oneState=mission.one?"clear":mission.oneFailed?"failed":"waiting";mission.twoState=mission.two?"clear":mission.twoFailed?"failed":"waiting"}catch(e){}}
 function missionSave(){try{localStorage.setItem(activeMissionKey(),JSON.stringify({one:mission.one,two:mission.two,oneFailed:mission.oneFailed,twoFailed:mission.twoFailed}))}catch(e){}}
@@ -13452,8 +13452,8 @@ const lines=[
 [710,"がちゃ：結構説明してくれてる…"],[717,"俺の出番ないじゃん😭"],[724,"じゃあ俺はみんなを楽しませますか！"],[731,"まず最初！"],[738,"🎃ボックス＆🎁を３個召喚"],[745,"まだまだいくぜ！"],[762,"ミッション発動！"],[769,"いい忘れてたけど"],[776,"ミッションをクリアしたらスペシャルコードがもらえるぞ！"],[783,"無敵を３分間！"],[790,"今回のミッションはこれで最後だよー"],[797,"もう少ししたら🛰️ボックス召喚しようかな？"],[804,"🛰️ボックスのアイテムはアイテム保管庫の一番奥にアイテムが収納されるぞ！"],[811,"ミッション終わったか？"],[818,"簡単だった？"],[825,"じゃあ召喚行くぜ！"],[832,"🛰️ボックスを3個召喚！"],[839,"本来は自分たちの実力で行くもんだからな？"],[846,"特別だぞ？😏"],[853,"ADMIN ABUSEこんなんもやる！"],[860,"もう残り時間すくないな、、、"],[867,"今後のことを話す前にこれを出すぞ！"],[874,"オートガトリングをアイテム保管庫に２個召喚！"],[880,"全ブースト＆無敵をイベント終了まで！"],[887,"これでみんな死ぬことはないな！"],[894,"今後のことについて話していくぞー！"],[901,"来週の予定は新ランクとストーリーモードワールド３とクリスマス関係の予定！"],[908,"来週も盛りだくさん…"],[915,"もしかしたらストーリーモードが間に合わない可能性がある！"],[922,"その場合は完成しているストーリー部分だけ公開する！"],[929,"新ランクは今の考えだとURとGATYAの間かなと思ってる！"],[936,"なに？まだGATYAランクすら行ったことないって？"],[943,"もしかしたら少し簡単になるかもしれない！"],[950,"そこに関しては期待しておいてくれ！"],[957,"クリスマス関係はヒューズマシンを調整だ！"],[964,"クリスマス限定ヒューズマシンを追加予定！"],[973,"クラフトマシーンか普通のヒューズマシンどっちがいい？"],[980,"そこはまだ考え中だ！"],[987,"クリスマス限定ヒューズマシンは12月の最初らへんで公開！"],[995,"で、のちのち色んなものを公開していくって感じだ！"],[1002,"機種選択の前のQRコードとかがある画面あるだろ？"],[1009,"そこの背景を変える機能をだいぶ前から実装した！"],[1016,"で、ハロウィンをけしてギャラクシーとGATYAを追加した！"],[1023,"クリスマス仕様もそろそろ追加！"],[1030,"この時期はやることが多すぎる…"],[1037,"ストリーマーのスキンたちみた？"],[1044,"まだ俺の分しかない、、、"],[1051,"てことで！"],[1058,"スキン募集を開始します！（こないと思うけど）"],[1065,"明日中にこのADMIN ABUSEの動画を上げるのでそのコメントに"],[1072,"スキン化してほしいです！とかいて"],[1079,"このゲームの動画を投稿するだけOK"],[1086,"基本的にコメントはなんの動画にしてもOK"],[1093,"期間は特に決めてないのでいつでも大歓迎！"],[1100,"でも、こんなクソゲーやってる人いないか〜"],[1107,"普通にショート動画でも宣伝しまくりますか！"],[1114,"このゲームを宣伝してくれた人には超特別なコードも用意…😏"],[1121,"そういうこうとなのでみんな宣伝よろしく！"],[1128,"そろそろ今日も終わりだな〜"],[1135,"コードの期限は23日の21時だ！"],[1142,"今回は少し長めです！"],[1149,"動画も見てくれよ！"],[1156,"じゃあみんなこれからもこのゲームをよろしくね〜！"],[1180,"あれ？まだいたの？"],[1187,"じゃあこれだね"],[1194,"💎を10個配布"],[1198,"内緒ね🤫"]
 ];
 function begin(){
- if(active||(!testMode&&(Date.now()<from||Date.now()>=until)))return;
- hide(confirm);hide(end);hide($("adminAbuseTestCodeScreen"));active=true;window.adminAbuseActive=true;window.adminAbuseTestMode=testMode;window.adminAbuseEventInvincibleUntil=0;startAt=Date.now();missionLoad();missionStatus();
+ if(active||Date.now()<from||Date.now()>=until)return;
+ hide(confirm);hide(end);active=true;window.adminAbuseActive=true;window.adminAbuseEventInvincibleUntil=0;startAt=Date.now();missionLoad();missionStatus();
  setBoost({luck:1,attack:1,speed:1,soul:1,points:1});
  if($("adminAbuseTimer"))$("adminAbuseTimer").classList.add("active");
  interval=setInterval(tick,250);missionTimer=setInterval(missionTick,200);tick();
@@ -13478,11 +13478,11 @@ function tick(){const left=Math.max(0,duration-Math.floor((Date.now()-startAt)/1
 function finish(){
  active=false;clearInterval(interval);clearInterval(missionTimer);interval=missionTimer=null;scheduled.forEach(clearTimeout);scheduled=[];if(originalEventDamagePlayer){damagePlayer=originalEventDamagePlayer;originalEventDamagePlayer=null}
  window.adminAbuseActive=false;window.adminAbuseEventInvincibleUntil=0;updateInvincibleHud();window.adminAbuseEnemySpeedMultiplier=1;window.adminAbusePlayerSpeedMultiplier=1;window.adminAbuseLuckMultiplier=window.adminAbuseAttackMultiplier=window.adminAbuseSpeedMultiplier=window.adminAbuseSoulMultiplier=window.adminAbuseRankPointMultiplier=1;
- if($("adminAbuseBoostHUD"))$("adminAbuseBoostHUD").classList.remove("active");if($("adminAbuseTimer"))$("adminAbuseTimer").classList.remove("active");if($("adminAbuseDialogue"))$("adminAbuseDialogue").classList.remove("active");if($("adminAbuseMissionHUD"))$("adminAbuseMissionHUD").style.display="none";document.body.classList.remove("admin-abuse-result-lock");hide(confirm);show(end);window.adminAbuseTestMode=false;testMode=false;
+ if($("adminAbuseBoostHUD"))$("adminAbuseBoostHUD").classList.remove("active");if($("adminAbuseTimer"))$("adminAbuseTimer").classList.remove("active");if($("adminAbuseDialogue"))$("adminAbuseDialogue").classList.remove("active");if($("adminAbuseMissionHUD"))$("adminAbuseMissionHUD").style.display="none";document.body.classList.remove("admin-abuse-result-lock");hide(confirm);show(end);
 }
-function start(isTest=false){
- if(!isTest&&(Date.now()<from||Date.now()>=until))return;
- testMode=!!isTest;window.adminAbuseTestMode=testMode;if(testMode){try{localStorage.removeItem(missionKey+"_test");localStorage.removeItem("adminAbuseCodeUsed_1225_test");localStorage.removeItem("adminAbuseCodeUsed_santa_test")}catch(e){}mission={one:false,two:false,oneFailed:false,twoFailed:false,oneState:"waiting",twoState:"waiting",oneEnd:0,twoEnd:0,itemCount:0}}hide(confirm);hide(end);hide($("adminAbuseTestCodeScreen"));window.adminAbusePending=false;window.halloweenWaveActive=false;window.halloweenWaveTestRequested=false;
+function start(){
+ if(Date.now()<from||Date.now()>=until)return;
+ hide(confirm);hide(end);window.adminAbusePending=false;window.halloweenWaveActive=false;window.halloweenWaveTestRequested=false;
  if(typeof window.chooseDevice==="function")window.chooseDevice("pc");if(typeof window.selectNormalMap==="function")window.selectNormalMap();
  missionLoad();missionStatus();window.adminAbuseCountdownPending=true;
 }
@@ -13490,14 +13490,10 @@ window.adminAbuseStartOnCountdown=function(){if(window.adminAbuseCountdownPendin
 function updateButton(){
  const b=$("adminAbuseOpenBtn");if(!b)return;const now=Date.now(),open=now>=from&&now<until,ended=now>=until;b.disabled=!open;b.textContent=open?"👑 ADMIN ABUSE　開催中":ended?"👑 ADMIN ABUSE　終了":"👑 ADMIN ABUSE　11/21 21:50〜22:30";b.title=open?"開催中！クリックして参加":ended?"今回の開催時間は終了しました":"開催時刻までお待ちください";b.style.background=open?"linear-gradient(135deg,#a5f3fc,#67e8f9)":"linear-gradient(135deg,#e5e7eb,#9ca3af)";b.style.borderColor=open?"#0891b2":"#6b7280";b.style.color=open?"#164e63":"#374151";b.style.opacity=open?"1":"0.65";b.style.cursor=open?"pointer":"not-allowed";
 }
-$("adminAbuseTestOpenBtn")?.addEventListener("click",()=>{const sc=$("adminAbuseTestCodeScreen");if(sc)show(sc);const input=$("adminAbuseTestCodeInput");if(input){input.value="";input.focus()}});
-$("adminAbuseTestCodeCancel")?.addEventListener("click",()=>hide($("adminAbuseTestCodeScreen")));
-$("adminAbuseTestCodeSubmit")?.addEventListener("click",()=>{const input=$("adminAbuseTestCodeInput"),message=$("adminAbuseTestCodeMessage");if(!input||!message)return;if(input.value.trim()!=="1121"){message.textContent="❌ テストコードが違います";input.select();return;}message.textContent="✅ 認証しました！";testMode=true;window.adminAbuseTestMode=true;hide($("adminAbuseTestCodeScreen"));show(confirm)});
-$("adminAbuseTestCodeInput")?.addEventListener("keydown",e=>{if(e.key==="Enter")$("adminAbuseTestCodeSubmit")?.click()});
 updateButton();setInterval(updateButton,1000);if($("adminAbuseScheduleTimer"))$("adminAbuseScheduleTimer").style.display="none";
-$("adminAbuseOpenBtn")?.addEventListener("click",()=>{const now=Date.now();if(now<from||now>=until)return;testMode=false;show(confirm)});
-$("adminAbuseYesV2")?.addEventListener("click",()=>start(testMode));
-$("adminAbuseNoV2")?.addEventListener("click",()=>{hide(confirm);testMode=false;window.adminAbuseTestMode=false});
+$("adminAbuseOpenBtn")?.addEventListener("click",()=>{const now=Date.now();if(now<from||now>=until)return;show(confirm)});
+$("adminAbuseYesV2")?.addEventListener("click",()=>start());
+$("adminAbuseNoV2")?.addEventListener("click",()=>hide(confirm));
 $("adminAbuseEndOkV2")?.addEventListener("click",()=>location.reload());
 const originalShow=window.showResult;if(typeof originalShow==="function")window.showResult=function(){const r=originalShow.apply(this,arguments);if(active){document.body.classList.add("admin-abuse-result-lock");const retry=$("resultToTitle"),back=$("resultBackBtn");if(retry){retry.textContent="🔄 リトライ";retry.onclick=e=>{e?.preventDefault();if(typeof window.retryFromGameOver==="function")window.retryFromGameOver()}}if(back)back.classList.add("hidden")}return r};
 window.addEventListener("beforeunload",()=>{clearInterval(interval);clearInterval(missionTimer);scheduled.forEach(clearTimeout)});
@@ -13509,16 +13505,14 @@ if(originalUse&&!originalUse.__adminAbuseNov21){
   const c=String(code||"").trim().toLowerCase();
   if(c==="1225"||c==="santa"){
    if(Date.now()>=expireAt){if($("msg"))$("msg").textContent="⌛ ADMIN ABUSEコードの期限は終了しました";return false}
-   const testing=!!window.adminAbuseTestMode,activeKey=testing?missionKey+"_test":missionKey;let data={};try{data=JSON.parse(localStorage.getItem(activeKey)||"{}")||{}}catch(e){}
-   const earned=c==="1225"?!!data.one:!!data.two,key="adminAbuseCodeUsed_"+c+(testing?"_test":"");
+   let data={};try{data=JSON.parse(localStorage.getItem(missionKey)||"{}")||{}}catch(e){}
+   const earned=c==="1225"?!!data.one:!!data.two,key="adminAbuseCodeUsed_"+c;
    if(!earned){if($("msg"))$("msg").textContent="🔒 このミッションをクリアした人だけが使用できます。";return false}
    try{if(localStorage.getItem(key)==="true"){if($("msg"))$("msg").textContent="⚠️ このコードは使用済みです";return false}}catch(e){}
    if(c==="1225"){
-    if(testing){try{localStorage.setItem(key,"true")}catch(e){}if($("msg"))$("msg").textContent="🧪 テスト確認OK：ヒューズマシン1回スキップの報酬コードです。"}
-    else{let credits=0;try{credits=Number(localStorage.getItem("adminAbuseFusionSkipCreditsV1"))||0}catch(e){}try{localStorage.setItem("adminAbuseFusionSkipCreditsV1",String(credits+1));localStorage.setItem(key,"true")}catch(e){}if($("msg"))$("msg").textContent="⚗️ ヒューズマシンのスキップ権を1回獲得！ヒューズ画面で使用できます。"}
+    let credits=0;try{credits=Number(localStorage.getItem("adminAbuseFusionSkipCreditsV1"))||0}catch(e){}try{localStorage.setItem("adminAbuseFusionSkipCreditsV1",String(credits+1));localStorage.setItem(key,"true")}catch(e){}if($("msg"))$("msg").textContent="⚗️ ヒューズマシンのスキップ権を1回獲得！ヒューズ画面で使用できます。";
    }else{
-    if(testing){try{localStorage.setItem(key,"true")}catch(e){}if($("msg"))$("msg").textContent="🧪 テスト確認OK：Santaスキン解放の報酬コードです。"}
-    else{if(typeof window.unlockGameSkin!=="function"){if($("msg"))$("msg").textContent="⚠️ Santaスキン機能を読み込めませんでした";return false}window.unlockGameSkin("santa");try{localStorage.setItem(key,"true")}catch(e){}if($("msg"))$("msg").textContent="🎄 Santaスキンを解放しました！期間限定枠を確認してね！"}
+    if(typeof window.unlockGameSkin!=="function"){if($("msg"))$("msg").textContent="⚠️ Santaスキン機能を読み込めませんでした";return false}window.unlockGameSkin("santa");try{localStorage.setItem(key,"true")}catch(e){}if($("msg"))$("msg").textContent="🎄 Santaスキンを解放しました！期間限定枠を確認してね！";
    }
    const content=$("adminAbuseLimitedCodesContent");if(content){content.textContent="コードを使用しました。";setTimeout(()=>{const ev=new Event("storage");window.dispatchEvent(ev)},10)}
    return true;

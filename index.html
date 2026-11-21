@@ -13389,7 +13389,7 @@ const originalChooseDevice=chooseDevice;chooseDevice=function(mode){originalChoo
 "use strict";
 const $=id=>document.getElementById(id),confirm=$("adminAbuseConfirmScreen"),end=$("adminAbuseEndScreen");
 let active=false,startAt=0,interval=null,scheduled=[],token=0,boost={luck:1,attack:1,speed:1,soul:1,points:1},skinGetter=null,skinDrawer=null,originalEventDamagePlayer=null,testMode=false,missionTimer=null;
-const from=Date.parse("2026-11-21T22:10:00+09:00"),until=Date.parse("2026-11-21T22:30:00+09:00"),duration=1200,expireAt=Date.parse("2026-11-23T21:00:00+09:00");
+const from=Date.parse("2026-11-21T21:50:00+09:00"),until=Date.parse("2026-11-21T22:30:00+09:00"),duration=2400,expireAt=Date.parse("2026-11-23T21:00:00+09:00");
 const missionKey="adminAbuseMissions_20261121";
 let mission={one:false,two:false,oneFailed:false,twoFailed:false,oneState:"waiting",twoState:"waiting",oneEnd:0,twoEnd:0,itemCount:0};
 function activeMissionKey(){return window.adminAbuseTestMode?missionKey+"_test":missionKey}
@@ -13488,7 +13488,7 @@ function start(isTest=false){
 }
 window.adminAbuseStartOnCountdown=function(){if(window.adminAbuseCountdownPending&&!active){window.adminAbuseCountdownPending=false;begin()}};
 function updateButton(){
- const b=$("adminAbuseOpenBtn");if(!b)return;const now=Date.now(),open=now>=from&&now<until,ended=now>=until;b.disabled=!open;b.textContent=open?"👑 ADMIN ABUSE　開催中":ended?"👑 ADMIN ABUSE　終了":"👑 ADMIN ABUSE　11/21 22:10〜22:30";b.title=open?"開催中！クリックして参加":ended?"今回の開催時間は終了しました":"開催時刻までお待ちください";b.style.background=open?"linear-gradient(135deg,#a5f3fc,#67e8f9)":"linear-gradient(135deg,#e5e7eb,#9ca3af)";b.style.borderColor=open?"#0891b2":"#6b7280";b.style.color=open?"#164e63":"#374151";b.style.opacity=open?"1":"0.65";b.style.cursor=open?"pointer":"not-allowed";
+ const b=$("adminAbuseOpenBtn");if(!b)return;const now=Date.now(),open=now>=from&&now<until,ended=now>=until;b.disabled=!open;b.textContent=open?"👑 ADMIN ABUSE　開催中":ended?"👑 ADMIN ABUSE　終了":"👑 ADMIN ABUSE　11/21 21:50〜22:30";b.title=open?"開催中！クリックして参加":ended?"今回の開催時間は終了しました":"開催時刻までお待ちください";b.style.background=open?"linear-gradient(135deg,#a5f3fc,#67e8f9)":"linear-gradient(135deg,#e5e7eb,#9ca3af)";b.style.borderColor=open?"#0891b2":"#6b7280";b.style.color=open?"#164e63":"#374151";b.style.opacity=open?"1":"0.65";b.style.cursor=open?"pointer":"not-allowed";
 }
 $("adminAbuseTestOpenBtn")?.addEventListener("click",()=>{const sc=$("adminAbuseTestCodeScreen");if(sc)show(sc);const input=$("adminAbuseTestCodeInput");if(input){input.value="";input.focus()}});
 $("adminAbuseTestCodeCancel")?.addEventListener("click",()=>hide($("adminAbuseTestCodeScreen")));

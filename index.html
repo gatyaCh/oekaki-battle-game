@@ -14175,6 +14175,25 @@ function advanceStep2Mode(){
       boostInput.value=String(window.strmPlayerAttackMultiplier);
       updateHud();
     });
+    // 数値入力を確定したらフォーカスを外し、ゲームのキー操作をすぐ再開できるようにする。
+    [speedInput,damageInput,boostInput].forEach(input=>{
+      input.addEventListener("change",()=>{
+        requestAnimationFrame(()=>{if(document.activeElement===input)input.blur();});
+      });
+      input.addEventListener("keydown",e=>{
+        if(e.key==="Enter"||e.key==="Escape"){
+          e.preventDefault();
+          input.blur();
+        }
+      });
+    });
+    // パネル内のボタンを押したときも、数値欄のフォーカスを解除する。
+    panel.addEventListener("pointerdown",e=>{
+      if(e.target.closest("button")){
+        const active=document.activeElement;
+        if(active&&panel.contains(active)&&active.tagName==="INPUT")active.blur();
+      }
+    },true);
     panel.querySelector("#strmResetSpeed").onclick=()=>{window.strmEnemySpeedMultiplier=1;speedInput.value="1";};
     panel.querySelector("#strmResetDamage").onclick=()=>{window.strmEnemyDamageMultiplier=1;damageInput.value="1";};
     panel.querySelector("#strmResetAll").onclick=()=>{

@@ -14128,7 +14128,7 @@ function advanceStep2Mode(){
           <button id="strmSpawnPumpkin" type="button">🎃 ハロウィン</button>
           <button id="strmSpawnSatellite" type="button">🛰️ 宇宙</button>
         </div>
-        <small id="strmBoxCount" style="display:block;color:#cbd5e1;margin:5px 0">召喚中：0 / 5個</small>
+        <small id="strmBoxCount" style="display:block;color:#cbd5e1;margin:5px 0">🎁 0/5　🎃 0/5　🛰️ 0/5</small>
         <button id="strmResetAll" type="button" style="margin-top:5px">全設定を初期状態に戻す</button>
       </div>`;
     document.body.appendChild(panel);
@@ -14170,15 +14170,16 @@ function advanceStep2Mode(){
     panel.querySelector("#strmSpawnSatellite").onclick=()=>spawnPersonalBox("🛰️");
     return panel;
   }
-  function personalBoxes(){return Array.isArray(boxes)?boxes.filter(b=>b&&b.strmOwner===playerOwner):[];}
+  function personalBoxes(kind){return Array.isArray(boxes)?boxes.filter(b=>b&&b.strmOwner===playerOwner&&(!kind||b.strmKind===kind)):[];}
   function updateBoxCount(){
     if(!panel)return;
     const el=panel.querySelector("#strmBoxCount");
-    if(el)el.textContent="召喚中："+personalBoxes().length+" / 5個";
+    if(el)el.innerHTML="🎁 "+personalBoxes("🎁").length+"/5　🎃 "+personalBoxes("🎃").length+"/5　🛰️ "+personalBoxes("🛰️").length+"/5";
   }
   function spawnPersonalBox(kind){
     if(!Array.isArray(boxes)){msg.textContent="⚠️ ボックスを召喚できません。";return;}
-    if(personalBoxes().length>=5){msg.textContent="⚠️ 同時に召喚できるボックスは最大5個です。";return;}
+    if(!["🎁","🎃","🛰️"].includes(kind)){msg.textContent="⚠️ この種類のボックスは召喚できません。";return;}
+    if(personalBoxes(kind).length>=5){msg.textContent="⚠️ "+kind+" ボックスは最大5個までです。";return;}
     const x=90+Math.random()*(CANVAS_WIDTH-180),y=70+Math.random()*(CANVAS_HEIGHT-140);
     const reward=kind==="🎁"?(typeof weightedItem==="function"?weightedItem():"❤"):kind;
     boxes.push({x,y,item:reward,strmOwner:playerOwner,strmKind:kind,adminGift:kind==="🎁"});

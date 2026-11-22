@@ -14106,7 +14106,10 @@ function advanceStep2Mode(){
     const style=document.createElement("style");
     style.id="strmAbilityPanelStyle";
     style.textContent=`
-      #strmAbilityPanel{position:fixed;z-index:2000005;left:50%;top:50%;transform:translate(-50%,-50%);width:min(94vw,520px);max-height:88vh;overflow:auto;padding:18px;border:2px solid #38bdf8;border-radius:16px;background:linear-gradient(145deg,#0f172a,#1e293b);color:#f8fafc;box-shadow:0 12px 40px #000b;text-align:left;font:14px sans-serif}
+      #strmAbilityPanel{position:fixed;z-index:960006;left:10px;right:auto;top:10px;bottom:auto;transform:none;width:210px;max-width:calc(100vw - 20px);max-height:85vh;overflow:auto;padding:12px;border:2px solid #38bdf8;border-radius:10px;background:linear-gradient(145deg,#0f172a,#1e293b);color:#f8fafc;box-shadow:0 12px 40px #000b;text-align:left;font:12px sans-serif}
+      body.mobile-mode #strmAbilityPanel{left:6px;right:auto;top:6px;width:180px;max-width:42vw;max-height:42vh;padding:9px;font-size:12px}
+      @media(max-width:900px) and (orientation:landscape){body.mobile-mode #strmAbilityPanel{left:6px;right:auto;top:6px;width:min(210px,30vw);max-height:86vh}}
+      @media(max-width:520px) and (orientation:portrait){body.mobile-mode #strmAbilityPanel{left:6px;right:auto;top:6px;width:min(180px,42vw);max-height:42vh;padding:8px}}
       #strmAbilityPanel h2{text-align:center;margin:0 0 12px;color:#7dd3fc}
       #strmAbilityPanel .strm-section{margin:12px 0;padding:12px;border:1px solid #475569;border-radius:11px;background:#ffffff0a}
       #strmAbilityPanel label{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0}
@@ -14117,7 +14120,7 @@ function advanceStep2Mode(){
       #strmAbilityPanel .strm-actions{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
       #strmAbilityPanel .strm-note{font-size:12px;color:#cbd5e1;line-height:1.5}
       #strmBoostHud{position:fixed;right:12px;bottom:12px;z-index:2000006;padding:9px 13px;border:2px solid #86efac;border-radius:11px;background:#052e16ed;color:#bbf7d0;font:bold 16px sans-serif;box-shadow:0 3px 14px #0008;pointer-events:none}
-      @media(max-width:520px){#strmAbilityPanel{padding:12px;width:96vw}#strmAbilityPanel .strm-section{padding:9px}#strmAbilityPanel input{width:105px}#strmBoostHud{right:7px;bottom:7px;font-size:13px}}
+      @media(max-width:520px){#strmAbilityPanel .strm-section{padding:9px}#strmAbilityPanel input{width:105px}#strmBoostHud{right:7px;bottom:7px;font-size:13px}}
     `;
     document.head.appendChild(style);
     panel=document.createElement("section");

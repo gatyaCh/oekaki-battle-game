@@ -31,16 +31,6 @@
     @media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; transition:none !important; } }
   
 
-    /* 画像保存カード */
-    .image-save-card { width:min(560px,94vw); margin:24px auto; padding:20px; border:1px solid rgba(93,218,255,.5); border-radius:16px; background:linear-gradient(155deg,rgba(20,35,68,.92),rgba(28,20,57,.9)); box-shadow:0 0 20px rgba(0,190,255,.16); color:#fff; }
-    body[data-theme="white"] .image-save-card { background:rgba(255,255,255,.94); border-color:#cbd5e1; color:#20242c; }
-    .image-save-card button,.image-save-dialog button { cursor:pointer; border:1px solid #82eaff; border-radius:10px; padding:11px 18px; color:#fff; background:linear-gradient(100deg,#087fbd,#6546c8); font-weight:800; }
-    .image-save-modal { position:fixed; inset:0; z-index:1000000; display:none; align-items:center; justify-content:center; padding:14px; background:rgba(0,0,0,.84); }
-    .image-save-dialog { width:min(900px,96vw); max-height:96vh; overflow:auto; padding:12px; border:1px solid #64748b; border-radius:16px; background:#111827; color:#f8fafc; text-align:center; }
-    .image-save-dialog h2 { margin-top:4px; color:#fff; }
-    .image-save-dialog img { display:block; width:auto; height:auto; max-width:100%; max-height:78vh; object-fit:contain; margin:12px auto; border-radius:10px; background:transparent; }
-    .image-save-dialog .secondary { margin-left:8px; background:#334155; border-color:#94a3b8; }
-
     /* Play page appearance themes */
     body[data-theme="white"] { color:#20242c; background:radial-gradient(ellipse at 18% 12%,#e7f4f1,transparent 40%),radial-gradient(ellipse at 82% 18%,#f3eafa,transparent 42%),linear-gradient(135deg,#fff 0%,#f4f2e9 55%,#fff 100%); }
     body[data-theme="white"]::before { opacity:.16; background-image:linear-gradient(#cbd5d1 1px,transparent 1px),linear-gradient(90deg,#cbd5d1 1px,transparent 1px); }
@@ -185,19 +175,7 @@
     </section>
   </div>
 
-  <section class="image-save-card">
-    <h2>🍵 特別画像</h2>
-    <p>ボタンを押すと湯呑みの集合イラストが開き、そのまま保存できます。</p>
-    <button id="openImageSaveViewer" type="button">🖼️ 画像を保存する</button>
-  </section>
-  <div id="imageSaveViewer" class="image-save-modal" role="dialog" aria-modal="true" aria-labelledby="imageSaveViewerTitle">
-    <section class="image-save-dialog">
-      <h2 id="imageSaveViewerTitle">🍵 湯呑みの集合イラスト</h2>
-      <img src="./teacup-collection.jpg" alt="大きな湯呑みの中にキャラクターたちが集まったイラスト">
-      <p><a href="./teacup-collection.jpg" download="teacup-collection.jpg"><button type="button">⬇️ この画像を保存</button></a></p>
-      <button id="closeImageSaveViewer" class="secondary" type="button">閉じる</button>
-    </section>
-  </div>
+
 
 <div id="playUpdateDetailsModal" class="update-calendar-modal" role="dialog" aria-modal="true" aria-labelledby="playUpdateDetailsTitle" style="display:none">
   <section class="update-calendar-dialog">
@@ -239,11 +217,6 @@
   applyTheme(saved);
   buttons.forEach(b=>b.addEventListener("click",()=>applyTheme(b.dataset.themeChoice)));
 
-
-  const imageViewer=document.getElementById("imageSaveViewer");
-  document.getElementById("openImageSaveViewer").addEventListener("click",()=>{imageViewer.style.display="flex";});
-  document.getElementById("closeImageSaveViewer").addEventListener("click",()=>{imageViewer.style.display="none";});
-  imageViewer.addEventListener("click",e=>{if(e.target===imageViewer)imageViewer.style.display="none";});
 
   const modal=document.getElementById("playUpdateDetailsModal");
   const openBtn=document.getElementById("playUpdateDetailsBtn");

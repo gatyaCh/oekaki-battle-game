@@ -14221,6 +14221,19 @@ function advanceStep2Mode(){
   function openPanel(){
     ensurePanel();
     panel.classList.remove("hidden");
+    // 通常の管理者パネル(#adminPanel)と同じ左上基準の配置をインライン!importantで固定。
+    // 別端末で追加CSSや古いキャッシュが中央寄せを上書きしても、キャンバス中央を塞がない。
+    const mobilePanel = document.body.classList.contains("mobile-mode");
+    const landscapePanel = mobilePanel && window.matchMedia("(max-width:900px) and (orientation:landscape)").matches;
+    const panelPosition = {
+      position:"fixed", left:mobilePanel?"6px":"10px", right:"auto", top:mobilePanel?"6px":"10px",
+      bottom:"auto", transform:"none", margin:"0", zIndex:"960006",
+      width:mobilePanel?(landscapePanel?"min(210px, 30vw)":"180px"):"210px",
+      maxWidth:mobilePanel?(landscapePanel?"30vw":"42vw"):"calc(100vw - 20px)",
+      maxHeight:mobilePanel?(landscapePanel?"86vh":"42vh"):"85vh",
+      boxSizing:"border-box"
+    };
+    Object.entries(panelPosition).forEach(([key,value])=>panel.style.setProperty(key.replace(/[A-Z]/g,m=>"-"+m.toLowerCase()),value,"important"));
     panel.querySelector("#strmEnemySpeed").value=String(window.strmEnemySpeedMultiplier);
     panel.querySelector("#strmEnemyDamage").value=String(window.strmEnemyDamageMultiplier);
     panel.querySelector("#strmPlayerBoost").value=String(window.strmPlayerAttackMultiplier);

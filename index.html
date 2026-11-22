@@ -9264,7 +9264,14 @@ loop();
       if (typeof window.useSpecialCode === "function" && window.useSpecialCode(code)) {
         codeInput.value = "";
         codeMsg.textContent = "✅ コードが承認されました！";
-        codeBox.classList.add("hidden");if(window.gameSavePaused&&currentScreen==="game"&&window.returnToBattlePauseMenu)window.returnToBattlePauseMenu();
+        // strmはキャンバス画面上で使うため、hiddenだけで閉じず
+        // 専用終了処理でspecial-code-openと入力レイヤー制御も解除する。
+        if(code === "strm" && typeof window.closeSpecialCodeBox === "function"){
+          window.closeSpecialCodeBox();
+        }else{
+          codeBox.classList.add("hidden");
+        }
+        if(window.gameSavePaused&&currentScreen==="game"&&window.returnToBattlePauseMenu)window.returnToBattlePauseMenu();
         msg.textContent = "✅ コードが承認されました！";
         return;
       }

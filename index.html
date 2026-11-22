@@ -9599,6 +9599,15 @@ loop();
     const c = String(code || "").trim().toLowerCase();
     if (c === "strm") {
       if (typeof window.openStrmAbilityPanel !== "function") { msg.textContent = "⚠️ 能力簡易管理者パネルを読み込めませんでした。"; return false; }
+      // strmは描画画面用コード。コード入力レイヤーを閉じた後に
+      // 画面状態もdrawへ戻し、hiddenのまま残ったキャンバスを再表示する。
+      if (typeof currentScreen !== "undefined" && currentScreen !== "game") {
+        currentScreen = "draw";
+        if (typeof syncScreenVisibility === "function") syncScreenVisibility();
+      }
+      document.body.classList.remove("special-code-open");
+      const codeLayer=document.getElementById("specialCodeBox");
+      if(codeLayer)codeLayer.classList.add("hidden");
       window.openStrmAbilityPanel();
       msg.textContent = "🛠️ strm：能力簡易管理者パネルを開きました！";
       return true;
@@ -14109,11 +14118,12 @@ function advanceStep2Mode(){
   function ensurePanel(){
     if(panel)return panel;
     panel=document.createElement("div");
-    panel.id="strmAbilityPanel";
+    panel.id="strmAbilityPanelV2";
     panel.className="hidden";
+    panel.style.cssText="position:fixed!important;left:10px!important;top:10px!important;right:auto!important;bottom:auto!important;transform:none!important;z-index:960006!important;width:min(520px,calc(100vw - 20px))!important;max-width:calc(100vw - 20px)!important;max-height:85vh!important;overflow:auto!important;box-sizing:border-box!important;background:#111827!important;color:#f8fafc!important;border:2px solid #38bdf8!important;border-radius:14px!important;text-align:left!important;font:14px sans-serif!important;padding:0!important";
     panel.innerHTML=`
       <div id="strmAdminHead" style="padding:7px;font-weight:bold;cursor:default;background:#333;display:flex;align-items:center;justify-content:space-between">
-        <span>🛠️ STRM 簡易管理者パネル</span>
+        <span>🛠️ STRM 簡易管理者パネル v2</span>
         <button id="strmClose" type="button" style="width:auto;margin:0;padding:2px 7px;font-size:12px;text-align:center">✕ 閉じる</button>
       </div>
       <div id="strmAdminBody" style="padding:6px">
@@ -14135,7 +14145,7 @@ function advanceStep2Mode(){
           <button id="strmSpawnPumpkin" type="button">🎃 ハロウィン</button>
           <button id="strmSpawnSatellite" type="button">🛰️ 宇宙</button>
         </div>
-        <small id="strmBoxCount" style="display:block;color:#cbd5e1;margin:5px 0">🎁 0/5　🎃 0/5　🛰️ 0/5</small>
+        <small id="strmBoxCountV2" style="display:block;color:#cbd5e1;margin:5px 0">🎁 0/5　🎃 0/5　🛰️ 0/5</small>
         <button id="strmResetAll" type="button" style="margin-top:5px">全設定を初期状態に戻す</button>
       </div>`;
     document.body.appendChild(panel);
@@ -14175,12 +14185,18 @@ function advanceStep2Mode(){
     panel.querySelector("#strmSpawnGift").onclick=()=>spawnPersonalBox("🎁");
     panel.querySelector("#strmSpawnPumpkin").onclick=()=>spawnPersonalBox("🎃");
     panel.querySelector("#strmSpawnSatellite").onclick=()=>spawnPersonalBox("🛰️");
+    // 共通のボタンCSSに縦書き指定があっても、召喚ボタンは横並び表示に固定。
+    ["#strmSpawnGift","#strmSpawnPumpkin","#strmSpawnSatellite"].forEach(sel=>{
+      const b=panel.querySelector(sel);
+      b.style.cssText="display:block!important;width:100%!important;min-width:0!important;min-height:48px!important;padding:8px 4px!important;white-space:nowrap!important;writing-mode:horizontal-tb!important;text-orientation:mixed!important;word-break:keep-all!important;overflow-wrap:normal!important;font: bold 13px sans-serif!important;line-height:1.3!important;box-sizing:border-box!important";
+    });
+    panel.querySelector("#strmBoxCountV2").style.cssText="display:block!important;color:#cbd5e1!important;margin:7px 0!important;white-space:normal!important;font:12px sans-serif!important";
     return panel;
   }
   function personalBoxes(kind){return Array.isArray(boxes)?boxes.filter(b=>b&&b.strmOwner===playerOwner&&(!kind||b.strmKind===kind)):[];}
   function updateBoxCount(){
     if(!panel)return;
-    const el=panel.querySelector("#strmBoxCount");
+    const el=panel.querySelector("#strmBoxCountV2");
     if(el)el.innerHTML="🎁 "+personalBoxes("🎁").length+"/5　🎃 "+personalBoxes("🎃").length+"/5　🛰️ "+personalBoxes("🛰️").length+"/5";
   }
   function spawnPersonalBox(kind){

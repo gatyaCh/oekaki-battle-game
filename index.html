@@ -14194,6 +14194,19 @@ function advanceStep2Mode(){
         if(active&&panel.contains(active)&&active.tagName==="INPUT")active.blur();
       }
     },true);
+    // STRMの数値欄を編集したあと、キャンバス・攻撃ボタンなど
+    // パネル外をクリックしたら必ずフォーカスを外してゲーム操作を戻す。
+    document.addEventListener("pointerdown",e=>{
+      const active=document.activeElement;
+      if(active&&panel.contains(active)&&active.tagName==="INPUT"&&!panel.contains(e.target)){
+        active.blur();
+      }
+    },true);
+    // キャンバスへ戻った後に入力欄へフォーカスが残る端末向けの保険。
+    window.addEventListener("blur",()=>{
+      const active=document.activeElement;
+      if(active&&panel.contains(active)&&active.tagName==="INPUT")active.blur();
+    });
     panel.querySelector("#strmResetSpeed").onclick=()=>{window.strmEnemySpeedMultiplier=1;speedInput.value="1";};
     panel.querySelector("#strmResetDamage").onclick=()=>{window.strmEnemyDamageMultiplier=1;damageInput.value="1";};
     panel.querySelector("#strmResetAll").onclick=()=>{

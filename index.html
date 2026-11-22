@@ -8715,7 +8715,8 @@ function draw() {
     ctx.restore();
   }
   if (p.invincibility <= 0 || Math.floor(Date.now() / 100) % 2 === 0) {
-    if(!(window.drawSelectedSkin&&window.drawSelectedSkin(ctx,p.x,p.y,36)&&!ghost)){ctx.font = "36px serif"; ctx.fillText(ghost ? "👻" : (window.getSelectedSkinEmoji ? window.getSelectedSkinEmoji() : "😂"), p.x, p.y);}
+    const selectedSkinSize=(window.getSelectedSkinEmoji&&window.getSelectedSkinEmoji()==="🌸")?60:36;
+    if(!(window.drawSelectedSkin&&window.drawSelectedSkin(ctx,p.x,p.y,selectedSkinSize)&&!ghost)){ctx.font = "36px serif"; ctx.fillText(ghost ? "👻" : (window.getSelectedSkinEmoji ? window.getSelectedSkinEmoji() : "😂"), p.x, p.y);}
     const halloweenFx=window.halloweenEffects||{};
     if(halloweenFx.horse>0){ctx.font="44px serif";ctx.fillText("🐴",p.x,p.y+38)}
     if(halloweenFx.zombie>0){ctx.font="30px serif";ctx.fillText("🧟",p.x,p.y-38)}

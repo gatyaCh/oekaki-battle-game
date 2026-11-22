@@ -14091,83 +14091,56 @@ function advanceStep2Mode(){
 }
 
 
-/* STRM Ability Admin Panel */
+/* STRM Ability Admin Panel - rebuilt with the standard admin panel layout */
 (function initStrmAbilityPanel(){
-  window.strmEnemySpeedMultiplier = 1;
-  window.strmEnemyDamageMultiplier = 1;
-  window.strmPlayerAttackMultiplier = 1;
-  let panelOpen = false;
-  let panel = null;
-  let hud = null;
-  const playerOwner = "strm-local-" + Math.random().toString(36).slice(2);
+  window.strmEnemySpeedMultiplier=1;
+  window.strmEnemyDamageMultiplier=1;
+  window.strmPlayerAttackMultiplier=1;
+  let panelOpen=false,panel=null,hud=null;
+  const playerOwner="strm-local-"+Math.random().toString(36).slice(2);
 
   function ensurePanel(){
-    if(panel) return panel;
-    const style=document.createElement("style");
-    style.id="strmAbilityPanelStyle";
-    style.textContent=`
-      #strmAbilityPanel{position:fixed;z-index:960006;left:10px;right:auto;top:10px;bottom:auto;transform:none;width:210px;max-width:calc(100vw - 20px);max-height:85vh;overflow:auto;padding:12px;border:2px solid #38bdf8;border-radius:10px;background:linear-gradient(145deg,#0f172a,#1e293b);color:#f8fafc;box-shadow:0 12px 40px #000b;text-align:left;font:12px sans-serif}
-      body.mobile-mode #strmAbilityPanel{left:6px;right:auto;top:6px;width:180px;max-width:42vw;max-height:42vh;padding:9px;font-size:12px}
-      @media(max-width:900px) and (orientation:landscape){body.mobile-mode #strmAbilityPanel{left:6px;right:auto;top:6px;width:min(210px,30vw);max-height:86vh}}
-      @media(max-width:520px) and (orientation:portrait){body.mobile-mode #strmAbilityPanel{left:6px;right:auto;top:6px;width:min(180px,42vw);max-height:42vh;padding:8px}}
-      #strmAbilityPanel h2{text-align:center;margin:0 0 12px;color:#7dd3fc}
-      #strmAbilityPanel .strm-section{margin:12px 0;padding:12px;border:1px solid #475569;border-radius:11px;background:#ffffff0a}
-      #strmAbilityPanel label{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0}
-      #strmAbilityPanel input{width:120px;max-width:42%;padding:7px;border:1px solid #64748b;border-radius:7px;background:#fff;color:#111;font-size:16px}
-      #strmAbilityPanel button{border:1px solid #64748b;border-radius:8px;padding:9px 12px;margin:4px;background:#334155;color:#fff;font-weight:700}
-      #strmAbilityPanel .strm-box-buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-      #strmAbilityPanel .strm-box-buttons button{min-height:74px;font-size:15px}
-      #strmAbilityPanel .strm-actions{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
-      #strmAbilityPanel .strm-note{font-size:12px;color:#cbd5e1;line-height:1.5}
-      #strmBoostHud{position:fixed;right:12px;bottom:12px;z-index:2000006;padding:9px 13px;border:2px solid #86efac;border-radius:11px;background:#052e16ed;color:#bbf7d0;font:bold 16px sans-serif;box-shadow:0 3px 14px #0008;pointer-events:none}
-      @media(max-width:520px){#strmAbilityPanel .strm-section{padding:9px}#strmAbilityPanel input{width:105px}#strmBoostHud{right:7px;bottom:7px;font-size:13px}}
-    `;
-    document.head.appendChild(style);
-    panel=document.createElement("section");
+    if(panel)return panel;
+    panel=document.createElement("div");
     panel.id="strmAbilityPanel";
     panel.className="hidden";
     panel.innerHTML=`
-      <h2>🛠️ 能力簡易管理者パネル</h2>
-      <div class="strm-section">
+      <div id="strmAdminHead" style="padding:7px;font-weight:bold;cursor:default;background:#333;display:flex;align-items:center;justify-content:space-between">
+        <span>🛠️ STRM 簡易管理者パネル</span>
+        <button id="strmClose" type="button" style="width:auto;margin:0;padding:2px 7px;font-size:12px;text-align:center">✕ 閉じる</button>
+      </div>
+      <div id="strmAdminBody" style="padding:6px">
         <b>👾 敵の移動速度</b>
-        <label>速度倍率（最低0.01倍）<input id="strmEnemySpeed" type="number" min="0.01" step="0.01" value="1"></label>
-        <button id="strmResetSpeed" type="button">現在の初期設定に戻す</button>
-      </div>
-      <div class="strm-section">
+        <label style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin:5px 0">速度倍率（最低0.01倍）<input id="strmEnemySpeed" type="number" min="0.01" step="0.01" value="1" style="width:85px"></label>
+        <button id="strmResetSpeed" type="button">初期設定に戻す</button>
+        <hr style="margin:6px 0">
         <b>💥 敵の攻撃ダメージ</b>
-        <label>ダメージ倍率（最低1倍）<input id="strmEnemyDamage" type="number" min="1" step="0.1" value="1"></label>
-        <button id="strmResetDamage" type="button">現在の初期設定に戻す</button>
-      </div>
-      <div class="strm-section">
+        <label style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin:5px 0">ダメージ倍率（最低1倍）<input id="strmEnemyDamage" type="number" min="1" step="0.1" value="1" style="width:85px"></label>
+        <button id="strmResetDamage" type="button">初期設定に戻す</button>
+        <hr style="margin:6px 0">
         <b>⚡ Adminブースト</b>
-        <label>プレイヤー攻撃倍率（最大3倍）<input id="strmPlayerBoost" type="number" min="1" max="3" step="0.1" value="1"></label>
-        <p class="strm-note">プレイヤー側の攻撃にのみ適用。敵の攻撃・能力には適用しません。</p>
-      </div>
-      <div class="strm-section">
+        <label style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin:5px 0">プレイヤー攻撃倍率（最大3倍）<input id="strmPlayerBoost" type="number" min="1" max="3" step="0.1" value="1" style="width:85px"></label>
+        <small style="display:block;color:#cbd5e1;margin:4px 0 7px">プレイヤーの攻撃にのみ適用</small>
+        <hr style="margin:6px 0">
         <b>🎁 ボックス召喚</b>
-        <div class="strm-box-buttons">
-          <button id="strmSpawnGift" type="button">🎁<br>ギフト</button>
-          <button id="strmSpawnPumpkin" type="button">🎃<br>ハロウィン</button>
-          <button id="strmSpawnSatellite" type="button">🛰️<br>宇宙</button>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin-top:5px">
+          <button id="strmSpawnGift" type="button">🎁 ギフト</button>
+          <button id="strmSpawnPumpkin" type="button">🎃 ハロウィン</button>
+          <button id="strmSpawnSatellite" type="button">🛰️ 宇宙</button>
         </div>
-        <p id="strmBoxCount" class="strm-note">召喚中：0 / 5個</p>
-        <p class="strm-note">召喚したボックスはこのプレイヤーの画面にのみ表示されます。回収後は何度でも再召喚できます。</p>
-      </div>
-      <div class="strm-actions">
-        <button id="strmResetAll" type="button">全設定を初期状態に戻す</button>
-        <button id="strmClose" type="button">閉じる</button>
-      </div>
-    `;
+        <small id="strmBoxCount" style="display:block;color:#cbd5e1;margin:5px 0">召喚中：0 / 5個</small>
+        <button id="strmResetAll" type="button" style="margin-top:5px">全設定を初期状態に戻す</button>
+      </div>`;
     document.body.appendChild(panel);
     hud=document.createElement("div");
     hud.id="strmBoostHud";
-    hud.style.display="none";
+    hud.style.cssText="display:none;position:fixed;right:12px;bottom:12px;z-index:2000006;padding:9px 13px;border:2px solid #86efac;border-radius:11px;background:#052e16ed;color:#bbf7d0;font:bold 16px sans-serif;box-shadow:0 3px 14px #0008;pointer-events:none";
     document.body.appendChild(hud);
 
     const speedInput=panel.querySelector("#strmEnemySpeed");
     const damageInput=panel.querySelector("#strmEnemyDamage");
     const boostInput=panel.querySelector("#strmPlayerBoost");
-    const clampNumber=(v,min,max)=>Math.max(min,Math.min(max,Number.isFinite(v)?v:min));
+    const clamp=(v,min,max)=>Math.max(min,Math.min(max,Number.isFinite(v)?v:min));
     speedInput.addEventListener("change",()=>{
       const v=Number(speedInput.value);
       if(!Number.isFinite(v)||v<0.01){speedInput.value=String(window.strmEnemySpeedMultiplier);return;}
@@ -14181,7 +14154,7 @@ function advanceStep2Mode(){
     boostInput.addEventListener("change",()=>{
       const v=Number(boostInput.value);
       if(!Number.isFinite(v)){boostInput.value=String(window.strmPlayerAttackMultiplier);return;}
-      window.strmPlayerAttackMultiplier=clampNumber(v,1,3);
+      window.strmPlayerAttackMultiplier=clamp(v,1,3);
       boostInput.value=String(window.strmPlayerAttackMultiplier);
       updateHud();
     });
@@ -14197,9 +14170,7 @@ function advanceStep2Mode(){
     panel.querySelector("#strmSpawnSatellite").onclick=()=>spawnPersonalBox("🛰️");
     return panel;
   }
-  function personalBoxes(){
-    return Array.isArray(boxes)?boxes.filter(b=>b&&b.strmOwner===playerOwner):[];
-  }
+  function personalBoxes(){return Array.isArray(boxes)?boxes.filter(b=>b&&b.strmOwner===playerOwner):[];}
   function updateBoxCount(){
     if(!panel)return;
     const el=panel.querySelector("#strmBoxCount");
@@ -14208,58 +14179,36 @@ function advanceStep2Mode(){
   function spawnPersonalBox(kind){
     if(!Array.isArray(boxes)){msg.textContent="⚠️ ボックスを召喚できません。";return;}
     if(personalBoxes().length>=5){msg.textContent="⚠️ 同時に召喚できるボックスは最大5個です。";return;}
-    const x=90+Math.random()*(CANVAS_WIDTH-180);
-    const y=70+Math.random()*(CANVAS_HEIGHT-140);
+    const x=90+Math.random()*(CANVAS_WIDTH-180),y=70+Math.random()*(CANVAS_HEIGHT-140);
     const reward=kind==="🎁"?(typeof weightedItem==="function"?weightedItem():"❤"):kind;
     boxes.push({x,y,item:reward,strmOwner:playerOwner,strmKind:kind,adminGift:kind==="🎁"});
-    updateBoxCount();
-    msg.textContent=kind+" ボックスを召喚しました！";
+    updateBoxCount();msg.textContent=kind+" ボックスを召喚しました！";
   }
-  function updateHud(){
-    if(hud)hud.textContent="⚡ ADMIN BOOST ×"+Number(window.strmPlayerAttackMultiplier||1).toFixed(1);
-  }
+  function updateHud(){if(hud)hud.textContent="⚡ ADMIN BOOST ×"+Number(window.strmPlayerAttackMultiplier||1).toFixed(1);}
   function openPanel(){
     ensurePanel();
-    panel.classList.remove("hidden");
-    // 通常の管理者パネル(#adminPanel)と同じ左上基準の配置をインライン!importantで固定。
-    // 別端末で追加CSSや古いキャッシュが中央寄せを上書きしても、キャンバス中央を塞がない。
-    const mobilePanel = document.body.classList.contains("mobile-mode");
-    const landscapePanel = mobilePanel && window.matchMedia("(max-width:900px) and (orientation:landscape)").matches;
-    const panelPosition = {
-      position:"fixed", left:mobilePanel?"6px":"10px", right:"auto", top:mobilePanel?"6px":"10px",
-      bottom:"auto", transform:"none", margin:"0", zIndex:"960006",
-      width:mobilePanel?(landscapePanel?"min(210px, 30vw)":"180px"):"210px",
-      maxWidth:mobilePanel?(landscapePanel?"30vw":"42vw"):"calc(100vw - 20px)",
-      maxHeight:mobilePanel?(landscapePanel?"86vh":"42vh"):"85vh",
-      boxSizing:"border-box"
-    };
-    Object.entries(panelPosition).forEach(([key,value])=>panel.style.setProperty(key.replace(/[A-Z]/g,m=>"-"+m.toLowerCase()),value,"important"));
+    const mobile=document.body.classList.contains("mobile-mode");
+    const landscape=mobile&&window.matchMedia("(max-width:900px) and (orientation:landscape)").matches;
+    const styles={position:"fixed",left:mobile?"6px":"10px",right:"auto",top:mobile?"6px":"10px",bottom:"auto",transform:"none",margin:"0",zIndex:"960006",width:mobile?(landscape?"min(210px, 30vw)":"180px"):"210px",maxWidth:mobile?(landscape?"30vw":"42vw"):"calc(100vw - 20px)",maxHeight:mobile?(landscape?"86vh":"42vh"):"85vh",overflowY:"auto",boxSizing:"border-box",background:"rgba(0,0,0,.9)",color:"white",border:"2px solid #fff",borderRadius:"8px",textAlign:"left",font:"12px sans-serif"};
+    Object.entries(styles).forEach(([k,v])=>panel.style.setProperty(k.replace(/[A-Z]/g,m=>"-"+m.toLowerCase()),v,"important"));
     panel.querySelector("#strmEnemySpeed").value=String(window.strmEnemySpeedMultiplier);
     panel.querySelector("#strmEnemyDamage").value=String(window.strmEnemyDamageMultiplier);
     panel.querySelector("#strmPlayerBoost").value=String(window.strmPlayerAttackMultiplier);
-    hud.style.display="block";
-    panelOpen=true;
-    updateHud();updateBoxCount();
+    panel.classList.remove("hidden");hud.style.display="block";panelOpen=true;updateHud();updateBoxCount();
   }
-  function closePanel(){
-    if(panel)panel.classList.add("hidden");
-    if(hud)hud.style.display="none";
-    panelOpen=false;
-  }
+  function closePanel(){if(panel)panel.classList.add("hidden");if(hud)hud.style.display="none";panelOpen=false;}
   window.openStrmAbilityPanel=openPanel;
 
   const originalDamageEnemy=damageEnemy;
   damageEnemy=function(amount){return originalDamageEnemy(amount*(Number(window.strmPlayerAttackMultiplier)||1));};
   const originalDamageMinion=damageMinion;
   damageMinion=function(target,amount){return originalDamageMinion(target,amount*(Number(window.strmPlayerAttackMultiplier)||1));};
-
   const originalDamagePlayer=damagePlayer;
   damagePlayer=function(amount){return originalDamagePlayer(amount*(Number(window.strmEnemyDamageMultiplier)||1));};
   if(typeof step2DamagePlayer==="function"){
     const originalStep2DamagePlayer=step2DamagePlayer;
     step2DamagePlayer=function(amount){return originalStep2DamagePlayer(amount*(Number(window.strmEnemyDamageMultiplier)||1));};
   }
-
   if(typeof step2Move==="function"){
     const originalStep2Move=step2Move;
     step2Move=function(obj,dx,dy,r){
@@ -14267,12 +14216,9 @@ function advanceStep2Mode(){
       return originalStep2Move(obj,dx,dy,r);
     };
   }
-
   const originalDraw=draw;
   draw=function(){originalDraw();if(panelOpen)updateBoxCount();};
-})();
-
-</script>
+})();</script>
 
 <style id="admin-abuse-dialogue-speaker-style">
 #adminAbuseDialogue{width:min(92vw,820px)!important;min-height:0!important;padding:9px 16px!important;font-size:clamp(14px,1.55vw,20px)!important;line-height:1.35!important;border-radius:11px!important;background:rgba(8,12,24,.88)!important;-webkit-text-stroke:0!important;text-shadow:none!important}

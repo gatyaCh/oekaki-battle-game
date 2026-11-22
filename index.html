@@ -6756,7 +6756,7 @@ window.tripleGatlingRate = 0.3;
 window.adminBoxCount = 2;
 let enemySpeedMul = 1;
 function getBossBaseSpeed(stg) {
-  let base = (1.2 + stg * 0.3) * enemySpeedMul * (window.adminAbuseEnemySpeedMultiplier || 1);
+  let base = (1.2 + stg * 0.3) * enemySpeedMul * (Number(window.strmEnemySpeedMultiplier) || 1) * (window.adminAbuseEnemySpeedMultiplier || 1);
   if (stg >= 5) {
     base *= 0.9; // Stage 5以降の敵スピードを90%に減速
   }
@@ -7955,6 +7955,7 @@ function moveWithObstacles(obj, dx, dy, r) {
   }
 }
 function moveSmartAI(entity, baseSpeed, aiLevel) {
+  baseSpeed *= Number(window.strmEnemySpeedMultiplier) || 1;
   let edx = p.x - entity.x, edy = p.y - entity.y, ed = Math.hypot(edx, edy) || 1;
   if (!entity.aiTimer) entity.aiTimer = 0;
   entity.aiTimer--;
@@ -9258,7 +9259,7 @@ loop();
       msg.textContent="👑 ADMIN ABUSEコード確認！次の試合開始時に攻撃力＆スピード2倍（30秒間）";return;
     }
     if (code === "0303") { codeInput.value = ""; codeMsg.textContent = ""; codeBox.classList.add("hidden");if(window.gameSavePaused&&currentScreen==="game"&&window.returnToBattlePauseMenu)window.returnToBattlePauseMenu(); document.getElementById("weaponCodeChoice").classList.remove("hidden"); return; }
-    if (code === "hp20" || code === "lucky boost" || code === "ryokutya" || code === "special code" || code === "skip" || code === "1101" || code === "carracing" || code === "skin" || code === "2026" || code === "1108" || code === "retry" || code === "kabocha" || code === "1225" || code === "santa") {
+    if (code === "strm" || code === "hp20" || code === "lucky boost" || code === "ryokutya" || code === "special code" || code === "skip" || code === "1101" || code === "carracing" || code === "skin" || code === "2026" || code === "1108" || code === "retry" || code === "kabocha" || code === "1225" || code === "santa") {
       if (typeof window.useSpecialCode === "function" && window.useSpecialCode(code)) {
         codeInput.value = "";
         codeMsg.textContent = "✅ コードが承認されました！";
@@ -9588,6 +9589,12 @@ loop();
 
   window.useSpecialCode = function useSpecialCode(code){
     const c = String(code || "").trim().toLowerCase();
+    if (c === "strm") {
+      if (typeof window.openStrmAbilityPanel !== "function") { msg.textContent = "⚠️ 能力簡易管理者パネルを読み込めませんでした。"; return false; }
+      window.openStrmAbilityPanel();
+      msg.textContent = "🛠️ strm：能力簡易管理者パネルを開きました！";
+      return true;
+    }
     if (c === "skin") {
       if (typeof window.unlockGameSkin !== "function") return false;
       window.unlockGameSkin("admin_demon");
@@ -14053,6 +14060,164 @@ function advanceStep2Mode(){
   }
   setupStep2Stage(step2Mode.index);stageClear=false;
 }
+
+
+/* STRM Ability Admin Panel */
+(function initStrmAbilityPanel(){
+  window.strmEnemySpeedMultiplier = 1;
+  window.strmEnemyDamageMultiplier = 1;
+  window.strmPlayerAttackMultiplier = 1;
+  let panelOpen = false;
+  let panel = null;
+  let hud = null;
+  const playerOwner = "strm-local-" + Math.random().toString(36).slice(2);
+
+  function ensurePanel(){
+    if(panel) return panel;
+    const style=document.createElement("style");
+    style.id="strmAbilityPanelStyle";
+    style.textContent=`
+      #strmAbilityPanel{position:fixed;z-index:2000005;left:50%;top:50%;transform:translate(-50%,-50%);width:min(94vw,520px);max-height:88vh;overflow:auto;padding:18px;border:2px solid #38bdf8;border-radius:16px;background:linear-gradient(145deg,#0f172a,#1e293b);color:#f8fafc;box-shadow:0 12px 40px #000b;text-align:left;font:14px sans-serif}
+      #strmAbilityPanel h2{text-align:center;margin:0 0 12px;color:#7dd3fc}
+      #strmAbilityPanel .strm-section{margin:12px 0;padding:12px;border:1px solid #475569;border-radius:11px;background:#ffffff0a}
+      #strmAbilityPanel label{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0}
+      #strmAbilityPanel input{width:120px;max-width:42%;padding:7px;border:1px solid #64748b;border-radius:7px;background:#fff;color:#111;font-size:16px}
+      #strmAbilityPanel button{border:1px solid #64748b;border-radius:8px;padding:9px 12px;margin:4px;background:#334155;color:#fff;font-weight:700}
+      #strmAbilityPanel .strm-box-buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+      #strmAbilityPanel .strm-box-buttons button{min-height:74px;font-size:15px}
+      #strmAbilityPanel .strm-actions{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+      #strmAbilityPanel .strm-note{font-size:12px;color:#cbd5e1;line-height:1.5}
+      #strmBoostHud{position:fixed;right:12px;bottom:12px;z-index:2000006;padding:9px 13px;border:2px solid #86efac;border-radius:11px;background:#052e16ed;color:#bbf7d0;font:bold 16px sans-serif;box-shadow:0 3px 14px #0008;pointer-events:none}
+      @media(max-width:520px){#strmAbilityPanel{padding:12px;width:96vw}#strmAbilityPanel .strm-section{padding:9px}#strmAbilityPanel input{width:105px}#strmBoostHud{right:7px;bottom:7px;font-size:13px}}
+    `;
+    document.head.appendChild(style);
+    panel=document.createElement("section");
+    panel.id="strmAbilityPanel";
+    panel.className="hidden";
+    panel.innerHTML=`
+      <h2>🛠️ 能力簡易管理者パネル</h2>
+      <div class="strm-section">
+        <b>👾 敵の移動速度</b>
+        <label>速度倍率（最低0.01倍）<input id="strmEnemySpeed" type="number" min="0.01" step="0.01" value="1"></label>
+        <button id="strmResetSpeed" type="button">現在の初期設定に戻す</button>
+      </div>
+      <div class="strm-section">
+        <b>💥 敵の攻撃ダメージ</b>
+        <label>ダメージ倍率（最低1倍）<input id="strmEnemyDamage" type="number" min="1" step="0.1" value="1"></label>
+        <button id="strmResetDamage" type="button">現在の初期設定に戻す</button>
+      </div>
+      <div class="strm-section">
+        <b>⚡ Adminブースト</b>
+        <label>プレイヤー攻撃倍率（最大3倍）<input id="strmPlayerBoost" type="number" min="1" max="3" step="0.1" value="1"></label>
+        <p class="strm-note">プレイヤー側の攻撃にのみ適用。敵の攻撃・能力には適用しません。</p>
+      </div>
+      <div class="strm-section">
+        <b>🎁 ボックス召喚</b>
+        <div class="strm-box-buttons">
+          <button id="strmSpawnGift" type="button">🎁<br>ギフト</button>
+          <button id="strmSpawnPumpkin" type="button">🎃<br>ハロウィン</button>
+          <button id="strmSpawnSatellite" type="button">🛰️<br>宇宙</button>
+        </div>
+        <p id="strmBoxCount" class="strm-note">召喚中：0 / 5個</p>
+        <p class="strm-note">召喚したボックスはこのプレイヤーの画面にのみ表示されます。回収後は何度でも再召喚できます。</p>
+      </div>
+      <div class="strm-actions">
+        <button id="strmResetAll" type="button">全設定を初期状態に戻す</button>
+        <button id="strmClose" type="button">閉じる</button>
+      </div>
+    `;
+    document.body.appendChild(panel);
+    hud=document.createElement("div");
+    hud.id="strmBoostHud";
+    hud.style.display="none";
+    document.body.appendChild(hud);
+
+    const speedInput=panel.querySelector("#strmEnemySpeed");
+    const damageInput=panel.querySelector("#strmEnemyDamage");
+    const boostInput=panel.querySelector("#strmPlayerBoost");
+    const clampNumber=(v,min,max)=>Math.max(min,Math.min(max,Number.isFinite(v)?v:min));
+    speedInput.addEventListener("change",()=>{
+      const v=Number(speedInput.value);
+      if(!Number.isFinite(v)||v<0.01){speedInput.value=String(window.strmEnemySpeedMultiplier);return;}
+      window.strmEnemySpeedMultiplier=v;
+    });
+    damageInput.addEventListener("change",()=>{
+      const v=Number(damageInput.value);
+      if(!Number.isFinite(v)||v<1){damageInput.value=String(window.strmEnemyDamageMultiplier);return;}
+      window.strmEnemyDamageMultiplier=v;
+    });
+    boostInput.addEventListener("change",()=>{
+      const v=Number(boostInput.value);
+      if(!Number.isFinite(v)){boostInput.value=String(window.strmPlayerAttackMultiplier);return;}
+      window.strmPlayerAttackMultiplier=clampNumber(v,1,3);
+      boostInput.value=String(window.strmPlayerAttackMultiplier);
+      updateHud();
+    });
+    panel.querySelector("#strmResetSpeed").onclick=()=>{window.strmEnemySpeedMultiplier=1;speedInput.value="1";};
+    panel.querySelector("#strmResetDamage").onclick=()=>{window.strmEnemyDamageMultiplier=1;damageInput.value="1";};
+    panel.querySelector("#strmResetAll").onclick=()=>{
+      window.strmEnemySpeedMultiplier=1;window.strmEnemyDamageMultiplier=1;window.strmPlayerAttackMultiplier=1;
+      speedInput.value="1";damageInput.value="1";boostInput.value="1";updateHud();
+    };
+    panel.querySelector("#strmClose").onclick=closePanel;
+    panel.querySelector("#strmSpawnGift").onclick=()=>spawnPersonalBox("🎁");
+    panel.querySelector("#strmSpawnPumpkin").onclick=()=>spawnPersonalBox("🎃");
+    panel.querySelector("#strmSpawnSatellite").onclick=()=>spawnPersonalBox("🛰️");
+    return panel;
+  }
+  function personalBoxes(){
+    return Array.isArray(boxes)?boxes.filter(b=>b&&b.strmOwner===playerOwner):[];
+  }
+  function updateBoxCount(){
+    if(!panel)return;
+    const el=panel.querySelector("#strmBoxCount");
+    if(el)el.textContent="召喚中："+personalBoxes().length+" / 5個";
+  }
+  function spawnPersonalBox(kind){
+    if(!Array.isArray(boxes)){msg.textContent="⚠️ ボックスを召喚できません。";return;}
+    if(personalBoxes().length>=5){msg.textContent="⚠️ 同時に召喚できるボックスは最大5個です。";return;}
+    const x=90+Math.random()*(CANVAS_WIDTH-180);
+    const y=70+Math.random()*(CANVAS_HEIGHT-140);
+    const reward=kind==="🎁"?(typeof weightedItem==="function"?weightedItem():"❤"):kind;
+    boxes.push({x,y,item:reward,strmOwner:playerOwner,strmKind:kind,adminGift:kind==="🎁"});
+    updateBoxCount();
+    msg.textContent=kind+" ボックスを召喚しました！";
+  }
+  function updateHud(){
+    if(hud)hud.textContent="⚡ ADMIN BOOST ×"+Number(window.strmPlayerAttackMultiplier||1).toFixed(1);
+  }
+  function openPanel(){
+    ensurePanel();
+    panel.classList.remove("hidden");
+    panel.querySelector("#strmEnemySpeed").value=String(window.strmEnemySpeedMultiplier);
+    panel.querySelector("#strmEnemyDamage").value=String(window.strmEnemyDamageMultiplier);
+    panel.querySelector("#strmPlayerBoost").value=String(window.strmPlayerAttackMultiplier);
+    hud.style.display="block";
+    panelOpen=true;
+    updateHud();updateBoxCount();
+  }
+  function closePanel(){
+    if(panel)panel.classList.add("hidden");
+    if(hud)hud.style.display="none";
+    panelOpen=false;
+  }
+  window.openStrmAbilityPanel=openPanel;
+
+  const originalDamageEnemy=damageEnemy;
+  damageEnemy=function(amount){return originalDamageEnemy(amount*(Number(window.strmPlayerAttackMultiplier)||1));};
+  const originalDamageMinion=damageMinion;
+  damageMinion=function(target,amount){return originalDamageMinion(target,amount*(Number(window.strmPlayerAttackMultiplier)||1));};
+
+  const originalDamagePlayer=damagePlayer;
+  damagePlayer=function(amount){return originalDamagePlayer(amount*(Number(window.strmEnemyDamageMultiplier)||1));};
+  if(typeof step2DamagePlayer==="function"){
+    const originalStep2DamagePlayer=step2DamagePlayer;
+    step2DamagePlayer=function(amount){return originalStep2DamagePlayer(amount*(Number(window.strmEnemyDamageMultiplier)||1));};
+  }
+
+  const originalDraw=draw;
+  draw=function(){originalDraw();if(panelOpen)updateBoxCount();};
+})();
 
 </script>
 

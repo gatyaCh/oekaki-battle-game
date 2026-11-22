@@ -13643,6 +13643,417 @@ const fusionObserver=new MutationObserver(refreshFusionSkipButton);const fusionR
     }
   },true);
 })();
+
+/* STEP 2：惑星編。STEP 1とは独立した敵・ギミック・進行状態で動作する。 */
+const step2Mode = {
+  active:false, index:1, elapsed:0, windTimer:0, windBurst:0, bossAttack:0, rangedTimer:0,
+  pits:[], hazards:[], bullets:[], craters:[], windX:0, windY:0, windDirTimer:0,
+  boxes:[], inventory:null, itemCooldowns:{}, effects:{rocket:0,gravity:0,blackhole:0,galaxy:0,ufo:0},
+  stages:[
+    {name:"🌙 STEP 2-1：月",boss:"🌙",hp:1600,minionHp:320,count:4,kind:"moon",bg:"#777b86"},
+    {name:"👽 STEP 2-2：火星",boss:"👽",hp:1700,minionHp:357,count:4,kind:"mars",bg:"#a33b25"},
+    {name:"🌑 STEP 2-3：水星",boss:"🌑",hp:1800,minionHp:396,count:4,kind:"mercury",bg:"#59636d"},
+    {name:"☠ STEP 2-4：木星",boss:"☠",hp:1900,minionHp:285,count:2,kind:"jupiter",bg:"#b89a45"}
+  ]
+};
+function setupStep2Stage(n){
+  const cfg=step2Mode.stages[n-1]; step2Mode.index=n; stage=n;
+  step2Mode.elapsed=0;step2Mode.windTimer=0;step2Mode.windBurst=0;step2Mode.bossAttack=0;step2Mode.rangedTimer=0;
+  step2Mode.pits=[];step2Mode.hazards=[];step2Mode.bullets=[];step2Mode.windDirTimer=0;
+  // STEP 2専用🛰️ボックス。障害物と敵の初期位置を避けた3地点。
+  step2Mode.boxes=[{x:270,y:80,active:true,cooldown:0},{x:470,y:420,active:true,cooldown:0},{x:830,y:420,active:true,cooldown:0}];
+  step2Mode.inventory=null;step2Mode.itemCooldowns={};step2Mode.effects={rocket:0,gravity:0,blackhole:0,galaxy:0,ufo:0};step2Mode.ufoTimer=0;step2Mode.blackholeTick=0;
+  step2EnsureItemButton();
+  // 月・水星のクレーターは通過可能な減速エリア。火星の山だけ通常障害物として衝突する。
+  const step2ObstacleLayout=[
+    {x:150,y:145,w:50,h:50},{x:350,y:105,w:50,h:50},{x:580,y:75,w:50,h:50},
+    {x:720,y:205,w:50,h:50},{x:390,y:350,w:50,h:50},{x:135,y:355,w:50,h:50}
+  ];
+  step2Mode.craters=(cfg.kind==="moon"||cfg.kind==="mercury")?step2ObstacleLayout.map(o=>({...o})):[];
+  enemy.x=700;enemy.y=250;enemy.maxHp=cfg.hp;enemy.hp=cfg.hp;enemy.r=30;
+  minions=[];
+  for(let i=0;i<cfg.count;i++){
+    const angle=Math.PI*2*i/cfg.count;
+    minions.push({x:620+Math.cos(angle)*70,y:250+Math.sin(angle)*145,hp:cfg.minionHp,maxHp:cfg.minionHp,atk:cfg.kind==="mars"?10:10,r:19,type:cfg.kind==="mars"||cfg.kind==="jupiter"?"step2_turret":"step2_melee",shot:0,cool:0});
+  }
+  // STEP 2では現在の強化・特殊コードによる最大HPを維持しつつ、
+  // 不正値やHP上限超過を防ぐ。各惑星への移動時は全回復。
+  // STEP 1で確定した最大HPをそのまま共有し、STEP 2独自の上限変更はしない。
+  p.max=Number.isFinite(Number(p.max))&&Number(p.max)>0?Number(p.max):150;
+  p.hp=p.max;p.x=100;p.y=250;p.invincibility=0;
+  enemyBullets=[];magmaZones=[];boxes=[];dmgText=[];
+  treasureChest={x:450,y:250,opened:false,progress:0,maxProgress:100,r:20};
+  // STEP 2は専用の惑星フィールド。通常ステージ1の障害物データを
+  // 読み込むと、描画されない障害物だけが残って透明な壁になるため、
+  // STEP 2の各ステージでは通常マップの障害物判定を使わない。
+  obstacles=cfg.kind==="mars"?step2ObstacleLayout.map(o=>({...o,type:"⛰️"})):[];
+  document.getElementById("stageLabel").textContent=cfg.name;
+  document.getElementById("ehp").textContent=cfg.hp;
+  document.getElementById("hp").textContent=Math.floor(p.hp);
+  document.getElementById("maxHpText").textContent=Math.floor(p.max);
+  msg.textContent=cfg.name+"　敵を全員倒そう！";
+  gameOver=false;stageClear=false;charging=false;charge=0;attackCooldown=0;
+}
+function startStep2Mode(n){
+  // STEP 1の保管庫・ポーズ画面から移動してもSTEP 2の戦闘更新が停止しないよう解除。
+  window.gameSavePaused=false;keys={};charging=false;charge=0;window.adminPanelInteracting=false;
+  step2Mode.active=true;
+  document.body.classList.add("step2-admin-enabled");
+  resetStep2BattleStats();
+  setupStep2Stage(n);
+  currentScreen="game";syncScreenVisibility();
+  document.getElementById("title").classList.add("hidden");
+  document.getElementById("draw").classList.add("hidden");
+  document.getElementById("count").classList.add("hidden");
+  document.getElementById("gameArea").classList.remove("hidden");
+  const mc=document.getElementById("mobileControls");
+  if(mc){mc.style.display=deviceMode==="mobile"?"block":"none";mc.style.pointerEvents="auto";}
+  if(typeof updateSpecialGauge==="function")updateSpecialGauge();
+}
+function resetStep2BattleStats(){
+  p.hp=p.max;p.x=100;p.y=250;p.invincibility=0;
+  enemyBullets=[];bulletHellBullets=[];magicOrbs=[];specialGaugeDamage=0;specialGaugeMaxed=false;
+  attackCooldown=0;slowDebuffTimer=0;bossSpecialState=null;isPausedForSpecial=false;
+}
+function step2Move(obj,dx,dy,r){
+  const nx=Math.max(r,Math.min(CANVAS_WIDTH-r,obj.x+dx));
+  const ny=Math.max(r,Math.min(CANVAS_HEIGHT-r,obj.y+dy));
+  if(!positionBlocked(nx,obj.y,r))obj.x=nx;
+  if(!positionBlocked(obj.x,ny,r))obj.y=ny;
+}
+function step2DamagePlayer(amount){
+  // STEP2はチュートリアル状態に左右されず、敵の攻撃を専用処理で受ける。
+  // STEP1共通のdamagePlayerラッパーやチュートリアル判定に遮られないようにする。
+  if(Date.now()<(Number(window.adminAbuseEventInvincibleUntil)||0))return false;
+  if(p.invincibility>0||shieldActive||ghost||admin.invincible||admin.god)return false;
+  if(adminRankAbility==="guard"&&adminGuardBlocksLeft>0){
+    adminGuardBlocksLeft--;
+    p.invincibility=0.18;
+    msg.textContent="🛡️ ADMINガード！ 攻撃を無効化（残り "+adminGuardBlocksLeft+"回）";
+    return false;
+  }
+  const rawDamage=Math.max(0,Number(amount)||0);
+  const actual=Math.max(0,Math.min(p.hp,rawDamage*(1-upgradeLevels.defense*0.05)));
+  if(actual<=0)return false;
+  p.hp-=actual;
+  if(window.halloweenEffects&&window.halloweenEffects.bat>0)p.hp=Math.min(p.max,p.hp+actual*0.3);
+  totalDamageTaken+=actual;
+  p.invincibility=0.5;
+  return true;
+}
+function step2DotDamage(amount){
+  if(p.invincibility>0||shieldActive||ghost||admin.invincible||admin.god)return;
+  const actual=Math.max(0,Math.min(p.hp,Number(amount)||0));
+  p.hp-=actual;totalDamageTaken+=actual;
+  if(window.halloweenEffects&&window.halloweenEffects.bat>0)p.hp=Math.min(p.max,p.hp+actual*0.3);
+  p.invincibility=0;
+}
+function step2Fire(x,y,emoji,damage,speed,slow){
+  const dx=p.x-x,dy=p.y-y,d=Math.hypot(dx,dy)||1;
+  step2Mode.bullets.push({x,y,vx:dx/d*speed,vy:dy/d*speed,emoji,damage,slow});
+}
+function updateStep2Mode(){
+  if(window.gameSavePaused||currentScreen!=="game"||gameOver||stageClear)return;
+  const dt=1/60,cfg=step2Mode.stages[step2Mode.index-1];step2Mode.elapsed+=dt;
+  step2Mode.boxes.forEach(b=>{if(!b.active&&!b.adminSummoned){b.cooldown=Math.max(0,b.cooldown-dt);if(b.cooldown<=0)b.active=true;}});
+  for(const k of Object.keys(step2Mode.effects))step2Mode.effects[k]=Math.max(0,step2Mode.effects[k]-dt);
+  if(step2Mode.effects.blackhole>0){step2Mode.blackholeTick+=dt;if(step2Mode.blackholeTick>=0.3){step2Mode.blackholeTick-=0.3;[enemy,...minions].forEach(t=>{if(t.hp<=0)return;const d=Math.hypot(p.x-t.x,p.y-t.y)||1;if(t===enemy)damageEnemy(5);else damageMinion(t,5);t.x+=(p.x-t.x)/d*5;t.y+=(p.y-t.y)/d*5;});}}
+  if(step2Mode.effects.ufo>0){step2Mode.ufoTimer+=dt;if(step2Mode.ufoTimer>=1){step2Mode.ufoTimer=0;const targets=[enemy,...minions].filter(t=>t.hp>0).slice(0,3);targets.forEach(t=>{if(t===enemy)damageEnemy(6);else damageMinion(t,6);});}}
+  if(attackCooldown>0)attackCooldown=Math.max(0,attackCooldown-dt);
+  if(wandCooldown>0)wandCooldown=Math.max(0,wandCooldown-dt);
+  if(slashTimer>0)slashTimer=Math.max(0,slashTimer-1);
+  if(p.invincibility>0)p.invincibility-=dt;
+   if(charging&&window.specialCodes?.kakeru){
+     const now=performance.now();
+     if(now>=(window.kakeruNextAttackAt||0)){charge=0;attack();window.kakeruNextAttackAt=now+150;}
+   }
+  // STEP 1の既存攻撃で生成される魔法弾・弾幕をSTEP 2でも同じ配列から処理する。
+  for(let i=magicOrbs.length-1;i>=0;i--){
+    const orb=magicOrbs[i];orb.life-=dt;if(orb.life<=0){magicOrbs.splice(i,1);continue;}
+    if(orb.homing){
+      const targets=minions.filter(m=>m.hp>0).map(m=>({x:m.x,y:m.y}));if(enemy&&enemy.hp>0)targets.push({x:enemy.x,y:enemy.y});
+      if(targets.length){let target=targets[0],best=Infinity;for(const t of targets){const dist=Math.hypot(t.x-orb.x,t.y-orb.y);if(dist<best){best=dist;target=t;}}
+        const dx=target.x-orb.x,dy=target.y-orb.y,dist=Math.hypot(dx,dy)||1,speed=orb.homingSpeed||3.8;
+        orb.vx+=(dx/dist*speed-orb.vx)*0.12;orb.vy+=(dy/dist*speed-orb.vy)*0.12;const v=Math.hypot(orb.vx,orb.vy)||1;orb.vx=orb.vx/v*speed;orb.vy=orb.vy/v*speed;}
+    }
+    orb.x+=orb.vx;orb.y+=orb.vy;let hit=false;
+    for(const m of minions){if(m.hp>0&&Math.hypot(orb.x-m.x,orb.y-m.y)<25){damageMinion(m,orb.dmg);hit=true;break;}}
+    if(!hit&&Math.hypot(orb.x-enemy.x,orb.y-enemy.y)<30){if(orb.special||Math.random()<=0.75)damageEnemy(orb.dmg);hit=true;}
+    if(hit||orb.x<0||orb.x>CANVAS_WIDTH||orb.y<0||orb.y>CANVAS_HEIGHT)magicOrbs.splice(i,1);
+  }
+  for(let i=bulletHellBullets.length-1;i>=0;i--){
+    const b=bulletHellBullets[i];b.x+=b.vx;b.y+=b.vy;let hit=false;
+    for(const m of minions){if(m.hp>0&&Math.hypot(b.x-m.x,b.y-m.y)<25){damageMinion(m,b.dmg);hit=true;break;}}
+    if(!hit&&Math.hypot(b.x-enemy.x,b.y-enemy.y)<30){damageEnemy(b.dmg);hit=true;}
+    if(hit||b.x<0||b.x>CANVAS_WIDTH||b.y<0||b.y>CANVAS_HEIGHT)bulletHellBullets.splice(i,1);
+  }
+  // 既存の車ダッシュ移動もSTEP 2のプレイヤーに適用。
+  if(dashTimer>0){step2Move(p,dashVX*(kizuku2Active?2:1),dashVY*(kizuku2Active?2:1),p.r);dashTimer--;
+    if(!carHitThisDash&&Math.hypot(p.x-enemy.x,p.y-enemy.y)<55){damageEnemy(getDamage());carHitThisDash=true;}
+  }
+  if(slowDebuffTimer>0)slowDebuffTimer=Math.max(0,slowDebuffTimer-dt);
+  let dx=0,dy=0;const ck=window.controlKeys||{};
+  if(keys[String(ck.up||"w").toLowerCase()])dy--;
+  if(keys[String(ck.down||"s").toLowerCase()])dy++;
+  if(keys[String(ck.left||"a").toLowerCase()])dx--;
+  if(keys[String(ck.right||"d").toLowerCase()])dx++;
+  if(deviceMode==="mobile"){if(keys.arrowup)dy--;if(keys.arrowdown)dy++;if(keys.arrowleft)dx--;if(keys.arrowright)dx++;}
+  const len=Math.hypot(dx,dy)||1;
+  const onCrater=(cfg.kind==="moon"||cfg.kind==="mercury")&&step2Mode.craters.some(o=>{
+    const cx=o.x+o.w/2,cy=o.y+o.h/2;
+    return Math.hypot(p.x-cx,p.y-cy)<Math.max(o.w,o.h)/2+p.r;
+  });
+  let speed=3.2*(1+upgradeLevels.speed*0.05)*(slowDebuffTimer>0?0.8:1)*(onCrater?0.7:1)*(step2Mode.effects.rocket>0?3:1);
+  if(cfg.kind==="jupiter"&&step2Mode.windBurst>0)speed*=0.12;
+  step2Move(p,dx/len*speed,dy/len*speed,p.r);
+  if(cfg.kind==="jupiter"){
+    // 5秒ごとに強風が始まり、7秒間続く。風向きは吹いている間もランダムに変化。
+    step2Mode.windTimer+=dt;
+    if(step2Mode.windTimer>=5){
+      step2Mode.windTimer-=5;
+      step2Mode.windBurst=7;
+      step2Mode.windDirTimer=0;
+      const a=Math.random()*Math.PI*2;
+      step2Mode.windX=Math.cos(a);step2Mode.windY=Math.sin(a);
+      msg.textContent="🌪️ 強風！風向きが次々に変わる！";
+    }
+    if(step2Mode.windBurst>0){
+      step2Mode.windBurst=Math.max(0,step2Mode.windBurst-dt);
+      step2Mode.windDirTimer+=dt;
+      if(step2Mode.windDirTimer>=1){
+        step2Mode.windDirTimer=0;
+        const a=Math.random()*Math.PI*2;
+        step2Mode.windX=Math.cos(a);step2Mode.windY=Math.sin(a);
+      }
+      step2Move(p,step2Mode.windX*3.4,step2Mode.windY*3.4,p.r);
+    }
+  }
+  // 🛰️接触したボックスだけ消え、20秒後に同じ場所へ復活。
+  step2Mode.boxes.forEach(b=>{if(!b.active)return;if(Math.hypot(p.x-b.x,p.y-b.y)<p.r+22){
+    const pool=[["酸素ボンベ",50],["ロケット",30],["無重力",10],["UFO",6],["ブラックホール",3],["銀河",1]];
+    let roll=Math.random()*100,got=pool[0][0];for(const [name,rate] of pool){roll-=rate;if(roll<0){got=name;break;}}
+    const inv=window.gameItemInventory||(window.gameItemInventory={normal:{},halloween:{},step2:{}});if(!inv.step2)inv.step2={};const before=Number(inv.step2[got])||0;if(typeof window.addInventoryItem==="function")window.addInventoryItem("🛰️:"+got);if((Number(inv.step2[got])||0)<=before)inv.step2[got]=before+1;b.active=false;b.cooldown=b.adminSummoned?0:20;msg.textContent="🛰️ "+got+"を獲得！アイテム保管庫の「🛰️ ボックス」に追加したよ！"+(b.adminSummoned?" 管理者召喚ボックスは消滅しました。":" 20秒後に復活します。");
+  }});
+  // 子分：月・水星は接近、火星・木星は固定砲台。
+  minions.forEach(m=>{
+    if(m.hp<=0)return;
+    if(step2Mode.effects.gravity>0)return;
+    const d=Math.hypot(p.x-m.x,p.y-m.y)||1;
+    if(m.type==="step2_turret"){
+      m.shot+=dt;const interval=cfg.kind==="mars"?0.8:0.4;
+      if(m.shot>=interval){m.shot=0;step2Fire(m.x,m.y,"🔴",cfg.kind==="mars"?10:7,4,false);}
+    }else{
+      let mx=(p.x-m.x)/d*1.05,my=(p.y-m.y)/d*1.05;
+      if(cfg.kind==="jupiter"&&step2Mode.windBurst>0){mx*=0.12;my*=0.12;step2Move(m,step2Mode.windX*2.2,step2Mode.windY*2.2,m.r);}
+      step2Move(m,mx,my,m.r);
+      m.cool+=dt;if(d<48&&m.cool>=0.5){m.cool=0;step2DamagePlayer(10);}
+    }
+  });
+  // ボスの基本移動と近接攻撃。
+  const bd=Math.hypot(p.x-enemy.x,p.y-enemy.y)||1;
+  if(cfg.kind!=="mars"&&step2Mode.effects.gravity<=0){
+    const windFactor=cfg.kind==="jupiter"&&step2Mode.windBurst>0?0.12:1;
+    step2Move(enemy,(p.x-enemy.x)/bd*0.75*windFactor,(p.y-enemy.y)/bd*0.75*windFactor,enemy.r);
+    if(cfg.kind==="jupiter"&&step2Mode.windBurst>0)step2Move(enemy,step2Mode.windX*2.6,step2Mode.windY*2.6,enemy.r);
+  }
+  step2Mode.bossAttack+=dt;
+  if(cfg.kind==="moon"&&step2Mode.bossAttack>=0.5&&bd<62){step2Mode.bossAttack=0;step2DamagePlayer(20);}
+  if(cfg.kind==="mars"){
+    if(bd<125&&step2Mode.bossAttack>=0.9){step2Mode.bossAttack=0;step2Mode.hazards.push({x:enemy.x,y:enemy.y,r:62,life:1.4,kind:"🔥"});}
+    step2Mode.rangedTimer+=dt;if(step2Mode.rangedTimer>=2){step2Mode.rangedTimer=0;step2Fire(enemy.x,enemy.y,"🔥",30,3.1,true);}
+  }
+  if(cfg.kind==="mercury"){
+    if(bd<68&&step2Mode.bossAttack>=0.8){step2Mode.bossAttack=0;step2DamagePlayer(30);}
+    if(Math.floor(step2Mode.elapsed*0.5)!==Math.floor((step2Mode.elapsed-dt)*0.5)&&step2Mode.hazards.length<6){
+      step2Mode.hazards.push({x:70+Math.random()*(CANVAS_WIDTH-140),y:60+Math.random()*(CANVAS_HEIGHT-120),r:34,life:999,kind:"🌋",cool:0});
+    }
+  }
+  if(cfg.kind==="jupiter"&&bd<68&&step2Mode.bossAttack>=0.5){step2Mode.bossAttack=0;step2DamagePlayer(20);}
+  if(cfg.kind==="moon"&&step2Mode.elapsed>=10&&Math.floor(step2Mode.elapsed/10)!==Math.floor((step2Mode.elapsed-dt)/10)&&step2Mode.pits.length<5){
+    step2Mode.pits.push({x:enemy.x,y:enemy.y,r:22,emoji:"🕳️"});
+  }
+  step2Mode.hazards.forEach(h=>{
+    h.life-=dt;if(h.kind==="🔥"&&Math.hypot(p.x-h.x,p.y-h.y)<h.r){h.cool=(h.cool||0)+dt;if(h.cool>=0.3){h.cool=0;step2DotDamage(5);}}
+    if(h.kind==="🌋"&&Math.hypot(p.x-h.x,p.y-h.y)<h.r){h.cool=(h.cool||0)+dt;if(h.cool>=0.4){h.cool=0;step2DotDamage(5);}}
+  });
+  step2Mode.hazards=step2Mode.hazards.filter(h=>h.life>0);
+  step2Mode.pits=step2Mode.pits.filter(h=>{if(Math.hypot(p.x-h.x,p.y-h.y)<h.r+p.r+6){slowDebuffTimer=Math.max(slowDebuffTimer,10);msg.textContent="🕳️ 月の落とし穴！移動速度が10秒間低下！";return false;}return true;});
+  // STEP 1と同じ弓の攻撃が使う既存 enemyBullets をSTEP 2でも処理する。
+  for(let i=enemyBullets.length-1;i>=0;i--){
+    const b=enemyBullets[i];
+    if(b.enemy)continue;
+    b.x+=b.vx;b.y+=b.vy;
+    if(Math.hypot(enemy.x-b.x,enemy.y-b.y)<enemy.r+12){damageEnemy(b.dmg);enemyBullets.splice(i,1);continue;}
+    const target=minions.find(m=>m.hp>0&&Math.hypot(m.x-b.x,m.y-b.y)<m.r+12);
+    if(target){damageMinion(target,b.dmg);enemyBullets.splice(i,1);continue;}
+    if(b.x<-30||b.x>CANVAS_WIDTH+30||b.y<-30||b.y>CANVAS_HEIGHT+30)enemyBullets.splice(i,1);
+  }
+  step2Mode.bullets.forEach(b=>{
+    if(step2Mode.effects.galaxy>0&&!b.player){b.vx=-b.vx;b.vy=-b.vy;b.player=true;b.damage=b.damage||10;b.emoji="✨";}
+    b.x+=b.vx;b.y+=b.vy;
+    if(b.player){
+      if(Math.hypot(enemy.x-b.x,enemy.y-b.y)<enemy.r+20){damageEnemy(b.damage);b.dead=true;}
+      else{const target=minions.find(m=>m.hp>0&&Math.hypot(m.x-b.x,m.y-b.y)<m.r+20);if(target){damageMinion(target,b.damage);b.dead=true;}}
+    }else if(Math.hypot(p.x-b.x,p.y-b.y)<p.r+13){step2DamagePlayer(b.damage);if(b.slow)slowDebuffTimer=Math.max(slowDebuffTimer,5);b.dead=true;}
+  });
+  step2Mode.bullets=step2Mode.bullets.filter(b=>!b.dead&&b.x>-30&&b.x<CANVAS_WIDTH+30&&b.y>-30&&b.y<CANVAS_HEIGHT+30);
+  step2Mode.bullets.forEach(b=>{if(!b.player||b.dead)return;if(Math.hypot(enemy.x-b.x,enemy.y-b.y)<enemy.r+16){damageEnemy(b.damage);b.dead=true;}else{const t=minions.find(m=>m.hp>0&&Math.hypot(m.x-b.x,m.y-b.y)<m.r+16);if(t){damageMinion(t,b.damage);b.dead=true;}}});
+  step2Mode.bullets=step2Mode.bullets.filter(b=>!b.dead);
+  if(enemy.hp<=0){enemy.hp=0;nextStage();return;}
+  if(p.hp<=0){p.hp=0;gameOver=true;step2Mode.active=false;document.body.classList.remove("step2-admin-enabled");const ib=document.getElementById("step2UseItem");if(ib)ib.style.display="none";showResult(false);return;}
+  step2EnsureItemButton();
+  document.getElementById("hp").textContent=Math.floor(p.hp);
+  document.getElementById("maxHpText").textContent=Math.floor(p.max);
+  document.getElementById("ehp").textContent=Math.floor(enemy.hp);
+}
+function attackStep2Mode(){
+  if(gameOver||stageClear||attackCooldown>0||window.adminPanelInteracting)return;
+  if(["🪃","⚡️","🚨"].includes(weapon)&&typeof window.step2NewWeaponAttack==="function"){
+    window.step2NewWeaponAttack();
+    attackCooldown=window.adminNoCooldown?0:0.3;
+    return;
+  }
+  if(weapon==="🪄"&&!window.specialCodes?.kakeru&&!window.specialCodes?.sougo){
+    if(wandCooldown<=0){fireWandMagic();wandCooldown=window.adminNoCooldown?0:1.7;}
+    else msg.textContent="⏳ 魔法の杖クールタイム中... ("+wandCooldown.toFixed(1)+"s)";
+    return;
+  }
+  const damage=getDamage();
+  let range=weapon==="⚔️"?72+charge/2:weapon==="拳"?108:90;
+  let specialDamage=damage,cooldown=0.3;
+  if(window.specialCodes?.kakeru){
+    range=108;
+    specialDamage=4*atkBuff*(1+drawAttackBonus)*(kizuku2Active?2:1)*(window.sougoBoostActive?3:1)*(adminRankAbility==="damage4"?4:1)*((window.halloweenEffects||{}).candy>0?1.8:1)*((window.halloweenEffects||{}).zombie>0?2.3:1)*(1+upgradeLevels.atk*0.04);
+    cooldown=0;
+  }else if(window.specialCodes?.sougo){
+    const hammerCharge=Math.max(0,Math.min(150,charge))/150,hammerBaseDamage=20+30*hammerCharge,halloweenFx=window.halloweenEffects||{};
+    specialDamage=hammerBaseDamage*atkBuff*(1+drawAttackBonus)*1.03*(kizuku2Active?2:1)*(window.sougoBoostActive?3:1)*(adminRankAbility==="damage4"?4:1)*(halloweenFx.candy>0?1.8:1)*(halloweenFx.zombie>0?2.3:1)*(1+upgradeLevels.atk*0.04);
+    range=(72+charge/2)*3;cooldown=3+4*hammerCharge;
+  }
+  slashTimer=window.specialCodes?.sougo?20:12;
+  const hit=(x,y)=>Math.hypot(p.x-x,p.y-y)<range;
+  let did=false;
+  minions.forEach(m=>{if(m.hp>0&&hit(m.x,m.y)){damageMinion(m,specialDamage);did=true;}});
+  if(enemy.hp>0&&hit(enemy.x,enemy.y)){damageEnemy(specialDamage);did=true;}
+  attackCooldown=window.adminNoCooldown?0:cooldown;
+  msg.textContent=did?"⚔️ STEP 2 攻撃命中！":"⚔️ STEP 2 攻撃！敵に近づいてね";
+}
+function drawStep2Mode(){
+  ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation="source-over";ctx.filter="none";ctx.clearRect(0,0,c.width,c.height);
+  const cfg=step2Mode.stages[step2Mode.index-1];
+  const backgrounds=step2Mode.stages.map(v=>v.bg);
+  ctx.fillStyle=cfg.bg||backgrounds[step2Mode.index-1];ctx.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  // 惑星らしい地形と星空。
+  ctx.fillStyle="rgba(255,255,255,.28)";for(let i=0;i<34;i++){const x=(i*137+41)%CANVAS_WIDTH,y=(i*83+19)%CANVAS_HEIGHT;ctx.fillRect(x,y,2,2);}
+  // 月・水星のクレーター（50×50）。灰色の縁と暗いくぼみで背景から見分けやすくする。
+  step2Mode.craters.forEach(o=>{
+    const cx=o.x+o.w/2,cy=o.y+o.h/2;
+    ctx.save();
+    ctx.fillStyle="rgba(35,40,48,.42)";ctx.beginPath();ctx.ellipse(cx,cy,25,20,0,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle="#aeb4bd";ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(cx,cy,24,19,0,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle="rgba(20,24,30,.38)";ctx.beginPath();ctx.ellipse(cx-2,cy+2,16,12,0,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle="rgba(235,239,244,.55)";ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(cx-4,cy-4,16,10,-.12,Math.PI*1.05,Math.PI*1.85);ctx.stroke();
+    ctx.restore();
+  });
+  // 火星の山は他マップと同じ50×50サイズの通常障害物。
+  if(cfg.kind==="mars"){ctx.font="36px serif";obstacles.forEach(o=>ctx.fillText("⛰️",o.x+o.w/2,o.y+o.h/2));}
+  step2Mode.boxes.forEach(b=>{if(!b.active)return;ctx.save();ctx.fillStyle="rgba(8,35,65,.9)";ctx.strokeStyle="#7dd3fc";ctx.lineWidth=3;ctx.beginPath();ctx.arc(b.x,b.y,23,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.font="30px serif";ctx.fillStyle="#fff";ctx.fillText("🛰️",b.x,b.y);ctx.restore();});
+  step2Mode.pits.forEach(h=>{ctx.save();ctx.strokeStyle="rgba(20,20,30,.9)";ctx.lineWidth=3;ctx.beginPath();ctx.arc(h.x,h.y,h.r+5,0,Math.PI*2);ctx.stroke();ctx.font="34px serif";ctx.fillText("🕳️",h.x,h.y);ctx.restore();});
+  step2Mode.hazards.forEach(h=>{ctx.save();ctx.globalAlpha=1;ctx.fillStyle=h.kind==="🌋"?"rgba(255,70,0,.58)":"rgba(255,80,0,.48)";ctx.beginPath();ctx.arc(h.x,h.y,h.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle=h.kind==="🌋"?"#ffb000":"#ff3b18";ctx.lineWidth=3;ctx.stroke();ctx.font="bold 30px serif";ctx.fillStyle="#fff";ctx.strokeStyle="#7c1d0b";ctx.lineWidth=3;ctx.strokeText(h.kind,h.x,h.y);ctx.fillText(h.kind,h.x,h.y);ctx.restore();});
+  // 木星は金色の縞模様、水星は暗い岩場＋溶岩で、惑星ごとの違いを明確にする。
+  if(cfg.kind==="jupiter"){
+    ctx.save();ctx.globalAlpha=1;
+    for(let k=0;k<5;k++){ctx.fillStyle=k%2===0?"rgba(92,48,116,.16)":"rgba(255,230,160,.18)";ctx.fillRect(0,75+k*105,CANVAS_WIDTH,24);}
+    ctx.restore();
+  }
+  minions.forEach(m=>{if(m.hp<=0)return;
+    // 敵の近距離攻撃が届く範囲を常時表示（予告アニメーションは追加しない）。
+    if(m.type!=="step2_turret"){ctx.beginPath();ctx.arc(m.x,m.y,48,0,Math.PI*2);ctx.fillStyle="rgba(255,60,60,.10)";ctx.fill();ctx.strokeStyle="rgba(255,80,80,.65)";ctx.lineWidth=2;ctx.stroke();}
+    ctx.save();ctx.globalAlpha=1;ctx.shadowColor="#111";ctx.shadowBlur=7;
+    ctx.beginPath();ctx.arc(m.x,m.y,23,0,Math.PI*2);ctx.fillStyle="rgba(20,24,35,.82)";ctx.fill();
+    ctx.font="30px serif";ctx.lineWidth=2;ctx.strokeStyle="#fff";ctx.strokeText("😈",m.x,m.y);ctx.fillStyle="#fff";ctx.fillText("😈",m.x,m.y);ctx.restore();
+    ctx.fillStyle="#111";ctx.fillRect(m.x-20,m.y-32,40,6);ctx.fillStyle="#4ade80";ctx.fillRect(m.x-20,m.y-32,40*Math.max(0,m.hp/m.maxHp),6);});
+  // ボスの近距離攻撃範囲も常時表示。
+  if(cfg.kind!=="mars"){const bossRange=cfg.kind==="moon"?62:cfg.kind==="mercury"||cfg.kind==="jupiter"?68:125;ctx.beginPath();ctx.arc(enemy.x,enemy.y,bossRange,0,Math.PI*2);ctx.fillStyle="rgba(255,40,40,.09)";ctx.fill();ctx.strokeStyle="rgba(255,70,70,.65)";ctx.lineWidth=2;ctx.stroke();}
+  ctx.save();ctx.globalAlpha=1;ctx.shadowColor="#111";ctx.shadowBlur=10;
+  ctx.beginPath();ctx.arc(enemy.x,enemy.y,34,0,Math.PI*2);ctx.fillStyle="rgba(20,24,35,.78)";ctx.fill();
+  ctx.font="48px serif";ctx.lineWidth=2;ctx.strokeStyle="#fff";ctx.strokeText(cfg.boss,enemy.x,enemy.y);ctx.fillStyle="#fff";ctx.fillText(cfg.boss,enemy.x,enemy.y);ctx.restore();
+  ctx.fillStyle="#111";ctx.fillRect(enemy.x-42,enemy.y-43,84,8);ctx.fillStyle="#ef4444";ctx.fillRect(enemy.x-42,enemy.y-43,84*Math.max(0,enemy.hp/enemy.maxHp),8);
+  // STEP 1共通の弓で発射した既存弾も同じ見た目で描画する。
+  enemyBullets.forEach(b=>{if(!b.enemy){ctx.font="24px serif";ctx.fillText("🏹",b.x,b.y);}});
+  step2Mode.bullets.forEach(b=>{ctx.font="24px serif";ctx.fillText(b.emoji,b.x,b.y);});
+  ctx.font="34px serif";ctx.fillText(typeof window.getSelectedSkinEmoji==="function"?window.getSelectedSkinEmoji():"🙂",p.x,p.y);
+  // STEP 1と同じ既存の攻撃範囲リング・武器絵文字をSTEP 2でも表示。
+  if(slashTimer>0){ctx.strokeStyle="yellow";ctx.lineWidth=6;ctx.beginPath();ctx.arc(p.x,p.y,72+charge/2,0,Math.PI*2);ctx.stroke();ctx.lineWidth=1;ctx.font="24px serif";ctx.fillText(weapon,p.x+25,p.y+28);}
+  ctx.fillStyle="#111";ctx.fillRect(p.x-22,p.y-31,44,5);ctx.fillStyle="#22c55e";ctx.fillRect(p.x-22,p.y-31,44*Math.max(0,p.hp/p.max),5);
+  if(cfg.kind==="jupiter"&&step2Mode.windBurst>0){ctx.save();ctx.globalAlpha=1;ctx.strokeStyle="rgba(255,255,255,.95)";ctx.lineWidth=5;for(let i=0;i<10;i++){const x=25+i*95,y=45+(i%3)*170;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+step2Mode.windX*95,y+step2Mode.windY*95);ctx.stroke();}ctx.fillStyle="#fff";ctx.font="bold 24px sans-serif";ctx.strokeStyle="#5b3b12";ctx.lineWidth=4;ctx.strokeText("🌪️ 強風！",CANVAS_WIDTH/2,35);ctx.fillText("🌪️ 強風！",CANVAS_WIDTH/2,35);ctx.restore();}
+  // STEP 1と同じダメージ表示（黒フチ＋黄色文字）に統一。
+  dmgText=dmgText.filter(t=>{ctx.save();ctx.globalAlpha=1;ctx.font="bold 20px sans-serif";ctx.lineWidth=5;ctx.strokeStyle="#000";ctx.strokeText(t.t,t.x,t.y);ctx.fillStyle="#ffeb00";ctx.fillText(t.t,t.x,t.y);ctx.restore();t.y-=1;t.life--;return t.life>0;});
+
+  // 前段の描画状態に左右されないよう、戦闘キャラクターと攻撃エフェクトを最前面に再描画する。
+  ctx.save();
+  ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation="source-over";ctx.filter="none";
+  ctx.textAlign="center";ctx.textBaseline="middle";ctx.shadowBlur=0;
+  minions.forEach(m=>{
+    if(m.hp<=0)return;
+    ctx.beginPath();ctx.arc(m.x,m.y,24,0,Math.PI*2);ctx.fillStyle="#202938";ctx.fill();
+    ctx.lineWidth=3;ctx.strokeStyle="#fff";ctx.stroke();
+    ctx.font="32px serif";ctx.fillStyle="#fff";ctx.fillText("😈",m.x,m.y);
+    ctx.fillStyle="#111";ctx.fillRect(m.x-21,m.y-34,42,6);
+    ctx.fillStyle="#4ade80";ctx.fillRect(m.x-21,m.y-34,42*Math.max(0,m.hp/Math.max(1,m.maxHp)),6);
+  });
+  ctx.beginPath();ctx.arc(enemy.x,enemy.y,36,0,Math.PI*2);ctx.fillStyle="#241b36";ctx.fill();
+  ctx.lineWidth=4;ctx.strokeStyle="#fff";ctx.stroke();
+  ctx.font="50px serif";ctx.fillStyle="#fff";ctx.fillText(cfg.boss,enemy.x,enemy.y);
+  ctx.fillStyle="#111";ctx.fillRect(enemy.x-43,enemy.y-48,86,9);
+  ctx.fillStyle="#ef4444";ctx.fillRect(enemy.x-43,enemy.y-48,86*Math.max(0,enemy.hp/Math.max(1,enemy.maxHp)),9);
+  ctx.beginPath();ctx.arc(p.x,p.y,25,0,Math.PI*2);ctx.fillStyle="#0e7490";ctx.fill();
+  ctx.lineWidth=3;ctx.strokeStyle="#fff";ctx.stroke();
+  ctx.font="38px serif";ctx.fillStyle="#fff";
+  ctx.fillText(typeof window.getSelectedSkinEmoji==="function"?window.getSelectedSkinEmoji():"🙂",p.x,p.y);
+  if(step2Mode.effects.rocket>0){ctx.font="24px serif";ctx.fillText("🚀",p.x,p.y+30);}
+  if(step2Mode.effects.blackhole>0){ctx.font="44px serif";ctx.fillText("🌀",p.x,p.y-65);}
+  if(step2Mode.effects.galaxy>0){ctx.beginPath();ctx.arc(p.x,p.y,52,0,Math.PI*2);ctx.strokeStyle="#a78bfa";ctx.lineWidth=5;ctx.stroke();}
+  ctx.fillStyle="#111";ctx.fillRect(p.x-25,p.y-37,50,7);
+  ctx.fillStyle="#22c55e";ctx.fillRect(p.x-25,p.y-37,50*Math.max(0,p.hp/Math.max(1,p.max)),7);
+  if(slashTimer>0){
+    ctx.beginPath();ctx.arc(p.x,p.y,72+charge/2,0,Math.PI*2);
+    ctx.strokeStyle="#fff200";ctx.lineWidth=8;ctx.stroke();
+    ctx.strokeStyle="#111";ctx.lineWidth=2;ctx.stroke();
+    ctx.font="28px serif";ctx.fillStyle="#fff";ctx.fillText(weapon,p.x+30,p.y+30);
+  }
+  ctx.restore();
+}
+function step2EnsureItemButton(){
+  let btn=document.getElementById("step2UseItem");
+  if(!btn){btn=document.createElement("button");btn.id="step2UseItem";btn.type="button";btn.style.cssText="position:fixed;z-index:960010;left:50%;bottom:18px;transform:translateX(-50%);padding:12px 20px;border:2px solid #7dd3fc;border-radius:12px;background:#082f49;color:white;font-weight:bold;font-size:16px;display:none;";document.body.appendChild(btn);btn.addEventListener("click",step2UseItem);}
+  btn.style.display=step2Mode.active?"block":"none";btn.textContent=step2Mode.inventory?"🎒 "+step2Mode.inventory+" を使用":"🎒 アイテムなし";btn.disabled=!step2Mode.inventory;
+}
+function step2UseItem(){
+  const item=step2Mode.inventory;if(!step2Mode.active||!item)return;
+  if(item==="酸素ボンベ"){p.hp=Math.min(p.max,p.hp+75);msg.textContent="🧪 HPを75回復！";}
+  if(item==="ロケット"){step2Mode.effects.rocket=7;msg.textContent="🚀 7秒間スピード3倍！";}
+  if(item==="無重力"){step2Mode.effects.gravity=5;msg.textContent="🫧 敵が5秒間、動けなくなった！";}
+  if(item==="UFO"){step2Mode.effects.ufo=5;step2Mode.ufoTimer=0;msg.textContent="🛸 UFO3体が5秒間ビーム攻撃！";}
+  if(item==="ブラックホール"){step2Mode.effects.blackhole=3;step2Mode.blackholeTick=0;msg.textContent="🌀 ブラックホール発動！";}
+  if(item==="銀河"){step2Mode.effects.galaxy=5;msg.textContent="🌌 5秒間、攻撃を反射！";}
+  step2Mode.inventory=null;step2EnsureItemButton();
+}
+function advanceStep2Mode(){
+  stageClear=true;step2Mode.index++;
+  if(step2Mode.index>4){
+    // STEP2の4ステージをすべてクリアしたら、専用オーバーレイではなく通常の戦績画面を表示。
+    step2Mode.active=false;
+    document.body.classList.remove("step2-admin-enabled");
+    const ib=document.getElementById("step2UseItem");if(ib)ib.style.display="none";
+    gameOver=false;stageClear=false;
+    showResult(true);
+    return;
+  }
+  setupStep2Stage(step2Mode.index);stageClear=false;
+}
+
 </script>
 
 <style id="admin-abuse-dialogue-speaker-style">

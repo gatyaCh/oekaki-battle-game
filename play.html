@@ -38,9 +38,7 @@
     .image-save-modal { position:fixed; inset:0; z-index:1000000; display:none; align-items:center; justify-content:center; padding:14px; background:rgba(0,0,0,.84); }
     .image-save-dialog { width:min(900px,96vw); max-height:96vh; overflow:auto; padding:12px; border:1px solid #64748b; border-radius:16px; background:#111827; color:#f8fafc; text-align:center; }
     .image-save-dialog h2 { margin-top:4px; color:#fff; }
-    .image-save-dialog input { width:min(340px,90%); padding:12px; border:1px solid #94a3b8; border-radius:8px; font-size:16px; }
     .image-save-dialog img { display:block; width:auto; height:auto; max-width:100%; max-height:78vh; object-fit:contain; margin:12px auto; border-radius:10px; background:transparent; }
-    .image-save-dialog .save-error { min-height:1.4em; color:#fca5a5; }
     .image-save-dialog .secondary { margin-left:8px; background:#334155; border-color:#94a3b8; }
 
     /* Play page appearance themes */
@@ -189,21 +187,9 @@
 
   <section class="image-save-card">
     <h2>🍵 特別画像</h2>
-    <p>合言葉を入力すると、湯呑みの集合イラストを表示して保存できます。</p>
-    <button id="openImageSaveGate" type="button">🖼️ 画像を保存する</button>
+    <p>ボタンを押すと湯呑みの集合イラストが開き、そのまま保存できます。</p>
+    <button id="openImageSaveViewer" type="button">🖼️ 画像を保存する</button>
   </section>
-  <div id="imageSaveGate" class="image-save-modal" role="dialog" aria-modal="true" aria-labelledby="imageSaveGateTitle">
-    <section class="image-save-dialog">
-      <h2 id="imageSaveGateTitle">🔒 合言葉を入力</h2>
-      <p>画像を開くにはコードが必要です。</p>
-      <form id="imageSaveGateForm">
-        <input id="imageSaveCode" type="password" autocomplete="off" placeholder="コードを入力" aria-label="コードを入力">
-        <button type="submit">開く</button>
-        <button id="closeImageSaveGate" class="secondary" type="button">閉じる</button>
-      </form>
-      <p id="imageSaveError" class="save-error" aria-live="polite"></p>
-    </section>
-  </div>
   <div id="imageSaveViewer" class="image-save-modal" role="dialog" aria-modal="true" aria-labelledby="imageSaveViewerTitle">
     <section class="image-save-dialog">
       <h2 id="imageSaveViewerTitle">🍵 湯呑みの集合イラスト</h2>
@@ -254,27 +240,9 @@
   buttons.forEach(b=>b.addEventListener("click",()=>applyTheme(b.dataset.themeChoice)));
 
 
-  const imageGate=document.getElementById("imageSaveGate");
   const imageViewer=document.getElementById("imageSaveViewer");
-  const imageGateForm=document.getElementById("imageSaveGateForm");
-  const imageCodeInput=document.getElementById("imageSaveCode");
-  const imageSaveError=document.getElementById("imageSaveError");
-  const showGate=()=>{imageGate.style.display="flex";imageCodeInput.value="";imageSaveError.textContent="";imageCodeInput.focus();};
-  const hideGate=()=>{imageGate.style.display="none";};
-  document.getElementById("openImageSaveGate").addEventListener("click",showGate);
-  document.getElementById("closeImageSaveGate").addEventListener("click",hideGate);
+  document.getElementById("openImageSaveViewer").addEventListener("click",()=>{imageViewer.style.display="flex";});
   document.getElementById("closeImageSaveViewer").addEventListener("click",()=>{imageViewer.style.display="none";});
-  imageGateForm.addEventListener("submit",e=>{
-    e.preventDefault();
-    if(imageCodeInput.value==="ryokutya"){
-      hideGate();
-      imageViewer.style.display="flex";
-    }else{
-      imageSaveError.textContent="コードが違います。もう一度入力してください。";
-      imageCodeInput.select();
-    }
-  });
-  imageGate.addEventListener("click",e=>{if(e.target===imageGate)hideGate();});
   imageViewer.addEventListener("click",e=>{if(e.target===imageViewer)imageViewer.style.display="none";});
 
   const modal=document.getElementById("playUpdateDetailsModal");

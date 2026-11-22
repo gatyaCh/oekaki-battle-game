@@ -13915,6 +13915,12 @@ function updateStep2Mode(){
 }
 function attackStep2Mode(){
   if(gameOver||stageClear||attackCooldown>0||window.adminPanelInteracting)return;
+  // 🔮弾幕アイテムはSTEP1と同じ発射処理を使い、PC・スマホの両方から発動できる。
+  if(bulletHellReady){
+    fireBulletHell();
+    attackCooldown=window.adminNoCooldown?0:0.3;
+    return;
+  }
   if(["🪃","⚡️","🚨"].includes(weapon)&&typeof window.step2NewWeaponAttack==="function"){
     window.step2NewWeaponAttack();
     attackCooldown=window.adminNoCooldown?0:0.3;
@@ -13990,6 +13996,14 @@ function drawStep2Mode(){
   // STEP 1共通の弓で発射した既存弾も同じ見た目で描画する。
   enemyBullets.forEach(b=>{if(!b.enemy){ctx.font="24px serif";ctx.fillText("🏹",b.x,b.y);}});
   step2Mode.bullets.forEach(b=>{ctx.font="24px serif";ctx.fillText(b.emoji,b.x,b.y);});
+  // STEP1と同じ🔮弾幕アイテムの待機表示・発射弾をSTEP2でも描画する。
+  if(bulletHellReady){
+    const colors=["🔴","🔵","🟡","🟢"];
+    ctx.font="28px serif";
+    for(let i=0;i<12;i++){const a=Math.PI*2*i/12;ctx.fillText(colors[Math.floor(i/3)],p.x+Math.cos(a)*55,p.y+Math.sin(a)*55);}
+  }
+  ctx.font="24px serif";
+  bulletHellBullets.forEach(b=>ctx.fillText(b.color||"🔮",b.x,b.y));
   ctx.font="34px serif";ctx.fillText(typeof window.getSelectedSkinEmoji==="function"?window.getSelectedSkinEmoji():"🙂",p.x,p.y);
   // STEP 1と同じ既存の攻撃範囲リング・武器絵文字をSTEP 2でも表示。
   if(slashTimer>0){ctx.strokeStyle="yellow";ctx.lineWidth=6;ctx.beginPath();ctx.arc(p.x,p.y,72+charge/2,0,Math.PI*2);ctx.stroke();ctx.lineWidth=1;ctx.font="24px serif";ctx.fillText(weapon,p.x+25,p.y+28);}

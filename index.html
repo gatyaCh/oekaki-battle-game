@@ -14187,10 +14187,18 @@ function advanceStep2Mode(){
   function updateHud(){if(hud)hud.textContent="⚡ ADMIN BOOST ×"+Number(window.strmPlayerAttackMultiplier||1).toFixed(1);}
   function openPanel(){
     ensurePanel();
-    const mobile=document.body.classList.contains("mobile-mode");
-    const landscape=mobile&&window.matchMedia("(max-width:900px) and (orientation:landscape)").matches;
-    const styles={position:"fixed",left:mobile?"6px":"10px",right:"auto",top:mobile?"6px":"10px",bottom:"auto",transform:"none",margin:"0",zIndex:"960006",width:mobile?(landscape?"min(210px, 30vw)":"180px"):"210px",maxWidth:mobile?(landscape?"30vw":"42vw"):"calc(100vw - 20px)",maxHeight:mobile?(landscape?"86vh":"42vh"):"85vh",overflowY:"auto",boxSizing:"border-box",background:"rgba(0,0,0,.9)",color:"white",border:"2px solid #fff",borderRadius:"8px",textAlign:"left",font:"12px sans-serif"};
-    Object.entries(styles).forEach(([k,v])=>panel.style.setProperty(k.replace(/[A-Z]/g,m=>"-"+m.toLowerCase()),v,"important"));
+    // 実際に表示されている通常管理者パネルの計算済みCSSをそのまま複製する。
+    // 端末判定や独自の固定値を使わず、PC/スマホ/横向きで常に同じ位置・大きさにする。
+    const adminPanel=document.getElementById("adminPanel");
+    if(adminPanel){
+      const adminStyle=window.getComputedStyle(adminPanel);
+      ["position","left","right","top","bottom","transform","margin","zIndex","width","minWidth","maxWidth","height","maxHeight","overflowY","boxSizing","background","color","border","borderRadius","textAlign","font"].forEach(prop=>{
+        const value=adminStyle.getPropertyValue(prop.replace(/[A-Z]/g,m=>"-"+m.toLowerCase()));
+        if(value)panel.style.setProperty(prop.replace(/[A-Z]/g,m=>"-"+m.toLowerCase()),value,"important");
+      });
+    }else{
+      panel.style.cssText+=";position:fixed!important;left:10px!important;top:10px!important;right:auto!important;bottom:auto!important;transform:none!important;width:210px!important;max-height:85vh!important;z-index:960005!important";
+    }
     panel.querySelector("#strmEnemySpeed").value=String(window.strmEnemySpeedMultiplier);
     panel.querySelector("#strmEnemyDamage").value=String(window.strmEnemyDamageMultiplier);
     panel.querySelector("#strmPlayerBoost").value=String(window.strmPlayerAttackMultiplier);

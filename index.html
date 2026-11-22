@@ -14215,6 +14215,14 @@ function advanceStep2Mode(){
     step2DamagePlayer=function(amount){return originalStep2DamagePlayer(amount*(Number(window.strmEnemyDamageMultiplier)||1));};
   }
 
+  if(typeof step2Move==="function"){
+    const originalStep2Move=step2Move;
+    step2Move=function(obj,dx,dy,r){
+      if(obj===enemy||(Array.isArray(minions)&&minions.includes(obj))){const speed=Number(window.strmEnemySpeedMultiplier)||1;dx*=speed;dy*=speed;}
+      return originalStep2Move(obj,dx,dy,r);
+    };
+  }
+
   const originalDraw=draw;
   draw=function(){originalDraw();if(panelOpen)updateBoxCount();};
 })();

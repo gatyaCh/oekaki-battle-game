@@ -5511,6 +5511,70 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   window.closeStoryWorld3Gate=function(){hideStory("storyWorld3CodeGate");window.openStoryExplore();};
   window.submitStoryWorld3Code=function(){const input=$story("storyWorld3CodeInput"),message=$story("storyWorld3CodeMessage");if(!input||!message)return;if(!storyWorld3HasPrerequisites()){message.textContent="先にワールド1・2をクリアしてください。";return;}const entered=String(input.value||"").normalize("NFKC").replace(/[\s\u200B-\u200D\uFEFF]/g,"").toLowerCase();if(entered!=="utor"){message.textContent="❌ コードが違います。";input.select();return;}storyWorld3Authorized=true;input.value="";hideStory("storyWorld3CodeGate");window.openStoryWorld3Explore();};
   const storyWorld3Position={x:2100,y:1550};const storyWorld3Keys=new Set();let storyWorld3MoveFrame=0;const storyWorld3KeyMap={arrowup:[0,-1],w:[0,-1],arrowdown:[0,1],s:[0,1],arrowleft:[-1,0],a:[-1,0],arrowright:[1,0],d:[1,0]};function storyWorld3Visible(){const el=$story("storyWorld3ExploreScreen");return !!(el&&!el.classList.contains("hidden"));}function storyWorld3MoveTick(){if(!storyWorld3Visible()){storyWorld3MoveFrame=0;return;}let dx=0,dy=0;storyWorld3Keys.forEach(k=>{const d=storyWorld3KeyMap[k];if(d){dx+=d[0];dy+=d[1];}});if(dx&&dy){dx*=.7071;dy*=.7071;}storyWorld3Position.x=Math.max(45,Math.min(3155,storyWorld3Position.x+dx*4.2));storyWorld3Position.y=Math.max(70,Math.min(1920,storyWorld3Position.y+dy*4.2));const player=$story("storyWorld3Player"),view=$story("storyWorld3ExploreScreen")?.querySelector(".w3-station-viewport");if(player){player.style.left=storyWorld3Position.x+"px";player.style.top=storyWorld3Position.y+"px";player.classList.toggle("moving",!!(dx||dy));}if(view){view.scrollLeft=Math.max(0,storyWorld3Position.x-view.clientWidth/2);view.scrollTop=Math.max(0,storyWorld3Position.y-view.clientHeight/2);}storyWorld3MoveFrame=requestAnimationFrame(storyWorld3MoveTick);}window.openStoryWorld3Explore=function(){if(!storyWorld3HasPrerequisites()){window.openStoryWorld3Gate();return;}if(!storyWorld3Authorized){window.openStoryWorld3Gate();return;}hideStory("storyWorld3CodeGate");hideStory("storyWorldScreen");hideStory("storyWorld3CodeGate");hideStory("storyWorld3StageScreen");hideStory("storyExploreScreen");if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}storyExploreKeys.clear();showStory("storyWorld3ExploreScreen");storyWorld3Position.x=2100;storyWorld3Position.y=1550;storyWorld3Keys.clear();const player=$story("storyWorld3Player");if(player){player.style.left="2100px";player.style.top="1550px";}const view=$story("storyWorld3ExploreScreen").querySelector(".w3-station-viewport");if(view){view.scrollLeft=Math.max(0,storyWorld3Position.x-view.clientWidth/2);view.scrollTop=Math.max(0,storyWorld3Position.y-view.clientHeight/2);}if(storyWorld3MoveFrame)cancelAnimationFrame(storyWorld3MoveFrame);storyWorld3MoveFrame=requestAnimationFrame(storyWorld3MoveTick);};window.closeStoryWorld3Explore=function(){hideStory("storyWorld3ExploreScreen");storyWorld3Keys.clear();if(storyWorld3MoveFrame){cancelAnimationFrame(storyWorld3MoveFrame);storyWorld3MoveFrame=0;}if(storyExploreVisible()){storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);}else{window.openStoryExplore();}};document.addEventListener("keydown",function(e){if(!storyWorld3Visible())return;const k=e.key.toLowerCase();if(storyWorld3KeyMap[k]){e.preventDefault();storyWorld3Keys.add(k);}});document.addEventListener("keyup",function(e){storyWorld3Keys.delete(e.key.toLowerCase());});window.addEventListener("blur",function(){storyWorld3Keys.clear();});
+  let storyWorld3StageOverlay=null;
+  window.launchStoryWorld3Stage=function(id){
+    if(!storyWorld3Authorized){window.openStoryWorld3Gate();return;}
+    const stageId=String(id);
+    if(["3-3","3-4","3-5","3-6"].includes(stageId)){
+      hideStory("storyWorld3ExploreScreen");
+      if(storyWorld3MoveFrame){cancelAnimationFrame(storyWorld3MoveFrame);storyWorld3MoveFrame=0;}
+      storyWorld3Keys.clear();
+      window.startStoryBattle(stageId);
+      return;
+    }
+    const chapters={
+      "3-1":{title:"3-1 浮島の昔の話",lines:[
+        ["主人公","研究記録に古い巻物の記述がある……。"],
+        ["巻物の記録","この浮島は、かつて太陽系の一部に存在していた。島の住人たちは平和に暮らしていた。"],
+        ["巻物の記録","ある日、黒い煙が空を覆い、結晶が生まれた。それは周囲に広がり、闇をもたらした。"],
+        ["巻物の記録","黒い結晶は危険な力を持っている。私は最後の生き残りとして、この記録を残す。"],
+        ["主人公","この巻物を書いた人は、今どこにいるんだろう……。"]
+      ]},
+      "3-2":{title:"3-2 作業現場の報告",lines:[
+        ["同僚","おーい！やっと来た！急いでくれ、現場が大変なんだ！"],
+        ["主人公","何があったの？"],
+        ["同僚","レーダーに銀河の中を動く正体不明の黒い影が映ったんだ。隕石のようなものも落ちてきている。"],
+        ["主人公","黒い影……黒い結晶と関係があるのか？"],
+        ["同僚","詳しく調べるために宇宙船へ向かおう。ただ、発射場までの道に岩石が落ちてきている。"]
+      ]},
+      "3-8":{title:"3-8 暗黒空間へ",lines:[
+        ["同僚","ワープ中に少し話しておきたい。今回の黒い結晶と、浮島で起きたこと……無関係とは思えない。"],
+        ["主人公","あの巻物には、黒い煙が空を覆い、結晶が広がったと書かれていた。"],
+        ["同僚","レーダーの黒い影も同じ現象なのかもしれない。"],
+        ["主人公","この先に何が待っているんだろう……。"],
+        ["ナレーション","宇宙船はワームホールを抜け、見たことのない暗い空間へ到着した。ワールド3・完"]
+      ]}
+    };
+    if(stageId==="3-7"){window.startStoryWorld37Puzzle();return;}
+    const chapter=chapters[stageId];if(!chapter)return;
+    let index=0;
+    if(storyWorld3StageOverlay)storyWorld3StageOverlay.remove();
+    const root=document.createElement("div");root.id="storyWorld3StageOverlay";
+    root.style.cssText="position:fixed;inset:0;z-index:16050;display:grid;place-items:center;padding:16px;background:#020617dd;color:#e0f2fe";
+    const card=document.createElement("div");card.style.cssText="width:min(760px,96vw);padding:26px;border:2px solid #38bdf8;border-radius:20px;background:linear-gradient(145deg,#102b46,#071426);box-shadow:0 0 40px #0ea5e966;text-align:center";
+    const title=document.createElement("h2");title.textContent=chapter.title;
+    const who=document.createElement("strong");who.style.cssText="display:block;margin:22px 0 8px;color:#7dd3fc";
+    const line=document.createElement("p");line.style.cssText="min-height:80px;font-size:18px;line-height:1.8";
+    const next=document.createElement("button");next.className="story-action";next.textContent="次へ ▶";
+    next.onclick=()=>{index++;if(index>=chapter.lines.length){try{localStorage.setItem("storyWorld3Stage"+stageId.replace("-","")+"Cleared","1");}catch(e){}root.remove();showStory("storyWorld3ExploreScreen");if(!storyWorld3MoveFrame)storyWorld3MoveFrame=requestAnimationFrame(storyWorld3MoveTick);return;}render();};
+    function render(){who.textContent=chapter.lines[index][0];line.textContent=chapter.lines[index][1];next.textContent=index===chapter.lines.length-1?"探索フィールドへ戻る":"次へ ▶";}
+    card.append(title,who,line,next);root.appendChild(card);document.body.appendChild(root);storyWorld3StageOverlay=root;hideStory("storyWorld3ExploreScreen");if(storyWorld3MoveFrame){cancelAnimationFrame(storyWorld3MoveFrame);storyWorld3MoveFrame=0;}render();
+  };
+  window.startStoryWorld37Puzzle=function(){
+    if(storyWorld3StageOverlay)storyWorld3StageOverlay.remove();
+    const root=document.createElement("div");root.id="storyWorld3StageOverlay";root.style.cssText="position:fixed;inset:0;z-index:16050;display:grid;place-items:center;padding:16px;background:#020617ed;color:#e0f2fe";
+    const card=document.createElement("div");card.style.cssText="width:min(720px,96vw);padding:24px;border:2px solid #38bdf8;border-radius:20px;background:#0b1b32;text-align:center";
+    const title=document.createElement("h2");title.textContent="3-7 ロケット発射シーケンス";
+    const info=document.createElement("p");info.textContent="3つのレバーを正しい順番で操作しよう。ヒント：左から順番ではない。制限時間30秒。";
+    const row=document.createElement("div");row.style.cssText="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:24px 0";
+    const status=document.createElement("p");status.textContent="順番を選んでください";
+    const order=[2,0,1];let step=0,finished=false;let remaining=30;
+    const timer=document.createElement("strong");timer.textContent="30秒";
+    const buttons=[0,1,2].map((n)=>{const b=document.createElement("button");b.className="story-action";b.textContent="レバー "+(n+1);b.onclick=()=>{if(finished)return;if(order[step]!==n){step=0;status.textContent="順番が違う！最初からやり直そう。";}else{step++;status.textContent=step===3?"レバー成功！次は起動ボタンだ。":"正解！次のレバーへ。";if(step===3){buttons.forEach(x=>x.disabled=true);const start=document.createElement("button");start.className="story-action";start.textContent="起動ボタン";start.onclick=()=>{status.textContent="🚀 ロケット発射！ワームホールへ向かう！";finished=true;start.disabled=true;setTimeout(()=>{root.remove();window.launchStoryWorld3Stage("3-8");},900);};card.appendChild(start);}}};row.appendChild(b);return b;});
+    const close=document.createElement("button");close.className="story-action";close.textContent="探索フィールドへ戻る";close.onclick=()=>{finished=true;root.remove();showStory("storyWorld3ExploreScreen");if(!storyWorld3MoveFrame)storyWorld3MoveFrame=requestAnimationFrame(storyWorld3MoveTick);};
+    card.append(title,info,timer,row,status,close);root.appendChild(card);document.body.appendChild(root);storyWorld3StageOverlay=root;hideStory("storyWorld3ExploreScreen");if(storyWorld3MoveFrame){cancelAnimationFrame(storyWorld3MoveFrame);storyWorld3MoveFrame=0;}
+    const interval=setInterval(()=>{if(!root.isConnected||finished){clearInterval(interval);return;}remaining--;timer.textContent=remaining+"秒";if(remaining<=0){clearInterval(interval);step=0;status.textContent="時間切れ！探索フィールドに戻って再挑戦してね。";buttons.forEach(x=>x.disabled=true);}},1000);
+  };
   // 旧ステージ一覧への呼び出しも、ワールド3探索拠点へ直接移動する。
   window.openStoryWorld3Stages=function(){window.openStoryWorld3Explore();};
   function renderStoryWorld2Stages(){const grid=$story("storyWorld2StageGrid");if(!grid)return;grid.innerHTML="";[["2-1","次元の裂け目"],["2-2","赤い結晶"],["2-3","緑の結晶"],["2-4","水色の結晶"],["2-5","黒い結晶"],["2-6","結晶のゲート"],["2-7","黒い影の正体"],["2-8","崩壊した浮遊都市"]].forEach(([id,name])=>{let done=false,unlocked=true;try{done=localStorage.getItem(id==="2-1"?"storyWorld2Stage1Cleared":"story"+id.replace("-","")+"Cleared")==="1";if(id==="2-7")unlocked=localStorage.getItem("story26Cleared")==="1";if(id==="2-8")unlocked=localStorage.getItem("story27Cleared")==="1";}catch(e){if(id==="2-7")unlocked=false;}const card=document.createElement("div");card.className="story-stage-card"+(done?" cleared":unlocked?" unlocked":"");const title=document.createElement("strong");title.textContent=id;card.appendChild(title);const label=document.createElement("div");label.style.cssText="font-size:12px;margin-top:4px";label.textContent=name;card.appendChild(label);const status=document.createElement("div");status.style.cssText="font-size:12px;margin-top:5px";status.textContent=done?"✅ クリア":unlocked?"プレイ可能":id==="2-8"?"🔒 2-7クリアで解放":"🔒 2-6クリアで解放";card.appendChild(status);const btn=document.createElement("button");btn.type="button";btn.textContent=done?"もう一度見る":unlocked?"プレイ":"ロック中";btn.disabled=!unlocked;btn.addEventListener("click",()=>{if(!unlocked)return;storyWorld2PendingStage=id;window.openStoryCodeGate(false);});card.appendChild(btn);grid.appendChild(card);});};
@@ -11949,7 +12013,11 @@ body.special-code-open #adminAbuseDialogue.active{
  "2-2":{title:"2-2「赤い結晶」",subtitle:"赤い結晶を宿した敵を含む3体を倒そう",scene:"island-red",enemies:[["影の敵①",100,7],["影の敵②",100,7],["赤い結晶の敵",100,50,"red","攻撃力50"]]},
  "2-3":{title:"2-3「緑の結晶」",subtitle:"攻撃をかわす緑の結晶の敵に注意しよう",scene:"island-green",enemies:[["影の敵①",110,7],["緑の結晶の敵",110,7,"green","回避率20%"],["影の敵③",110,7]]},
  "2-4":{title:"2-4「水色の結晶」",subtitle:"体力の高い水色の結晶の敵を倒そう",scene:"island-cyan",enemies:[["影の敵①",110,7],["影の敵②",110,7],["水色の結晶の敵",200,7,"cyan","HP200"],["影の敵④",110,7]]},
- "2-5":{title:"2-5「黒い結晶」",subtitle:"黒い結晶の敵はHPが50以下になると仲間を吸収する",scene:"island-black",enemies:[["影の敵①",115,7],["影の敵②",115,7],["影の敵③",115,7],["影の敵④",115,7],["黒い結晶の敵",115,7,"black","HP50以下で吸収"]]}
+ "2-5":{title:"2-5「黒い結晶」",subtitle:"黒い結晶の敵はHPが50以下になると仲間を吸収する",scene:"island-black",enemies:[["影の敵①",115,7],["影の敵②",115,7],["影の敵③",115,7],["影の敵④",115,7],["黒い結晶の敵",115,7,"black","HP50以下で吸収"]]},
+ "3-3":{title:"3-3「黒い結晶の岩石①」",subtitle:"黒い結晶を宿した岩石を3体倒そう",scene:"grass",enemies:[["結晶岩石①",120,28],["結晶岩石②",120,28],["結晶岩石③",120,28]]},
+ "3-4":{title:"3-4「黒い結晶の岩石②」",subtitle:"攻撃力の高い岩石3体に注意しよう",scene:"grass",enemies:[["結晶岩石①",125,34],["結晶岩石②",125,34],["結晶岩石③",125,34]]},
+ "3-5":{title:"3-5「黒い結晶の岩石③」",subtitle:"4体の岩石をすべて倒そう",scene:"grass",enemies:[["結晶岩石①",115,30],["結晶岩石②",115,30],["結晶岩石③",115,30],["結晶岩石④",115,30]]},
+ "3-6":{title:"3-6「黒い結晶の岩石④」",subtitle:"5体の岩石が行く手をふさいでいる",scene:"grass",enemies:[["結晶岩石①",115,25],["結晶岩石②",115,25],["結晶岩石③",115,25],["結晶岩石④",115,25],["結晶岩石⑤",115,25]]}
  };
  const prompts={attack:"お題：剣を描こう！",dodge:"お題：翼を描こう！",defend:"お題：盾を描こう！",heal:"お題：回復の薬を描こう！"};
  const introLinesByStage={
@@ -11979,7 +12047,11 @@ body.special-code-open #adminAbuseDialogue.active{
  "2-2":[["ナレーション","主人公は、結晶に覆われた浮島のひとつに降り立った。","","crystal-red"],["主人公","街のような建物が並んでいる……。でも、どこも崩れている。","","crystal-red"],["ナレーション","廃墟の奥から黒い影のような敵が3体現れた。","shadow-rise","crystal-red"],["主人公","こっちに気づいたみたいだ……！戦うしかない！","crystal-glow","crystal-red"]],
  "2-3":[["ナレーション","次の浮島には、緑色の結晶が建物や地面に広がっていた。","","crystal-green"],["主人公","この島の結晶は、さっきの赤いものとは違う……。","","crystal-green"],["ナレーション","結晶の陰から、3体の影の敵が姿を現した。","shadow-rise","crystal-green"],["主人公","緑の結晶を持つ敵がいる。動きに注意しよう！","crystal-glow","crystal-green"]],
  "2-4":[["ナレーション","さらに奥の浮島へ進むと、水色の結晶が街全体を覆っていた。","","crystal-cyan"],["主人公","結晶が壁みたいになっている……。かなり頑丈そうだ。","","crystal-cyan"],["ナレーション","4体の影の敵が行く手をふさいだ。そのうち1体は大きな水色の結晶を身につけている。","shadow-rise","crystal-cyan"],["主人公","あの結晶を持つ敵は、ほかより体力が高そうだ……！","crystal-glow","crystal-cyan"]],
- "2-5":[["ナレーション","最後の浮島は、黒い結晶に深く覆われていた。周囲の空気まで重く感じる。","","crystal-black"],["主人公","この黒い結晶……今まで見たものと何か違う。","","crystal-black"],["ナレーション","5体の影の敵が現れた。その中心には、ひときわ大きな黒い結晶を持つ敵がいる。","shadow-rise","crystal-black"],["主人公","あいつから強い気配を感じる……。油断しないでいこう！","crystal-glow","crystal-black"]]
+ "2-5":[["ナレーション","最後の浮島は、黒い結晶に深く覆われていた。周囲の空気まで重く感じる。","","crystal-black"],["主人公","この黒い結晶……今まで見たものと何か違う。","","crystal-black"],["ナレーション","5体の影の敵が現れた。その中心には、ひときわ大きな黒い結晶を持つ敵がいる。","shadow-rise","crystal-black"],["主人公","あいつから強い気配を感じる……。油断しないでいこう！","crystal-glow","crystal-black"]],
+ "3-3":[["ナレーション","宇宙ステーションの外周に、黒い結晶をまとった岩石が落下していた。","","grassland"],["主人公","岩石の中に黒い結晶が埋まっている……。近づいて調べよう。","","grassland"],["ナレーション","岩石が動き出し、こちらへ向かってくる！","impact","encounter"],["主人公","まずはこの3体を止める！","reveal","encounter"]],
+ "3-4":[["ナレーション","さらに奥にも黒い結晶の岩石が転がっている。","","grassland"],["主人公","さっきより大きい反応だ……。攻撃に気をつけないと！","","grassland"],["ナレーション","3体の岩石が一斉に動き出した。","impact","encounter"]],
+ "3-5":[["ナレーション","調査区域の奥で、4体の岩石が道をふさいでいた。","","grassland"],["主人公","数が増えている……。囲まれないようにしよう！","reveal","encounter"]],
+ "3-6":[["ナレーション","発射場へ続く最後の通路に、5体の岩石が集まっていた。","","grassland"],["主人公","ここを突破しないとロケットにたどり着けない！","reveal","encounter"]]
  };
  let introLines=[];
  let stage="",hp=300,enemies=[],target=0,action="",strokes=[],drawing=false,last=null,introIndex=0,playerGuard=0,playerDodge=0,turnBusy=false,rewardShown=false,absorptionTriggered=false;

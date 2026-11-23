@@ -3662,6 +3662,9 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 .w3-station-crew{position:absolute;left:50%;bottom:13%;font-size:42px;filter:drop-shadow(0 0 10px #38bdf8)}
 .w3-station-player{position:absolute;z-index:12;left:2100px;top:1550px;transform:translate(-50%,-50%);width:54px;height:54px;display:flex;align-items:center;justify-content:center;border:2px solid #67e8f9;border-radius:50%;background:#082f49dd;box-shadow:0 0 22px #38bdf8;font-size:34px;pointer-events:none;transition:filter .08s}
 .w3-station-player.moving{filter:brightness(1.35);box-shadow:0 0 30px #67e8f9}
+/* Stage entrance panels stay visually above the moving player; hit areas remain active. */
+.w3-station-player{z-index:1!important;pointer-events:none!important}
+.w3-station-wing.w3-wing-stage{z-index:1000!important;pointer-events:auto!important}
 .w3-station-battle-zone{position:absolute;left:40px;top:70px;width:1050px;height:1350px;border:2px solid #64748b;border-radius:32px;background:radial-gradient(ellipse at 50% 50%,#334155,#0f172a 72%);box-shadow:inset 0 0 50px #020617}
 .w3-zone-title{position:absolute;top:24px;left:0;right:0;text-align:center;font-size:24px;font-weight:900;color:#e2e8f0}.w3-zone-desc{position:absolute;top:65px;left:0;right:0;text-align:center;color:#cbd5e1;font-size:13px}
 .w3-stage-door{position:absolute;z-index:20;min-width:150px;min-height:76px;border:2px solid #f59e0b;border-radius:15px;background:linear-gradient(145deg,#713f12,#1c1917);color:#fef3c7;font-weight:900;font-size:16px;box-shadow:0 0 20px #f59e0b55;cursor:pointer}.w3-stage-door:hover{filter:brightness(1.25);transform:translateY(-2px)}.w3-stage-upper{border-color:#a78bfa;background:linear-gradient(145deg,#4c1d95,#111827);color:#ede9fe;box-shadow:0 0 24px #8b5cf655}

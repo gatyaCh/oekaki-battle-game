@@ -3672,6 +3672,11 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 #storyWorld3StageOverlay .w3-story-card{position:relative;z-index:2;animation:w3StoryCardIn .65s ease-out both}
 #storyWorld3StageOverlay.w3-story-animated .w3-story-line{animation:w3StoryLineIn .42s ease-out both}
 @keyframes w3RadarSweep{to{transform:rotate(360deg)}}
+#storyWorld3StageOverlay.w3-launch-animated .w3-launch-rocket{display:inline-block;font-size:54px;filter:drop-shadow(0 0 15px #7dd3fc);animation:w3RocketHover 1.8s ease-in-out infinite}
+#storyWorld3StageOverlay.w3-launch-animated .w3-launch-light{width:130px;height:8px;margin:10px auto 16px;border-radius:50%;background:#38bdf8;box-shadow:0 0 12px 5px #38bdf8;animation:w3LaunchPulse 1.2s ease-in-out infinite}
+@keyframes w3RocketHover{50%{transform:translateY(-10px) rotate(-3deg)}}
+@keyframes w3LaunchPulse{50%{opacity:.35;transform:scaleX(.65)}}
+@media(prefers-reduced-motion:reduce){#storyWorld3StageOverlay.w3-launch-animated .w3-launch-rocket,#storyWorld3StageOverlay.w3-launch-animated .w3-launch-light{animation:none!important}}
 @keyframes w3MeteorFly{0%{left:-22%;top:12%;opacity:0}12%{opacity:1}85%{opacity:.9}100%{left:120%;top:75%;opacity:0}}
 @keyframes w3StarDrift{to{background-position:260px 220px}}
 @keyframes w3StoryCardIn{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
@@ -5642,8 +5647,8 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     if(storyWorld3StageOverlay)storyWorld3StageOverlay.remove();
     const root=document.createElement("div");root.id="storyWorld3StageOverlay";root.style.cssText="position:fixed;inset:0;z-index:16050;display:grid;place-items:center;padding:16px;background:#020617ed;color:#e0f2fe";
     const card=document.createElement("div");card.style.cssText="width:min(720px,96vw);padding:24px;border:2px solid #38bdf8;border-radius:20px;background:#0b1b32;text-align:center";
-    const title=document.createElement("h2");title.textContent="3-7 ロケット発射シーケンス";
-    const info=document.createElement("p");info.textContent="3つのレバーを正しい順番で操作しよう。ヒント：左から順番ではない。制限時間30秒。";
+    root.classList.add("w3-launch-animated");const title=document.createElement("h2");title.textContent="3-7 ロケット発射シーケンス";
+    const rocket=document.createElement("div");rocket.className="w3-launch-rocket";rocket.textContent="🚀";const launchLight=document.createElement("div");launchLight.className="w3-launch-light";const info=document.createElement("p");info.textContent="3つのレバーを正しい順番で操作しよう。ヒント：左から順番ではない。制限時間30秒。";
     const row=document.createElement("div");row.style.cssText="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:24px 0";
     const status=document.createElement("p");status.textContent="順番を選んでください";
     const leverOrder=[2,0,1],buttonOrder=[1,3,0,2];let step=0,phase=0,finished=false,remaining=30;
@@ -5652,7 +5657,7 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     function makeControls(){buttons=[];const order=phase===0?leverOrder:buttonOrder;const count=phase===0?3:4;for(let n=0;n<count;n++){const b=document.createElement("button");b.className="story-action";b.textContent=phase===0?"レバー "+(n+1):"起動ボタン "+(n+1);b.onclick=()=>{if(finished)return;if(order[step]!==n){resetPuzzle("順番が違う！最初からやり直し！");return;}step++;status.textContent="正解！";if(step===count){if(phase===0){phase=1;step=0;remaining=30;timer.textContent="30秒";info.textContent="次は4つの起動ボタンを正しい順番で押そう。ヒント：右から2番目 → 右端 → 左端 → 左から2番目。制限時間30秒。";status.textContent="レバー成功！起動ボタンへ！";row.innerHTML="";makeControls();}else{status.textContent="🚀 ロケット発射！ワームホールへ向かう！";finished=true;buttons.forEach(x=>x.disabled=true);setTimeout(()=>{root.remove();window.launchStoryWorld3Stage("3-8");},900);}}};row.appendChild(b);buttons.push(b);}}
     makeControls();
     const close=document.createElement("button");close.className="story-action";close.textContent="探索フィールドへ戻る";close.onclick=()=>{finished=true;root.remove();showStory("storyWorld3ExploreScreen");if(!storyWorld3MoveFrame)storyWorld3MoveFrame=requestAnimationFrame(storyWorld3MoveTick);};
-    card.append(title,info,timer,row,status,close);root.appendChild(card);document.body.appendChild(root);storyWorld3StageOverlay=root;hideStory("storyWorld3ExploreScreen");if(storyWorld3MoveFrame){cancelAnimationFrame(storyWorld3MoveFrame);storyWorld3MoveFrame=0;}
+    card.append(title,rocket,launchLight,info,timer,row,status,close);root.appendChild(card);document.body.appendChild(root);storyWorld3StageOverlay=root;hideStory("storyWorld3ExploreScreen");if(storyWorld3MoveFrame){cancelAnimationFrame(storyWorld3MoveFrame);storyWorld3MoveFrame=0;}
     const interval=setInterval(()=>{if(!root.isConnected||finished){clearInterval(interval);return;}remaining--;timer.textContent=remaining+"秒";if(remaining<=0){resetPuzzle("時間切れ！最初からやり直し！");}},1000);
   };
   // 旧ステージ一覧への呼び出しも、ワールド3探索拠点へ直接移動する。

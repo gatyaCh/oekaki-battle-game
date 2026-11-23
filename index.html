@@ -3670,6 +3670,8 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 #storyWorld3StageOverlay .w3-story-meteor{position:absolute;top:12%;left:-18%;width:150px;height:3px;border-radius:50%;background:linear-gradient(90deg,transparent,#bae6fd,#fff);box-shadow:0 0 14px #38bdf8;transform:rotate(24deg);animation:w3MeteorFly 6s ease-in infinite;pointer-events:none}
 #storyWorld3StageOverlay .w3-story-meteor.m2{top:32%;animation-delay:2.8s;animation-duration:7s;transform:rotate(18deg) scale(.7)}
 #storyWorld3StageOverlay .w3-story-card{position:relative;z-index:2;animation:w3StoryCardIn .65s ease-out both}
+#storyWorld3StageOverlay .w3-dialogue-portrait{position:relative;z-index:2;width:92px;height:92px;margin:12px auto 6px;display:grid;place-items:center;border:2px solid #7dd3fc;border-radius:50%;background:radial-gradient(circle,#164e63,#082f49);font-size:58px;box-shadow:0 0 24px #38bdf866;animation:w3ColleagueEnter .55s cubic-bezier(.2,.8,.2,1) both}
+@keyframes w3ColleagueEnter{from{opacity:0;transform:translateY(20px) scale(.65) rotate(-8deg)}to{opacity:1;transform:translateY(0) scale(1) rotate(0)}}
 #storyWorld3StageOverlay.w3-story-animated .w3-story-line{animation:w3StoryLineIn .42s ease-out both}
 @keyframes w3RadarSweep{to{transform:rotate(360deg)}}
 #storyWorld3StageOverlay.w3-launch-animated .w3-launch-rocket{display:inline-block;font-size:54px;filter:drop-shadow(0 0 15px #7dd3fc);animation:w3RocketHover 1.8s ease-in-out infinite}
@@ -3684,7 +3686,7 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 @media(prefers-reduced-motion:reduce){#storyWorld3StageOverlay .w3-story-stars,#storyWorld3StageOverlay .w3-story-radar:after,#storyWorld3StageOverlay .w3-story-meteor,#storyWorld3StageOverlay .w3-story-card,#storyWorld3StageOverlay.w3-story-animated .w3-story-line{animation:none!important}}
 
 /* Stage entrance panels stay visually above the moving player; hit areas remain active. */
-.w3-station-player{z-index:1!important;pointer-events:none!important}
+.w3-station-player{z-index:0!important;pointer-events:none!important}
 .w3-station-wing.w3-wing-stage{z-index:1000!important;pointer-events:auto!important}
 .w3-station-battle-zone{position:absolute;left:40px;top:70px;width:1050px;height:1350px;border:2px solid #64748b;border-radius:32px;background:radial-gradient(ellipse at 50% 50%,#334155,#0f172a 72%);box-shadow:inset 0 0 50px #020617}
 .w3-zone-title{position:absolute;top:24px;left:0;right:0;text-align:center;font-size:24px;font-weight:900;color:#e2e8f0}.w3-zone-desc{position:absolute;top:65px;left:0;right:0;text-align:center;color:#cbd5e1;font-size:13px}
@@ -5594,6 +5596,11 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
       }
     }
   },true);
+  // World 3: use the normal attack control to enter a nearby 3-1 / 3-2 entrance.
+  function storyWorld3NearbyEntrance(){const player=$story("storyWorld3Player");if(!player)return null;const pr=player.getBoundingClientRect();const pcx=pr.left+pr.width/2,pcy=pr.top+pr.height/2;let best=null,bestD=Infinity;for(const [id,selector] of [["3-1",".w3-wing-left"],["3-2",".w3-wing-right"]]){const el=document.querySelector("#storyWorld3ExploreScreen "+selector);if(!el)continue;const r=el.getBoundingClientRect();const cx=r.left+r.width/2,cy=r.top+r.height/2;const d=Math.hypot(cx-pcx,cy-pcy);if(d<Math.max(150,Math.max(r.width,r.height)*.62)&&d<bestD){best={id,el};bestD=d;}}return best;}
+  function storyWorld3AttackEnter(e){if(!storyWorld3Visible())return;const nearby=storyWorld3NearbyEntrance();if(!nearby)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();window.launchStoryWorld3Stage(nearby.id);}
+  document.addEventListener("keydown",function(e){if(!storyWorld3Visible()||e.repeat)return;const k=e.key.toLowerCase();if(k==="e"||k===" "||k==="enter")storyWorld3AttackEnter(e);},true);
+  const world3AttackButton=$story("mobileAttack");if(world3AttackButton)world3AttackButton.addEventListener("pointerdown",storyWorld3AttackEnter,{capture:true});
   window.launchStoryWorld3Stage=function(id){
     if(!storyWorld3Authorized){window.openStoryWorld3Gate();return;}
     const stageId=String(id);
@@ -5637,11 +5644,12 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     const card=document.createElement("div");card.className="w3-story-card";card.style.cssText="width:min(760px,96vw);padding:26px;border:2px solid #38bdf8;border-radius:20px;background:linear-gradient(145deg,#102b46,#071426);box-shadow:0 0 40px #0ea5e966;text-align:center";
     const title=document.createElement("h2");title.textContent=chapter.title;
     const who=document.createElement("strong");who.style.cssText="display:block;margin:22px 0 8px;color:#7dd3fc";
+    const portrait=document.createElement("div");portrait.className="w3-dialogue-portrait";portrait.textContent=stageId==="3-2"?"🧑‍🔬":"🧑‍🚀";portrait.setAttribute("aria-hidden","true");
     const line=document.createElement("p");line.className="w3-story-line";line.style.cssText="min-height:80px;font-size:18px;line-height:1.8";
     const next=document.createElement("button");next.className="story-action";next.textContent="次へ ▶";
     next.onclick=()=>{index++;if(index>=chapter.lines.length){try{localStorage.setItem("storyWorld3Stage"+stageId.replace("-","")+"Cleared","1");}catch(e){}root.remove();showStory("storyWorld3ExploreScreen");startStoryWorld3Move();return;}render();};
-    function render(){who.textContent=chapter.lines[index][0];line.classList.remove("w3-story-line");void line.offsetWidth;if(stageId!=="3-1")line.classList.add("w3-story-line");line.textContent=chapter.lines[index][1];next.textContent=index===chapter.lines.length-1?"探索フィールドへ戻る":"次へ ▶";}
-    card.append(title,who,line,next);root.appendChild(card);const mapSelect=$story("mapSelect");if(mapSelect)mapSelect.classList.add("hidden");document.body.appendChild(root);storyWorld3StageOverlay=root;hideStory("storyWorld3ExploreScreen");if(storyWorld3MoveFrame){cancelAnimationFrame(storyWorld3MoveFrame);storyWorld3MoveFrame=0;}render();
+    function render(){who.textContent=chapter.lines[index][0];if(stageId==="3-2"){portrait.textContent=chapter.lines[index][0]==="同僚"?"🧑‍🔬":chapter.lines[index][0]==="主人公"?"🧑‍🚀":"🌌";portrait.classList.remove("w3-dialogue-portrait");void portrait.offsetWidth;portrait.classList.add("w3-dialogue-portrait");}line.classList.remove("w3-story-line");void line.offsetWidth;if(stageId!=="3-1")line.classList.add("w3-story-line");line.textContent=chapter.lines[index][1];next.textContent=index===chapter.lines.length-1?"探索フィールドへ戻る":"次へ ▶";}
+    if(stageId==="3-2")card.append(title,portrait,who,line,next);else card.append(title,who,line,next);root.appendChild(card);const mapSelect=$story("mapSelect");if(mapSelect)mapSelect.classList.add("hidden");document.body.appendChild(root);storyWorld3StageOverlay=root;hideStory("storyWorld3ExploreScreen");if(storyWorld3MoveFrame){cancelAnimationFrame(storyWorld3MoveFrame);storyWorld3MoveFrame=0;}render();
   };
   window.startStoryWorld37Puzzle=function(){
     if(storyWorld3StageOverlay)storyWorld3StageOverlay.remove();

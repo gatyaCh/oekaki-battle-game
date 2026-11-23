@@ -13063,11 +13063,7 @@ body.step2-admin-enabled #adminPanel{
   const original=window.openTreasureChestReward;
   window.openTreasureChestReward=function(){const out=original.apply(this,arguments);unlockAchievement(5);return out;};
  }
- if(typeof window.buyUpgrade==="function"){
-  const original=window.buyUpgrade;
-  window.buyUpgrade=function(key){const out=original.apply(this,arguments);try{const caps={atk:10,speed:10,defense:10,points:10,heal:10,special:8,hp:10};if(key in caps&&upgradeLevels[key]>=caps[key])unlockAchievement(7);}catch(e){}return out;};
- }
- if(typeof window.unlockHalloweenLimitedSkin==="function"){
+  if(typeof window.unlockHalloweenLimitedSkin==="function"){
   const original=window.unlockHalloweenLimitedSkin;
   window.unlockHalloweenLimitedSkin=function(key){const out=original.apply(this,arguments);if(key==="spider")unlockAchievement(9);return out;};
  }
@@ -14492,10 +14488,11 @@ function advanceStep2Mode(){
  let earned=readArray(TITLE_KEY).filter(x=>defs.some(d=>d.name===x));
  let stats={wins:0,deaths:0,goldEarned:0,noDamageStage1:0,...readObject(STATS_KEY)};
  let streak={date:"",days:0,...readObject(STREAK_KEY)};
- let runActive=false,runFinished=false,step2Run=false,combo=0;
+ let runActive=false,runFinished=false,step2Run=false,combo=0,stage1NoDamageCounted=false;
  let checkingMaster=false;
  function isNormalMode(){
   return !(window.halloweenWaveActive===true||window.halloweenMapActive===true||
+   (typeof halloweenWaveActive!=="undefined"&&halloweenWaveActive)||
    document.body.classList.contains("halloween-map")||
    (typeof tutorialActive!=="undefined"&&tutorialActive));
  }
@@ -14564,7 +14561,7 @@ function advanceStep2Mode(){
  window.checkPlayerTitleUpgradeMax=checkUpgradeMax;
  function normalRunStart(isStep2){
   if(!isNormalMode())return;
-  runActive=true;runFinished=false;step2Run=!!isStep2;combo=0;
+  runActive=true;runFinished=false;step2Run=!!isStep2;combo=0;stage1NoDamageCounted=false;
   const now=new Date();
   const today=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
   if(streak.date!==today){
@@ -14624,8 +14621,9 @@ function advanceStep2Mode(){
  };
  const oldNext=window.nextStage;
  if(typeof oldNext==="function")window.nextStage=function(){
-  if(runActive&&!runFinished&&!step2Run&&isNormalMode()&&typeof stage!=="undefined"&&stage===1&&
+  if(runActive&&!runFinished&&!stage1NoDamageCounted&&!step2Run&&isNormalMode()&&typeof stage!=="undefined"&&stage===1&&
      typeof totalDamageTaken!=="undefined"&&totalDamageTaken===stageDamageStartTotal){
+   stage1NoDamageCounted=true;
    stats.noDamageStage1=(Number(stats.noDamageStage1)||0)+1;saveStats();
    if(stats.noDamageStage1>=10)award("evasion_master");
   }

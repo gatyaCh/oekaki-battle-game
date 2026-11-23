@@ -6081,21 +6081,21 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     storyExploreDraw();
     storyExploreFrame=requestAnimationFrame(storyExploreTick);
   }
-  window.openStoryExplore=function(){
+  window.openStoryExplore=function(startAtGrassCenter){
     hideStory("storyWorldScreen");hideStory("storyWorld3StageScreen");hideStory("storyWorld3CodeGate");hideStory("storyStageScreen");hideStory("storyEpisodeScreen");hideStory("storyWorld2StageScreen");
     renderStoryStages();renderStoryExploreEntrances();renderStoryWorld2ExploreEntrances();showStory("storyExploreScreen");
     const top=document.querySelector("#storyExploreScreen .story-explore-top strong");if(top)top.textContent="🌍 全ワールド共通探索フィールド";
     const hint=document.querySelector("#storyExploreScreen .story-explore-hint");if(hint)hint.textContent="街から草原へ進み、時空の裂け目の先にはコード認証が必要なワールド2が広がっている。";
     // ワールド1（1-5）クリア済みなら、次元の裂け目の手前から探索を再開する。
     const world1Cleared=storyWorld2HasStoryClear();
-    storyExplorePosition.x=world1Cleared?2100:420;storyExplorePosition.y=world1Cleared?750:760;
+    storyExplorePosition.x=startAtGrassCenter?1750:(world1Cleared?2100:420);storyExplorePosition.y=startAtGrassCenter?750:(world1Cleared?750:760);
     storyExploreKeys.clear();storyExploreNearbyStage=0;storyExploreNearbyWorld2="";storyExploreNearRift=false;
-    const view=$story("storyExploreViewport");if(view){view.scrollLeft=world1Cleared?Math.max(0,storyExplorePosition.x-view.clientWidth/2):0;view.scrollTop=world1Cleared?Math.max(0,storyExplorePosition.y-view.clientHeight/2):0;}
+    const view=$story("storyExploreViewport");if(view){view.scrollLeft=(startAtGrassCenter||world1Cleared)?Math.max(0,storyExplorePosition.x-view.clientWidth/2):0;view.scrollTop=(startAtGrassCenter||world1Cleared)?Math.max(0,storyExplorePosition.y-view.clientHeight/2):0;}
     storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);
   };
   window.switchStoryWorld=function(world){
     const w=Number(world);
-    if(w===1){window.openStoryExplore();return;}
+    if(w===1){window.openStoryExplore(true);return;}
     if(w===2){
       if(!storyWorld2HasStoryClear()){alert("🔒 ワールド1をクリアするとワールド2へ移動できるよ。");return;}
       storyWorld2Authorized=true;window.openStoryWorld2Explore();return;

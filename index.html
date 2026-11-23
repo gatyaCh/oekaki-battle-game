@@ -3667,6 +3667,16 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 .w3-stage-door{position:absolute;z-index:20;min-width:150px;min-height:76px;border:2px solid #f59e0b;border-radius:15px;background:linear-gradient(145deg,#713f12,#1c1917);color:#fef3c7;font-weight:900;font-size:16px;box-shadow:0 0 20px #f59e0b55;cursor:pointer}.w3-stage-door:hover{filter:brightness(1.25);transform:translateY(-2px)}.w3-stage-upper{border-color:#a78bfa;background:linear-gradient(145deg,#4c1d95,#111827);color:#ede9fe;box-shadow:0 0 24px #8b5cf655}
 .w3-rocket-pad{position:absolute;left:70px;top:1510px;width:650px;height:360px;border:3px solid #38bdf8;border-radius:32px;background:linear-gradient(180deg,#164e63,#0c1b32);box-shadow:0 0 35px #0ea5e955;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}.w3-rocket-art{font-size:80px;filter:drop-shadow(0 0 15px #7dd3fc)}.w3-rocket-pad small{color:#bae6fd}.w3-rocket-pad .w3-stage-door{position:relative;left:auto!important;top:auto!important;margin-top:8px}
 .w3-station-wing{cursor:pointer;color:#e0f2fe;font-family:inherit}
+/* World 3: keep every stage entrance above decorative station layers */
+.w3-station-battle-zone{z-index:14;pointer-events:auto}
+.w3-station-battle-zone .w3-stage-door{z-index:30;pointer-events:auto}
+.w3-station-window{z-index:1;pointer-events:none}
+.w3-station-core{z-index:2;pointer-events:none}
+.w3-station-wing{z-index:18;pointer-events:auto;min-height:150px}
+.w3-rocket-pad{z-index:14;pointer-events:auto}
+.w3-rocket-pad .w3-stage-door{z-index:30;pointer-events:auto}
+.w3-station-corridor,.w3-station-floor-label,.w3-station-info{pointer-events:none}
+
 /* Station structures sit to the right of the new battle area */
 .w3-station-window{left:1280px;right:auto;width:1600px}
 .w3-station-core{left:2100px}

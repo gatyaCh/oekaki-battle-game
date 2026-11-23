@@ -5568,12 +5568,14 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     const info=document.createElement("p");info.textContent="3つのレバーを正しい順番で操作しよう。ヒント：左から順番ではない。制限時間30秒。";
     const row=document.createElement("div");row.style.cssText="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:24px 0";
     const status=document.createElement("p");status.textContent="順番を選んでください";
-    const order=[2,0,1];let step=0,finished=false;let remaining=30;
+    const leverOrder=[2,0,1],buttonOrder=[1,3,0,2];let step=0,phase=0,finished=false,remaining=30;
     const timer=document.createElement("strong");timer.textContent="30秒";
-    const buttons=[0,1,2].map((n)=>{const b=document.createElement("button");b.className="story-action";b.textContent="レバー "+(n+1);b.onclick=()=>{if(finished)return;if(order[step]!==n){step=0;status.textContent="順番が違う！最初からやり直そう。";}else{step++;status.textContent=step===3?"レバー成功！次は起動ボタンだ。":"正解！次のレバーへ。";if(step===3){buttons.forEach(x=>x.disabled=true);const start=document.createElement("button");start.className="story-action";start.textContent="起動ボタン";start.onclick=()=>{status.textContent="🚀 ロケット発射！ワームホールへ向かう！";finished=true;start.disabled=true;setTimeout(()=>{root.remove();window.launchStoryWorld3Stage("3-8");},900);};card.appendChild(start);}}};row.appendChild(b);return b;});
+    let buttons=[];function resetPuzzle(message){phase=0;step=0;remaining=30;timer.textContent="30秒";info.textContent="レバーの順番をやり直そう。ヒント：中央 → 左 → 右。制限時間30秒。";status.textContent=message;row.innerHTML="";makeControls();}
+    function makeControls(){buttons=[];const order=phase===0?leverOrder:buttonOrder;const count=phase===0?3:4;for(let n=0;n<count;n++){const b=document.createElement("button");b.className="story-action";b.textContent=phase===0?"レバー "+(n+1):"起動ボタン "+(n+1);b.onclick=()=>{if(finished)return;if(order[step]!==n){resetPuzzle("順番が違う！最初からやり直し！");return;}step++;status.textContent="正解！";if(step===count){if(phase===0){phase=1;step=0;remaining=30;timer.textContent="30秒";info.textContent="次は4つの起動ボタンを正しい順番で押そう。ヒント：右から2番目 → 右端 → 左端 → 左から2番目。制限時間30秒。";status.textContent="レバー成功！起動ボタンへ！";row.innerHTML="";makeControls();}else{status.textContent="🚀 ロケット発射！ワームホールへ向かう！";finished=true;buttons.forEach(x=>x.disabled=true);setTimeout(()=>{root.remove();window.launchStoryWorld3Stage("3-8");},900);}}};row.appendChild(b);buttons.push(b);}}
+    makeControls();
     const close=document.createElement("button");close.className="story-action";close.textContent="探索フィールドへ戻る";close.onclick=()=>{finished=true;root.remove();showStory("storyWorld3ExploreScreen");if(!storyWorld3MoveFrame)storyWorld3MoveFrame=requestAnimationFrame(storyWorld3MoveTick);};
     card.append(title,info,timer,row,status,close);root.appendChild(card);document.body.appendChild(root);storyWorld3StageOverlay=root;hideStory("storyWorld3ExploreScreen");if(storyWorld3MoveFrame){cancelAnimationFrame(storyWorld3MoveFrame);storyWorld3MoveFrame=0;}
-    const interval=setInterval(()=>{if(!root.isConnected||finished){clearInterval(interval);return;}remaining--;timer.textContent=remaining+"秒";if(remaining<=0){clearInterval(interval);step=0;status.textContent="時間切れ！探索フィールドに戻って再挑戦してね。";buttons.forEach(x=>x.disabled=true);}},1000);
+    const interval=setInterval(()=>{if(!root.isConnected||finished){clearInterval(interval);return;}remaining--;timer.textContent=remaining+"秒";if(remaining<=0){resetPuzzle("時間切れ！最初からやり直し！");}},1000);
   };
   // 旧ステージ一覧への呼び出しも、ワールド3探索拠点へ直接移動する。
   window.openStoryWorld3Stages=function(){window.openStoryWorld3Explore();};
@@ -12093,7 +12095,7 @@ body.special-code-open #adminAbuseDialogue.active{
   stage=id;hp=300;target=0;playerGuard=0;playerDodge=0;turnBusy=false;rewardShown=false;absorptionTriggered=false;
   enemies=cfg[id].enemies.map(e=>({name:e[0],hp:e[1],max:e[1],attack:e[2],crystal:e[3]||"",ability:e[4]||"",guard:0,dodge:0,absorbed:false}));
   $("storyBattleScreen").classList.remove("hidden");$("storyStageScreen").classList.add("hidden");
-  if(id==="1-2"||id==="1-4"||id.startsWith("2-")){
+  if(id==="1-2"||id==="1-4"||id.startsWith("2-")||id.startsWith("3-")){
    introLines=introLinesByStage[id];introIndex=0;
    const intro=$("storyIntro");
    if(intro.parentElement!==document.body)document.body.appendChild(intro);

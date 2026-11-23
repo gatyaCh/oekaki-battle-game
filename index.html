@@ -3673,6 +3673,8 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 .w3-station-wing.w3-wing-stage span{font-size:20px;color:#fff;font-weight:900}
 .w3-station-wing.w3-wing-stage::after{content:"▶ ステージを開始";display:inline-block;padding:5px 13px;border:1px solid #fde68a;border-radius:999px;background:#facc1530;color:#fff7ad;font-size:12px;letter-spacing:.04em}
 .w3-station-wing.w3-wing-stage:hover{filter:brightness(1.2);transform:translateY(-3px);box-shadow:0 0 0 4px #facc1540,0 0 38px #f59e0bcc}
+/* World 3: stage hit areas must remain interactive above scene decorations */
+.w3-stage-door,.w3-wing-stage{pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important;user-select:none;-webkit-tap-highlight-color:transparent}
 /* World 3: keep every stage entrance above decorative station layers */
 .w3-station-battle-zone{z-index:14;pointer-events:auto}
 .w3-station-battle-zone .w3-stage-door{z-index:30;pointer-events:auto}
@@ -5535,6 +5537,28 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   window.submitStoryWorld3Code=function(){const input=$story("storyWorld3CodeInput"),message=$story("storyWorld3CodeMessage");if(!input||!message)return;if(!storyWorld3HasPrerequisites()){message.textContent="先にワールド1・2をクリアしてください。";return;}const entered=String(input.value||"").normalize("NFKC").replace(/[\s\u200B-\u200D\uFEFF]/g,"").toLowerCase();if(entered!=="utor"){message.textContent="❌ コードが違います。";input.select();return;}storyWorld3Authorized=true;input.value="";hideStory("storyWorld3CodeGate");window.openStoryWorld3Explore();};
   const storyWorld3Position={x:550,y:800};const storyWorld3Keys=new Set();let storyWorld3MoveFrame=0;const storyWorld3KeyMap={arrowup:[0,-1],w:[0,-1],arrowdown:[0,1],s:[0,1],arrowleft:[-1,0],a:[-1,0],arrowright:[1,0],d:[1,0]};function storyWorld3Visible(){const el=$story("storyWorld3ExploreScreen");return !!(el&&!el.classList.contains("hidden"));}function storyWorld3MoveTick(){if(!storyWorld3Visible()){storyWorld3MoveFrame=0;return;}let dx=0,dy=0;storyWorld3Keys.forEach(k=>{const d=storyWorld3KeyMap[k];if(d){dx+=d[0];dy+=d[1];}});if(dx&&dy){dx*=.7071;dy*=.7071;}storyWorld3Position.x=Math.max(45,Math.min(3155,storyWorld3Position.x+dx*4.2));storyWorld3Position.y=Math.max(70,Math.min(1920,storyWorld3Position.y+dy*4.2));const player=$story("storyWorld3Player"),view=$story("storyWorld3ExploreScreen")?.querySelector(".w3-station-viewport");if(player){player.style.left=storyWorld3Position.x+"px";player.style.top=storyWorld3Position.y+"px";player.classList.toggle("moving",!!(dx||dy));}if(view){view.scrollLeft=Math.max(0,storyWorld3Position.x-view.clientWidth/2);view.scrollTop=Math.max(0,storyWorld3Position.y-view.clientHeight/2);}storyWorld3MoveFrame=requestAnimationFrame(storyWorld3MoveTick);}window.openStoryWorld3Explore=function(){if(!storyWorld3HasPrerequisites()){window.openStoryWorld3Gate();return;}if(!storyWorld3Authorized){window.openStoryWorld3Gate();return;}hideStory("storyWorld3CodeGate");hideStory("storyWorldScreen");hideStory("storyWorld3CodeGate");hideStory("storyWorld3StageScreen");hideStory("storyExploreScreen");if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}storyExploreKeys.clear();showStory("storyWorld3ExploreScreen");storyWorld3Position.x=550;storyWorld3Position.y=800;storyWorld3Keys.clear();const player=$story("storyWorld3Player");if(player){player.style.left="550px";player.style.top="800px";}const view=$story("storyWorld3ExploreScreen").querySelector(".w3-station-viewport");if(view){view.scrollLeft=Math.max(0,storyWorld3Position.x-view.clientWidth/2);view.scrollTop=Math.max(0,storyWorld3Position.y-view.clientHeight/2);}if(storyWorld3MoveFrame)cancelAnimationFrame(storyWorld3MoveFrame);storyWorld3MoveFrame=requestAnimationFrame(storyWorld3MoveTick);};window.closeStoryWorld3Explore=function(){hideStory("storyWorld3ExploreScreen");storyWorld3Keys.clear();if(storyWorld3MoveFrame){cancelAnimationFrame(storyWorld3MoveFrame);storyWorld3MoveFrame=0;}if(storyExploreVisible()){storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);}else{window.openStoryExplore();}};document.addEventListener("keydown",function(e){if(!storyWorld3Visible())return;const k=e.key.toLowerCase();if(storyWorld3KeyMap[k]){e.preventDefault();storyWorld3Keys.add(k);}});document.addEventListener("keyup",function(e){storyWorld3Keys.delete(e.key.toLowerCase());});window.addEventListener("blur",function(){storyWorld3Keys.clear();});
   let storyWorld3StageOverlay=null;
+  // World 3: robust click hit detection for every stage entrance, even if a decorative layer overlaps it.
+  document.addEventListener("click",function(e){
+    if(!storyWorld3Visible())return;
+    const entries=[
+      ["3-1",".w3-wing-left"],["3-2",".w3-wing-right"],
+      ["3-3",'.w3-station-battle-zone button[onclick*="3-3"]'],
+      ["3-4",'.w3-station-battle-zone button[onclick*="3-4"]'],
+      ["3-5",'.w3-station-battle-zone button[onclick*="3-5"]'],
+      ["3-6",'.w3-station-battle-zone button[onclick*="3-6"]'],
+      ["3-7",'.w3-rocket-pad button[onclick*="3-7"]'],
+      ["3-8",'.w3-station-battle-zone button[onclick*="3-8"]']
+    ];
+    for(const [id,selector] of entries){
+      const el=document.querySelector("#storyWorld3ExploreScreen "+selector);
+      if(!el||el.disabled||getComputedStyle(el).display==="none"||getComputedStyle(el).visibility==="hidden")continue;
+      const r=el.getBoundingClientRect();
+      if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom){
+        e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+        window.launchStoryWorld3Stage(id);return;
+      }
+    }
+  },true);
   window.launchStoryWorld3Stage=function(id){
     if(!storyWorld3Authorized){window.openStoryWorld3Gate();return;}
     const stageId=String(id);

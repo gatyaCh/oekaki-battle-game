@@ -3700,7 +3700,7 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 .story-explore-stage:not(:disabled):hover{filter:brightness(1.2);transform:translateY(-2px)}
 .story-explore-player{position:absolute;z-index:4;left:420px;top:760px;width:54px;height:54px;display:grid;place-items:center;border:3px solid #fff;border-radius:50%;background:#2563eb;font-size:34px;box-shadow:0 0 0 4px #1d4ed888,0 5px 12px #0008;transform:translate(-50%,-50%);pointer-events:none}
 .story-explore-hint{position:absolute;z-index:5;left:50%;bottom:14px;transform:translateX(-50%);max-width:min(650px,80vw);padding:9px 14px;border:1px solid #64748b;border-radius:12px;background:#0f172aeF;text-align:center;font-size:13px}
-.story-world-move{position:absolute;z-index:10;right:16px;top:62px;display:flex;align-items:center;gap:6px;padding:6px 8px;border:1px solid #64748b;border-radius:12px;background:#0f172aeF;color:#fff;box-shadow:0 4px 12px #0006}.story-world-move strong{font-size:12px;white-space:nowrap}.story-world-move button{padding:8px 10px;border:1px solid #64748b;border-radius:8px;background:#1e293b;color:#fff;font-weight:800;white-space:nowrap}.story-world-move button:hover{filter:brightness(1.2)}
+.story-world-move{position:absolute;z-index:10;right:126px;top:62px;display:flex;align-items:center;gap:6px;padding:6px 8px;max-width:calc(100% - 150px);border:1px solid #64748b;border-radius:12px;background:#0f172aeF;color:#fff;box-shadow:0 4px 12px #0006}.story-world-move strong{font-size:12px;white-space:nowrap}.story-world-move button{padding:8px 10px;border:1px solid #64748b;border-radius:8px;background:#1e293b;color:#fff;font-weight:800;white-space:nowrap;font-size:12px}.story-world-move button:hover{filter:brightness(1.2)}
  .story-inventory-toggle{position:absolute;z-index:9;right:16px;top:62px;padding:10px 14px;border:1px solid #93c5fd;border-radius:11px;background:#1e3a8a;color:#fff;font-weight:900;box-shadow:0 4px 12px #0006}
 .story-inventory-panel{position:absolute;z-index:18;right:14px;top:112px;width:min(330px,calc(100vw - 28px));max-height:min(70vh,560px);overflow:auto;padding:14px;border:1px solid #93c5fd;border-radius:16px;background:#101b30f5;color:#fff;box-shadow:0 12px 36px #0009}
 .story-inventory-head{display:flex;justify-content:space-between;align-items:center;font-size:17px}.story-inventory-head button{border:0;border-radius:8px;background:#475569;color:#fff;padding:5px 10px}
@@ -3750,7 +3750,7 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 .story-explore-pad>button{justify-self:center}
 .story-explore-pad div{display:flex;gap:5px}
 .story-explore-pad button{width:48px;height:44px;border:1px solid #cbd5e1;border-radius:10px;background:#1e293beF;color:#fff;font-size:18px;touch-action:none}
-@media(max-width:600px){.story-explore-top{padding:7px 8px}.story-explore-top strong{font-size:12px}.story-explore-top span{display:none}.story-explore-hint{left:8px;right:8px;bottom:8px;max-width:none;transform:none;font-size:11px}.story-explore-pad{right:12px;bottom:70px}}
+@media(max-width:600px){.story-world-move{right:112px;gap:3px;padding:4px;max-width:calc(100% - 124px)}.story-world-move strong{display:none}.story-world-move button{padding:7px 5px;font-size:10px}.story-explore-top{padding:7px 8px}.story-explore-top strong{font-size:12px}.story-explore-top span{display:none}.story-explore-hint{left:8px;right:8px;bottom:8px;max-width:none;transform:none;font-size:11px}.story-explore-pad{right:12px;bottom:70px}}
 
 </style>
 

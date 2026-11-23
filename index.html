@@ -7893,6 +7893,9 @@ function buyUpgrade(key) {
   coins-=price; upgradeLevels[key]++;
   if(key==="hp"){p.max+=10;p.hp+=10;}
   if(upgradeLevels[key]>=caps[key]&&typeof window.unlockGameSkin==="function")window.unlockGameSkin("gamer");
+  // 実績「強化の極み」はコイン強化・ダイヤ強化のどちらでも確実に判定する。
+  if(upgradeLevels[key]>=caps[key]&&typeof window.unlockGameAchievement==="function")window.unlockGameAchievement(7);
+  if(typeof window.checkPlayerTitleUpgradeMax==="function")window.checkPlayerTitleUpgradeMax();
   renderUpgradeShop();
 }
 function buyUpgradeWithDiamond(key){
@@ -7909,6 +7912,9 @@ function buyUpgradeWithDiamond(key){
     p.hp+=10*gainedLevels;
   }
   if(typeof window.unlockGameSkin==="function")window.unlockGameSkin("gamer");
+  // ダイヤで一気にMAXにした場合も「強化の極み」を解除する。
+  if(typeof window.unlockGameAchievement==="function")window.unlockGameAchievement(7);
+  if(typeof window.checkPlayerTitleUpgradeMax==="function")window.checkPlayerTitleUpgradeMax();
   renderUpgradeShop();
 }
 function closeUpgradeShop() {
@@ -14458,3 +14464,233 @@ function advanceStep2Mode(){
 #adminAbuseDialogue.speaker-hacker{font-family:"Courier New","Arial Black",monospace!important;font-weight:1000!important;letter-spacing:.045em!important;color:#fff!important;-webkit-text-fill-color:#fff!important;-webkit-text-stroke:1.5px #050505!important;paint-order:stroke fill!important;text-shadow:0 0 4px #000,0 0 8px #000!important;border-color:#111!important;background:linear-gradient(90deg,rgba(8,8,8,.96),rgba(28,28,28,.94),rgba(8,8,8,.96))!important}
 @media(max-width:600px){#adminAbuseDialogue{width:92vw!important;padding:7px 10px!important;font-size:clamp(12px,3.2vw,16px)!important;line-height:1.3!important}#adminAbuseDialogue.speaker-admin2{-webkit-text-stroke:1px #38d9ff!important}#adminAbuseDialogue.speaker-gacha{-webkit-text-stroke:1px #ff3434!important}#adminAbuseDialogue.speaker-hacker{-webkit-text-stroke:1px #050505!important}}
 </style>
+
+
+<script id="player-title-achievement-system-v2">
+(function(){
+ "use strict";
+ const TITLE_KEY="oekakiBattleEarnedTitlesV1";
+ const EQUIPPED_KEY="oekakiBattleEquippedTitlesV1";
+ const STATS_KEY="oekakiBattleTitleStatsV1";
+ const STREAK_KEY="oekakiBattleTitlePlayStreakV1";
+ const defs=[
+  {id:"first_win",name:"🏆 初勝利",desc:"通常マップを初めてクリアする"},
+  {id:"battle_master_100",name:"⚔️ 戦闘の達人",desc:"通常マップのバトルに累計100回勝利する"},
+  {id:"treasure_hunter",name:"💎 お宝ハンター",desc:"通常マップでゴールドを累計10,000獲得する"},
+  {id:"combo_master",name:"🔥 コンボマスター",desc:"通常マップでダメージを受けずに敵を10体連続で倒す"},
+  {id:"regular_player",name:"👑 常連プレイヤー",desc:"通常マップを7日連続でプレイする"},
+  {id:"never_give_up",name:"😤 負けず嫌い",desc:"通常マップで合計10回やられる（ステージ不問）"},
+  {id:"legendary_hero",name:"⚔️ 伝説の勇者",desc:"通常マップのステージ1〜8を剣でクリアする"},
+  {id:"ultimate_upgrader",name:"💪 すべてにおいての最高者",desc:"強化ショップのすべての項目をレベルMAXにする"},
+  {id:"evasion_master",name:"💨 回避の達人",desc:"通常マップの最初のステージを敵の攻撃を受けずに10回クリアする"},
+  {id:"battle_master",name:"🎨 バトルマスター",desc:"すべての実績と、バトルマスター以外の称号を獲得する"}
+ ];
+ const byId=id=>defs.find(x=>x.id===id);
+ const readArray=key=>{try{const a=JSON.parse(localStorage.getItem(key)||"[]");return Array.isArray(a)?a:[];}catch(e){return [];}};
+ const readObject=key=>{try{const a=JSON.parse(localStorage.getItem(key)||"{}");return a&&typeof a==="object"?a:{};}catch(e){return {};}};
+ const save=(key,value)=>{try{localStorage.setItem(key,JSON.stringify(value));}catch(e){}};
+ let earned=readArray(TITLE_KEY).filter(x=>defs.some(d=>d.name===x));
+ let stats={wins:0,deaths:0,goldEarned:0,noDamageStage1:0,...readObject(STATS_KEY)};
+ let streak={date:"",days:0,...readObject(STREAK_KEY)};
+ let runActive=false,runFinished=false,step2Run=false,combo=0;
+ let checkingMaster=false;
+ function isNormalMode(){
+  return !(window.halloweenWaveActive===true||window.halloweenMapActive===true||
+   document.body.classList.contains("halloween-map")||
+   (typeof tutorialActive!=="undefined"&&tutorialActive));
+ }
+ function saveStats(){save(STATS_KEY,stats);}
+ function equipped(){
+  return readArray(EQUIPPED_KEY).filter(x=>defs.some(d=>d.name===x)&&earned.includes(x)).slice(0,3);
+ }
+ function refreshProfile(){
+  if(typeof window.renderPlayerTitleProfile==="function")window.renderPlayerTitleProfile();
+  renderDialog();
+ }
+ function renderDialog(){
+  const list=document.getElementById("playerTitleEarnedList");
+  const message=document.getElementById("playerTitleDialogMessage");
+  if(!list)return;
+  list.innerHTML="";
+  const wearing=equipped();
+  if(message)message.textContent="獲得済み："+earned.length+" / 10　｜　装着は最大3つまで";
+  if(!earned.length){
+   const empty=document.createElement("p");empty.textContent="称号はまだ獲得していません。条件を達成して集めよう！";list.appendChild(empty);return;
+  }
+  defs.filter(d=>earned.includes(d.name)).forEach(d=>{
+   const row=document.createElement("div");row.className="player-title-choice";
+   const label=document.createElement("b");label.textContent=d.name;
+   const button=document.createElement("button");button.type="button";
+   const active=wearing.includes(d.name);
+   button.textContent=active?"外す":"装着";
+   button.addEventListener("click",()=>{
+    let next=equipped();
+    if(next.includes(d.name))next=next.filter(x=>x!==d.name);
+    else if(next.length>=3){if(message)message.textContent="称号は3つまで装着できるよ。先にどれか外してね。";return;}
+    else next.push(d.name);
+    save(EQUIPPED_KEY,next);refreshProfile();
+   });
+   row.append(label,button);list.appendChild(row);
+  });
+ }
+ function award(id){
+  const d=byId(id);if(!d||earned.includes(d.name))return false;
+  earned.push(d.name);save(TITLE_KEY,earned);
+  const toast=document.getElementById("skinUnlockToast");
+  if(toast){toast.textContent="🏅 称号獲得！\n"+d.name;toast.style.whiteSpace="pre-line";toast.style.display="block";}
+  refreshProfile();
+  if(id!=="battle_master")checkBattleMaster();
+  return true;
+ }
+ function achievementsComplete(){
+  const a=readObject("oekakiBattleAchievementsV1");
+  const done=Array.isArray(a.completed)?a.completed:[];
+  for(let i=1;i<=12;i++)if(!done.includes(i))return false;
+  return true;
+ }
+ function checkBattleMaster(){
+  if(checkingMaster||earned.includes(byId("battle_master").name))return;
+  checkingMaster=true;
+  const allOtherTitles=defs.filter(d=>d.id!=="battle_master").every(d=>earned.includes(d.name));
+  if(allOtherTitles&&achievementsComplete())award("battle_master");
+  checkingMaster=false;
+ }
+ function checkUpgradeMax(){
+  try{
+   const caps={atk:10,speed:10,defense:10,points:10,heal:10,special:8,hp:10};
+   if(Object.keys(caps).every(k=>Number(upgradeLevels[k])>=caps[k]))award("ultimate_upgrader");
+  }catch(e){}
+ }
+ window.checkPlayerTitleUpgradeMax=checkUpgradeMax;
+ function normalRunStart(isStep2){
+  if(!isNormalMode())return;
+  runActive=true;runFinished=false;step2Run=!!isStep2;combo=0;
+  const now=new Date();
+  const today=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
+  if(streak.date!==today){
+   const prev=streak.date?streak.date.split("-").map(Number):null;
+   const prevSerial=prev?Date.UTC(prev[0],prev[1]-1,prev[2]):0;
+   const todaySerial=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate());
+   const diff=prev?(todaySerial-prevSerial)/86400000:0;
+   streak.days=diff===1?(Number(streak.days)||0)+1:1;
+   streak.date=today;save(STREAK_KEY,streak);
+  }
+  if(streak.days>=7)award("regular_player");
+ }
+ function finishRun(cleared){
+  if(!runActive||runFinished)return;
+  runFinished=true;
+  if(cleared){
+   stats.wins=(Number(stats.wins)||0)+1;
+   if(stats.wins>=1)award("first_win");
+   if(stats.wins>=100)award("battle_master_100");
+   if(!step2Run&&typeof stage!=="undefined"&&stage>=9&&typeof weapon!=="undefined"&&weapon==="⚔️")award("legendary_hero");
+  }else{
+   stats.deaths=(Number(stats.deaths)||0)+1;
+   if(stats.deaths>=10)award("never_give_up");
+  }
+  saveStats();runActive=false;checkBattleMaster();
+ }
+ function addGold(amount){
+  const n=Math.max(0,Number(amount)||0);if(!n)return;
+  stats.goldEarned=(Number(stats.goldEarned)||0)+n;saveStats();
+  if(stats.goldEarned>=10000)award("treasure_hunter");
+ }
+ function recordKill(){
+  if(!runActive||runFinished||!isNormalMode())return;
+  combo++;
+  if(combo>=10)award("combo_master");
+ }
+ const oldCountdown=window.startCountdown;
+ if(typeof oldCountdown==="function")window.startCountdown=function(){
+  if(!(typeof tutorialActive!=="undefined"&&tutorialActive))normalRunStart(false);
+  return oldCountdown.apply(this,arguments);
+ };
+ const oldStep2=window.startStep2Mode;
+ if(typeof oldStep2==="function")window.startStep2Mode=function(){
+  normalRunStart(true);return oldStep2.apply(this,arguments);
+ };
+ const oldReset=window.resetGame;
+ if(typeof oldReset==="function")window.resetGame=function(){
+  runActive=false;runFinished=true;step2Run=false;combo=0;
+  return oldReset.apply(this,arguments);
+ };
+ const oldResult=window.showResult;
+ if(typeof oldResult==="function")window.showResult=function(cleared){
+  const result=oldResult.apply(this,arguments);
+  if(isNormalMode())finishRun(!!cleared);
+  checkBattleMaster();
+  return result;
+ };
+ const oldNext=window.nextStage;
+ if(typeof oldNext==="function")window.nextStage=function(){
+  if(runActive&&!runFinished&&!step2Run&&isNormalMode()&&typeof stage!=="undefined"&&stage===1&&
+     typeof totalDamageTaken!=="undefined"&&totalDamageTaken===stageDamageStartTotal){
+   stats.noDamageStage1=(Number(stats.noDamageStage1)||0)+1;saveStats();
+   if(stats.noDamageStage1>=10)award("evasion_master");
+  }
+  return oldNext.apply(this,arguments);
+ };
+ const oldEnemy=window.damageEnemy;
+ if(typeof oldEnemy==="function")window.damageEnemy=function(){
+  const beforeHp=typeof enemy!=="undefined"&&enemy?Number(enemy.hp):Infinity;
+  const beforeCoins=typeof coins!=="undefined"?Number(coins):0;
+  const result=oldEnemy.apply(this,arguments);
+  const afterHp=typeof enemy!=="undefined"&&enemy?Number(enemy.hp):Infinity;
+  if(runActive&&!runFinished&&isNormalMode()){
+   if(beforeHp>0&&afterHp<=0)recordKill();
+   if(typeof coins!=="undefined"&&Number(coins)>beforeCoins)addGold(Number(coins)-beforeCoins);
+  }
+  return result;
+ };
+ const oldMinion=window.damageMinion;
+ if(typeof oldMinion==="function")window.damageMinion=function(m){
+  const beforeHp=m?Number(m.hp):Infinity;
+  const beforeCoins=typeof coins!=="undefined"?Number(coins):0;
+  const result=oldMinion.apply(this,arguments);
+  if(runActive&&!runFinished&&isNormalMode()){
+   if(m&&beforeHp>0&&Number(m.hp)<=0)recordKill();
+   if(typeof coins!=="undefined"&&Number(coins)>beforeCoins)addGold(Number(coins)-beforeCoins);
+  }
+  return result;
+ };
+ const oldChest=window.openTreasureChestReward;
+ if(typeof oldChest==="function")window.openTreasureChestReward=function(){
+  const beforeCoins=typeof coins!=="undefined"?Number(coins):0;
+  const result=oldChest.apply(this,arguments);
+  if(runActive&&!runFinished&&isNormalMode()&&typeof coins!=="undefined"&&Number(coins)>beforeCoins)addGold(Number(coins)-beforeCoins);
+  return result;
+ };
+ const oldDamage=window.damagePlayer;
+ if(typeof oldDamage==="function")window.damagePlayer=function(){
+  const before=typeof totalDamageTaken!=="undefined"?Number(totalDamageTaken):0;
+  const result=oldDamage.apply(this,arguments);
+  const after=typeof totalDamageTaken!=="undefined"?Number(totalDamageTaken):before;
+  if(after>before)combo=0;
+  return result;
+ };
+ const oldStep2Damage=window.step2DamagePlayer;
+ if(typeof oldStep2Damage==="function")window.step2DamagePlayer=function(){
+  const result=oldStep2Damage.apply(this,arguments);
+  if(result===true)combo=0;
+  return result;
+ };
+ const oldUnlock=window.unlockGameAchievement;
+ if(typeof oldUnlock==="function")window.unlockGameAchievement=function(){
+  const result=oldUnlock.apply(this,arguments);checkBattleMaster();return result;
+ };
+ const oldAchievementEvent=window.recordGameAchievementEvent;
+ if(typeof oldAchievementEvent==="function")window.recordGameAchievementEvent=function(){
+  const result=oldAchievementEvent.apply(this,arguments);checkBattleMaster();return result;
+ };
+ const manage=document.getElementById("playerTitleManage");
+ if(manage)manage.addEventListener("click",()=>setTimeout(renderDialog,0));
+ const dialog=document.getElementById("playerTitleDialog");
+ if(dialog)new MutationObserver(()=>{if(!dialog.classList.contains("hidden"))renderDialog();}).observe(dialog,{attributes:true,attributeFilter:["class"]});
+ const achievementPanel=document.getElementById("achievementPanel");
+ if(achievementPanel)new MutationObserver(()=>checkBattleMaster()).observe(achievementPanel,{subtree:true,childList:true,characterData:true});
+ const battleButton=document.getElementById("battleBtn");
+ if(battleButton)battleButton.addEventListener("click",()=>setTimeout(checkBattleMaster,0));
+ refreshProfile();checkUpgradeMax();checkBattleMaster();
+})();
+</script>

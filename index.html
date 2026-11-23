@@ -3700,7 +3700,8 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 .story-explore-stage:not(:disabled):hover{filter:brightness(1.2);transform:translateY(-2px)}
 .story-explore-player{position:absolute;z-index:4;left:420px;top:760px;width:54px;height:54px;display:grid;place-items:center;border:3px solid #fff;border-radius:50%;background:#2563eb;font-size:34px;box-shadow:0 0 0 4px #1d4ed888,0 5px 12px #0008;transform:translate(-50%,-50%);pointer-events:none}
 .story-explore-hint{position:absolute;z-index:5;left:50%;bottom:14px;transform:translateX(-50%);max-width:min(650px,80vw);padding:9px 14px;border:1px solid #64748b;border-radius:12px;background:#0f172aeF;text-align:center;font-size:13px}
-.story-inventory-toggle{position:absolute;z-index:9;right:16px;top:62px;padding:10px 14px;border:1px solid #93c5fd;border-radius:11px;background:#1e3a8a;color:#fff;font-weight:900;box-shadow:0 4px 12px #0006}
+.story-world-move{position:absolute;z-index:10;right:16px;top:62px;display:flex;align-items:center;gap:6px;padding:6px 8px;border:1px solid #64748b;border-radius:12px;background:#0f172aeF;color:#fff;box-shadow:0 4px 12px #0006}.story-world-move strong{font-size:12px;white-space:nowrap}.story-world-move button{padding:8px 10px;border:1px solid #64748b;border-radius:8px;background:#1e293b;color:#fff;font-weight:800;white-space:nowrap}.story-world-move button:hover{filter:brightness(1.2)}
+ .story-inventory-toggle{position:absolute;z-index:9;right:16px;top:62px;padding:10px 14px;border:1px solid #93c5fd;border-radius:11px;background:#1e3a8a;color:#fff;font-weight:900;box-shadow:0 4px 12px #0006}
 .story-inventory-panel{position:absolute;z-index:18;right:14px;top:112px;width:min(330px,calc(100vw - 28px));max-height:min(70vh,560px);overflow:auto;padding:14px;border:1px solid #93c5fd;border-radius:16px;background:#101b30f5;color:#fff;box-shadow:0 12px 36px #0009}
 .story-inventory-head{display:flex;justify-content:space-between;align-items:center;font-size:17px}.story-inventory-head button{border:0;border-radius:8px;background:#475569;color:#fff;padding:5px 10px}
 .story-inventory-sub{margin:14px 0 7px;color:#93c5fd;font-size:12px;font-weight:900}.story-inventory-gear{display:grid;gap:7px}
@@ -4465,6 +4466,12 @@ body {
     </div>
   </div>
   <div class="story-explore-wallet">🪙 <span id="storyExploreWallet">0</span> G</div>
+  <div id="storyWorldMove" class="story-world-move" aria-label="ワールド移動">
+    <strong>🌐 ワールド移動</strong>
+    <button type="button" onclick="switchStoryWorld(1)">🌍 ワールド1</button>
+    <button type="button" onclick="switchStoryWorld(2)">🔴 ワールド2</button>
+    <button type="button" onclick="switchStoryWorld(3)">🚀 ワールド3</button>
+  </div>
   <button type="button" id="storyInventoryToggle" class="story-inventory-toggle">🎒 アイテム</button>
   <aside id="storyInventoryPanel" class="story-inventory-panel hidden" aria-label="所持アイテムと装備">
     <div class="story-inventory-head"><strong>🎒 アイテム・装備</strong><button type="button" id="storyInventoryClose" aria-label="閉じる">✕</button></div>
@@ -5492,10 +5499,10 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   window.openStoryWorlds=function(){window.openStoryExplore();};
   window.openStoryWorld2CodeGate=function(){if(!storyWorld2HasStoryClear()){window.openStoryWorlds();return;}window.openStoryWorld2Stages();};
   window.openStoryWorld2Stages=function(){if(!storyWorld2HasStoryClear()){window.openStoryExplore();return;}window.openStoryWorld2Explore();};
-  window.openStoryWorld3Gate=function(){if(!storyWorld3HasPrerequisites()){const msg=$story("storyWorld3LockText");if(msg)msg.textContent="🔒 ワールド1・2をクリアすると挑戦できる";window.openStoryWorlds();return;}if(storyWorld3Authorized){window.openStoryWorld3Explore();return;}hideStory("storyWorldScreen");hideStory("storyExploreScreen");const input=$story("storyWorld3CodeInput"),message=$story("storyWorld3CodeMessage");if(input)input.value="";if(message)message.textContent="";showStory("storyWorld3CodeGate");if(input)input.focus();};
+  window.openStoryWorld3Gate=function(){if(!storyWorld3HasPrerequisites()){const msg=$story("storyWorld3LockText");if(msg)msg.textContent="🔒 ワールド1・2をクリアすると挑戦できる";window.openStoryWorlds();return;}storyWorld3Authorized=true;window.openStoryWorld3Explore();};
   window.closeStoryWorld3Gate=function(){hideStory("storyWorld3CodeGate");window.openStoryExplore();};
   window.submitStoryWorld3Code=function(){const input=$story("storyWorld3CodeInput"),message=$story("storyWorld3CodeMessage");if(!input||!message)return;if(!storyWorld3HasPrerequisites()){message.textContent="先にワールド1・2をクリアしてください。";return;}const entered=String(input.value||"").normalize("NFKC").replace(/[\s\u200B-\u200D\uFEFF]/g,"").toLowerCase();if(entered!=="utor"){message.textContent="❌ コードが違います。";input.select();return;}storyWorld3Authorized=true;input.value="";hideStory("storyWorld3CodeGate");window.openStoryWorld3Explore();};
-  window.openStoryWorld3Explore=function(){if(!storyWorld3HasPrerequisites()||!storyWorld3Authorized){window.openStoryWorld3Gate();return;}hideStory("storyWorldScreen");hideStory("storyWorld3CodeGate");hideStory("storyWorld3StageScreen");hideStory("storyExploreScreen");if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}storyExploreKeys.clear();showStory("storyWorld3ExploreScreen");};window.closeStoryWorld3Explore=function(){hideStory("storyWorld3ExploreScreen");if(storyExploreVisible()){storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);}else{window.openStoryExplore();}};
+  window.openStoryWorld3Explore=function(){if(!storyWorld3HasPrerequisites()){window.openStoryWorld3Gate();return;}storyWorld3Authorized=true;hideStory("storyWorldScreen");hideStory("storyWorld3CodeGate");hideStory("storyWorld3StageScreen");hideStory("storyExploreScreen");if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}storyExploreKeys.clear();showStory("storyWorld3ExploreScreen");};window.closeStoryWorld3Explore=function(){hideStory("storyWorld3ExploreScreen");if(storyExploreVisible()){storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);}else{window.openStoryExplore();}};
   // 旧ステージ一覧への呼び出しも、ワールド3探索拠点へ直接移動する。
   window.openStoryWorld3Stages=function(){window.openStoryWorld3Explore();};
   function renderStoryWorld2Stages(){const grid=$story("storyWorld2StageGrid");if(!grid)return;grid.innerHTML="";[["2-1","次元の裂け目"],["2-2","赤い結晶"],["2-3","緑の結晶"],["2-4","水色の結晶"],["2-5","黒い結晶"],["2-6","結晶のゲート"],["2-7","黒い影の正体"],["2-8","崩壊した浮遊都市"]].forEach(([id,name])=>{let done=false,unlocked=true;try{done=localStorage.getItem(id==="2-1"?"storyWorld2Stage1Cleared":"story"+id.replace("-","")+"Cleared")==="1";if(id==="2-7")unlocked=localStorage.getItem("story26Cleared")==="1";if(id==="2-8")unlocked=localStorage.getItem("story27Cleared")==="1";}catch(e){if(id==="2-7")unlocked=false;}const card=document.createElement("div");card.className="story-stage-card"+(done?" cleared":unlocked?" unlocked":"");const title=document.createElement("strong");title.textContent=id;card.appendChild(title);const label=document.createElement("div");label.style.cssText="font-size:12px;margin-top:4px";label.textContent=name;card.appendChild(label);const status=document.createElement("div");status.style.cssText="font-size:12px;margin-top:5px";status.textContent=done?"✅ クリア":unlocked?"プレイ可能":id==="2-8"?"🔒 2-7クリアで解放":"🔒 2-6クリアで解放";card.appendChild(status);const btn=document.createElement("button");btn.type="button";btn.textContent=done?"もう一度見る":unlocked?"プレイ":"ロック中";btn.disabled=!unlocked;btn.addEventListener("click",()=>{if(!unlocked)return;storyWorld2PendingStage=id;window.openStoryCodeGate(false);});card.appendChild(btn);grid.appendChild(card);});};
@@ -6085,6 +6092,18 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
     storyExploreKeys.clear();storyExploreNearbyStage=0;storyExploreNearbyWorld2="";storyExploreNearRift=false;
     const view=$story("storyExploreViewport");if(view){view.scrollLeft=world1Cleared?Math.max(0,storyExplorePosition.x-view.clientWidth/2):0;view.scrollTop=world1Cleared?Math.max(0,storyExplorePosition.y-view.clientHeight/2):0;}
     storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);
+  };
+  window.switchStoryWorld=function(world){
+    const w=Number(world);
+    if(w===1){window.openStoryExplore();return;}
+    if(w===2){
+      if(!storyWorld2HasStoryClear()){alert("🔒 ワールド1をクリアするとワールド2へ移動できるよ。");return;}
+      storyWorld2Authorized=true;window.openStoryWorld2Explore();return;
+    }
+    if(w===3){
+      if(!storyWorld3HasPrerequisites()){alert("🔒 ワールド1・2をクリアするとワールド3へ移動できるよ。");return;}
+      storyWorld3Authorized=true;window.openStoryWorld3Explore();return;
+    }
   };
   window.openStoryWorld2Explore=function(returnX,returnY){
     if(!syncStoryWorld2Unlock()){window.openStoryWorlds();return;}

@@ -3686,15 +3686,15 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 @media(prefers-reduced-motion:reduce){#storyWorld3StageOverlay .w3-story-stars,#storyWorld3StageOverlay .w3-story-radar:after,#storyWorld3StageOverlay .w3-story-meteor,#storyWorld3StageOverlay .w3-story-card,#storyWorld3StageOverlay.w3-story-animated .w3-story-line{animation:none!important}}
 
 /* Stage entrance panels stay visually above the moving player; hit areas remain active. */
-.w3-station-player{z-index:0!important;pointer-events:none!important}
-.w3-station-wing.w3-wing-stage{z-index:1000!important;pointer-events:auto!important}
+.w3-station-player{z-index:4!important;pointer-events:none!important}
+.w3-station-wing.w3-wing-stage{z-index:3!important;pointer-events:auto!important}
 .w3-station-battle-zone{position:absolute;left:40px;top:70px;width:1050px;height:1350px;border:2px solid #64748b;border-radius:32px;background:radial-gradient(ellipse at 50% 50%,#334155,#0f172a 72%);box-shadow:inset 0 0 50px #020617}
 .w3-zone-title{position:absolute;top:24px;left:0;right:0;text-align:center;font-size:24px;font-weight:900;color:#e2e8f0}.w3-zone-desc{position:absolute;top:65px;left:0;right:0;text-align:center;color:#cbd5e1;font-size:13px}
 .w3-stage-door{position:absolute;z-index:20;min-width:150px;min-height:76px;border:2px solid #f59e0b;border-radius:15px;background:linear-gradient(145deg,#713f12,#1c1917);color:#fef3c7;font-weight:900;font-size:16px;box-shadow:0 0 20px #f59e0b55;cursor:pointer}.w3-stage-door:hover{filter:brightness(1.25);transform:translateY(-2px)}.w3-stage-upper{border-color:#a78bfa;background:linear-gradient(145deg,#4c1d95,#111827);color:#ede9fe;box-shadow:0 0 24px #8b5cf655}
 .w3-rocket-pad{position:absolute;left:70px;top:1510px;width:650px;height:360px;border:3px solid #38bdf8;border-radius:32px;background:linear-gradient(180deg,#164e63,#0c1b32);box-shadow:0 0 35px #0ea5e955;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}.w3-rocket-art{font-size:80px;filter:drop-shadow(0 0 15px #7dd3fc)}.w3-rocket-pad small{color:#bae6fd}.w3-rocket-pad .w3-stage-door{position:relative;left:auto!important;top:auto!important;margin-top:8px}
 .w3-station-wing{cursor:pointer;color:#e0f2fe;font-family:inherit}
 /* World 3: make the station story areas read clearly as yellow stage entrances */
-.w3-station-wing.w3-wing-stage{position:absolute;z-index:1000;pointer-events:auto;touch-action:manipulation;cursor:pointer;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:150px;padding:18px 24px;border:3px solid #facc15;border-radius:18px;background:linear-gradient(145deg,#854d0e,#422006 72%,#1c1917);color:#fef9c3;box-shadow:0 0 0 3px #facc1530,0 0 28px #f59e0b99,inset 0 0 22px #facc1526;text-align:center;font-weight:900}
+.w3-station-wing.w3-wing-stage{position:absolute;z-index:3;pointer-events:auto;touch-action:manipulation;cursor:pointer;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:150px;padding:18px 24px;border:3px solid #facc15;border-radius:18px;background:linear-gradient(145deg,#854d0e,#422006 72%,#1c1917);color:#fef9c3;box-shadow:0 0 0 3px #facc1530,0 0 28px #f59e0b99,inset 0 0 22px #facc1526;text-align:center;font-weight:900}
 .w3-station-wing.w3-wing-stage b{font-size:17px;color:#fff7ad;text-shadow:0 0 10px #facc15}
 .w3-station-wing.w3-wing-stage span{font-size:20px;color:#fff;font-weight:900}
 .w3-station-wing.w3-wing-stage::after{content:"▶ ステージを開始";display:inline-block;padding:5px 13px;border:1px solid #fde68a;border-radius:999px;background:#facc1530;color:#fff7ad;font-size:12px;letter-spacing:.04em}

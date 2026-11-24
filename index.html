@@ -3640,6 +3640,33 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 }
 
 
+/* World 3 dedicated space-station exploration hub */
+.story-world3-explore{position:fixed;inset:0;z-index:15020;background:#050b19;color:#e0f2fe;font-family:inherit;overflow:hidden}
+.w3-explore-top{position:absolute;z-index:5;top:0;left:0;right:0;min-height:54px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px;background:#071426f2;border-bottom:1px solid #38bdf8}
+.w3-explore-top button,.w3-station-actions button{padding:9px 14px;border:1px solid #38bdf8;border-radius:9px;background:#123451;color:#e0f2fe;font-weight:800}
+.w3-explore-top strong{font-size:17px;letter-spacing:.04em}.w3-explore-top span{font-size:12px;color:#7dd3fc}
+.w3-station-viewport{position:absolute;inset:54px 0 76px;overflow:auto;scrollbar-width:none;overscroll-behavior:contain;background:radial-gradient(ellipse at 50% 15%,#164e63 0,#0b1b33 45%,#020617 100%)}
+.w3-station-viewport::-webkit-scrollbar{display:none}
+.w3-station-scene{position:relative;min-width:1800px;width:1800px;height:1400px;margin:0;overflow:hidden;background:linear-gradient(180deg,#0b2440 0%,#0c1b32 58%,#101d31 58%,#07111f 100%);border-left:2px solid #1e7495;border-right:2px solid #1e7495;box-shadow:0 0 60px #0284c755 inset}
+.w3-station-scene:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 118px,#38bdf822 119px 121px,transparent 122px 240px),linear-gradient(160deg,transparent 0 54%,#38bdf811 54.2% 54.5%,transparent 54.7%);pointer-events:none}
+.w3-station-window{position:absolute;left:8%;right:8%;top:6%;height:25%;border:10px solid #334e68;border-radius:45% 45% 12px 12px;background:radial-gradient(ellipse at 50% 90%,#7c3aed55,transparent 45%),linear-gradient(145deg,#020617,#172554 55%,#0c4a6e);box-shadow:0 0 28px #38bdf855,inset 0 0 30px #020617;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.w3-station-window span{font-size:clamp(42px,8vw,90px);filter:drop-shadow(0 0 16px #93c5fd)}.w3-station-window b{font-size:12px;letter-spacing:.35em;color:#7dd3fc}
+.w3-station-core{position:absolute;left:50%;top:42%;transform:translateX(-50%);width:230px;height:210px;border:3px solid #38bdf8;border-radius:28px;background:linear-gradient(145deg,#1e3a5f,#0b1428);box-shadow:0 0 35px #0ea5e988,inset 0 0 30px #38bdf833;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;z-index:2}
+.w3-station-core>span{font-size:60px}.w3-station-core b{font-size:18px}.w3-station-core small{font-size:11px;color:#7dd3fc}
+.w3-core-ring{position:absolute;inset:12px;border:1px dashed #67e8f9;border-radius:20px;animation:w3CorePulse 5s linear infinite}
+@keyframes w3CorePulse{to{transform:rotate(360deg)}}
+.w3-station-wing{position:absolute;top:48%;width:25%;min-height:125px;padding:20px 12px;border:2px solid #256b91;border-radius:18px;background:linear-gradient(145deg,#1e3a5fdd,#071426ee);box-shadow:0 8px 25px #0008;display:flex;flex-direction:column;gap:10px;text-align:center}
+.w3-wing-left{left:5%}.w3-wing-right{right:5%}.w3-station-wing b{font-size:16px}.w3-station-wing span{font-size:12px;color:#bae6fd}
+.w3-station-corridor{position:absolute;left:12%;right:12%;top:76%;height:100px;border-top:3px solid #38bdf8;border-bottom:3px solid #164e63;background:repeating-linear-gradient(90deg,#0c2944 0 70px,#164e63 71px 74px);transform:perspective(260px) rotateX(16deg);box-shadow:0 0 24px #0ea5e955}
+.w3-station-floor-label{position:absolute;left:0;right:0;bottom:4%;text-align:center;color:#38bdf8;font-size:11px;letter-spacing:.25em}
+.w3-station-crew{position:absolute;left:50%;bottom:13%;font-size:42px;filter:drop-shadow(0 0 10px #38bdf8)}
+.w3-station-player{position:absolute;z-index:12;left:900px;top:1080px;transform:translate(-50%,-50%);width:54px;height:54px;display:flex;align-items:center;justify-content:center;border:2px solid #67e8f9;border-radius:50%;background:#082f49dd;box-shadow:0 0 22px #38bdf8;font-size:34px;pointer-events:none;transition:filter .08s}
+.w3-station-player.moving{filter:brightness(1.35);box-shadow:0 0 30px #67e8f9}
+.w3-station-info{position:absolute;left:50%;top:83%;transform:translateX(-50%);width:min(90%,600px);padding:12px 16px;border:1px solid #0e7490;border-radius:12px;background:#071426eF;text-align:center;font-size:13px;color:#bae6fd}
+.w3-station-actions{position:absolute;left:0;right:0;bottom:0;min-height:76px;display:flex;align-items:center;justify-content:center;gap:12px;padding:10px;background:#071426f2;border-top:1px solid #164e63}
+.w3-station-actions .secondary{background:#1e293b;border-color:#64748b}
+@media(max-width:600px){.w3-explore-top strong{font-size:14px}.w3-explore-top span{display:none}.w3-station-wing{width:27%;padding:12px 5px}.w3-station-wing b{font-size:12px}.w3-station-wing span{font-size:10px}.w3-station-core{width:175px;height:180px}.w3-station-info{font-size:11px;top:84%}}
+
 /* World 1 free-roam exploration field */
 .story-explore-screen{position:fixed;inset:0;z-index:15008;overflow:hidden;background:#17251f;color:#fff;font-family:inherit}
 .story-explore-top{position:absolute;z-index:5;top:0;left:0;right:0;min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px;background:#101923ed;border-bottom:1px solid #64748b}
@@ -4386,6 +4413,22 @@ body {
     <button type="button" class="story-action story-back" onclick="closeStoryCodeGate()">戻る</button>
   </div>
 </div>
+<div id="storySpaceStationScreen" class="story-world3-explore hidden" aria-label="宇宙ステーション探索フィールド">
+  <header class="w3-explore-top"><button type="button" onclick="closeStorySpaceStation()">← 探索フィールドに戻る</button><strong>🛰️ 宇宙ステーション</strong><span>WASD / 矢印キーで移動</span></header>
+  <div class="w3-station-viewport">
+    <div class="w3-station-scene">
+      <div class="w3-station-window"><span>🌌</span><b>SPACE VIEW</b></div>
+      <div class="w3-station-core"><div class="w3-core-ring"></div><span>🛰️</span><b>中央管制室</b><small>宇宙船発着管制システム</small></div>
+      <div class="w3-station-wing w3-wing-left"><b>🔬 研究区画</b><span>黒い結晶の分析記録</span></div>
+      <div class="w3-station-wing w3-wing-right"><b>🚀 発着区画</b><span>宇宙船ドック</span></div>
+      <div class="w3-station-corridor"></div>
+      <div class="w3-station-floor-label">STATION 03 / EARTH ORBITAL FACILITY</div>
+      <div id="storySpaceStationPlayer" class="w3-station-player" aria-label="プレイヤー">🧑‍🚀</div>
+      <div class="w3-station-info">WASD / 矢印キーでステーション内を自由に移動できる。</div>
+    </div>
+  </div>
+  <div class="w3-station-actions"><button type="button" class="secondary" onclick="closeStorySpaceStation()">← 探索フィールドに戻る</button></div>
+</div>
 <div id="storyExploreScreen" class="story-explore-screen hidden" aria-label="ワールド1探索フィールド">
   <div class="story-explore-top">
     <button type="button" onclick="closeStoryExplore()">← ゲームに戻る</button>
@@ -4404,7 +4447,7 @@ body {
       <div id="storyWorld2StageEntrances" class="story-explore-stage-layer" aria-label="ワールド2ステージ入口"></div>
       <div class="story-explore-road story-explore-road-main"></div>
       <div class="story-explore-road story-explore-road-branch"></div>
-      <div class="story-explore-building story-explore-lab">🚀<br>宇宙研究施設</div>
+      <button type="button" id="storyExploreSpaceStation" class="story-explore-building story-explore-space-station" style="left:12px;top:560px" onclick="openStorySpaceStation()">🛰️<br>宇宙ステーション<br><small>入る</small></button><div class="story-explore-building story-explore-lab">🚀<br>宇宙研究施設</div>
       <div class="story-explore-building story-explore-house" style="left:190px;top:330px">🏠</div>
       <div class="story-explore-building story-explore-house" style="left:530px;top:250px">🏢</div>
       <div class="story-explore-building story-explore-house" style="left:650px;top:760px">🏠</div>
@@ -5451,6 +5494,8 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   window.openStoryWorlds=function(){window.openStoryExplore();};
   window.openStoryWorld2CodeGate=function(){if(!storyWorld2HasStoryClear()){window.openStoryWorlds();return;}window.openStoryWorld2Stages();};
   window.openStoryWorld2Stages=function(){if(!storyWorld2HasStoryClear()){window.openStoryExplore();return;}window.openStoryWorld2Explore();};
+const storySpaceStationPosition={x:900,y:1240};const storySpaceStationKeys=new Set();let storySpaceStationMoveFrame=0;const storySpaceStationKeyMap={arrowup:[0,-1],w:[0,-1],arrowdown:[0,1],s:[0,1],arrowleft:[-1,0],a:[-1,0],arrowright:[1,0],d:[1,0]};function storySpaceStationVisible(){const el=$story("storySpaceStationScreen");return !!(el&&!el.classList.contains("hidden"));}function storySpaceStationMoveTick(){if(!storySpaceStationVisible()){storySpaceStationMoveFrame=0;return;}let dx=0,dy=0;storySpaceStationKeys.forEach(k=>{const d=storySpaceStationKeyMap[k];if(d){dx+=d[0];dy+=d[1];}});if(dx&&dy){dx*=.7071;dy*=.7071;}storySpaceStationPosition.x=Math.max(45,Math.min(1755,storySpaceStationPosition.x+dx*4.2));storySpaceStationPosition.y=Math.max(70,Math.min(1320,storySpaceStationPosition.y+dy*4.2));const player=$story("storySpaceStationPlayer"),view=$story("storySpaceStationScreen")?.querySelector(".w3-station-viewport");if(player){player.style.left=storySpaceStationPosition.x+"px";player.style.top=storySpaceStationPosition.y+"px";player.classList.toggle("moving",!!(dx||dy));}if(view){view.scrollLeft=Math.max(0,storySpaceStationPosition.x-view.clientWidth/2);view.scrollTop=Math.max(0,storySpaceStationPosition.y-view.clientHeight/2);}storySpaceStationMoveFrame=requestAnimationFrame(storySpaceStationMoveTick);}window.openStoryWorld3Explore=function(){if(!storySpaceStationHasPrerequisites()){window.openStoryWorld3Gate();return;}storySpaceStationAuthorized=true;hideStory("storyWorldScreen");hideStory("storySpaceStationCodeGate");hideStory("storySpaceStationStageScreen");hideStory("storyExploreScreen");if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}storyExploreKeys.clear();showStory("storySpaceStationScreen");storySpaceStationPosition.x=900;storySpaceStationPosition.y=1240;storySpaceStationKeys.clear();const player=$story("storySpaceStationPlayer");if(player){player.style.left="900px";player.style.top="1240px";}const view=$story("storySpaceStationScreen").querySelector(".w3-station-viewport");if(view){view.scrollLeft=Math.max(0,storySpaceStationPosition.x-view.clientWidth/2);view.scrollTop=Math.max(0,storySpaceStationPosition.y-view.clientHeight/2);}if(storySpaceStationMoveFrame)cancelAnimationFrame(storySpaceStationMoveFrame);storySpaceStationMoveFrame=requestAnimationFrame(storySpaceStationMoveTick);};window.closeStoryWorld3Explore=function(){hideStory("storySpaceStationScreen");storySpaceStationKeys.clear();if(storySpaceStationMoveFrame){cancelAnimationFrame(storySpaceStationMoveFrame);storySpaceStationMoveFrame=0;}if(storyExploreVisible()){storyExploreDraw();if(!storyExploreFrame)storyExploreFrame=requestAnimationFrame(storyExploreTick);}else{window.openStoryExplore();}};document.addEventListener("keydown",function(e){if(!storySpaceStationVisible())return;const k=e.key.toLowerCase();if(storySpaceStationKeyMap[k]){e.preventDefault();storySpaceStationKeys.add(k);}});document.addEventListener("keyup",function(e){storySpaceStationKeys.delete(e.key.toLowerCase());});window.addEventListener("blur",function(){storySpaceStationKeys.clear();});
+
   function renderStoryWorld2Stages(){const grid=$story("storyWorld2StageGrid");if(!grid)return;grid.innerHTML="";[["2-1","次元の裂け目"],["2-2","赤い結晶"],["2-3","緑の結晶"],["2-4","水色の結晶"],["2-5","黒い結晶"],["2-6","結晶のゲート"],["2-7","黒い影の正体"],["2-8","崩壊した浮遊都市"]].forEach(([id,name])=>{let done=false,unlocked=true;try{done=localStorage.getItem(id==="2-1"?"storyWorld2Stage1Cleared":"story"+id.replace("-","")+"Cleared")==="1";if(id==="2-7")unlocked=localStorage.getItem("story26Cleared")==="1";if(id==="2-8")unlocked=localStorage.getItem("story27Cleared")==="1";}catch(e){if(id==="2-7")unlocked=false;}const card=document.createElement("div");card.className="story-stage-card"+(done?" cleared":unlocked?" unlocked":"");const title=document.createElement("strong");title.textContent=id;card.appendChild(title);const label=document.createElement("div");label.style.cssText="font-size:12px;margin-top:4px";label.textContent=name;card.appendChild(label);const status=document.createElement("div");status.style.cssText="font-size:12px;margin-top:5px";status.textContent=done?"✅ クリア":unlocked?"プレイ可能":id==="2-8"?"🔒 2-7クリアで解放":"🔒 2-6クリアで解放";card.appendChild(status);const btn=document.createElement("button");btn.type="button";btn.textContent=done?"もう一度見る":unlocked?"プレイ":"ロック中";btn.disabled=!unlocked;btn.addEventListener("click",()=>{if(!unlocked)return;storyWorld2PendingStage=id;window.openStoryCodeGate(false);});card.appendChild(btn);grid.appendChild(card);});};
 
   let storyExploreFrame=0;

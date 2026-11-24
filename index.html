@@ -12229,11 +12229,20 @@ body.special-code-open #adminAbuseDialogue.active{
    const intro=$("storyIntro");
    if(introLines.length){
     if(intro.parentElement!==document.body)document.body.appendChild(intro);
-    intro.classList.remove("hidden");intro.style.display="flex";intro.style.visibility="visible";
-    intro.style.zIndex="2147483001";
+    intro.hidden=false;
+    intro.classList.remove("hidden");
+    intro.style.setProperty("display","flex","important");
+    intro.style.setProperty("visibility","visible","important");
+    intro.style.setProperty("opacity","1","important");
+    intro.style.setProperty("pointer-events","auto","important");
+    intro.style.setProperty("position","fixed","important");
+    intro.style.setProperty("inset","0","important");
+    intro.style.setProperty("z-index","2147483647","important");
     intro.querySelector("h2").textContent=cfg[id].title;
     intro.setAttribute("aria-label",cfg[id].title+" オープニング");
     showIntroLine();
+    // Ensure the opening overlay wins against the battle screen's visibility rules.
+    requestAnimationFrame(()=>{if(stage===id&&introLines.length){intro.hidden=false;intro.classList.remove("hidden");intro.style.setProperty("display","flex","important");intro.style.setProperty("visibility","visible","important");intro.style.setProperty("z-index","2147483647","important");}});
    }else beginBattle();
   }else beginBattle();
  }

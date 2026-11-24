@@ -14022,7 +14022,11 @@ function updateStep2Mode(){
     if(hit||b.x<0||b.x>CANVAS_WIDTH||b.y<0||b.y>CANVAS_HEIGHT)bulletHellBullets.splice(i,1);
   }
   // 既存の車ダッシュ移動もSTEP 2のプレイヤーに適用。
-  if(dashTimer>0){step2Move(p,dashVX*(kizuku2Active?2:1),dashVY*(kizuku2Active?2:1),p.r);dashTimer--;
+  if(dashTimer>0){
+    const playerBeforeDash={x:p.x,y:p.y};
+    step2Move(p,dashVX*(kizuku2Active?2:1),dashVY*(kizuku2Active?2:1),p.r);
+    keepPlayerOutsideEnemyAttackRanges(playerBeforeDash.x,playerBeforeDash.y);
+    dashTimer--;
     if(!carHitThisDash&&Math.hypot(p.x-enemy.x,p.y-enemy.y)<55){damageEnemy(getDamage());carHitThisDash=true;}
   }
   if(slowDebuffTimer>0)slowDebuffTimer=Math.max(0,slowDebuffTimer-dt);

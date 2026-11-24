@@ -3972,6 +3972,20 @@ progress {
 .story-intro-scene.impact:after{content:"";position:absolute;inset:0;background:#fff;animation:storyImpactFlash .55s ease-out}
 @keyframes storyImpactFlash{0%{opacity:.95}100%{opacity:0}}
 .story-intro-black{position:absolute;left:50%;bottom:18%;font-size:0;opacity:0}
+/* World 3 - 3-3 space-route cinematic */
+.story-intro-scene.scene-space-travel{background:linear-gradient(#06152d 0 58%,#183d58 58% 100%)}
+.story-intro-scene.scene-space-travel:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 46px,#7dd3fc22 47px 49px),linear-gradient(90deg,transparent,#38bdf822,transparent);animation:w3RouteSlide 1.8s linear infinite}
+.story-intro-scene.scene-space-travel:after{content:"🚀";position:absolute;left:18%;bottom:13%;font-size:58px;filter:drop-shadow(0 0 12px #38bdf8);animation:w3RouteRocket 2.4s ease-in-out infinite}
+.story-intro-scene.scene-space-travel.move:after{animation:w3RouteRocket .9s ease-in-out infinite}
+.story-intro-scene.scene-space-encounter{background:linear-gradient(#07152c 0 58%,#243c50 58% 100%)}
+.story-intro-scene.scene-space-encounter:before{content:"🪨　　 🪨　　 🪨";position:absolute;left:50%;bottom:12%;white-space:pre;transform:translateX(-50%);font-size:clamp(34px,7vw,62px);filter:drop-shadow(0 0 12px #a3e635);animation:w3RocksApproach 1.2s ease-in-out infinite alternate}
+.story-intro-scene.scene-space-encounter.impact:after{content:"";position:absolute;inset:0;background:#e0f2fe;animation:storyImpactFlash .55s ease-out}
+.story-intro-scene.scene-space-encounter.emerge:before{animation:w3RocksRise .85s ease-out both}
+@keyframes w3RouteSlide{from{background-position:0 0}to{background-position:92px 0}}
+@keyframes w3RouteRocket{0%,100%{transform:translate(0,0) rotate(-8deg)}50%{transform:translate(34px,-10px) rotate(4deg)}}
+@keyframes w3RocksApproach{from{transform:translate(-50%,12px) scale(.78)}to{transform:translate(-50%,-8px) scale(1.08)}}
+@keyframes w3RocksRise{from{transform:translate(-50%,70px) scale(.45);opacity:.2}to{transform:translate(-50%,-8px) scale(1.08);opacity:1}}
+
 .story-intro-scene.emerge .story-intro-black{font-size:74px;opacity:1;animation:storyBlackRise 1s ease-out}
 @keyframes storyBlackRise{0%{transform:translate(-50%,70px) scale(.2);filter:blur(12px)}100%{transform:translate(-50%,0) scale(1);filter:blur(0)}}
 .story-intro-dialogue{margin:14px 0 8px;min-height:76px;padding:13px;border-radius:10px;background:#24344b;text-align:left;line-height:1.7}
@@ -12157,7 +12171,7 @@ body.special-code-open #adminAbuseDialogue.active{
  "2-3":[["ナレーション","次の浮島には、緑色の結晶が建物や地面に広がっていた。","","crystal-green"],["主人公","この島の結晶は、さっきの赤いものとは違う……。","","crystal-green"],["ナレーション","結晶の陰から、3体の影の敵が姿を現した。","shadow-rise","crystal-green"],["主人公","緑の結晶を持つ敵がいる。動きに注意しよう！","crystal-glow","crystal-green"]],
  "2-4":[["ナレーション","さらに奥の浮島へ進むと、水色の結晶が街全体を覆っていた。","","crystal-cyan"],["主人公","結晶が壁みたいになっている……。かなり頑丈そうだ。","","crystal-cyan"],["ナレーション","4体の影の敵が行く手をふさいだ。そのうち1体は大きな水色の結晶を身につけている。","shadow-rise","crystal-cyan"],["主人公","あの結晶を持つ敵は、ほかより体力が高そうだ……！","crystal-glow","crystal-cyan"]],
  "2-5":[["ナレーション","最後の浮島は、黒い結晶に深く覆われていた。周囲の空気まで重く感じる。","","crystal-black"],["主人公","この黒い結晶……今まで見たものと何か違う。","","crystal-black"],["ナレーション","5体の影の敵が現れた。その中心には、ひときわ大きな黒い結晶を持つ敵がいる。","shadow-rise","crystal-black"],["主人公","あいつから強い気配を感じる……。油断しないでいこう！","crystal-glow","crystal-black"]],
- "3-3":[["ナレーション","宇宙ステーションの外周に、黒い結晶をまとった岩石が落下していた。","","grassland"],["主人公","岩石の中に黒い結晶が埋まっている……。近づいて調べよう。","","grassland"],["ナレーション","岩石が動き出し、こちらへ向かってくる！","impact","encounter"],["主人公","まずはこの3体を止める！","reveal","encounter"]],
+ "3-3":[["ナレーション","主人公は同僚と合流するため、宇宙船へ続く外周通路を進んでいた。","","space-travel"],["主人公","宇宙船は発射場の向こうか……急いで向かおう。","move","space-travel"],["ナレーション","そのとき、通路の先に黒い結晶をまとった岩石が落下した！","impact","space-encounter"],["主人公","岩石が動いている！？ただの隕石じゃない！","emerge","space-encounter"],["ナレーション","岩石の中から黒い結晶が光り、3体が一斉に立ち上がった！","reveal","space-encounter"],["主人公","宇宙船へ向かうには、こいつらを倒して道を切り開くしかない！","reveal","space-encounter"]],
  "3-4":[["ナレーション","さらに奥にも黒い結晶の岩石が転がっている。","","grassland"],["主人公","さっきより大きい反応だ……。攻撃に気をつけないと！","","grassland"],["ナレーション","3体の岩石が一斉に動き出した。","impact","encounter"]],
  "3-5":[["ナレーション","調査区域の奥で、4体の岩石が道をふさいでいた。","","grassland"],["主人公","数が増えている……。囲まれないようにしよう！","reveal","encounter"]],
  "3-6":[["ナレーション","発射場へ続く最後の通路に、5体の岩石が集まっていた。","","grassland"],["主人公","ここを突破しないとロケットにたどり着けない！","reveal","encounter"]]
@@ -12173,10 +12187,15 @@ body.special-code-open #adminAbuseDialogue.active{
  function enemyFx(i,text,kind){const el=$("storyBattleEnemies").children[i];if(!el)return;const tag=document.createElement("div");tag.className="story-fx";tag.textContent=text;el.appendChild(tag);el.classList.remove("anim-"+kind);void el.offsetWidth;el.classList.add("anim-"+kind);setTimeout(()=>{tag.remove();el.classList.remove("anim-"+kind)},1000)}
  function render(){
   $("storyPlayerHpText").textContent=hp+" / 300";$("storyPlayerHpBar").style.width=(hp/300*100)+"%";
-  const root=$("storyBattleEnemies");root.innerHTML="";
+  const root=$("storyBattleEnemies");
+  if(!root){log("敵の表示エリアを読み込めません。画面を開き直してください。");return;}
+  root.innerHTML="";
+  root.style.cssText="position:relative;z-index:3;display:flex;align-items:flex-end;justify-content:space-around;gap:8px;flex:1 1 70%;min-width:0;width:70%;height:100%;min-height:150px;visibility:visible;opacity:1;";
+  if(!Array.isArray(enemies)||!enemies.length){const defs=cfg[stage]&&cfg[stage].enemies;if(Array.isArray(defs))enemies=defs.map(e=>({name:e[0],hp:e[1],max:e[1],attack:e[2],crystal:e[3]||"",ability:e[4]||"",guard:0,dodge:0,absorbed:false}));}
   enemies.forEach((e,i)=>{const d=document.createElement("div");d.className="story-battle-actor"+(e.hp<=0?" dead":i===target?" target":"");
+   d.style.cssText="display:flex!important;visibility:visible!important;opacity:1;flex:1 1 0;min-width:0;max-width:30%;position:relative;z-index:3;align-items:center;";
    d.innerHTML='<div class="actor-emoji"></div><div class="actor-name"></div><div class="actor-hp"><span></span></div><small></small><div class="actor-status"></div>';
-   const actorVisual=d.querySelector(".actor-emoji");const crystalArt={red:"assets/story-enemy-red.svg",green:"assets/story-enemy-green.svg",cyan:"assets/story-enemy-cyan.svg",black:"assets/story-enemy-black.svg"};if(e.crystal&&crystalArt[e.crystal]){const img=document.createElement("img");img.src=crystalArt[e.crystal];img.alt=e.name;img.draggable=false;actorVisual.replaceChildren(img);}else{actorVisual.textContent=stage==="1-4"&&i===2?"👹":"🌑";}d.querySelector(".actor-name").textContent=e.name;d.querySelector(".actor-hp span").style.width=Math.max(0,e.hp/e.max*100)+"%";d.querySelector("small").textContent="HP "+Math.max(0,e.hp)+"/"+e.max;d.querySelector(".actor-status").textContent=e.hp>0?(e.guard?"🛡️ 防御中":e.dodge?"💨 回避態勢":e.ability||""):"";
+   const actorVisual=d.querySelector(".actor-emoji");const crystalArt={red:"assets/story-enemy-red.svg",green:"assets/story-enemy-green.svg",cyan:"assets/story-enemy-cyan.svg",black:"assets/story-enemy-black.svg"};if(e.crystal&&crystalArt[e.crystal]){const img=document.createElement("img");img.src=crystalArt[e.crystal];img.alt=e.name;img.draggable=false;actorVisual.appendChild(img);}else{actorVisual.textContent=stage==="1-4"&&i===2?"👹":stage.startsWith("3-")?"🪨":"🌑";}d.querySelector(".actor-name").textContent=e.name;d.querySelector(".actor-hp span").style.width=Math.max(0,e.hp/e.max*100)+"%";d.querySelector("small").textContent="HP "+Math.max(0,e.hp)+"/"+e.max;d.querySelector(".actor-status").textContent=e.hp>0?(e.guard?"🛡️ 防御中":e.dodge?"💨 回避態勢":e.ability||""):"";
    if(e.hp>0)d.onclick=()=>{target=i;render()};root.appendChild(d);
   });
   document.querySelectorAll(".story-battle-commands button").forEach(b=>b.disabled=hp<=0||enemies.every(e=>e.hp<=0)||$("storyDrawPanel").classList.contains("active")||turnBusy);

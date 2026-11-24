@@ -3685,9 +3685,13 @@ body.mobile-mode #draw:not(.hidden) #gearBtn {
 @keyframes w3StoryLineIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){#storyWorld3StageOverlay .w3-story-stars,#storyWorld3StageOverlay .w3-story-radar:after,#storyWorld3StageOverlay .w3-story-meteor,#storyWorld3StageOverlay .w3-story-card,#storyWorld3StageOverlay.w3-story-animated .w3-story-line{animation:none!important}}
 
-/* Stage entrance panels stay visually above the moving player; hit areas remain active. */
-.w3-station-player{z-index:4!important;pointer-events:none!important}
-.w3-station-wing.w3-wing-stage{z-index:3!important;pointer-events:auto!important}
+/* Keep the player visibly in front of the World 3 stage areas; stage buttons remain clickable. */
+.w3-station-player{z-index:40!important;pointer-events:none!important}
+.w3-station-wing.w3-wing-stage{z-index:18!important;pointer-events:auto!important}
+.w3-station-battle-zone{z-index:14!important}
+.w3-station-battle-zone .w3-stage-door{z-index:30!important;pointer-events:auto!important}
+.w3-rocket-pad{z-index:14!important}
+.w3-rocket-pad .w3-stage-door{z-index:30!important;pointer-events:auto!important}
 .w3-station-battle-zone{position:absolute;left:40px;top:70px;width:1050px;height:1350px;border:2px solid #64748b;border-radius:32px;background:radial-gradient(ellipse at 50% 50%,#334155,#0f172a 72%);box-shadow:inset 0 0 50px #020617}
 .w3-zone-title{position:absolute;top:24px;left:0;right:0;text-align:center;font-size:24px;font-weight:900;color:#e2e8f0}.w3-zone-desc{position:absolute;top:65px;left:0;right:0;text-align:center;color:#cbd5e1;font-size:13px}
 .w3-stage-door{position:absolute;z-index:20;min-width:150px;min-height:76px;border:2px solid #f59e0b;border-radius:15px;background:linear-gradient(145deg,#713f12,#1c1917);color:#fef3c7;font-weight:900;font-size:16px;box-shadow:0 0 20px #f59e0b55;cursor:pointer}.w3-stage-door:hover{filter:brightness(1.25);transform:translateY(-2px)}.w3-stage-upper{border-color:#a78bfa;background:linear-gradient(145deg,#4c1d95,#111827);color:#ede9fe;box-shadow:0 0 24px #8b5cf655}

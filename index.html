@@ -4601,17 +4601,17 @@ body {
 
 <div id="storyBattleScreen" class="story-screen hidden" aria-label="ストーリーモード戦闘">
 
- <div id="storyIntro" class="story-intro hidden" role="dialog" aria-modal="true" aria-label="1-2 オープニング">
+ <div id="storyIntro" class="story-intro hidden" role="dialog" aria-modal="true" aria-label="ステージオープニング">
   <div class="story-intro-card">
-   <h2>1-2「黒い何か」</h2>
+   <h2>ステージオープニング</h2>
    <div id="storyIntroScene" class="story-intro-scene"><div class="story-intro-stars"></div><div class="story-intro-meteor">☄️</div><div class="story-intro-black">🌑</div></div>
-   <div class="story-intro-dialogue"><div id="storyIntroName" class="story-intro-name">ナレーション</div><div id="storyIntroText">草原を冒険していると……。</div></div>
+   <div class="story-intro-dialogue"><div id="storyIntroName" class="story-intro-name">ナレーション</div><div id="storyIntroText">ステージ情報を読み込んでいます。</div></div>
    <div class="story-intro-controls"><button type="button" id="storyIntroSkip">スキップ</button><button type="button" id="storyIntroNext">次へ ▶</button></div>
   </div>
  </div>
  <div class="story-battle-panel">
-  <div class="story-battle-top"><div><h1 id="storyBattleTitle">1-2「黒い何か」</h1><p id="storyBattleSubtitle">草原に現れた黒い敵を倒そう</p></div><div class="story-battle-hp"><strong>プレイヤー HP <span id="storyPlayerHpText">300 / 300</span></strong><div class="story-battle-hpbar"><div id="storyPlayerHpBar" class="story-battle-hpfill" style="width:100%"></div></div></div></div>
-  <div id="storyBattleArena" class="story-battle-arena grass"><div class="story-battle-arena-hint" id="storyBattleHint">敵を選んで攻撃しよう</div><div class="story-battle-actor player"><div class="actor-emoji">🧑‍🚀</div><div class="actor-name">主人公</div></div><div id="storyBattleEnemies" style="position:relative;z-index:2;display:flex;align-items:flex-end;justify-content:space-around;gap:8px;width:70%;height:100%"></div></div>
+  <div class="story-battle-top"><div><h1 id="storyBattleTitle">ステージ準備中</h1><p id="storyBattleSubtitle">ステージ情報を読み込んでいます</p></div><div class="story-battle-hp"><strong>プレイヤー HP <span id="storyPlayerHpText">300 / 300</span></strong><div class="story-battle-hpbar"><div id="storyPlayerHpBar" class="story-battle-hpfill" style="width:100%"></div></div></div></div>
+  <div id="storyBattleArena" class="story-battle-arena"><div class="story-battle-arena-hint" id="storyBattleHint">敵を選んで攻撃しよう</div><div class="story-battle-actor player"><div class="actor-emoji">🧑‍🚀</div><div class="actor-name">主人公</div></div><div id="storyBattleEnemies" style="position:relative;z-index:2;display:flex;align-items:flex-end;justify-content:space-around;gap:8px;width:70%;height:100%"></div></div>
   <div class="story-battle-log" id="storyBattleLog" aria-live="polite">戦闘開始！画面下のコマンドから行動を選ぼう。</div>
   <div class="story-draw-panel" id="storyDrawPanel"><strong id="storyDrawPrompt">お題：剣を描こう！</strong><p id="storyDrawHelp" style="font-size:12px;color:#cbd5e1;margin-top:3px">お題に合わせて描いて「判定する」を押そう。</p><canvas id="storyDrawCanvas" width="520" height="260"></canvas><div class="story-battle-secondary"><button type="button" id="storyDrawClear">消す</button><button type="button" id="storyDrawCancel">戻る</button><button type="button" id="storyDrawJudge">判定する</button></div><div id="storyDrawResult" class="story-battle-result" aria-live="polite"></div></div>
   <div class="story-battle-command-wrap"><div class="story-battle-commands"><button type="button" data-action="attack">⚔️ 攻撃</button><button type="button" data-action="dodge">💨 回避</button><button type="button" data-action="defend">🛡️ 防御</button><button type="button" data-action="heal">💚 回復</button></div><div class="story-battle-result" id="storyBattleResult"></div><div class="story-battle-secondary"><button type="button" id="storyExpOpenBtn" class="hidden">✨ EXPを振り分ける</button><button type="button" id="storyBattleExit">ステージ選択へ戻る</button></div></div>
@@ -12167,9 +12167,9 @@ body.special-code-open #adminAbuseDialogue.active{
  "2-4":[["ナレーション","さらに奥の浮島へ進むと、水色の結晶が街全体を覆っていた。","","crystal-cyan"],["主人公","結晶が壁みたいになっている……。かなり頑丈そうだ。","","crystal-cyan"],["ナレーション","4体の影の敵が行く手をふさいだ。そのうち1体は大きな水色の結晶を身につけている。","shadow-rise","crystal-cyan"],["主人公","あの結晶を持つ敵は、ほかより体力が高そうだ……！","crystal-glow","crystal-cyan"]],
  "2-5":[["ナレーション","最後の浮島は、黒い結晶に深く覆われていた。周囲の空気まで重く感じる。","","crystal-black"],["主人公","この黒い結晶……今まで見たものと何か違う。","","crystal-black"],["ナレーション","5体の影の敵が現れた。その中心には、ひときわ大きな黒い結晶を持つ敵がいる。","shadow-rise","crystal-black"],["主人公","あいつから強い気配を感じる……。油断しないでいこう！","crystal-glow","crystal-black"]],
  "3-3":[["ナレーション","主人公は同僚と合流するため、宇宙船へ続く外周通路を進んでいた。","","space-travel"],["主人公","宇宙船は発射場の向こうか……急いで向かおう。","move","space-travel"],["ナレーション","そのとき、通路の先に黒い結晶をまとった岩石が落下した！","impact","space-encounter"],["主人公","岩石が動いている！？ただの隕石じゃない！","emerge","space-encounter"],["ナレーション","岩石の中から黒い結晶が光り、3体が一斉に立ち上がった！","reveal","space-encounter"],["主人公","宇宙船へ向かうには、こいつらを倒して道を切り開くしかない！","reveal","space-encounter"]],
- "3-4":[["ナレーション","さらに奥にも黒い結晶の岩石が転がっている。","","space-travel"],["主人公","さっきより大きい反応だ……。攻撃に気をつけないと！","","grassland"],["ナレーション","3体の岩石が一斉に動き出した。","impact","encounter"]],
- "3-5":[["ナレーション","調査区域の奥で、4体の岩石が道をふさいでいた。","","space-travel"],["主人公","数が増えている……。囲まれないようにしよう！","reveal","encounter"]],
- "3-6":[["ナレーション","発射場へ続く最後の通路に、5体の岩石が集まっていた。","","space-travel"],["主人公","ここを突破しないとロケットにたどり着けない！","reveal","encounter"]]
+ "3-4":[["ナレーション","さらに奥にも黒い結晶の岩石が転がっている。","","space-travel"],["主人公","さっきより大きい反応だ……。攻撃に気をつけないと！","","space-travel"],["ナレーション","3体の岩石が一斉に動き出した。","impact","space-encounter"]],
+ "3-5":[["ナレーション","調査区域の奥で、4体の岩石が道をふさいでいた。","","space-travel"],["主人公","数が増えている……。囲まれないようにしよう！","reveal","space-encounter"]],
+ "3-6":[["ナレーション","発射場へ続く最後の通路に、5体の岩石が集まっていた。","","space-travel"],["主人公","ここを突破しないとロケットにたどり着けない！","reveal","space-encounter"]]
  };
  let introLines=[];
  let stage="",hp=300,enemies=[],target=0,action="",strokes=[],drawing=false,last=null,introIndex=0,playerGuard=0,playerDodge=0,turnBusy=false,rewardShown=false,absorptionTriggered=false;
@@ -12203,7 +12203,8 @@ body.special-code-open #adminAbuseDialogue.active{
  function showIntroLine(){
   const line=introLines[introIndex];$("storyIntroName").textContent=line[0];$("storyIntroText").textContent=line[1];
   const scene=$("storyIntroScene");
-  const sceneGroup=line[3]||(stage==="1-4"?"citywide":"grassland");
+  const defaultIntroScene=stage.startsWith("3-")?"space-travel":stage==="1-4"?"citywide":stage.startsWith("2-")?"crystal-red":"grassland";
+  const sceneGroup=line[3]||defaultIntroScene;
   scene.className="story-intro-scene scene-"+sceneGroup;
   if(stage==="1-4"&&["citywide","approach","encounter"].includes(sceneGroup))scene.classList.add("city-intro");
   if(line[2]){void scene.offsetWidth;scene.classList.add(line[2])}

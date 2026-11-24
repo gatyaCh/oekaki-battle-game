@@ -4427,7 +4427,24 @@ body {
       <div class="w3-station-info">WASD / 矢印キーでステーション内を自由に移動できる。</div>
     </div>
   </div>
-  <div class="w3-station-actions"><button type="button" class="secondary" onclick="closeStorySpaceStation()">← 探索フィールドに戻る</button></div>
+  <div class="w3-station-actions"><button type="button" class="secondary" onclick="closeStorySpaceStation()">← 探索フィールドに戻る</button><button type="button" onclick="startStoryWorld31Intro()" style="background:#a78bfa;color:#111827;font-weight:900">📜 3-1 浮島の昔の話</button></div>
+  <div id="storyWorld31Screen" class="hidden" style="position:fixed;inset:0;z-index:2147483000;background:#030712;color:#f8fafc;display:none;flex-direction:column;align-items:center;justify-content:center;padding:22px;text-align:center">
+    <style>
+      #storyWorld31Screen .w31-scene{width:min(94vw,900px);height:min(52vh,430px);border:2px solid #a78bfa;border-radius:18px;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 75%,#2563eb 0%,#172554 45%,#020617 100%);box-shadow:0 0 35px #8b5cf655}
+      #storyWorld31Screen .w31-island{position:absolute;width:190px;height:70px;background:linear-gradient(#86efac,#166534);clip-path:polygon(0 0,100% 0,70% 45%,58% 100%,35% 70%,20% 100%);animation:w31float 3s ease-in-out infinite alternate}
+      #storyWorld31Screen .w31-island.i1{left:12%;top:28%}#storyWorld31Screen .w31-island.i2{right:12%;top:48%;animation-delay:-1.4s}#storyWorld31Screen .w31-island.i3{left:38%;top:12%;transform:scale(.65);animation-delay:-.8s}
+      #storyWorld31Screen .w31-smoke{position:absolute;inset:-30%;background:radial-gradient(ellipse,#02030a 0%,#02030acc 32%,transparent 68%);opacity:0;animation:w31smoke 4s ease forwards}
+      #storyWorld31Screen .w31-scroll{font-size:clamp(76px,14vw,140px);filter:drop-shadow(0 0 25px #c4b5fd);animation:w31reveal 1.2s ease both}
+      #storyWorld31Screen .w31-crystal{font-size:clamp(55px,10vw,100px);filter:drop-shadow(0 0 28px #a855f7);animation:w31pulse 1.4s ease-in-out infinite alternate}
+      #storyWorld31Screen .w31-caption{width:min(94vw,900px);min-height:92px;margin:16px 0;padding:18px;border:1px solid #64748b;border-radius:14px;background:#111827;font-size:clamp(16px,2.5vw,22px);line-height:1.7}
+      #storyWorld31Screen button{padding:12px 22px;border:0;border-radius:10px;background:#a78bfa;color:#111827;font-weight:900;font-size:16px}
+      @keyframes w31float{to{transform:translateY(-22px)}}@keyframes w31smoke{to{opacity:.96}}@keyframes w31reveal{from{transform:scale(.4) rotate(-12deg);opacity:0}to{transform:scale(1);opacity:1}}@keyframes w31pulse{to{transform:scale(1.13);filter:drop-shadow(0 0 42px #c084fc)}}
+    </style>
+    <h2 id="storyWorld31Title">3-1 浮島の昔の話</h2>
+    <div class="w31-scene" id="storyWorld31Visual"><span class="w31-scroll">📜</span></div>
+    <div class="w31-caption" id="storyWorld31Dialogue">古い巻物には、遠い昔の物語が記されていた……</div>
+    <button type="button" id="storyWorld31Next" onclick="advanceStoryWorld31()">次へ ▶</button>
+  </div>
 </div>
 <div id="storySpaceStationGate" class="hidden" style="position:fixed;inset:0;z-index:2147483647;background:rgba(2,8,23,.96);color:#e0f2fe;display:flex;align-items:center;justify-content:center;padding:18px"><div style="width:min(92vw,430px);padding:24px;border:2px solid #38bdf8;border-radius:18px;background:#0b1b33;text-align:center"><h2>🛰️ 宇宙ステーション認証</h2><p>入るにはアクセスコードを入力してください。</p><input id="storySpaceStationCodeInput" type="text" autocomplete="off" placeholder="アクセスコード" style="width:100%;padding:13px;margin:12px 0;background:#071426;color:white"><p id="storySpaceStationCodeMessage" role="status" style="min-height:24px;color:#fca5a5"></p><button type="button" onclick="submitStorySpaceStationCode()">認証する</button><button type="button" onclick="closeStorySpaceStationGate()">戻る</button></div></div><div id="storyExploreScreen" class="story-explore-screen hidden" aria-label="ワールド1探索フィールド"><button type="button" id="storySpaceStationAttackEntry" onclick="openStorySpaceStationGate()" style="position:absolute;z-index:30;right:18px;bottom:22px;padding:13px 20px;border:2px solid #38bdf8;border-radius:14px;background:#123451;color:#e0f2fe;font-weight:900;font-size:16px;box-shadow:0 0 18px #0ea5e988">⚔️ 攻撃</button>
   <div class="story-explore-top">
@@ -5499,6 +5516,32 @@ const storySpaceStationPosition={x:900,y:1240};const storySpaceStationKeys=new S
 window.closeStorySpaceStationGate=function(){const g=$story("storySpaceStationGate");if(g){g.classList.add("hidden");g.style.display="none";}};
 window.submitStorySpaceStationCode=function(){const i=$story("storySpaceStationCodeInput"),m=$story("storySpaceStationCodeMessage");if(!i||!m)return;const c=String(i.value||"").normalize("NFKC").replace(/[\s\u200B-\u200D\uFEFF]/g,"").toLowerCase();if(c!==String.fromCharCode(117,116,111,114)){m.textContent="❌ コードが違います。";i.select();return;}window.closeStorySpaceStationGate();i.value="";window.openStorySpaceStation();};
 window.openStorySpaceStation=function(){hideStory("storyWorldScreen");hideStory("storyExploreScreen");if(storyExploreFrame){cancelAnimationFrame(storyExploreFrame);storyExploreFrame=0;}storyExploreKeys.clear();showStory("storySpaceStationScreen");storySpaceStationPosition.x=900;storySpaceStationPosition.y=1240;storySpaceStationKeys.clear();const player=$story("storySpaceStationPlayer");if(player){player.style.left="900px";player.style.top="1240px";}const view=$story("storySpaceStationScreen").querySelector(".w3-station-viewport");if(view){view.scrollLeft=Math.max(0,storySpaceStationPosition.x-view.clientWidth/2);view.scrollTop=Math.max(0,storySpaceStationPosition.y-view.clientHeight/2);}if(storySpaceStationMoveFrame)cancelAnimationFrame(storySpaceStationMoveFrame);storySpaceStationMoveFrame=requestAnimationFrame(storySpaceStationMoveTick);};window.closeStorySpaceStation=function(){hideStory("storySpaceStationScreen");storySpaceStationKeys.clear();if(storySpaceStationMoveFrame){cancelAnimationFrame(storySpaceStationMoveFrame);storySpaceStationMoveFrame=0;}window.openStoryExplore();};document.addEventListener("keydown",function(e){if(!storySpaceStationVisible())return;const k=e.key.toLowerCase();if(storySpaceStationKeyMap[k]){e.preventDefault();storySpaceStationKeys.add(k);}});document.addEventListener("keyup",function(e){storySpaceStationKeys.delete(e.key.toLowerCase());});window.addEventListener("blur",function(){storySpaceStationKeys.clear();});
+
+  // ワールド3・3-1：浮島の昔の話（戦闘なし／全編アニメーションと会話）
+  const storyWorld31Scenes=[
+    {title:"古い巻物",visual:"scroll",text:"主人公は宇宙ステーションの資料室で、古びた巻物を見つけた。そこには、忘れられた世界の記録が残されていた。"},
+    {title:"平和だった浮島",visual:"islands",text:"遠い昔、この太陽系には数えきれないほどの浮島が存在していた。人々は島々を行き来し、平和に暮らしていた。"},
+    {title:"黒い煙",visual:"smoke",text:"しかしある日、空の向こうから正体不明の黒い煙が現れた。煙は少しずつ広がり、太陽系全体を覆い始めた。"},
+    {title:"黒い結晶の誕生",visual:"crystal",text:"黒い煙は浮島を形づくる物質と反応した。その反応から、見たこともない黒い結晶が生まれた。"},
+    {title:"変わってしまった世界",visual:"dark",text:"黒い結晶の影響で、浮島の世界は大きく変わってしまった。かつての平和は失われ、記録もほとんど残らなかった。"},
+    {title:"巻物を書いた人物",visual:"scroll",text:"この記録を書き残したのは、あの出来事を生き延びた唯一の人物だった。その人物の正体と行方は、まだ分かっていない……。"},
+    {title:"次の手がかり",visual:"stars",text:"巻物の最後には、地球の近くにも黒い影が現れたという記述があった。主人公は新たな調査の必要性を感じた。"}
+  ];
+  let storyWorld31Index=0;
+  function renderStoryWorld31Scene(){
+    const d=storyWorld31Scenes[storyWorld31Index],v=$story("storyWorld31Visual"),t=$story("storyWorld31Title"),cap=$story("storyWorld31Dialogue"),btn=$story("storyWorld31Next");if(!d||!v||!t||!cap||!btn)return;
+    t.textContent="3-1 浮島の昔の話 — "+d.title;cap.textContent=d.text;
+    let art="";
+    if(d.visual==="scroll")art='<span class="w31-scroll">📜</span>';
+    else if(d.visual==="islands")art='<span class="w31-island i1"></span><span class="w31-island i2"></span><span class="w31-island i3"></span><span style="font-size:42px;z-index:1">☀️</span>';
+    else if(d.visual==="smoke")art='<span class="w31-island i1"></span><span class="w31-island i2"></span><span class="w31-smoke"></span>';
+    else if(d.visual==="crystal")art='<span class="w31-crystal">🔮</span><span class="w31-smoke"></span>';
+    else if(d.visual==="dark")art='<span class="w31-island i1" style="filter:brightness(.35)"></span><span class="w31-island i2" style="filter:brightness(.25)"></span><span class="w31-crystal" style="opacity:.7">◆</span><span class="w31-smoke" style="opacity:.9"></span>';
+    else art='<span style="font-size:90px;animation:w31pulse 2s infinite alternate">🌌</span><span class="w31-island i1"></span><span class="w31-island i2"></span>';
+    v.innerHTML=art;btn.textContent=storyWorld31Index===storyWorld31Scenes.length-1?"完了 ▶":"次へ ▶";
+  }
+  window.startStoryWorld31Intro=function(){if(storySpaceStationMoveFrame){cancelAnimationFrame(storySpaceStationMoveFrame);storySpaceStationMoveFrame=0;}storySpaceStationKeys.clear();hideStory("storySpaceStationScreen");const s=$story("storyWorld31Screen");if(!s)return;storyWorld31Index=0;s.style.display="flex";s.classList.remove("hidden");renderStoryWorld31Scene();};
+  window.advanceStoryWorld31=function(){if(storyWorld31Index<storyWorld31Scenes.length-1){storyWorld31Index++;renderStoryWorld31Scene();return;}try{localStorage.setItem("story31Cleared","1");}catch(e){}const s=$story("storyWorld31Screen");if(s){s.style.display="none";s.classList.add("hidden");}showStory("storySpaceStationScreen");if(!storySpaceStationMoveFrame)storySpaceStationMoveFrame=requestAnimationFrame(storySpaceStationMoveTick);};
 
   function renderStoryWorld2Stages(){const grid=$story("storyWorld2StageGrid");if(!grid)return;grid.innerHTML="";[["2-1","次元の裂け目"],["2-2","赤い結晶"],["2-3","緑の結晶"],["2-4","水色の結晶"],["2-5","黒い結晶"],["2-6","結晶のゲート"],["2-7","黒い影の正体"],["2-8","崩壊した浮遊都市"]].forEach(([id,name])=>{let done=false,unlocked=true;try{done=localStorage.getItem(id==="2-1"?"storyWorld2Stage1Cleared":"story"+id.replace("-","")+"Cleared")==="1";if(id==="2-7")unlocked=localStorage.getItem("story26Cleared")==="1";if(id==="2-8")unlocked=localStorage.getItem("story27Cleared")==="1";}catch(e){if(id==="2-7")unlocked=false;}const card=document.createElement("div");card.className="story-stage-card"+(done?" cleared":unlocked?" unlocked":"");const title=document.createElement("strong");title.textContent=id;card.appendChild(title);const label=document.createElement("div");label.style.cssText="font-size:12px;margin-top:4px";label.textContent=name;card.appendChild(label);const status=document.createElement("div");status.style.cssText="font-size:12px;margin-top:5px";status.textContent=done?"✅ クリア":unlocked?"プレイ可能":id==="2-8"?"🔒 2-7クリアで解放":"🔒 2-6クリアで解放";card.appendChild(status);const btn=document.createElement("button");btn.type="button";btn.textContent=done?"もう一度見る":unlocked?"プレイ":"ロック中";btn.disabled=!unlocked;btn.addEventListener("click",()=>{if(!unlocked)return;storyWorld2PendingStage=id;window.openStoryCodeGate(false);});card.appendChild(btn);grid.appendChild(card);});};
 

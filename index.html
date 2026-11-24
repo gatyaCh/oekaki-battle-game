@@ -4497,10 +4497,10 @@ body {
   <header class="w3-explore-top"><button type="button" onclick="closeStoryWorld3Explore()">← 街に戻る</button><strong>🛰️ 宇宙ステーション</strong><span>WASD / 矢印キーで移動</span></header>
   <div class="w3-station-viewport">
     <div class="w3-station-scene">
-      <div class="w3-station-battle-zone"><div class="w3-zone-title">🪨 隕石調査エリア</div><div class="w3-zone-desc">黒い結晶を持つ岩石が落下した区域</div><button class="w3-stage-door" style="left:230px;top:620px" onclick="launchStoryWorld3Stage('3-3')">3-3<br>岩石調査①</button><button class="w3-stage-door" style="left:500px;top:760px" onclick="launchStoryWorld3Stage('3-4')">3-4<br>岩石調査②</button><button class="w3-stage-door" style="left:230px;top:920px" onclick="launchStoryWorld3Stage('3-5')">3-5<br>岩石調査③</button><button class="w3-stage-door" style="left:500px;top:1080px" onclick="launchStoryWorld3Stage('3-6')">3-6<br>岩石調査④</button><button class="w3-stage-door w3-stage-upper" style="left:620px;top:460px;z-index:20" onclick="launchStoryWorld3Stage('3-8')">3-8<br>謎の暗黒空間</button></div><div class="w3-rocket-pad"><div class="w3-rocket-art">🚀</div><b>ロケット発射場</b><small>発射準備エリア</small><button class="w3-stage-door" onclick="launchStoryWorld3Stage('3-7')">3-7<br>発射シーケンス</button></div><div class="w3-station-window"><span>🌌</span><b>SPACE VIEW</b></div>
+      <div class="w3-station-battle-zone"><div class="w3-zone-title">🪨 隕石調査エリア</div><div class="w3-zone-desc">黒い結晶を持つ岩石が落下した区域</div><button class="w3-stage-door" style="left:230px;top:620px" data-world3-stage="3-3">3-3<br>岩石調査①</button><button class="w3-stage-door" style="left:500px;top:760px" data-world3-stage="3-4">3-4<br>岩石調査②</button><button class="w3-stage-door" style="left:230px;top:920px" data-world3-stage="3-5">3-5<br>岩石調査③</button><button class="w3-stage-door" style="left:500px;top:1080px" data-world3-stage="3-6">3-6<br>岩石調査④</button><button class="w3-stage-door w3-stage-upper" style="left:620px;top:460px;z-index:20" data-world3-stage="3-8">3-8<br>謎の暗黒空間</button></div><div class="w3-rocket-pad"><div class="w3-rocket-art">🚀</div><b>ロケット発射場</b><small>発射準備エリア</small><button class="w3-stage-door" data-world3-stage="3-7">3-7<br>発射シーケンス</button></div><div class="w3-station-window"><span>🌌</span><b>SPACE VIEW</b></div>
       <div class="w3-station-core"><div class="w3-core-ring"></div><span>🛰️</span><b>中央管制室</b><small>宇宙船発着管制システム</small></div>
-      <button type="button" class="w3-station-wing w3-wing-stage w3-wing-left" aria-label="ステージ3-1を開始" onclick="launchStoryWorld3Stage('3-1')"><b>🟨 STAGE 3-1　🔬 研究区画</b><span>浮島の昔の話</span></button>
-      <button type="button" class="w3-station-wing w3-wing-stage w3-wing-right" aria-label="ステージ3-2を開始" onclick="launchStoryWorld3Stage('3-2')"><b>🟨 STAGE 3-2　🚀 発着区画</b><span>作業現場の報告</span></button>
+      <button type="button" class="w3-station-wing w3-wing-stage w3-wing-left" aria-label="ステージ3-1を開始" data-world3-stage="3-1"><b>🟨 STAGE 3-1　🔬 研究区画</b><span>浮島の昔の話</span></button>
+      <button type="button" class="w3-station-wing w3-wing-stage w3-wing-right" aria-label="ステージ3-2を開始" data-world3-stage="3-2"><b>🟨 STAGE 3-2　🚀 発着区画</b><span>作業現場の報告</span></button>
       <div class="w3-station-corridor"></div>
       <div class="w3-station-floor-label">STATION 03 / EARTH ORBITAL FACILITY</div>
       <div id="storyWorld3Player" class="w3-station-player" aria-label="プレイヤー">🧑‍🚀</div>
@@ -5592,27 +5592,15 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   document.addEventListener("keyup",function(e){const k=e.key.toLowerCase();storyWorld3Keys.delete(k);if(!storyWorld3Keys.size){stopStoryWorld3Move();const player=$story("storyWorld3Player");if(player)player.classList.remove("moving");}});
   window.addEventListener("blur",function(){storyWorld3Keys.clear();stopStoryWorld3Move();const player=$story("storyWorld3Player");if(player)player.classList.remove("moving");});
   let storyWorld3StageOverlay=null;
-  // World 3: robust click hit detection for every stage entrance, even if a decorative layer overlaps it.
+  // World 3: dispatch stage starts from the exact clicked stage button, never by overlapping screen coordinates.
   document.addEventListener("click",function(e){
     if(!storyWorld3Visible())return;
-    const entries=[
-      ["3-1",".w3-wing-left"],["3-2",".w3-wing-right"],
-      ["3-3",'.w3-station-battle-zone button[onclick*="3-3"]'],
-      ["3-4",'.w3-station-battle-zone button[onclick*="3-4"]'],
-      ["3-5",'.w3-station-battle-zone button[onclick*="3-5"]'],
-      ["3-6",'.w3-station-battle-zone button[onclick*="3-6"]'],
-      ["3-7",'.w3-rocket-pad button[onclick*="3-7"]'],
-      ["3-8",'.w3-station-battle-zone button[onclick*="3-8"]']
-    ];
-    for(const [id,selector] of entries){
-      const el=document.querySelector("#storyWorld3ExploreScreen "+selector);
-      if(!el||el.disabled||getComputedStyle(el).display==="none"||getComputedStyle(el).visibility==="hidden")continue;
-      const r=el.getBoundingClientRect();
-      if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom){
-        e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
-        window.launchStoryWorld3Stage(id);return;
-      }
-    }
+    const button=e.target&&e.target.closest?e.target.closest("#storyWorld3ExploreScreen [data-world3-stage]"):null;
+    if(!button)return;
+    const id=button.getAttribute("data-world3-stage");
+    if(!["3-1","3-2","3-3","3-4","3-5","3-6","3-7","3-8"].includes(id))return;
+    e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+    window.launchStoryWorld3Stage(id);
   },true);
   // World 3: use the normal attack control to enter a nearby 3-1 / 3-2 entrance.
   function storyWorld3NearbyEntrance(){const player=$story("storyWorld3Player");if(!player)return null;const pr=player.getBoundingClientRect();const pcx=pr.left+pr.width/2,pcy=pr.top+pr.height/2;let best=null,bestD=Infinity;for(const [id,selector] of [["3-1",".w3-wing-left"],["3-2",".w3-wing-right"]]){const el=document.querySelector("#storyWorld3ExploreScreen "+selector);if(!el)continue;const r=el.getBoundingClientRect();const cx=r.left+r.width/2,cy=r.top+r.height/2;const d=Math.hypot(cx-pcx,cy-pcy);if(d<Math.max(150,Math.max(r.width,r.height)*.62)&&d<bestD){best={id,el};bestD=d;}}return best;}

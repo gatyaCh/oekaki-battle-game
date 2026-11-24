@@ -7878,7 +7878,7 @@ function renderUpgradeShop() {
   ];
   root.innerHTML=defs.map(([k,label,desc,max])=>{
     const lv=upgradeLevels[k], price=getUpgradePrice(k,lv), capped=lv>=max;
-    const diamondCosts={atk:7,speed:7,defense:6,points:10,heal:8,special:8,hp:9};const diamondCost=diamondCosts[k];
+    const diamondCosts={atk:22,speed:22,defense:21,points:25,heal:23,special:23,hp:24};const diamondCost=diamondCosts[k];
     const diamondButton=diamondCost?'<button style="background:#0891b2;border:1px solid #67e8f9;color:#fff;" '+(capped||maDiamonds<diamondCost?'disabled':'')+' onclick="buyUpgradeWithDiamond(\''+k+'\')">💎 ×'+diamondCost+'</button>':'';
     return '<div class="shop-card"><h3>'+label+'</h3><p style="font-size:12px;margin:4px 0;">'+desc+'</p><p style="color:#c4b5fd;">Lv '+lv+' / '+max+'</p><p style="color:#ffd700;font-weight:bold;">'+(capped?'MAX':price+' G')+'</p><div style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap;"><button '+(capped||coins<price?'disabled':'')+' onclick="buyUpgrade(\''+k+'\')">'+(capped?'MAX':'🪙 強化')+'</button>'+diamondButton+'</div></div>';
   }).join("");

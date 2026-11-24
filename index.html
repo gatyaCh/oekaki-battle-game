@@ -5613,7 +5613,16 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   window.launchStoryWorld3Stage=function(id){
     if(!storyWorld3Authorized){window.openStoryWorld3Gate();return;}
     const stageId=String(id);
-    if(["3-3","3-4","3-5","3-6"].includes(stageId)){
+    if(stageId==="3-3"){
+      hideStory("storyWorld3ExploreScreen");
+      if(storyWorld3MoveFrame){cancelAnimationFrame(storyWorld3MoveFrame);storyWorld3MoveFrame=0;}
+      storyWorld3Keys.clear();
+      // 3-3は戦闘を一時停止し、オープニング演出だけを再生する。
+      // cfg["3-3"] と introLinesByStage["3-3"] は後で戦闘を戻せるよう保持する。
+      window.startStoryBattle(stageId,true);
+      return;
+    }
+    if(["3-4","3-5","3-6"].includes(stageId)){
       hideStory("storyWorld3ExploreScreen");
       if(storyWorld3MoveFrame){cancelAnimationFrame(storyWorld3MoveFrame);storyWorld3MoveFrame=0;}
       storyWorld3Keys.clear();
@@ -12208,11 +12217,22 @@ body.special-code-open #adminAbuseDialogue.active{
   scene.className="story-intro-scene scene-"+sceneGroup;
   if(stage==="1-4"&&["citywide","approach","encounter"].includes(sceneGroup))scene.classList.add("city-intro");
   if(line[2]){void scene.offsetWidth;scene.classList.add(line[2])}
-  $("storyIntroNext").textContent=introIndex===introLines.length-1?"⚔️ 戦闘開始！":"次へ ▶";
+  $("storyIntroNext").textContent=introIndex===introLines.length-1?(storyIntroAnimationOnly?"探索フィールドへ戻る":"⚔️ 戦闘開始！"):"次へ ▶";
+  if(storyIntroAnimationOnly)$("storyIntroSkip").textContent="演出をスキップ";else $("storyIntroSkip").textContent="スキップ";
  }
- function advanceIntro(){if(introIndex<introLines.length-1){introIndex++;showIntroLine()}else beginBattle()}
- function start(id){
+ let storyIntroAnimationOnly=false;
+ function finishStoryIntroAnimationOnly(){
+  storyIntroAnimationOnly=false;
+  const intro=$("storyIntro");
+  if(intro){intro.classList.add("hidden");intro.hidden=true;intro.style.display="none";}
+  $("storyBattleScreen").classList.add("hidden");
+  $("storyStageScreen").classList.add("hidden");
+  if(typeof window.openStoryWorld3Explore==="function")window.openStoryWorld3Explore();
+ }
+ function advanceIntro(){if(introIndex<introLines.length-1){introIndex++;showIntroLine()}else if(storyIntroAnimationOnly){finishStoryIntroAnimationOnly()}else beginBattle()}
+ function start(id,animationOnly=false){
   if(!cfg[id])return;
+  storyIntroAnimationOnly=!!animationOnly;
   stageEarnedExp=0;expAwarded=false;if(expOpenBtn)expOpenBtn.classList.add("hidden");
   stage=id;
   const playerSkin=$("storyBattleArena")?.querySelector(".story-battle-actor.player .actor-emoji");
@@ -12222,7 +12242,8 @@ body.special-code-open #adminAbuseDialogue.active{
   $("storyBattleTitle").textContent=cfg[id].title;
   $("storyBattleSubtitle").textContent=cfg[id].subtitle;
   $("storyBattleArena").className="story-battle-arena "+cfg[id].scene;
-  $("storyBattleScreen").classList.remove("hidden");$("storyStageScreen").classList.add("hidden");
+  if(storyIntroAnimationOnly){$("storyBattleScreen").classList.add("hidden");$("storyStageScreen").classList.add("hidden");}
+  else{$("storyBattleScreen").classList.remove("hidden");$("storyStageScreen").classList.add("hidden");}
   if(id==="1-2"||id==="1-4"||id.startsWith("2-")||id.startsWith("3-")){
    introLines=Array.isArray(introLinesByStage[id])?introLinesByStage[id]:[];
    introIndex=0;
@@ -12361,7 +12382,7 @@ body.special-code-open #adminAbuseDialogue.active{
   const enemyMessages=enemyTurn();msg+="\n\n【敵の行動】\n"+(enemyMessages.join("\n")||"敵は行動できない。");
   log(msg);$("storyBattleResult").textContent=msg;render();turnBusy=false;finish();
  };
- $("storyIntroNext").onclick=advanceIntro;$("storyIntroSkip").onclick=beginBattle;
+ $("storyIntroNext").onclick=advanceIntro;$("storyIntroSkip").onclick=()=>{if(storyIntroAnimationOnly)finishStoryIntroAnimationOnly();else beginBattle();};
  $("storyBattleExit").onclick=()=>{$("storyBattleScreen").classList.add("hidden");$("storyIntro").classList.add("hidden");if(stage.startsWith("3-")){if(typeof window.openStoryWorld3Explore==="function")window.openStoryWorld3Explore();}else if(stage.startsWith("2-")){if(typeof window.returnStoryWorld2ExploreAfterStage==="function")window.returnStoryWorld2ExploreAfterStage(stage);else if(typeof window.openStoryWorld2Explore==="function")window.openStoryWorld2Explore();}else{if(typeof window.openStoryExplore==="function")window.openStoryExplore();}};
 })();
 </script>

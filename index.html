@@ -6616,6 +6616,7 @@ let coins = 0;
 const MA_DIAMOND_STORAGE_KEY="oekakiBattleMADiamondsV1";
 let maDiamonds=0;
 try{maDiamonds=Math.max(0,Math.floor(Number(localStorage.getItem(MA_DIAMOND_STORAGE_KEY))||0));}catch(e){}
+const initialDiamondHud=document.getElementById("diamondText");if(initialDiamondHud)initialDiamondHud.textContent=maDiamonds;
 function saveMADiamonds(){try{localStorage.setItem(MA_DIAMOND_STORAGE_KEY,String(maDiamonds));}catch(e){}}
 window.addMADiamonds=(amount=1)=>{const n=Math.max(0,Math.floor(Number(amount)||0));maDiamonds+=n;saveMADiamonds();const hud=document.getElementById("diamondText");if(hud)hud.textContent=maDiamonds;if(typeof renderUpgradeShop==="function")renderUpgradeShop();return maDiamonds;};
 window.getMADiamonds=()=>maDiamonds;
@@ -7745,6 +7746,7 @@ function buyUpgradeWithDiamond(key){
   const gainedLevels=maxLevel-upgradeLevels[key];
   maDiamonds-=cost;
   saveMADiamonds();
+  const diamondHud=document.getElementById("diamondText");if(diamondHud)diamondHud.textContent=maDiamonds;
   upgradeLevels[key]=maxLevel;
   if(key==="hp"&&typeof p!=="undefined"&&p){
     p.max+=10*gainedLevels;

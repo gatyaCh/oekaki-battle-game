@@ -5561,6 +5561,10 @@ function confirmMapTutorial(yes){document.getElementById("mapTutorialConfirm").c
   function showStory(id){const el=$story(id);if(el)el.classList.remove("hidden");}
   const STORY_TEST_CODE="utor";
   let storyWorld2Authorized=false;
+  // World 3 rollback: discard only World 3-specific saved progress.
+  try{
+    Object.keys(localStorage).filter(key=>key.startsWith("storyWorld3")).forEach(key=>localStorage.removeItem(key));
+  }catch(e){}
   let storyWorld3Authorized=false;
   function storyWorld3HasPrerequisites(){try{return localStorage.getItem("story15Cleared")==="1"&&localStorage.getItem("storyWorld2Cleared")==="1";}catch(e){return false;}}
   function storyWorld2HasStoryClear(){try{return localStorage.getItem("story15Cleared")==="1";}catch(e){return false;}}

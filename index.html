@@ -8564,9 +8564,15 @@ function update() {
     if (keys[kr] || keys["arrowright"]) dx += sp;
   }
   if (stage === 7) dx -= 0.6;
-  if (dx !== 0 || dy !== 0) { if (halloweenFx.horse > 0 || halloweenFx.zombie > 0) { p.x += dx; p.y += dy; } else moveWithObstacles(p, dx, dy, p.r); }
+  if (dx !== 0 || dy !== 0) {
+    const playerBeforeMove={x:p.x,y:p.y};
+    if (halloweenFx.horse > 0 || halloweenFx.zombie > 0) { p.x += dx; p.y += dy; } else moveWithObstacles(p, dx, dy, p.r);
+    keepPlayerOutsideEnemyAttackRanges(playerBeforeMove.x,playerBeforeMove.y);
+  }
   if (dashTimer > 0) {
+    const playerBeforeDash={x:p.x,y:p.y};
     moveWithObstacles(p, dashVX * (kizuku2Active ? 2.0 : 1), dashVY * (kizuku2Active ? 2.0 : 1), 20);
+    keepPlayerOutsideEnemyAttackRanges(playerBeforeDash.x,playerBeforeDash.y);
     dashTimer--;
     if (!carHitThisDash && Math.hypot(p.x - enemy.x, p.y - enemy.y) < 55) {
       damageEnemy(getDamage());
@@ -13932,6 +13938,23 @@ function step2Move(obj,dx,dy,r){
   if(!positionBlocked(nx,obj.y,r))obj.x=nx;
   if(!positionBlocked(obj.x,ny,r))obj.y=ny;
 }
+function keepPlayerOutsideEnemyAttackRanges(oldX,oldY){
+  const cfg=(typeof step2Mode!=="undefined"&&step2Mode.active)?step2Mode.stages[step2Mode.index-1]:null;
+  let units=[];
+  if(enemy&&enemy.hp>0){
+    let range=55;
+    if(cfg){if(cfg.kind==="moon")range=62;else if(cfg.kind==="mercury"||cfg.kind==="jupiter")range=68;else if(cfg.kind==="mars")range=0;}
+    units.push({unit:enemy,range:range});
+  }
+  minions.forEach(m=>{if(m.hp>0)units.push({unit:m,range:cfg?(m.type==="step2_turret"?0:48):48});});
+  for(const item of units){
+    if(item.range<=0)continue;
+    const before=Math.hypot(oldX-item.unit.x,oldY-item.unit.y);
+    const after=Math.hypot(p.x-item.unit.x,p.y-item.unit.y);
+    if(before>=item.range+25&&after<item.range+25){p.x=oldX;p.y=oldY;return false;}
+  }
+  return true;
+}
 function step2DamagePlayer(amount){
   // STEP2はチュートリアル状態に左右されず、敵の攻撃を専用処理で受ける。
   // STEP1共通のdamagePlayerラッパーやチュートリアル判定に遮られないようにする。
@@ -14016,7 +14039,9 @@ function updateStep2Mode(){
   });
   let speed=3.2*(1+upgradeLevels.speed*0.05)*(slowDebuffTimer>0?0.8:1)*(onCrater?0.7:1)*(step2Mode.effects.rocket>0?3:1);
   if(cfg.kind==="jupiter"&&step2Mode.windBurst>0)speed*=0.12;
+  const playerBeforeMove={x:p.x,y:p.y};
   step2Move(p,dx/len*speed,dy/len*speed,p.r);
+  keepPlayerOutsideEnemyAttackRanges(playerBeforeMove.x,playerBeforeMove.y);
   if(cfg.kind==="jupiter"){
     // 5秒ごとに強風が始まり、7秒間続く。風向きは吹いている間もランダムに変化。
     step2Mode.windTimer+=dt;
@@ -14206,8 +14231,10 @@ function drawStep2Mode(){
     ctx.font="28px serif";
     for(let i=0;i<12;i++){const a=Math.PI*2*i/12;ctx.fillText(colors[Math.floor(i/3)],p.x+Math.cos(a)*55,p.y+Math.sin(a)*55);}
   }
-  ctx.font="24px serif";
-  bulletHellBullets.forEach(b=>ctx.fillText(b.color||"🔮",b.x,b.y));
+  ctx.save();ctx.textAlign="center";ctx.textBaseline="middle";ctx.font="bold 30px sans-serif";
+  bulletHellBullets.forEach(b=>{ctx.shadowColor="#fff";ctx.shadowBlur=12;ctx.lineWidth=4;ctx.strokeStyle="#111827";ctx.strokeText(b.color||"🔮",b.x,b.y);ctx.fillStyle="#fff";ctx.fillText(b.color||"🔮",b.x,b.y);});
+  magicOrbs.forEach(orb=>{ctx.beginPath();ctx.arc(orb.x,orb.y,Math.max(orb.r||8,10),0,Math.PI*2);ctx.fillStyle=orb.homing?"#f0abfc":"#c084fc";ctx.shadowColor=orb.homing?"#f0abfc":"#a855f7";ctx.shadowBlur=18;ctx.fill();ctx.lineWidth=3;ctx.strokeStyle="#fff";ctx.stroke();ctx.beginPath();ctx.arc(orb.x-3,orb.y-3,3,0,Math.PI*2);ctx.fillStyle="#fff";ctx.fill();});
+  ctx.restore();
   ctx.font="34px serif";ctx.fillText(typeof window.getSelectedSkinEmoji==="function"?window.getSelectedSkinEmoji():"🙂",p.x,p.y);
   // STEP 1と同じ既存の攻撃範囲リング・武器絵文字をSTEP 2でも表示。
   if(slashTimer>0){ctx.strokeStyle="yellow";ctx.lineWidth=6;ctx.beginPath();ctx.arc(p.x,p.y,72+charge/2,0,Math.PI*2);ctx.stroke();ctx.lineWidth=1;ctx.font="24px serif";ctx.fillText(weapon,p.x+25,p.y+28);}

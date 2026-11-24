@@ -12256,11 +12256,39 @@ body.special-code-open #adminAbuseDialogue.active{
     intro.style.setProperty("position","fixed","important");
     intro.style.setProperty("inset","0","important");
     intro.style.setProperty("z-index","2147483647","important");
-    intro.querySelector("h2").textContent=cfg[id].title;
+    const introCard=intro.querySelector(".story-intro-card");
+    const introHeading=intro.querySelector("h2");
+    if(introHeading)introHeading.textContent=cfg[id].title;
     intro.setAttribute("aria-label",cfg[id].title+" オープニング");
+    // Force the complete cinematic card and its contents above the page background.
+    if(introCard){
+     introCard.style.setProperty("display","block","important");
+     introCard.style.setProperty("visibility","visible","important");
+     introCard.style.setProperty("opacity","1","important");
+     introCard.style.setProperty("position","relative","important");
+     introCard.style.setProperty("z-index","1","important");
+     introCard.style.setProperty("width","min(760px,96vw)","important");
+     introCard.style.setProperty("max-height","92vh","important");
+     introCard.style.setProperty("overflow-y","auto","important");
+     introCard.querySelectorAll("h2,.story-intro-scene,.story-intro-dialogue,.story-intro-controls").forEach(el=>{
+      el.style.setProperty("display",el.classList.contains("story-intro-controls")?"flex":"block","important");
+      el.style.setProperty("visibility","visible","important");
+      el.style.setProperty("opacity","1","important");
+     });
+    }
     showIntroLine();
-    // Ensure the opening overlay wins against the battle screen's visibility rules.
-    requestAnimationFrame(()=>{if(stage===id&&introLines.length){intro.hidden=false;intro.classList.remove("hidden");intro.style.setProperty("display","flex","important");intro.style.setProperty("visibility","visible","important");intro.style.setProperty("z-index","2147483647","important");}});
+    // Re-assert visibility after other screen transitions and style recalculation.
+    const revealIntro=()=>{
+     if(stage!==id||!introLines.length)return;
+     intro.hidden=false;intro.classList.remove("hidden");
+     intro.style.setProperty("display","flex","important");
+     intro.style.setProperty("visibility","visible","important");
+     intro.style.setProperty("opacity","1","important");
+     intro.style.setProperty("z-index","2147483647","important");
+     if(introCard){introCard.style.setProperty("display","block","important");introCard.style.setProperty("visibility","visible","important");introCard.style.setProperty("opacity","1","important");}
+    };
+    revealIntro();
+    requestAnimationFrame(revealIntro);
    }else beginBattle();
   }else beginBattle();
  }

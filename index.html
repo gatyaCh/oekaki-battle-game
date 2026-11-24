@@ -4614,7 +4614,7 @@ body {
   <div id="storyBattleArena" class="story-battle-arena"><div class="story-battle-arena-hint" id="storyBattleHint">敵を選んで攻撃しよう</div><div class="story-battle-actor player"><div class="actor-emoji">🧑‍🚀</div><div class="actor-name">主人公</div></div><div id="storyBattleEnemies" style="position:relative;z-index:2;display:flex;align-items:flex-end;justify-content:space-around;gap:8px;width:70%;height:100%"></div></div>
   <div class="story-battle-log" id="storyBattleLog" aria-live="polite">戦闘開始！画面下のコマンドから行動を選ぼう。</div>
   <div class="story-draw-panel" id="storyDrawPanel"><strong id="storyDrawPrompt">お題：剣を描こう！</strong><p id="storyDrawHelp" style="font-size:12px;color:#cbd5e1;margin-top:3px">お題に合わせて描いて「判定する」を押そう。</p><canvas id="storyDrawCanvas" width="520" height="260"></canvas><div class="story-battle-secondary"><button type="button" id="storyDrawClear">消す</button><button type="button" id="storyDrawCancel">戻る</button><button type="button" id="storyDrawJudge">判定する</button></div><div id="storyDrawResult" class="story-battle-result" aria-live="polite"></div></div>
-  <div class="story-battle-command-wrap"><div class="story-battle-commands"><button type="button" data-action="attack">⚔️ 攻撃</button><button type="button" data-action="dodge">💨 回避</button><button type="button" data-action="defend">🛡️ 防御</button><button type="button" data-action="heal">💚 回復</button></div><div class="story-battle-result" id="storyBattleResult"></div><div class="story-battle-secondary"><button type="button" id="storyExpOpenBtn" class="hidden">✨ EXPを振り分ける</button><button type="button" id="storyBattleExit">ステージ選択へ戻る</button></div></div>
+  <div class="story-battle-command-wrap"><div class="story-battle-commands"><button type="button" data-action="attack">⚔️ 攻撃</button><button type="button" data-action="dodge">💨 回避</button><button type="button" data-action="defend">🛡️ 防御</button><button type="button" data-action="heal">💚 回復</button></div><div class="story-battle-result" id="storyBattleResult"></div><div class="story-battle-secondary"><button type="button" id="storyExpOpenBtn" class="hidden">✨ EXPを振り分ける</button><button type="button" id="storyBattleExit">探索フィールドに戻る</button></div></div>
  </div>
 </div>
 
@@ -12362,7 +12362,7 @@ body.special-code-open #adminAbuseDialogue.active{
   log(msg);$("storyBattleResult").textContent=msg;render();turnBusy=false;finish();
  };
  $("storyIntroNext").onclick=advanceIntro;$("storyIntroSkip").onclick=beginBattle;
- $("storyBattleExit").onclick=()=>{$("storyBattleScreen").classList.add("hidden");$("storyIntro").classList.add("hidden");if(stage.startsWith("2-")){if(typeof window.returnStoryWorld2ExploreAfterStage==="function")window.returnStoryWorld2ExploreAfterStage(stage);}else{$("storyStageScreen").classList.remove("hidden");if(window.openStoryStages)window.openStoryStages();}};
+ $("storyBattleExit").onclick=()=>{$("storyBattleScreen").classList.add("hidden");$("storyIntro").classList.add("hidden");if(stage.startsWith("3-")){if(typeof window.openStoryWorld3Explore==="function")window.openStoryWorld3Explore();}else if(stage.startsWith("2-")){if(typeof window.returnStoryWorld2ExploreAfterStage==="function")window.returnStoryWorld2ExploreAfterStage(stage);else if(typeof window.openStoryWorld2Explore==="function")window.openStoryWorld2Explore();}else{if(typeof window.openStoryExplore==="function")window.openStoryExplore();}};
 })();
 </script>
 

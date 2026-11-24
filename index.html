@@ -10934,12 +10934,16 @@ return origUpdate.apply(this,arguments)};
 #playerTitleManage{width:100%;margin:9px 0 0;background:#1d4ed8;border:1px solid #93c5fd;font-weight:800}
 #playerTitleDialog{position:fixed;inset:0;z-index:1000005;display:flex;align-items:center;justify-content:center;padding:16px;background:#000b;box-sizing:border-box}
 #playerTitleDialog.hidden{display:none!important}
-#playerTitleDialog .player-title-dialog-card{width:min(440px,100%);max-height:80vh;overflow:auto;padding:20px;border:2px solid #60a5fa;border-radius:16px;background:#111827;color:#fff;text-align:center}
+#playerTitleDialog .player-title-dialog-card{width:min(760px,100%);max-height:88vh;overflow:auto;padding:20px;border:2px solid #60a5fa;border-radius:16px;background:#111827;color:#fff;text-align:center}
 #playerTitleDialog h3{margin:0 0 8px;color:#fde68a}
-#playerTitleEarnedList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0;text-align:left}
-.player-title-choice{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:48px;padding:8px 10px;border:1px solid #64748b;border-radius:9px;background:#1e293b;color:#e2e8f0;font-size:13px}
-.player-title-choice span{color:#94a3b8;font-size:12px}
-@media(max-width:420px){#playerTitleEarnedList{grid-template-columns:1fr}}
+#playerTitleEarnedList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:14px 0;text-align:left}
+.player-title-choice{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:74px;padding:10px 12px;border:1px solid #64748b;border-radius:9px;background:#1e293b;color:#e2e8f0;font-size:13px}
+.player-title-choice.is-earned{border-color:#d6a943;background:#292315}
+.player-title-info{display:flex;flex:1;min-width:0;flex-direction:column;gap:5px}
+.player-title-choice .player-title-name{color:#f8fafc;font-size:14px;line-height:1.35}
+.player-title-choice .player-title-condition{color:#cbd5e1;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+.player-title-choice button{flex-shrink:0;margin:0;padding:6px 10px;background:#334155;border:1px solid #94a3b8}
+@media(max-width:560px){#playerTitleEarnedList{grid-template-columns:1fr}.player-title-choice{min-height:66px}}
 #playerTitleDialog button{margin:6px}
 @media(max-width:600px){#playerTitleProfile{padding:9px}#playerTitleSkinIcon{font-size:36px}}
 </style>
@@ -14511,23 +14515,35 @@ function advanceStep2Mode(){
   list.innerHTML="";
   const wearing=equipped();
   if(message)message.textContent="獲得済み："+earned.length+" / 10　｜　装着は最大3つまで";
-  if(!earned.length){
-   const empty=document.createElement("p");empty.textContent="称号はまだ獲得していません。条件を達成して集めよう！";list.appendChild(empty);return;
-  }
-  defs.filter(d=>earned.includes(d.name)).forEach(d=>{
-   const row=document.createElement("div");row.className="player-title-choice";
-   const label=document.createElement("b");label.textContent=d.name;
-   const button=document.createElement("button");button.type="button";
-   const active=wearing.includes(d.name);
-   button.textContent=active?"外す":"装着";
-   button.addEventListener("click",()=>{
-    let next=equipped();
-    if(next.includes(d.name))next=next.filter(x=>x!==d.name);
-    else if(next.length>=3){if(message)message.textContent="称号は3つまで装着できるよ。先にどれか外してね。";return;}
-    else next.push(d.name);
-    save(EQUIPPED_KEY,next);refreshProfile();
-   });
-   row.append(label,button);list.appendChild(row);
+  defs.forEach((d,index)=>{
+   const isEarned=earned.includes(d.name);
+   const row=document.createElement("div");
+   row.className="player-title-choice"+(isEarned?" is-earned":" is-locked");
+   const info=document.createElement("div");
+   info.className="player-title-info";
+   const heading=document.createElement("b");
+   heading.className="player-title-name";
+   heading.textContent=isEarned?d.name:(String(index+1).padStart(2,"0")+"　🔒 未獲得");
+   const condition=document.createElement("span");
+   condition.className="player-title-condition";
+   condition.textContent="条件："+d.desc;
+   info.append(heading,condition);
+   row.appendChild(info);
+   if(isEarned){
+    const button=document.createElement("button");
+    button.type="button";
+    const active=wearing.includes(d.name);
+    button.textContent=active?"外す":"装着";
+    button.addEventListener("click",()=>{
+     let next=equipped();
+     if(next.includes(d.name))next=next.filter(x=>x!==d.name);
+     else if(next.length>=3){if(message)message.textContent="称号は3つまで装着できるよ。先にどれか外してね。";return;}
+     else next.push(d.name);
+     save(EQUIPPED_KEY,next);refreshProfile();
+    });
+    row.appendChild(button);
+   }
+   list.appendChild(row);
   });
  }
  function award(id){

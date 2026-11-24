@@ -4077,6 +4077,9 @@ html body #draw:not(.hidden) #gearBtn {
 .story-battle-arena.grass{background:linear-gradient(#8bd4f4 0 40%,#a7d67a 40% 57%,#5a9b45 57% 100%)}
 .story-battle-arena.grass:before{content:"";position:absolute;inset:38% 0 0;background:repeating-linear-gradient(170deg,transparent 0 30px,#ffffff18 31px 33px),radial-gradient(ellipse at 15% 25%,#d5ed9a 0 10%,transparent 11%),radial-gradient(ellipse at 80% 45%,#397b39 0 12%,transparent 13%)}
 .story-battle-arena.town{background:linear-gradient(#91c9e8 0 43%,#777b82 43% 57%,#4b515b 57% 100%)}
+.story-battle-arena.space{background:radial-gradient(ellipse at 50% 58%,#244b70 0 2%,transparent 40%),radial-gradient(circle at 18% 22%,#e0f2fe 0 1px,transparent 2px),radial-gradient(circle at 72% 18%,#bae6fd 0 1px,transparent 2px),radial-gradient(circle at 88% 38%,#fff 0 1px,transparent 2px),linear-gradient(180deg,#020817 0%,#0b1c35 55%,#183d58 100%);background-size:auto,110px 90px,150px 120px,180px 140px,auto}
+.story-battle-arena.space:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 54px,#7dd3fc12 55px 57px),linear-gradient(180deg,transparent 0 58%,#38bdf822 59%,transparent 75%);animation:w3RouteSlide 5s linear infinite}
+.story-battle-arena.space:after{background:linear-gradient(0deg,#020817aa,transparent 65%)}
 .story-battle-arena.town:before{content:"";position:absolute;inset:12% 0 42%;background:linear-gradient(90deg,#7d8796 0 14%,transparent 14% 19%,#b5a18b 19% 34%,transparent 34% 40%,#69798b 40% 59%,transparent 59% 65%,#a18d7a 65% 83%,transparent 83%);clip-path:polygon(0 18%,12% 0,24% 18%,24% 100%,38% 100%,38% 25%,51% 4%,65% 25%,65% 100%,80% 100%,80% 14%,91% 0,100% 14%,100% 100%,0 100%)}
 .story-battle-arena:after{content:"";position:absolute;left:0;right:0;bottom:0;height:27%;background:linear-gradient(90deg,transparent 0 15%,#ffffff16 15% 16%,transparent 16% 48%,#ffffff16 48% 49%,transparent 49% 80%,#ffffff16 80% 81%,transparent 81%),linear-gradient(0deg,#0002,#0000)}
 .story-battle-actor{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;min-width:70px;max-width:30%;color:#111;text-shadow:0 1px 2px #fff8}
@@ -12129,10 +12132,10 @@ body.special-code-open #adminAbuseDialogue.active{
  "2-3":{title:"2-3「緑の結晶」",subtitle:"攻撃をかわす緑の結晶の敵に注意しよう",scene:"island-green",enemies:[["影の敵①",110,7],["緑の結晶の敵",110,7,"green","回避率20%"],["影の敵③",110,7]]},
  "2-4":{title:"2-4「水色の結晶」",subtitle:"体力の高い水色の結晶の敵を倒そう",scene:"island-cyan",enemies:[["影の敵①",110,7],["影の敵②",110,7],["水色の結晶の敵",200,7,"cyan","HP200"],["影の敵④",110,7]]},
  "2-5":{title:"2-5「黒い結晶」",subtitle:"黒い結晶の敵はHPが50以下になると仲間を吸収する",scene:"island-black",enemies:[["影の敵①",115,7],["影の敵②",115,7],["影の敵③",115,7],["影の敵④",115,7],["黒い結晶の敵",115,7,"black","HP50以下で吸収"]]},
- "3-3":{title:"3-3「黒い結晶の岩石①」",subtitle:"黒い結晶を宿した岩石を3体倒そう",scene:"grass",enemies:[["結晶岩石①",120,28],["結晶岩石②",120,28],["結晶岩石③",120,28]]},
- "3-4":{title:"3-4「黒い結晶の岩石②」",subtitle:"攻撃力の高い岩石3体に注意しよう",scene:"grass",enemies:[["結晶岩石①",125,34],["結晶岩石②",125,34],["結晶岩石③",125,34]]},
- "3-5":{title:"3-5「黒い結晶の岩石③」",subtitle:"4体の岩石をすべて倒そう",scene:"grass",enemies:[["結晶岩石①",115,30],["結晶岩石②",115,30],["結晶岩石③",115,30],["結晶岩石④",115,30]]},
- "3-6":{title:"3-6「黒い結晶の岩石④」",subtitle:"5体の岩石が行く手をふさいでいる",scene:"grass",enemies:[["結晶岩石①",115,25],["結晶岩石②",115,25],["結晶岩石③",115,25],["結晶岩石④",115,25],["結晶岩石⑤",115,25]]}
+ "3-3":{title:"3-3「黒い結晶の岩石①」",subtitle:"黒い結晶を宿した岩石を3体倒そう",scene:"space",enemies:[["結晶岩石①",120,28],["結晶岩石②",120,28],["結晶岩石③",120,28]]},
+ "3-4":{title:"3-4「黒い結晶の岩石②」",subtitle:"攻撃力の高い岩石3体に注意しよう",scene:"space",enemies:[["結晶岩石①",125,34],["結晶岩石②",125,34],["結晶岩石③",125,34]]},
+ "3-5":{title:"3-5「黒い結晶の岩石③」",subtitle:"4体の岩石をすべて倒そう",scene:"space",enemies:[["結晶岩石①",115,30],["結晶岩石②",115,30],["結晶岩石③",115,30],["結晶岩石④",115,30]]},
+ "3-6":{title:"3-6「黒い結晶の岩石④」",subtitle:"5体の岩石が行く手をふさいでいる",scene:"space",enemies:[["結晶岩石①",115,25],["結晶岩石②",115,25],["結晶岩石③",115,25],["結晶岩石④",115,25],["結晶岩石⑤",115,25]]}
  };
  const prompts={attack:"お題：剣を描こう！",dodge:"お題：翼を描こう！",defend:"お題：盾を描こう！",heal:"お題：回復の薬を描こう！"};
  const introLinesByStage={
@@ -12164,9 +12167,9 @@ body.special-code-open #adminAbuseDialogue.active{
  "2-4":[["ナレーション","さらに奥の浮島へ進むと、水色の結晶が街全体を覆っていた。","","crystal-cyan"],["主人公","結晶が壁みたいになっている……。かなり頑丈そうだ。","","crystal-cyan"],["ナレーション","4体の影の敵が行く手をふさいだ。そのうち1体は大きな水色の結晶を身につけている。","shadow-rise","crystal-cyan"],["主人公","あの結晶を持つ敵は、ほかより体力が高そうだ……！","crystal-glow","crystal-cyan"]],
  "2-5":[["ナレーション","最後の浮島は、黒い結晶に深く覆われていた。周囲の空気まで重く感じる。","","crystal-black"],["主人公","この黒い結晶……今まで見たものと何か違う。","","crystal-black"],["ナレーション","5体の影の敵が現れた。その中心には、ひときわ大きな黒い結晶を持つ敵がいる。","shadow-rise","crystal-black"],["主人公","あいつから強い気配を感じる……。油断しないでいこう！","crystal-glow","crystal-black"]],
  "3-3":[["ナレーション","主人公は同僚と合流するため、宇宙船へ続く外周通路を進んでいた。","","space-travel"],["主人公","宇宙船は発射場の向こうか……急いで向かおう。","move","space-travel"],["ナレーション","そのとき、通路の先に黒い結晶をまとった岩石が落下した！","impact","space-encounter"],["主人公","岩石が動いている！？ただの隕石じゃない！","emerge","space-encounter"],["ナレーション","岩石の中から黒い結晶が光り、3体が一斉に立ち上がった！","reveal","space-encounter"],["主人公","宇宙船へ向かうには、こいつらを倒して道を切り開くしかない！","reveal","space-encounter"]],
- "3-4":[["ナレーション","さらに奥にも黒い結晶の岩石が転がっている。","","grassland"],["主人公","さっきより大きい反応だ……。攻撃に気をつけないと！","","grassland"],["ナレーション","3体の岩石が一斉に動き出した。","impact","encounter"]],
- "3-5":[["ナレーション","調査区域の奥で、4体の岩石が道をふさいでいた。","","grassland"],["主人公","数が増えている……。囲まれないようにしよう！","reveal","encounter"]],
- "3-6":[["ナレーション","発射場へ続く最後の通路に、5体の岩石が集まっていた。","","grassland"],["主人公","ここを突破しないとロケットにたどり着けない！","reveal","encounter"]]
+ "3-4":[["ナレーション","さらに奥にも黒い結晶の岩石が転がっている。","","space-travel"],["主人公","さっきより大きい反応だ……。攻撃に気をつけないと！","","grassland"],["ナレーション","3体の岩石が一斉に動き出した。","impact","encounter"]],
+ "3-5":[["ナレーション","調査区域の奥で、4体の岩石が道をふさいでいた。","","space-travel"],["主人公","数が増えている……。囲まれないようにしよう！","reveal","encounter"]],
+ "3-6":[["ナレーション","発射場へ続く最後の通路に、5体の岩石が集まっていた。","","space-travel"],["主人公","ここを突破しないとロケットにたどり着けない！","reveal","encounter"]]
  };
  let introLines=[];
  let stage="",hp=300,enemies=[],target=0,action="",strokes=[],drawing=false,last=null,introIndex=0,playerGuard=0,playerDodge=0,turnBusy=false,rewardShown=false,absorptionTriggered=false;
@@ -12212,18 +12215,25 @@ body.special-code-open #adminAbuseDialogue.active{
   stageEarnedExp=0;expAwarded=false;if(expOpenBtn)expOpenBtn.classList.add("hidden");
   stage=id;
   const playerSkin=$("storyBattleArena")?.querySelector(".story-battle-actor.player .actor-emoji");
-  if(playerSkin){const emoji=window.getSelectedSkinEmoji?window.getSelectedSkinEmoji():"🧑‍🚀";playerSkin.textContent=emoji||"🧑‍🚀";}
+  if(playerSkin){const emoji=id.startsWith("3-")?"🧑‍🚀":(window.getSelectedSkinEmoji?window.getSelectedSkinEmoji():"🧑‍🚀");playerSkin.textContent=emoji||"🧑‍🚀";}
   hp=300;target=0;playerGuard=0;playerDodge=0;turnBusy=false;rewardShown=false;absorptionTriggered=false;
   enemies=cfg[id].enemies.map(e=>({name:e[0],hp:e[1],max:e[1],attack:e[2],crystal:e[3]||"",ability:e[4]||"",guard:0,dodge:0,absorbed:false}));
+  $("storyBattleTitle").textContent=cfg[id].title;
+  $("storyBattleSubtitle").textContent=cfg[id].subtitle;
+  $("storyBattleArena").className="story-battle-arena "+cfg[id].scene;
   $("storyBattleScreen").classList.remove("hidden");$("storyStageScreen").classList.add("hidden");
   if(id==="1-2"||id==="1-4"||id.startsWith("2-")||id.startsWith("3-")){
-   introLines=introLinesByStage[id];introIndex=0;
+   introLines=Array.isArray(introLinesByStage[id])?introLinesByStage[id]:[];
+   introIndex=0;
    const intro=$("storyIntro");
-   if(intro.parentElement!==document.body)document.body.appendChild(intro);
-   intro.classList.remove("hidden");intro.style.display="flex";intro.style.visibility="visible";
-   intro.querySelector("h2").textContent=cfg[id].title;
-   $("storyIntro").setAttribute("aria-label",cfg[id].title+" オープニング");
-   showIntroLine();
+   if(introLines.length){
+    if(intro.parentElement!==document.body)document.body.appendChild(intro);
+    intro.classList.remove("hidden");intro.style.display="flex";intro.style.visibility="visible";
+    intro.style.zIndex="2147483001";
+    intro.querySelector("h2").textContent=cfg[id].title;
+    intro.setAttribute("aria-label",cfg[id].title+" オープニング");
+    showIntroLine();
+   }else beginBattle();
   }else beginBattle();
  }
  window.startStoryBattle=start;

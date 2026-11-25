@@ -80,6 +80,35 @@ button:disabled { opacity: 0.5; cursor: not-allowed; background: #222; }
 #rankPointOverlay .rank-point-note { color:#cbd5e1; font-size:12px; margin-top:6px !important; }
 @media(max-width:600px){ #rankPointOverlay .rank-point-card { padding:12px; } #rankPointOverlay .rank-point-card h3 { font-size:21px; } }
 @media(max-width:600px){ #rankPointOverlay { padding:12px; } }
+
+/* rank-point-two-column-layout: 🔰 information cards flow left-to-right, two per row */
+#rankPointView {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items:start;
+  gap:14px;
+  width:min(1100px,100%);
+  margin:0 auto;
+}
+#rankPointView > h2,
+#rankPointView > button {
+  grid-column:1 / -1;
+}
+#rankPointView .rank-point-card {
+  width:100%;
+  max-width:none;
+  min-width:0;
+  margin:0;
+  height:100%;
+}
+@media(max-width:600px){
+  #rankPointView { gap:8px; }
+  #rankPointView .rank-point-card { padding:9px; font-size:12px; line-height:1.45; }
+  #rankPointView .rank-point-card h3 { font-size:16px; }
+  #rankPointView .rank-point-card h4 { font-size:13px; }
+  #rankPointView .rank-point-card p { overflow-wrap:anywhere; }
+}
+
 #keySetting, #keyConfirm, #specialCodeBox { position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 100; color: #fff; padding: 24px; text-align: center; overflow-y: auto; }
 .special-code-layout { display:flex; align-items:center; justify-content:center; gap:28px; max-width:760px; margin:30px auto 0; }
 .special-code-input-panel, .public-special-code-panel { background:rgba(255,255,255,.06); border:2px solid #555; border-radius:10px; padding:18px; min-width:280px; }

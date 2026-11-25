@@ -4612,6 +4612,11 @@ body {
       <p>C：0〜79　 B：80〜159　 A：160〜239　 AA：240〜299</p>
       <p>S：300〜399　 Z：400〜499　 UR：500〜599</p>
       <p>🌟 BEST：600〜729　 💎 GATYA：730〜850　 👑 Admin Rank：特殊条件</p>
+      <h4>💎 ランク到達報酬（毎試合の最終ランクで獲得）</h4>
+      <p>C・B・A：💎の欠片 × 1（欠片6個で💎1個に自動交換）</p>
+      <p>AA・S・Z：💎 × 1　／　UR：💎 × 2</p>
+      <p>🌟 BEST：💎 × 3　／　💎 GATYA：💎 × 4　／　👑 Admin Rank：💎 × 8</p>
+      <p class="rank-point-note">※報酬は1試合につき1回、ゲームオーバー時も最終ランクに応じて獲得。ADMINプレビューは対象外。</p>
       <p class="rank-point-note">※ Stage 4は最初の6体まで撃破ポイント対象。</p>
       <h4>🎁 通常ボックスのアイテム確率</h4>
       <p>❤️ 回復：59.1%</p><p>💪 攻撃強化：24.3%</p><p>🛡️ シールド：10%</p><p>👻 ゴースト：4.1%</p><p>🔮 魔法：1.7%</p><p>⚡️ 必殺技：0.7%</p><p>🔫 トリプルガトリング（自動攻撃）：0.3%</p>
@@ -6532,6 +6537,7 @@ function judge() {
   document.getElementById("battleBtn").classList.remove("hidden");
 }
 function startCountdown() {
+  rankDiamondRewardPaidThisMatch=false;
   if (tutorialActive) document.getElementById("tutorialPanel").classList.add("hidden");
   const specialCodeBox = document.getElementById("specialCodeBox");
   if (specialCodeBox) {
@@ -7349,6 +7355,23 @@ function closeAdminRankPreview() {
   document.getElementById("resultBackBtn").textContent = "結果画面へ戻る";
 }
 
+const RANK_FRAGMENT_STORAGE_KEY="oekakiBattleRankDiamondFragmentsV1";
+let rankDiamondRewardPaidThisMatch=false;
+function getRankDiamondFragments(){try{return Math.max(0,Math.floor(Number(localStorage.getItem(RANK_FRAGMENT_STORAGE_KEY))||0));}catch(e){return 0;}}
+function awardRankDiamondReward(rank){
+  const fragmentsByRank={"C":1,"B":1,"A":1};
+  const diamondsByRank={"AA":1,"S":1,"Z":1,"UR":2,"BEST":3,"💎 GATYA":4,"👑 Admin Rank":8};
+  if(Object.prototype.hasOwnProperty.call(fragmentsByRank,rank)){
+    const before=getRankDiamondFragments(),total=before+fragmentsByRank[rank],earned=Math.floor(total/6),left=total%6;
+    try{localStorage.setItem(RANK_FRAGMENT_STORAGE_KEY,String(left));}catch(e){}
+    if(earned>0&&typeof window.addMADiamonds==="function")window.addMADiamonds(earned);
+    if(typeof window.renderPlayerTitleProfile==="function")window.renderPlayerTitleProfile();
+    return {diamonds:earned,fragments:fragmentsByRank[rank],fragmentTotal:left};
+  }
+  const amount=diamondsByRank[rank]||0;
+  if(amount>0&&typeof window.addMADiamonds==="function")window.addMADiamonds(amount);
+  return {diamonds:amount,fragments:0,fragmentTotal:getRankDiamondFragments()};
+}
 function showResult(cleared) {
   if(typeof window.clearHalloweenMatchRates==="function")window.clearHalloweenMatchRates();
   const shop = document.getElementById("shopModal");
@@ -7366,7 +7389,9 @@ function showResult(cleared) {
   const noSpecialPts = cleared && !specialUsed ? 50 : 0;
   const total = minionPts + bossesDefeated * 40 + coinPointTotal + treasureChestsOpened * 7 + hpPts + dmgPts + clearPts + noSpecialPts;
   const rank = adminEligible ? "👑 Admin Rank" : getRankFromPoints(total);
-  resultData = {total,rank,hpPts,dmgPts,minionPts,bossPts:bossesDefeated*40,coinPts:coinPointTotal,chestPts:treasureChestsOpened*7,clearPts,noSpecialPts,adminEligible,allEnemiesDefeated};
+  const rankReward = (!window.adminRankPreview&&!rankDiamondRewardPaidThisMatch) ? awardRankDiamondReward(rank) : {diamonds:0,fragments:0,fragmentTotal:getRankDiamondFragments()};
+  if(!window.adminRankPreview)rankDiamondRewardPaidThisMatch=true;
+  resultData = {total,rank,rankReward,hpPts,dmgPts,minionPts,bossPts:bossesDefeated*40,coinPts:coinPointTotal,chestPts:treasureChestsOpened*7,clearPts,noSpecialPts,adminEligible,allEnemiesDefeated};
   if (!window.adminRankPreview) saveBestRankRecord(total,adminEligible);
   document.getElementById("resultStatus").textContent = cleared ? "🎉 GAME CLEAR!" : "💥 GAME OVER";
   document.getElementById("resultTotal").textContent = total;
@@ -7391,7 +7416,8 @@ function showResult(cleared) {
     '<div><span>❤️ 残りHP</span><b>+'+hpPts+'pt</b></div>'+
     '<div><span>💥 総ダメージ</span><b>+'+dmgPts+'pt</b></div>'+
     '<div><span>🏆 全8ステージクリア</span><b>+'+clearPts+'pt</b></div>'+
-    '<div><span>🔒 必殺技封印</span><b>+'+noSpecialPts+'pt</b></div>';
+    '<div><span>🔒 必殺技封印</span><b>+'+noSpecialPts+'pt</b></div>'+
+    '<div><span>💎 ランク報酬</span><b>'+(rankReward.diamonds>0?'💎 × '+rankReward.diamonds:(rankReward.fragments>0?'欠片 × '+rankReward.fragments+'（現在 '+rankReward.fragmentTotal+'/6）':'報酬なし'))+'</b></div>';
   document.getElementById("resultAdmin").innerHTML =
     (adminEligible ? "👑 Admin Rank 条件達成！" : "👑 Admin Rank 条件未達成")+
     '<br>全敵撃破：'+(allEnemiesDefeated?"✅":"❌")+
@@ -10864,7 +10890,7 @@ return origUpdate.apply(this,arguments)};
  const save=a=>{try{localStorage.setItem(KEY,JSON.stringify(a.slice(0,3)));}catch(e){}};
  function render(){
   const icon=$('playerTitleSkinIcon'),name=$('playerTitleSkinName'),slots=$('playerTitleSlots'),diamondCount=$('playerTitleDiamondCount');
-  if(diamondCount){const count=typeof window.getMADiamonds==='function'?window.getMADiamonds():0;diamondCount.textContent='💎 所持ダイヤ：'+Math.max(0,Number(count)||0)+'個';}
+  if(diamondCount){const count=typeof window.getMADiamonds==='function'?window.getMADiamonds():0;const shards=typeof getRankDiamondFragments==='function'?getRankDiamondFragments():0;diamondCount.textContent='💎 所持ダイヤ：'+Math.max(0,Number(count)||0)+'個　｜　欠片 '+shards+'/6';}
   if(icon){
    icon.textContent='';
    const canvas=document.createElement('canvas');canvas.width=canvas.height=88;canvas.setAttribute('aria-label','現在使用中のスキン');

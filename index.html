@@ -6665,7 +6665,7 @@ let maDiamonds=0;
 try{maDiamonds=Math.max(0,Math.floor(Number(localStorage.getItem(MA_DIAMOND_STORAGE_KEY))||0));}catch(e){}
 const initialDiamondHud=document.getElementById("diamondText");if(initialDiamondHud)initialDiamondHud.textContent=maDiamonds;
 function saveMADiamonds(){try{localStorage.setItem(MA_DIAMOND_STORAGE_KEY,String(maDiamonds));}catch(e){}}
-window.addMADiamonds=(amount=1)=>{const n=Math.max(0,Math.floor(Number(amount)||0));maDiamonds+=n;saveMADiamonds();const hud=document.getElementById("diamondText");if(hud)hud.textContent=maDiamonds;if(typeof renderUpgradeShop==="function")renderUpgradeShop();return maDiamonds;};
+window.addMADiamonds=(amount=1)=>{const n=Math.max(0,Math.floor(Number(amount)||0));maDiamonds+=n;saveMADiamonds();const hud=document.getElementById("diamondText");if(hud)hud.textContent=maDiamonds;if(typeof renderUpgradeShop==="function")renderUpgradeShop();if(typeof window.renderPlayerTitleProfile==="function")window.renderPlayerTitleProfile();return maDiamonds;};
 window.getMADiamonds=()=>maDiamonds;
 let p = { x: 100, y: 250, hp: 150, max: 150, r: 20, invincibility: 0 };
 // Boss specs for 8 Stages
@@ -7797,6 +7797,7 @@ function buyUpgradeWithDiamond(key){
   maDiamonds-=cost;
   saveMADiamonds();
   const diamondHud=document.getElementById("diamondText");if(diamondHud)diamondHud.textContent=maDiamonds;
+  if(typeof window.renderPlayerTitleProfile==="function")window.renderPlayerTitleProfile();
   upgradeLevels[key]=maxLevel;
   if(key==="hp"&&typeof p!=="undefined"&&p){
     p.max+=10*gainedLevels;
@@ -10829,6 +10830,7 @@ return origUpdate.apply(this,arguments)};
 <style id="player-title-profile-style">
 #playerTitleProfile{width:100%;box-sizing:border-box;margin:4px 0 10px;padding:12px;border:2px solid #64748b;border-radius:14px;background:linear-gradient(145deg,#172554,#111827);color:#fff;text-align:center}
 #playerTitleProfile h3{margin:0 0 9px;font-size:17px;color:#fde68a}
+#playerTitleDiamondCount{margin:0 0 10px;padding:8px 10px;border:1px solid #67e8f9;border-radius:9px;background:linear-gradient(110deg,#164e63,#172554);color:#cffafe;font-size:16px;font-weight:900;text-shadow:0 0 8px #22d3ee}
 #playerTitleSkin{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;padding:9px;border-radius:10px;background:#0b1220;border:1px solid #475569}
 #playerTitleSkinIcon{font-size:42px;line-height:1.2}
 #playerTitleSkinName{font-size:12px;color:#cbd5e1}
@@ -10861,7 +10863,8 @@ return origUpdate.apply(this,arguments)};
  const read=()=>{try{const a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a.filter(x=>typeof x==='string').slice(0,3):[];}catch(e){return [];}};
  const save=a=>{try{localStorage.setItem(KEY,JSON.stringify(a.slice(0,3)));}catch(e){}};
  function render(){
-  const icon=$('playerTitleSkinIcon'),name=$('playerTitleSkinName'),slots=$('playerTitleSlots');
+  const icon=$('playerTitleSkinIcon'),name=$('playerTitleSkinName'),slots=$('playerTitleSlots'),diamondCount=$('playerTitleDiamondCount');
+  if(diamondCount){const count=typeof window.getMADiamonds==='function'?window.getMADiamonds():0;diamondCount.textContent='💎 所持ダイヤ：'+Math.max(0,Number(count)||0)+'個';}
   if(icon){
    icon.textContent='';
    const canvas=document.createElement('canvas');canvas.width=canvas.height=88;canvas.setAttribute('aria-label','現在使用中のスキン');
@@ -10901,7 +10904,7 @@ return origUpdate.apply(this,arguments)};
  function init(){
   const right=$('drawActionColumn');if(!right||$('playerTitleProfile'))return;
   const panel=document.createElement('section');panel.id='playerTitleProfile';
-  panel.innerHTML='<h3>👤 プレイヤー</h3><div id="playerTitleSkin"><span id="playerTitleSkinIcon">🙂</span><span id="playerTitleSkinName">現在使用中のスキン</span></div><div id="playerTitleSlots"></div><button id="playerTitleManage" type="button">🏅 称号を設定（最大3つ）</button>';
+  panel.innerHTML='<h3>👤 プレイヤー</h3><div id="playerTitleDiamondCount">💎 所持ダイヤ：0個</div><div id="playerTitleSkin"><span id="playerTitleSkinIcon">🙂</span><span id="playerTitleSkinName">現在使用中のスキン</span></div><div id="playerTitleSlots"></div><button id="playerTitleManage" type="button">🏅 称号を設定（最大3つ）</button>';
   const work=$('drawWorkArea');if(work)work.appendChild(panel);else if(skin&&skin.parentNode===right)skin.insertAdjacentElement('afterend',panel);else right.prepend(panel);
   $('playerTitleManage')?.addEventListener('click',open);$('playerTitleDialogClose')?.addEventListener('click',close);
   $('playerTitleDialog')?.addEventListener('click',e=>{if(e.target.id==='playerTitleDialog')close();});

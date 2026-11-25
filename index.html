@@ -3526,6 +3526,7 @@ body.mobile-mode.draw-canvas-expanded #draw:not(.hidden) #drawCanvas{
 .resultRank.rank-s{color:#050505;border-color:#050505;-webkit-text-stroke:1.5px #fff;text-shadow:2px 2px 0 #fff,-2px 2px 0 #fff,2px -2px 0 #fff,-2px -2px 0 #fff;}
 .resultRank.rank-z{color:#b56bff;border-color:#a855f7;}
 .resultRank.rank-ur{color:#67e8f9;border-color:#22d3ee;}
+.resultRank.rank-best{color:#e9d5ff;border-color:#c084fc;background:linear-gradient(110deg,rgba(126,34,206,.22),rgba(14,165,233,.18));text-shadow:0 0 10px rgba(192,132,252,.75);}
 .resultRank.rank-gatya{color:transparent;border-color:#f8fafc;background:linear-gradient(90deg,#ff3434,#ff9f1c,#fff12e,#39e65c,#35cfff,#6575ff,#d65bff,#ff3434);background-size:250% 100%;background-clip:text;-webkit-background-clip:text;animation:rankRainbow 3s linear infinite;text-shadow:0 0 12px rgba(255,255,255,.35);}
 .resultRank.rank-admin{color:#ffe7a3;border-color:#ffd700;background:linear-gradient(135deg,rgba(255,215,0,.16),rgba(255,250,205,.06));text-shadow:0 0 5px #ffd700,0 0 12px #ffbf00,0 0 24px rgba(255,215,0,.9);box-shadow:0 0 8px #ffd700,0 0 20px rgba(255,191,0,.75),inset 0 0 10px rgba(255,215,0,.2);}
 @keyframes rankRainbow{0%{background-position:0% 50%;}100%{background-position:250% 50%;}}
@@ -4609,8 +4610,8 @@ body {
       <p>🔒 必殺技を一度も使用せずクリア：+50pt</p>
       <h4>🏆 ランク</h4>
       <p>C：0〜79　 B：80〜159　 A：160〜239　 AA：240〜299</p>
-      <p>S：300〜399　 Z：400〜499　 UR：500〜729</p>
-      <p>💎 GATYA：730〜824　 👑 Admin Rank：特殊条件</p>
+      <p>S：300〜399　 Z：400〜499　 UR：500〜599</p>
+      <p>🌟 BEST：600〜729　 💎 GATYA：730〜850　 👑 Admin Rank：特殊条件</p>
       <p class="rank-point-note">※ Stage 4は最初の6体まで撃破ポイント対象。</p>
       <h4>🎁 通常ボックスのアイテム確率</h4>
       <p>❤️ 回復：59.1%</p><p>💪 攻撃強化：24.3%</p><p>🛡️ シールド：10%</p><p>👻 ゴースト：4.1%</p><p>🔮 魔法：1.7%</p><p>⚡️ 必殺技：0.7%</p><p>🔫 トリプルガトリング（自動攻撃）：0.3%</p>
@@ -4680,8 +4681,8 @@ body {
           <p>🔒 必殺技を一度も使用せずクリア：+50pt</p>
           <h3>🏆 ランク</h3>
           <p>C：0～79　 B：80～159　 A：160～239　 AA：240～299</p>
-          <p>S：300～399　 Z：400～499　 UR：500～729</p>
-          <p>💎 GATYA：730～824　 👑 Admin Rank：特殊条件</p>
+          <p>S：300～399　 Z：400～499　 UR：500～599</p>
+          <p>🌟 BEST：600～729　 💎 GATYA：730～850　 👑 Admin Rank：特殊条件</p>
           <p class="resultNote">※ Stage 4は最初の6体まで敵撃破ポイント対象。</p>
         </div>
         <button id="resultBackBtn" class="resultMainBtn">結果画面へ戻る</button>
@@ -4970,6 +4971,7 @@ body {
       <button type="button" onclick="previewAdminRank('S')">⚫ Sランク</button>
       <button type="button" onclick="previewAdminRank('Z')">🟣 Zランク</button>
       <button type="button" onclick="previewAdminRank('UR')">🩵 URランク</button>
+      <button type="button" onclick="previewAdminRank('BEST')">🌟 BESTランク</button>
       <button type="button" onclick="previewAdminRank('GATYA')">🌈 GATYAランク</button>
       <button type="button" onclick="previewAdminRank('ADMIN')">👑 ADMIN RANK</button>
     </div>
@@ -7258,6 +7260,7 @@ function getDamagePoints() {
 }
 function getRankFromPoints(points) {
   if (points >= 730) return "💎 GATYA";
+  if (points >= 600) return "BEST";
   if (points >= 500) return "UR";
   if (points >= 400) return "Z";
   if (points >= 300) return "S";
@@ -7276,7 +7279,7 @@ function getBestRankRecord() {
 }
 function getNextRankInfo(points, admin) {
   if (admin) return {next:"最高ランク達成",remaining:null};
-  const ranks = [{points:80,name:"B"},{points:160,name:"A"},{points:240,name:"AA"},{points:300,name:"S"},{points:400,name:"Z"},{points:500,name:"UR"},{points:730,name:"💎 GATYA"}];
+  const ranks = [{points:80,name:"B"},{points:160,name:"A"},{points:240,name:"AA"},{points:300,name:"S"},{points:400,name:"Z"},{points:500,name:"UR"},{points:600,name:"BEST"},{points:730,name:"💎 GATYA"}];
   const next = ranks.find(r=>points<r.points);
   return next ? {next:next.name,remaining:next.points-points} : {next:null,remaining:null};
 }
@@ -7309,6 +7312,7 @@ function previewAdminRank(rankKey) {
     S: {label:"S", points:340, cls:"rank-s"},
     Z: {label:"Z", points:440, cls:"rank-z"},
     UR: {label:"UR", points:600, cls:"rank-ur"},
+    BEST: {label:"BEST", points:660, cls:"rank-best"},
     GATYA: {label:"💎 GATYA", points:760, cls:"rank-gatya"},
     ADMIN: {label:"👑 Admin Rank", points:0, cls:"rank-admin"}
   };
@@ -7371,6 +7375,7 @@ function showResult(cleared) {
   rankElement.className = "resultRank";
   if (rank.includes("Admin Rank")) rankElement.classList.add("rank-admin");
   else if (rank.includes("GATYA")) rankElement.classList.add("rank-gatya");
+  else if (rank === "BEST") rankElement.classList.add("rank-best");
   else if (rank === "UR") rankElement.classList.add("rank-ur");
   else if (rank === "Z") rankElement.classList.add("rank-z");
   else if (rank === "S") rankElement.classList.add("rank-s");

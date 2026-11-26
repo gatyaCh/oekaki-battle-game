@@ -7439,7 +7439,7 @@ function showResult(cleared) {
   const rank = adminEligible ? "👑 Admin Rank" : getRankFromPoints(total);
   const rankReward = (!window.adminRankPreview&&!rankDiamondRewardPaidThisMatch) ? awardRankDiamondReward(rank) : {diamonds:0,fragments:0,fragmentTotal:getRankDiamondFragments()};
   if(!window.adminRankPreview)rankDiamondRewardPaidThisMatch=true;
-  resultData = {total,rank,rankReward,hpPts,dmgPts,minionPts,bossPts:bossesDefeated*40,coinPts:coinPointTotal,chestPts:treasureChestsOpened*7,clearPts,noSpecialPts,adminEligible,allEnemiesDefeated};
+  resultData = {total,rank,rankReward,hpPts,dmgPts,minionPts,bossPts:bossesDefeated*40,coinPts:coinPointTotal,chestPts:treasureChestsOpened*7,clearPts,noSpecialPts,step2ClearPts,adminEligible,allEnemiesDefeated};
   if (!window.adminRankPreview) saveBestRankRecord(total,adminEligible);
   document.getElementById("resultStatus").textContent = cleared ? "🎉 GAME CLEAR!" : "💥 GAME OVER";
   document.getElementById("resultTotal").textContent = total;

@@ -4659,6 +4659,7 @@ body {
           <p>💥 総ダメージ：0 +70 / 1〜20 +40 / 21〜40 +35 / 41〜60 +25 / 61〜80 +20 / 81〜100 +15 / 101〜150 +10 / 151〜200 +6 / 201以上 +0</p>
           <p>🏆 全8ステージクリア：+60pt</p>
           <p>🔒 必殺技を一度も使用せずクリア：+50pt</p>
+          <p>🪐 STEP 2・4ステージクリア：+50pt</p>
           <h4>🏆 ランク</h4>
           <p>C：0〜79　 B：80〜159　 A：160〜239　 AA：240〜299</p>
           <p>S：300〜399　 Z：400〜499　 UR：500〜599</p>
@@ -4727,6 +4728,7 @@ body {
           <p>💥 総ダメージ：0 +70 / 1～20 +40 / 21～40 +35 / 41～60 +25 / 61～80 +20 / 81～100 +15 / 101～150 +10 / 151～200 +6 / 201以上 +0</p>
           <p>🏆 全8ステージクリア：+60pt</p>
           <p>🔒 必殺技を一度も使用せずクリア：+50pt</p>
+          <p>🪐 STEP 2・4ステージクリア：+50pt</p>
           <h3>🏆 ランク</h3>
           <p>C：0～79　 B：80～159　 A：160～239　 AA：240～299</p>
           <p>S：300～399　 Z：400～499　 UR：500～599</p>
@@ -7400,6 +7402,7 @@ function closeAdminRankPreview() {
 
 const RANK_FRAGMENT_STORAGE_KEY="oekakiBattleRankDiamondFragmentsV1";
 let rankDiamondRewardPaidThisMatch=false;
+let step2ClearBonusPending=false;
 function getRankDiamondFragments(){try{return Math.max(0,Math.floor(Number(localStorage.getItem(RANK_FRAGMENT_STORAGE_KEY))||0));}catch(e){return 0;}}
 function awardRankDiamondReward(rank){
   const fragmentsByRank={"C":1,"B":1,"A":1};
@@ -7430,7 +7433,9 @@ function showResult(cleared) {
   const adminEligible = cleared && allEnemiesDefeated && !reviveUsed && !specialUsed && totalDamageTaken <= 200 && !adminRankCodeUsed;
   const clearPts = cleared ? 60 : 0;
   const noSpecialPts = cleared && !specialUsed ? 50 : 0;
-  const total = minionPts + bossesDefeated * 40 + coinPointTotal + treasureChestsOpened * 7 + hpPts + dmgPts + clearPts + noSpecialPts;
+  const step2ClearPts = cleared && step2ClearBonusPending ? 50 : 0;
+  step2ClearBonusPending = false;
+  const total = minionPts + bossesDefeated * 40 + coinPointTotal + treasureChestsOpened * 7 + hpPts + dmgPts + clearPts + noSpecialPts + step2ClearPts;
   const rank = adminEligible ? "👑 Admin Rank" : getRankFromPoints(total);
   const rankReward = (!window.adminRankPreview&&!rankDiamondRewardPaidThisMatch) ? awardRankDiamondReward(rank) : {diamonds:0,fragments:0,fragmentTotal:getRankDiamondFragments()};
   if(!window.adminRankPreview)rankDiamondRewardPaidThisMatch=true;
@@ -7460,6 +7465,7 @@ function showResult(cleared) {
     '<div><span>💥 総ダメージ</span><b>+'+dmgPts+'pt</b></div>'+
     '<div><span>🏆 全8ステージクリア</span><b>+'+clearPts+'pt</b></div>'+
     '<div><span>🔒 必殺技封印</span><b>+'+noSpecialPts+'pt</b></div>'+
+    '<div><span>🪐 STEP 2・4ステージクリア</span><b>+'+step2ClearPts+'pt</b></div>'+
     '<div><span>💎 ランク報酬</span><b>'+(rankReward.diamonds>0?'💎 × '+rankReward.diamonds:(rankReward.fragments>0?'欠片 × '+rankReward.fragments+'（現在 '+rankReward.fragmentTotal+'/6）':'報酬なし'))+'</b></div>';
   document.getElementById("resultAdmin").innerHTML =
     (adminEligible ? "👑 Admin Rank 条件達成！" : "👑 Admin Rank 条件未達成")+
@@ -7549,7 +7555,8 @@ function retryFromGameOver() {
 }
 
 function resetGame() {
-  if (typeof step2Mode !== "undefined") step2Mode.active = false;
+  if (typeof step2Mode !== "undefined") { step2Mode.active = false; step2Mode.clearedStages=[]; }
+  step2ClearBonusPending=false;
   drawAccuracyScore = 0; drawHpBonus = 0; drawAttackBonus = 0; drawBonusPending = false;
   tutorialActive = false;
   tutorialPhase = "battle";
@@ -13823,7 +13830,7 @@ const fusionObserver=new MutationObserver(refreshFusionSkipButton);const fusionR
 
 /* STEP 2：惑星編。STEP 1とは独立した敵・ギミック・進行状態で動作する。 */
 const step2Mode = {
-  active:false, index:1, elapsed:0, windTimer:0, windBurst:0, bossAttack:0, rangedTimer:0,
+  active:false, index:1, clearedStages:[], elapsed:0, windTimer:0, windBurst:0, bossAttack:0, rangedTimer:0,
   pits:[], hazards:[], bullets:[], craters:[], windX:0, windY:0, windDirTimer:0,
   boxes:[], inventory:null, itemCooldowns:{}, effects:{rocket:0,gravity:0,blackhole:0,galaxy:0,ufo:0},
   stages:[
@@ -13872,6 +13879,7 @@ function setupStep2Stage(n){
   gameOver=false;stageClear=false;charging=false;charge=0;attackCooldown=0;
 }
 function startStep2Mode(n){
+  if(!step2Mode.active && Number(n)===1){step2Mode.clearedStages=[];step2ClearBonusPending=false;}
   // STEP 1の保管庫・ポーズ画面から移動してもSTEP 2の戦闘更新が停止しないよう解除。
   window.gameSavePaused=false;keys={};charging=false;charge=0;window.adminPanelInteracting=false;
   step2Mode.active=true;
@@ -14257,8 +14265,12 @@ function step2UseItem(){
   step2Mode.inventory=null;step2EnsureItemButton();
 }
 function advanceStep2Mode(){
-  stageClear=true;step2Mode.index++;
+  stageClear=true;
+  const completedStage=step2Mode.index;
+  if(completedStage===step2Mode.clearedStages.length+1)step2Mode.clearedStages.push(completedStage);
+  step2Mode.index++;
   if(step2Mode.index>4){
+    step2ClearBonusPending=step2Mode.clearedStages.length===4 && step2Mode.clearedStages.every((n,i)=>n===i+1);
     // 月・火星・水星・木星の4ステージをすべてクリアしたら実績10を解除。
     if(typeof window.unlockGameAchievement==="function")window.unlockGameAchievement(10);
     // STEP2の4ステージをすべてクリアしたら、専用オーバーレイではなく通常の戦績画面を表示。

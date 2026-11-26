@@ -81,19 +81,24 @@ button:disabled { opacity: 0.5; cursor: not-allowed; background: #222; }
 @media(max-width:600px){ #rankPointOverlay .rank-point-card { padding:12px; } #rankPointOverlay .rank-point-card h3 { font-size:21px; } }
 @media(max-width:600px){ #rankPointOverlay { padding:12px; } }
 
-/* rank-point-two-column-layout: 🔰 information cards flow left-to-right, two per row */
+/* Independent columns prevent the long right panel from stretching the left column */
 #rankPointView {
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  grid-template-rows:auto auto;
-  align-items:start;
-  gap:14px;
   width:min(1100px,100%);
   margin:0 auto;
 }
-#rankPointView > h2,
-#rankPointView > button {
-  grid-column:1 / -1;
+#rankPointView > h2 { text-align:center; }
+#rankPointView .rank-point-columns {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items:start;
+  gap:14px;
+}
+#rankPointView .rank-point-column {
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:14px;
+  min-width:0;
 }
 #rankPointView .rank-point-card {
   width:100%;
@@ -103,21 +108,9 @@ button:disabled { opacity: 0.5; cursor: not-allowed; background: #222; }
   height:auto;
   align-self:start;
 }
-/* 左列：最高ランクの下にヒューズ説明。右列：ポイント表を縦に配置 */
-#rankPointView > .rank-point-card:nth-of-type(1) {
-  grid-column:1;
-  grid-row:2;
-}
-#rankPointView > .rank-point-card:nth-of-type(2) {
-  grid-column:2;
-  grid-row:2 / span 2;
-}
-#rankPointView > .rank-point-card:nth-of-type(3) {
-  grid-column:1;
-  grid-row:3;
-}
 @media(max-width:600px){
-  #rankPointView { gap:8px; }
+  #rankPointView .rank-point-columns { gap:8px; }
+  #rankPointView .rank-point-column { gap:8px; }
   #rankPointView .rank-point-card { padding:9px; font-size:12px; line-height:1.45; }
   #rankPointView .rank-point-card h3 { font-size:16px; }
   #rankPointView .rank-point-card h4 { font-size:13px; }
@@ -4635,47 +4628,53 @@ body {
 <div id="rankPointOverlay" class="hidden" role="dialog" aria-modal="true" aria-label="ランク・ポイント表">
   <section id="rankPointView">
     <h2>📊 ランク・ポイント表</h2>
-    <section class="rank-point-card" aria-label="最高ランク">
-      <h3>🏆 現在の最高ランク</h3>
-      <p id="rankPointBestValue" style="font-size:22px;font-weight:bold;text-align:center;color:#ffd166;">C（0 pt）</p>
-      <p id="rankPointBestNext" style="text-align:center;">次のランク「B」まであと 80 pt</p>
-      <p class="rank-point-note">※前回までに獲得した最高ランクを表示します。試合中も更新前のランクが維持されます。</p>
-    </section>
-    <section class="rank-point-card" aria-label="ランク・ポイント表">
-      <h3>📊 ランク・ポイント表</h3>
-      <h4>基本ポイント</h4>
-      <p>👾 敵撃破：+2pt</p>
-      <p>👑 ボス撃破：+40pt</p>
-      <p>🪙 コイン：普通 +2 / レア +5 / 超レア +14 / 激レア +20</p>
-      <p>🎁 宝箱：+7pt</p>
-      <p>❤️ 残りHP：100%以上 +50 / 80〜99% +30 / 60〜79% +25 / 40〜59% +18 / 20〜39% +7 / 1〜19% +5 / 0 +0</p>
-      <p>💥 総ダメージ：0 +70 / 1〜20 +40 / 21〜40 +35 / 41〜60 +25 / 61〜80 +20 / 81〜100 +15 / 101〜150 +10 / 151〜200 +6 / 201以上 +0</p>
-      <p>🏆 全8ステージクリア：+60pt</p>
-      <p>🔒 必殺技を一度も使用せずクリア：+50pt</p>
-      <h4>🏆 ランク</h4>
-      <p>C：0〜79　 B：80〜159　 A：160〜239　 AA：240〜299</p>
-      <p>S：300〜399　 Z：400〜499　 UR：500〜599</p>
-      <p>🌟 BEST：600〜729　 💎 GATYA：730〜850　 👑 Admin Rank：特殊条件</p>
-      <h4>💎 ランク到達報酬（毎試合の最終ランクで獲得）</h4>
-      <p>C・B・A：💎の欠片 × 1（欠片6個で💎1個に自動交換）</p>
-      <p>AA・S・Z：💎 × 1　／　UR：💎 × 2</p>
-      <p>🌟 BEST：💎 × 3　／　💎 GATYA：💎 × 4　／　👑 Admin Rank：💎 × 8</p>
-      <p class="rank-point-note">※報酬は1試合につき1回、ゲームオーバー時も最終ランクに応じて獲得。ADMINプレビューは対象外。</p>
-      <p class="rank-point-note">※ Stage 4は最初の6体まで撃破ポイント対象。</p>
-      <h4>🎁 通常ボックスのアイテム確率</h4>
-      <p>❤️ 回復：59.1%</p><p>💪 攻撃強化：24.3%</p><p>🛡️ シールド：10%</p><p>👻 ゴースト：4.1%</p><p>🔮 魔法：1.7%</p><p>⚡️ 必殺技：0.7%</p><p>🔫 トリプルガトリング（自動攻撃）：0.3%</p>
-      <p class="rank-point-note">※通常アイテムの初期設定値。管理者による確率変更や特別抽選は別扱いです。</p>
-    </section>
-    <section class="rank-point-card" aria-label="ヒューズスキンマシンの説明">
-      <h3>⚗️ ヒューズスキンマシンの使い方</h3>
-      <p>所持しているスキンから素材にするスキンを<strong>3つ</strong>選びます。同じスキンは重複して選べません。</p>
-      <p>素材3つの合計ポイントによって、完成するスキンの排出確率が変わります。マシン画面の「排出確率」で確認できます。</p>
-      <p>「ヒューズ開始」を押すと、選んだ3つのスキンが素材として消費されます。開始後は<strong>10分間</strong>待つと「結果を開ける」が使えるようになり、結果を開いたあと「受け取る」を押すと報酬スキンが解放されます。</p>
-      <h4>🔁 スキンを戻す</h4>
-      <p>素材にしたスキンを抽選枠に戻す設定です。選んだスキンは1体につき<strong>15%</strong>で追加され、通常の抽選確率は残りの確率に合わせて縮小されます。設定できるのは<strong>最大6体</strong>です。</p>
-      <p class="rank-point-note">⚠️ ヒューズ開始後、選んだ素材3つは消費されます。開始前に選択を確認してください。</p>
-      <p>マシンはマップ選択画面、またはスキン選択画面の「⚗️ ヒューズスキンマシン」から開けます。</p>
-    </section>
+    <div class="rank-point-columns">
+      <div class="rank-point-column rank-point-left">
+        <section class="rank-point-card" aria-label="最高ランク">
+          <h3>🏆 現在の最高ランク</h3>
+          <p id="rankPointBestValue" style="font-size:22px;font-weight:bold;text-align:center;color:#ffd166;">C（0 pt）</p>
+          <p id="rankPointBestNext" style="text-align:center;">次のランク「B」まであと 80 pt</p>
+          <p class="rank-point-note">※前回までに獲得した最高ランクを表示します。試合中も更新前のランクが維持されます。</p>
+        </section>
+        <section class="rank-point-card" aria-label="ヒューズスキンマシンの説明">
+          <h3>⚗️ ヒューズスキンマシンの使い方</h3>
+          <p>所持しているスキンから素材にするスキンを<strong>3つ</strong>選びます。同じスキンは重複して選べません。</p>
+          <p>素材3つの合計ポイントによって、完成するスキンの排出確率が変わります。マシン画面の「排出確率」で確認できます。</p>
+          <p>「ヒューズ開始」を押すと、選んだ3つのスキンが素材として消費されます。開始後は<strong>10分間</strong>待つと「結果を開ける」が使えるようになり、結果を開いたあと「受け取る」を押すと報酬スキンが解放されます。</p>
+          <h4>🔁 スキンを戻す</h4>
+          <p>素材にしたスキンを抽選枠に戻す設定です。選んだスキンは1体につき<strong>15%</strong>で追加され、通常の抽選確率は残りの確率に合わせて縮小されます。設定できるのは<strong>最大6体</strong>です。</p>
+          <p class="rank-point-note">⚠️ ヒューズ開始後、選んだ素材3つは消費されます。開始前に選択を確認してください。</p>
+          <p>マシンはマップ選択画面、またはスキン選択画面の「⚗️ ヒューズスキンマシン」から開けます。</p>
+        </section>
+      </div>
+      <div class="rank-point-column rank-point-right">
+        <section class="rank-point-card" aria-label="ランク・ポイント表">
+          <h3>📊 ランク・ポイント表</h3>
+          <h4>基本ポイント</h4>
+          <p>👾 敵撃破：+2pt</p>
+          <p>👑 ボス撃破：+40pt</p>
+          <p>🪙 コイン：普通 +2 / レア +5 / 超レア +14 / 激レア +20</p>
+          <p>🎁 宝箱：+7pt</p>
+          <p>❤️ 残りHP：100%以上 +50 / 80〜99% +30 / 60〜79% +25 / 40〜59% +18 / 20〜39% +7 / 1〜19% +5 / 0 +0</p>
+          <p>💥 総ダメージ：0 +70 / 1〜20 +40 / 21〜40 +35 / 41〜60 +25 / 61〜80 +20 / 81〜100 +15 / 101〜150 +10 / 151〜200 +6 / 201以上 +0</p>
+          <p>🏆 全8ステージクリア：+60pt</p>
+          <p>🔒 必殺技を一度も使用せずクリア：+50pt</p>
+          <h4>🏆 ランク</h4>
+          <p>C：0〜79　 B：80〜159　 A：160〜239　 AA：240〜299</p>
+          <p>S：300〜399　 Z：400〜499　 UR：500〜599</p>
+          <p>🌟 BEST：600〜729　 💎 GATYA：730〜850　 👑 Admin Rank：特殊条件</p>
+          <h4>💎 ランク到達報酬（毎試合の最終ランクで獲得）</h4>
+          <p>C・B・A：💎の欠片 × 1（欠片6個で💎1個に自動交換）</p>
+          <p>AA・S・Z：💎 × 1　／　UR：💎 × 2</p>
+          <p>🌟 BEST：💎 × 3　／　💎 GATYA：💎 × 4　／　👑 Admin Rank：💎 × 8</p>
+          <p class="rank-point-note">※報酬は1試合につき1回、ゲームオーバー時も最終ランクに応じて獲得。ADMINプレビューは対象外。</p>
+          <p class="rank-point-note">※ Stage 4は最初の6体まで撃破ポイント対象。</p>
+          <h4>🎁 通常ボックスのアイテム確率</h4>
+          <p>❤️ 回復：59.1%</p><p>💪 攻撃強化：24.3%</p><p>🛡️ シールド：10%</p><p>👻 ゴースト：4.1%</p><p>🔮 魔法：1.7%</p><p>⚡️ 必殺技：0.7%</p><p>🔫 トリプルガトリング（自動攻撃）：0.3%</p>
+          <p class="rank-point-note">※通常アイテムの初期設定値。管理者による確率変更や特別抽選は別扱いです。</p>
+        </section>
+      </div>
+    </div>
     <button id="rankPointClose" type="button">ゲームに戻る</button>
   </section>
 </div>

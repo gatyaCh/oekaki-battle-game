@@ -13677,7 +13677,7 @@ function begin(){
  later(269,restoreTemporarySkin);
  later(304,startMissionOne);
  later(325,()=>setBoost({attack:1.4}));
- later(353,()=>spawnBoxes(5,"🎃"));
+ later(360,()=>spawnBoxes(5,"🎃"));
  later(445,()=>setBoost({attack:1}));
  later(430,()=>{try{localStorage.setItem("adminAbuseCodeReleased_3879","true")}catch(e){}});
  later(444,()=>{try{localStorage.setItem("adminAbuseCodeReleased_9999","true")}catch(e){}});
@@ -13739,6 +13739,16 @@ if(originalUse&&!originalUse.__adminAbuseNov27){
  };
  wrapped.__adminAbuseNov27=true;window.useSpecialCode=wrapped;
 }
+function refreshFusionSkipButton(){
+ const cooldown=$("fusionCooldown");if(!cooldown)return;
+ let credits=0;try{credits=Number(localStorage.getItem(fusionCreditKey))||0}catch(e){}
+ let button=$("adminAbuseFusionSkipBtn");
+ if(!button){button=document.createElement("button");button.id="adminAbuseFusionSkipBtn";button.type="button";button.style.cssText="display:block;width:100%;margin-top:8px;padding:10px;border:1px solid #facc15;border-radius:9px;background:#713f12;color:#fff;font-weight:900";cooldown.insertAdjacentElement("afterend",button)}
+ const label="🎟️ ADMIN ABUSEスキップ権を使う（残り："+credits+"回）";if(button.textContent!==label)button.textContent=label;
+ button.style.display=credits>0&&!window.adminAbuseFusionSkipActive?"block":"none";
+ button.onclick=()=>{let n=0;try{n=Number(localStorage.getItem(fusionCreditKey))||0}catch(e){}if(n<1||typeof window.skipFusionCooldown!=="function"||!window.skipFusionCooldown()){if($("msg"))$("msg").textContent="⚠️ スキップできるヒューズ合成がありません。";return}n--;try{localStorage.setItem(fusionCreditKey,String(n))}catch(e){}refreshFusionSkipButton();if($("msg"))$("msg").textContent="⚗️ ADMIN ABUSEスキップ権を1回使用しました！"};
+}
+const fusionObserver=new MutationObserver(refreshFusionSkipButton);const fusionRoot=$("fusionMainScreen");if(fusionRoot)fusionObserver.observe(fusionRoot,{childList:true,subtree:true});refreshFusionSkipButton();setInterval(refreshFusionSkipButton,1000);
 const fusionObserverRoot=$("fusionMainScreen");
 if(fusionObserverRoot){const mo=new MutationObserver(()=>{const btn=$("adminAbuseFusionSkipBtn");if(btn&&window.adminAbuseFusionSkipActive)btn.style.display="none"});mo.observe(fusionObserverRoot,{childList:true,subtree:true})}
 })();

@@ -13923,6 +13923,7 @@ function step2DamagePlayer(amount){
   return true;
 }
 function step2DotDamage(amount){
+  if(Date.now()<(Number(window.adminAbuseEventInvincibleUntil)||0))return;
   if(p.invincibility>0||shieldActive||ghost||admin.invincible||admin.god)return;
   const actual=Math.max(0,Math.min(p.hp,Number(amount)||0));
   p.hp-=actual;totalDamageTaken+=actual;
